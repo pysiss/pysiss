@@ -1,0 +1,6 @@
+build/
+docs/build/
+*.pyc
+*.sublime-workspace
+logs
+tests/*.pdf
