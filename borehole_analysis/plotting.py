@@ -11,8 +11,9 @@
 import matplotlib.cm
 import matplotlib.pyplot
 import numpy
+from borehole_analysis.clustering import generate_correlation_graph
 
-def plot_connection_matrix(edge_matrix, names):
+def plot_connection_matrix(borehole):
     """ Plots the connection matrix assicated with an edge model
 
         This assumes you have a matrix with the connection between 
@@ -24,18 +25,22 @@ def plot_connection_matrix(edge_matrix, names):
         :type names: iterable containing strings
         :returns: handles to the figure and axes
     """
+    # Calculate correlation matrix
+    names = borehole.get_labels()
+    correlations, _ = generate_correlation_graph(borehole)
+
     # Plot results
     side_len = 0.5*len(names)
     fig = matplotlib.pyplot.figure(figsize=(side_len, side_len))
     axes = matplotlib.pyplot.gca()
-    image = axes.imshow(edge_matrix, 
+    image = axes.imshow(correlations, 
         interpolation='none', 
         cmap=matplotlib.cm.get_cmap("RdBu_r"))
     cbar = matplotlib.pyplot.colorbar(image, fraction=0.2, shrink=(1 - 0.25))
     cbar.set_label('Correlation')
     axes.set_xticks(range(len(names)))
     axes.set_xticklabels(names, rotation=90,
-                    horizontalalignment='right',
+                    horizontalalignment='center',
                     verticalalignment='top')
     axes.set_yticks(range(len(names)))
     axes.set_yticklabels(names)
@@ -170,14 +175,16 @@ def plot_borehole_data(borehole, keys_to_plot):
 
         :returns: handles to the figure and axes
     """
-    # Plot normalised data
-    fig = matplotlib.pyplot.figure(figsize=(20, 1*len(keys_to_plot)))
+    # Get data from borehole
+    domain = borehole.get_domain()
+    signals = borehole.get_signal(*keys_to_plot)
     domain_bounds = (borehole.domain.min(), borehole.domain.max())
+
+    # Plot data
+    fig = matplotlib.pyplot.figure(figsize=(20, 1*len(keys_to_plot)))
     for i, key in enumerate(keys_to_plot):
         axes = matplotlib.pyplot.subplot(1, len(keys_to_plot), i+1)
-        plot_signal(axes, 
-            signal=borehole.data[borehole.label_indices[key]], 
-            domain=borehole.domain, 
+        plot_signal(axes, signal=signals[key], domain=domain,
             orientation='vertical')
         axes.set_xlabel("")
         if i == 0:
@@ -186,6 +193,6 @@ def plot_borehole_data(borehole, keys_to_plot):
             axes.set_ylabel("")
             axes.set_yticklabels("")
         axes.set_ylim(domain_bounds)
-        axes.set_title(borehole.long_labels[key])
+        axes.set_title(borehole.labels[key][1])
     fig.tight_layout()
     return fig, axes
