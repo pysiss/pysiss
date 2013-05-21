@@ -11,7 +11,7 @@
 import sklearn
 import cwavelets
 import borehole_analysis.clustering as clustering
-import borehole_analysis.borehole as borehole
+from borehole_analysis.analyser import AnalystNode, Analyst
 from borehole_analysis.borehole import Borehole
 import borehole_analysis.domaining as domaining
 import borehole_analysis.plotting as plotting
