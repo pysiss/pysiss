@@ -12,14 +12,13 @@ import numpy
 import sklearn.covariance
 import sklearn.cluster
 import sklearn.manifold
+import sklearn.decomposition
 import matplotlib.pyplot
 import borehole_analysis.plotting
 
 class AnalystError(Exception): 
-
     """ Exception class thrown by Analyst class
     """
-
     pass
 
 
@@ -74,6 +73,7 @@ class AnalystNode(object):
         self.__gen_edge_graph(force=True)
         self.__gen_correlation_graph(force=True)
         self.__gen_correlation_clusters(force=True)
+        self.__gen_eigensignals(force=True)
         
     def partition(self):
         """ Partition the analyst instance into daughter nodes
@@ -169,7 +169,11 @@ class AnalystNode(object):
             cluster_labels=clusters,
             embedding=embedding, 
             correlations=self.products['correlations'])
-        return fig, matplotlib.pyplot.gca()
+        axes = matplotlib.pyplot.gca()
+        axes.get_xaxis().set_visible(False)
+        axes.get_yaxis().set_visible(False)
+        axes.set_title('Network graph')
+        return fig, axes
 
     def plot_borehole_data(self, keys_to_plot=None):
         """ Plot the data stored in the current node object
@@ -203,17 +207,13 @@ class AnalystNode(object):
         fig.tight_layout()
         return fig, axes
 
+    def plot_cluster_eigensignals(self):
+        """ Plot the eigensignal axes for the current data
+        """
+
     def __gen_correlation_graph(self, force=False):
         """ Generate connections between signals in a borehole using a graph 
             Lasso algorithm.
-
-            This returns the correlation graph C, which is a strictly lower-
-            triangular matrix with the correlation between the ith and jth 
-            signal is given by C[i][j].
-
-            :param borehole_label: The label pointing to the borehole data
-            :type borehole_label: str
-            :returns: the correlation graph C and the fitted edge model
         """
         if self.products['correlations'] is not None and not force:
             return
@@ -245,12 +245,6 @@ class AnalystNode(object):
 
     def __gen_correlation_clusters(self, force=False):
         """ Generate signal clusters using signal correlations as a metric.
-
-            :param borehole: The borehole data
-            :type borehole: `borehole_analysis.Borehole`
-            :returns: a set of clusters as a dictionary, where the key is the 
-                cluster label, and the value is a list of data labels from the 
-                Borehole instance 
         """
         if self.products['clusters'] is not None and not force:
             return
@@ -259,7 +253,7 @@ class AnalystNode(object):
         self.borehole.print_info('Generating covariance clusters', 'info')
         self.__gen_edge_graph()
         _, cluster_labels = sklearn.cluster.affinity_propagation(
-                                    self.products['edge_graph'].covariance_)
+            self.products['edge_graph'].covariance_)
 
         # Store results as dictionary - we have two values, one for human 
         # consumption and one by key for looping
@@ -280,6 +274,21 @@ class AnalystNode(object):
             + '\n'.join(['   -- {0}: {1}'.format(l, c)
                 for l, c in self.products['clusters']['by_label'].items()]),
             'info')
+
+    def __gen_eigensignals(self, force=False):
+        """ Generate eigensignals using ICA for each cluster
+        """
+        estimator = decomposition.FastICA(
+            n_components=1, algorithm='parallel', whiten=True, max_iter=10)
+        clusters = node.products['clusters']['by_key']
+        for cluster_index, cluster_keys in clusters.items():
+            # Get signals for current cluster
+            indices = numpy.array([node.labels[k][0] for k in cluster_keys])
+            data = node.data.T[indices]
+
+            # Generate sources from cluster signals
+            estimator.fit(data.T)
+            source = estimator.sources_.T
 
 
 class Analyst(dict):

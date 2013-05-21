@@ -10,28 +10,7 @@
 
 import unittest, numpy, itertools
 from borehole_analysis.borehole import *
-
-class TestMaskNans(unittest.TestCase):
-
-    """ Testing masking nans function
-    """
-
-    def test_fail(self):
-        "Function should fail with different sized input"
-        self.assertRaises(ValueError, mask_all_nans, 
-            numpy.arange(10), 
-            numpy.arange(11), 
-            numpy.arange(10))
-
-    def test_convert(self):
-        "Function should convert floats to numpy arrays"
-        mask_all_nans(range(10), range(10), range(10))
-
-    def test_fail_non_numeric(self):
-        "Function should fail with non-numeric input"
-        self.assertRaises(ValueError, mask_all_nans, 
-            "i'm a string",
-            range(10))
+from borehole_analysis.importers import *
 
 class TestBorehole(unittest.TestCase):
     
@@ -48,14 +27,14 @@ class TestBorehole(unittest.TestCase):
     def test_init(self):
         "BoreholeData class should initialise without errors."
         bore = Borehole()
-        bore.import_from_csv(self.test_file, 
+        add_csv(bore, self.test_file, 
             domain_key=self.domain_key, 
             data_keys=self.data_keys)
 
     def test_resample(self):
         "Resampling should give vectors of known length"
         bore = Borehole()
-        bore.import_from_csv(self.test_file, 
+        add_csv(bore, self.test_file, 
             domain_key=self.domain_key, 
             data_keys=self.data_keys)
         for nsamples in [10, 100, 34, 97]:
@@ -65,7 +44,7 @@ class TestBorehole(unittest.TestCase):
     def test_normalisation(self):
         "Normalisation should give zero mean and unit std-dev"
         bore = Borehole()
-        bore.import_from_csv(self.test_file, 
+        add_csv(bore, self.test_file, 
             domain_key=self.domain_key, 
             data_keys=self.data_keys)
         bore.resample(normalize=True)
@@ -76,8 +55,8 @@ class TestBorehole(unittest.TestCase):
     def test_normalisation_default(self):
         "Normalisation should default to False"
         bore = Borehole()
-        bore.import_from_csv(self.test_file,
-            domain_key=self.domain_key,
+        add_csv(bore, self.test_file, 
+            domain_key=self.domain_key, 
             data_keys=self.data_keys)
         bore.resample()
         for mu, sigma in zip(bore.data.mean(axis=0), bore.data.std(axis=0)):

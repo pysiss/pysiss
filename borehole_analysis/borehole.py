@@ -9,40 +9,7 @@
 """
 
 import numpy
-import functools
-import itertools
-from csv import DictReader
-from borehole_analysis.utilities import ReSampler
-
-def mask_all_nans(*arrays):
-    """ Mask all indices where any array has a NaN.
-
-        Example usage:
-
-            >>> mask = mask_all_nans(array1, array2)
-            >>> array1[mask]            # Both of these are guarenteed 
-            >>> array2[mask]            # to be nan-free
-
-        :param *arrays: The arrays to generate masks for. They should all have the same size or a ValueError will be raised.
-        :type *arrays: `numpy.ndarrays` 
-        :returns: A `numpy.boolean_array` which can be used as a mask.
-    """
-    # Convert arrays to numpy arrays if required
-    try:
-        arrays = [numpy.asarray(a, dtype=numpy.float_) for a in arrays]
-    except ValueError:
-        raise ValueError("Arrays supplied to mask_all_nans must be able to be "
-            "converted to floats!")
-
-    # Check that everything has the same shape
-    shapes = [a.shape for a in arrays]
-    if any([s != shapes[0] for s in shapes]):
-        raise ValueError("Arrays supplied to mask_all_nans must be the same "
-            "size (arrays have shapes {0})".format(shapes))
-
-    # Return the non-nan indices
-    return numpy.logical_not(functools.reduce(numpy.logical_or, 
-                                    [numpy.isnan(a) for a in arrays]))
+from borehole_analysis.utilities import ReSampler, mask_all_nans, detrend
 
 class Borehole(object):
 
@@ -102,7 +69,8 @@ class Borehole(object):
                 min(self.default_sprops['domain_bounds'][1], 
                     domain[nan_mask].max()))
 
-    def resample(self, nsamples=None, domain_bounds=None, normalize=False):
+    def resample(self, nsamples=None, domain_bounds=None, normalize=False, 
+        detrend_method=None):
         """ Aligns and resamples data so that all vectors have the same length
             and sample spacing.
 
@@ -139,6 +107,8 @@ class Borehole(object):
             key, sampler = key_and_sampler
             resampled_domain, resampled_signal = \
                 sampler.resample(**sampler_properties) 
+            if detrend_method is not None:
+                detrend(resampled_signal, detrend_method)
             self.data[index] = resampled_signal
             self.labels[key] = (index, self.labels[key][1])
 
@@ -210,56 +180,6 @@ class Borehole(object):
         else:
             indices = [self.labels[k][0] for k in self.get_keys() if k in keys]
         return dict((k, self.data.T[i]) for k, i in zip(keys, indices))
-
-    def import_from_csv(self, filename, domain_key, data_keys, labels=None):
-        """ Import table from a CSV file. 
-
-            Don't try to read massive files in with this - it will probably 
-            fall over.
-        """
-        if labels is None:
-            labels = {}
-
-        # Parse data from csv file
-        with open(filename, 'rb') as fhandle:
-            # Read in data to DictReader
-            reader = DictReader(fhandle)
-            data_dicts = [l for l in reader]
-            
-            # Generate the list of dicts
-            all_keys = [domain_key] + data_keys
-            all_data = dict([(k, []) for k in all_keys])
-            
-            # Cycle through and convert where necessady
-            for ddict in data_dicts:
-                current_dict = dict(zip(all_keys, itertools.repeat(numpy.nan)))
-                current_dict.update(ddict)
-                for key, value in current_dict.items():
-                    if key in all_keys:
-                        try:
-                            # This should work 99% of the time because most 
-                            # things are numbers
-                            all_data[key].append(float(value))
-                        except ValueError:
-                            # We need floats, so just tag with NaN
-                            all_data[key].append(numpy.nan)
-
-        # Convert arrays to numpy arrays
-        all_data = dict([(k, numpy.asarray(all_data[k])) for k in all_keys])
-        domain_data = numpy.asarray(all_data[domain_key])
-        del all_data[domain_key]
-
-        # Add the datasets that need adding
-        for key, dataset in all_data.items():
-            try:
-                label = labels[key]
-            except KeyError:
-                label = None
-            self.add_datum(
-                domain=domain_data,
-                signal=dataset,
-                key=key,
-                label=label)
 
     def print_info(self, message, flag=None):
         """ Print a message if we're tracking transformations

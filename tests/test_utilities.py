@@ -11,6 +11,28 @@ import numpy
 from borehole_analysis import *
 from borehole_analysis.utilities import *
 
+class TestMaskNans(unittest.TestCase):
+
+    """ Testing masking nans function
+    """
+
+    def test_fail(self):
+        "Function should fail with different sized input"
+        self.assertRaises(ValueError, mask_all_nans, 
+            numpy.arange(10), 
+            numpy.arange(11), 
+            numpy.arange(10))
+
+    def test_convert(self):
+        "Function should convert floats to numpy arrays"
+        mask_all_nans(range(10), range(10), range(10))
+
+    def test_fail_non_numeric(self):
+        "Function should fail with non-numeric input"
+        self.assertRaises(ValueError, mask_all_nans, 
+            "i'm a string",
+            range(10))
+
 class TestDetrend(unittest.TestCase):
 
     """ Unit tests for cwavelets.detrend

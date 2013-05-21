@@ -10,15 +10,14 @@
 
 import sklearn
 import cwavelets
-import borehole_analysis.clustering as clustering
-from borehole_analysis.analyser import AnalystNode, Analyst
+from borehole_analysis.analyser import Analyst
+import borehole_analysis.analyser as analyser
 from borehole_analysis.borehole import Borehole
+import borehole_analysis.importers as importers
 import borehole_analysis.domaining as domaining
 import borehole_analysis.plotting as plotting
 
 # Reassign the data classes to the base namespace
-OBJECTS = [
-    Borehole,
-]
+OBJECTS = [Borehole, Analyst]
 for obj in OBJECTS:
     obj.__module__ = 'borehole_analysis'

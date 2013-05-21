@@ -26,7 +26,7 @@ setup(
     author='Jess Robertson',
     author_email='jesse.robertson@csiro.au',
     url='http://bitbucket.org/jessrobertson/borehole_analysis',
-    packages=['borehole_analysis'],
+    packages=['borehole_analysis', 'borehole_analysis.importers'],
     requires=['numpy', 'matplotlib', 'sklearn'],
     ext_modules=[],
     classifiers=[
