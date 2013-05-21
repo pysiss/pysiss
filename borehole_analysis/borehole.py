@@ -168,15 +168,30 @@ class Borehole(object):
 
         return data
 
+    def get_keys(self):
+        """ Return the keys for all the variables in the borehole dataset
+
+            These are guarenteed to come back in the order they are stored in 
+            the data array.
+        """
+        keys, indices = [], []
+        for key in self.labels.keys():
+            keys.append(key)
+            indices.append(self.labels[key][0])
+        return [keys[i] for i in indices]
+
     def get_labels(self, *keys):
         """ Return the labels for the given keys. If no keys are specified, 
             return labels for all keys.
+
+            These are guarenteed to come back in the order they are stored in 
+            the data array.
         """
-        if not keys:
-            return [v[1] for v in self.labels.values()]
+        if not keys: 
+            return [self.labels[k][1] for k in self.get_keys()]
         else:
-            return [value[1] for key, value in self.labels.items()
-                             if key in keys]
+            return [self.labels[k][1] for k in self.get_keys()
+                                      if k in keys]
 
     def get_domain(self):
         """ Returns a view of the current domain
@@ -186,10 +201,14 @@ class Borehole(object):
     def get_signal(self, *keys):
         """ Returns views of the current data for the given keys. If no keys 
             are specified, return views for all keys.
+
+            These are guarenteed to come back in the order they are stored in 
+            the data array.
         """
         if keys is None:
-            keys = self.labels.keys()
-        indices = [self.labels[k][0] for k in keys]
+            indices = [self.labels[k][0] for k in self.get_keys()]
+        else:
+            indices = [self.labels[k][0] for k in self.get_keys() if k in keys]
         return dict((k, self.data.T[i]) for k, i in zip(keys, indices))
 
     def import_from_csv(self, filename, domain_key, data_keys, labels=None):
