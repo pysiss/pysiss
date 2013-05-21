@@ -8,43 +8,10 @@
     description: Plotting for the borehole_analysis module.
 """
 
-import matplotlib.cm
 import matplotlib.pyplot
+import matplotlib.cm
+import matplotlib.collections
 import numpy
-from borehole_analysis.clustering import generate_correlation_graph
-
-def plot_connection_matrix(borehole):
-    """ Plots the connection matrix assicated with an edge model
-
-        This assumes you have a matrix with the connection between 
-        the ith and jth nodes given in edge_matrix[i][j].
-
-        :param edge_matrix: the matrix of edge weights
-        :type edge_matrix: numpy.ndarray
-        :param names: the labels for each node in the matrix
-        :type names: iterable containing strings
-        :returns: handles to the figure and axes
-    """
-    # Calculate correlation matrix
-    names = borehole.get_labels()
-    correlations, _ = generate_correlation_graph(borehole)
-
-    # Plot results
-    side_len = 0.5*len(names)
-    fig = matplotlib.pyplot.figure(figsize=(side_len, side_len))
-    axes = matplotlib.pyplot.gca()
-    image = axes.imshow(correlations, 
-        interpolation='none', 
-        cmap=matplotlib.cm.get_cmap("RdBu_r"))
-    cbar = matplotlib.pyplot.colorbar(image, fraction=0.2, shrink=(1 - 0.25))
-    cbar.set_label('Correlation')
-    axes.set_xticks(range(len(names)))
-    axes.set_xticklabels(names, rotation=90,
-                    horizontalalignment='center',
-                    verticalalignment='top')
-    axes.set_yticks(range(len(names)))
-    axes.set_yticklabels(names)
-    return fig, axes
 
 def make_figure_grid(nplots, ncols=3, size=6):
     """ Make a grid of images
@@ -170,29 +137,79 @@ def plot_signal(axes, domain, signal, orientation='horizontal'):
         raise ValueError('Argument `orientation` must be "horizontal" or '
             'vertical"')
 
-def plot_borehole_data(borehole, keys_to_plot):
-    """ Plot the data stored in a borehole object
-
-        :returns: handles to the figure and axes
+def plot_connection_graph(embedding, correlations, names, cluster_labels):
+    """ Plots a connection graph in 2D given an embedding and a correlation 
+        matrix.
     """
-    # Get data from borehole
-    domain = borehole.get_domain()
-    signals = borehole.get_signal(*keys_to_plot)
-    domain_bounds = (borehole.domain.min(), borehole.domain.max())
+    # Plot the nodes using the coordinates of our embedding
+    axes = matplotlib.pyplot.gca()
+    axes.scatter(embedding[0], embedding[1],
+        c=cluster_labels, 
+        cmap=matplotlib.cm.get_cmap('Spectral'))
+    
+    # Plot the edges - a sequence of (*line0*, *line1*, *line2*), where
+    #            linen = (x0, y0), (x1, y1), ... (xm, ym)
+    non_zero = numpy.logical_not(correlations.mask)
+    start_idx, end_idx = numpy.where(non_zero)
+    segments = [[embedding[:, start], embedding[:, stop]]
+                for start, stop in zip(start_idx, end_idx)]
+    values = correlations[non_zero]
+    lines = matplotlib.collections.LineCollection(segments,
+        zorder=0, 
+        cmap=matplotlib.cm.get_cmap('RdBu'),
+        norm=matplotlib.pylab.Normalize(.7 * values.min(), .7 * values.max()))
+    lines.set_array(values)
+    lines.set_linewidths(15 * numpy.abs(values))
+    axes.add_collection(lines)
+    
+    # Add a label to each node
+    label_info = zip(names, cluster_labels, embedding.T)
+    for index, (name, label, (xloc, yloc)) in enumerate(label_info):
+        (xloc, yloc), alignment = float_label(index, (xloc, yloc), embedding)
+        point_color = matplotlib.cm.get_cmap('Spectral')(
+            label / float(max(cluster_labels)))
+        matplotlib.pylab.text(xloc, yloc, name, size=10,
+                horizontalalignment=alignment[0],
+                verticalalignment=alignment[1],
+                bbox=dict(facecolor=point_color,
+                          edgecolor=point_color,
+                          alpha=.3))
+    
+    # Adjust axes limits
+    axes.set_xlim(embedding[0].min() - .15 * embedding[0].ptp(),
+            embedding[0].max() + .10 * embedding[0].ptp(),)
+    axes.set_ylim(embedding[1].min() - .03 * embedding[1].ptp(),
+            embedding[1].max() + .03 * embedding[1].ptp())
 
-    # Plot data
-    fig = matplotlib.pyplot.figure(figsize=(20, 1*len(keys_to_plot)))
-    for i, key in enumerate(keys_to_plot):
-        axes = matplotlib.pyplot.subplot(1, len(keys_to_plot), i+1)
-        plot_signal(axes, signal=signals[key], domain=domain,
-            orientation='vertical')
-        axes.set_xlabel("")
-        if i == 0:
-            axes.set_ylabel('Depth (m)')
-        else:
-            axes.set_ylabel("")
-            axes.set_yticklabels("")
-        axes.set_ylim(domain_bounds)
-        axes.set_title(borehole.labels[key][1])
-    fig.tight_layout()
-    return fig, axes
+def float_label(index, position, embedding):
+    """ Floating labels for plot so that they avoid one another.
+
+        The challenge here is that we want to position the labels to avoid 
+        overlap with other labels. We use the neighbour data in the embedding 
+        to juggle the label positions to avoid collisions.
+    """
+    xloc, yloc = position
+    dxloc = xloc - embedding[0]
+    dxloc[index] = 1
+    dyloc = yloc - embedding[1]
+    dyloc[index] = 1
+    this_dxloc = dxloc[numpy.argmin(numpy.abs(dyloc))]
+    this_dyloc = dyloc[numpy.argmin(numpy.abs(dxloc))]
+    if this_dxloc > 0:
+        horizontalalignment = 'left'
+        xloc += .002
+        yloc += .001
+    else:
+        horizontalalignment = 'right'
+        xloc -= .002
+        yloc -= .001
+    if this_dyloc > 0:
+        verticalalignment = 'bottom'
+        yloc += .002
+        xloc += .001
+    else:
+        verticalalignment = 'top'
+        yloc -= .002
+        xloc -= .001
+
+    return (xloc, yloc), (horizontalalignment, verticalalignment)
