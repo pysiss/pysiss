@@ -68,7 +68,8 @@ class AnalystNode(object):
         self.products = {
             'edge_graph': None,
             'correlations': None,
-            'clusters': None
+            'clusters': None,
+            'eigensignals': None
         }
         self.__gen_edge_graph(force=True)
         self.__gen_correlation_graph(force=True)
@@ -278,18 +279,22 @@ class AnalystNode(object):
     def __gen_eigensignals(self, force=False):
         """ Generate eigensignals using ICA for each cluster
         """
-        estimator = decomposition.FastICA(
+        if self.products['eigensignals'] is not None and not force:
+            return
+
+        estimator = sklearn.decomposition.FastICA(
             n_components=1, algorithm='parallel', whiten=True, max_iter=10)
-        clusters = node.products['clusters']['by_key']
-        for cluster_index, cluster_keys in clusters.items():
+        clusters = self.products['clusters']['by_key']
+        self.products['eigensignals'] = []
+        for cluster_keys in clusters.values():
             # Get signals for current cluster
-            indices = numpy.array([node.labels[k][0] for k in cluster_keys])
-            data = node.data.T[indices]
+            indices = numpy.array([self.labels[k][0] for k in cluster_keys])
+            data = self.data.T[indices]
 
             # Generate sources from cluster signals
             estimator.fit(data.T)
             source = estimator.sources_.T
-
+            self.products['eigensignals'].append(source)
 
 class Analyst(dict):
     
