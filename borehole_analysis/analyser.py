@@ -208,9 +208,35 @@ class AnalystNode(object):
         fig.tight_layout()
         return fig, axes
 
-    def plot_cluster_eigensignals(self):
+    def plot_eigensignals(self):
         """ Plot the eigensignal axes for the current data
         """
+        # Get clusters from current node
+        clusters = self.products['clusters']['by_key']
+        cluster_sources = self.products['eigensignals']
+        domain = self.get_domain()
+
+        # Plot eigensignals for node
+        data = zip(clusters.items(), cluster_sources)
+        for (cluster_index, cluster_keys), sources in data:
+            fig = matplotlib.pyplot.figure(figsize=(10, 2*len(sources)))
+            for index, source in enumerate(sources):
+                axes = matplotlib.pyplot.subplot(len(sources), 1, index+1)
+                borehole_analysis.plotting.plot_signal(axes, 
+                    domain=domain, 
+                    signal=source, 
+                    orientation='horizontal')
+                axes.set_ylabel(r'$S_{{{0}, {1}}}(x)$'.format(cluster_index, 
+                    index))
+                if index == 0:
+                    axes.set_title('Cluster {0}: {1}'.format(cluster_index, 
+                        ', '.join(cluster_keys)))
+                if index == len(sources) - 1:
+                    axes.set_xlabel(r'Depth $x$ (m)')
+                else:
+                    axes.set_xlabel('')
+                    axes.set_xticklabels('')
+            fig.tight_layout()
 
     def __gen_correlation_graph(self, force=False):
         """ Generate connections between signals in a borehole using a graph 
@@ -283,7 +309,7 @@ class AnalystNode(object):
             return
 
         estimator = sklearn.decomposition.FastICA(
-            n_components=1, algorithm='parallel', whiten=True, max_iter=10)
+            n_components=None, algorithm='parallel', whiten=True, max_iter=10)
         clusters = self.products['clusters']['by_key']
         self.products['eigensignals'] = []
         for cluster_keys in clusters.values():
@@ -294,7 +320,9 @@ class AnalystNode(object):
             # Generate sources from cluster signals
             estimator.fit(data.T)
             source = estimator.sources_.T
+            mixing_matrix = 
             self.products['eigensignals'].append(source)
+            self.products['mixing_matrices'].append()
 
 class Analyst(dict):
     
