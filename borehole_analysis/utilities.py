@@ -9,9 +9,9 @@
 """
 
 import numpy
-import scipy.optimize, scipy.interpolate
-
-__all__ = ['heaviside', 'demean', 'detrend', 'ReSampler']
+import scipy.optimize
+import scipy.interpolate
+import functools
 
 def heaviside(values):
     r""" Heaviside function
@@ -266,3 +266,41 @@ def detrend(data, trend=None, func=None, param_guess=None):
         raise ValueError("trend should be one of {0}"\
                          .format(BUILTIN_TRENDS.keys()))
     return BUILTIN_TRENDS[trend or default](data)
+
+def mask_all_nans(*arrays):
+    """ Mask all indices where any array has a NaN.
+
+        Example usage:
+
+            >>> mask = mask_all_nans(array1, array2)
+            >>> array1[mask]            # Both of these are guarenteed 
+            >>> array2[mask]            # to be nan-free
+
+        :param *arrays: The arrays to generate masks for. They should all have the same size or a ValueError will be raised.
+        :type *arrays: `numpy.ndarrays` 
+        :returns: A `numpy.boolean_array` which can be used as a mask.
+    """
+    # Convert arrays to numpy arrays if required
+    try:
+        arrays = [numpy.asarray(a, dtype=numpy.float_) for a in arrays]
+    except ValueError:
+        raise ValueError("Arrays supplied to mask_all_nans must be able to be "
+            "converted to floats!")
+
+    # Check that everything has the same shape
+    shapes = [a.shape for a in arrays]
+    if any([s != shapes[0] for s in shapes]):
+        raise ValueError("Arrays supplied to mask_all_nans must be the same "
+            "size (arrays have shapes {0})".format(shapes))
+
+    # Return the non-nan indices
+    return numpy.logical_not(functools.reduce(numpy.logical_or, 
+                                    [numpy.isnan(a) for a in arrays]))
+
+def try_float(value_str):
+    """ Tries to make str a value, returns NaN if not
+    """
+    try:
+        return float(value_str)
+    except ValueError:
+        return numpy.nan

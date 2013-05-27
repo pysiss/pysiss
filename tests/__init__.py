@@ -8,6 +8,11 @@
     description: Initialisation of tests.
 """
 
+import unittest
+
 #pylint: disable=W0401
 from tests.test_borehole import *
 from tests.test_utilities import *
+
+if __name__ == '__main__':
+    unittest.main()

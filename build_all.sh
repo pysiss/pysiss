@@ -12,45 +12,41 @@ mkdir -p logs
 touch ${build_log}
 touch ${test_log}
 
-echo " --> Pylinting..."
-echo ""
-echo " --> Pylinting..." >> ${build_log}
+echo " --> Pylinting..." | tee -a ${build_log} ${test_log}
+pylint borehole_analysis --reports=n | tee -a ${build_log}
+pylint borehole_analysis --reports=y >> ${test_log}
 echo "" >> ${build_log}
-pylint borehole_analysis --reports=n
-pylint borehole_analysis --reports=y >> ${build_log}
-echo "" >> ${build_log}
-echo ""
+echo "" >> ${test_log}
 
-echo " --> Cleaning..."
-echo " --> Cleaning..." >> ${build_log}
+echo " --> Cleaning..." | tee -a ${build_log}
 python setup.py clean >> ${build_log}
 echo "" >> ${build_log}
 
-echo " --> Building..."
-echo " --> Building..." >> ${build_log}
+echo " --> Building..." | tee -a ${build_log}
 python setup.py build >> ${build_log}
 sudo python setup.py install >> ${build_log}
 echo "" >> ${build_log}
 
-echo " --> Running unit tests..."
-echo "     Output in ${test_log}"
-echo " --> Running unit tests..." >> ${build_log}
-echo "     Output in ${test_log}" >> ${build_log}
+echo " --> Running unit tests..." | tee -a ${build_log} ${test_log}
+echo "     Output in ${test_log}" | tee -a ${build_log}
+python -m unittest tests >> ${test_log} 2>&1
+if [[ `tail -n 5 ${test_log} | grep -c FAILED` -ne 0 ]]; then
+    echo "     WARNING: some tests failed! " \
+        | tee -a ${build_log} ${test_log}
+else
+    echo "     All tests passed." | tee -a ${build_log} ${test_log}
+fi
 echo "" >> ${build_log}
-python -m unittest tests 2> ${test_log}
-echo "" >> ${build_log}
-echo ""
 
 # # Make documentation
-# echo " --> Making documentation..."
-# echo " --> Making documentation..." >> ${build_log}
+# echo " --> Making documentation..." | tee -a ${build_log}
 # export PYTHONPATH=`pwd`/borehole_analysis/:${PYTHONPATH}
 # cd docs
-# echo "     --> Cleaning documentation..."
-# echo "     --> Cleaning documentation..." >> ../${build_log}
+# echo "     --> Cleaning documentation..." | tee -a ../${build_log}
 # make clean >> ../${build_log}
-# echo "     --> Building documentation..."
-# echo "         Point your browser to docs/build/html/index.html"
+# echo "     --> Building documentation..." | tee -a ../${build_log}
+# echo "         Point your browser to docs/build/html/index.html" \
+#     | tee -a ../${build_log}
 # echo "     --> Building documentation..." >> ../${build_log}
 # make html >> ../${build_log} 2>&1
 # cd ..
