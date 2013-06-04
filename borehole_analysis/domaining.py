@@ -7,3 +7,7 @@
 
     description: Domaining module of the borehole_analysis module.
 """
+
+from cwavelets import Hermitian, WaveletProperties
+
+def hermitian_domaining(analyst_node, ):
