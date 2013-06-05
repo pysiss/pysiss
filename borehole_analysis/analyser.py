@@ -90,7 +90,7 @@ class AnalystNode(object):
         """ Returns views of the current data for the given keys. If no keys 
             are specified, return views for all keys.
         """
-        if keys is None:
+        if not keys:
             keys = self.labels.keys()
         indices = [self.labels[k][0] for k in keys]
         return dict((k, self.data.T[i]) for k, i in zip(keys, indices))
@@ -208,6 +208,29 @@ class AnalystNode(object):
         fig.tight_layout()
         return fig, axes
 
+    def plot_cusum(self, *keys):
+        """ Plot the CUSUM for the given keys.
+        """
+        fig = matplotlib.pyplot.figure(figsize=(5, 8))
+        axes = fig.gca()
+        for key, signal in self.get_signal(*keys).items():
+            # Generate cusum
+            cusum = numpy.cumsum((signal - signal.mean()) / signal.std())
+
+            # Renormalise to lie between [0, 1]
+            maxsum, minsum = cusum.max(), cusum.min()
+            cusum -= minsum
+            cusum /= maxsum - minsum
+
+            # Plot it
+            axes.plot(cusum, self.domain, 
+                label=self.labels[key][1], 
+                linewidth=2)
+        axes.set_ylim(self.domain[-1], self.domain[0])
+        axes.legend(loc='upper left', bbox_to_anchor=(1, 1))
+        fig.tight_layout()
+        return fig, axes
+
     def plot_eigensignals(self):
         """ Plot the eigensignal axes for the current data
         """
@@ -312,6 +335,7 @@ class AnalystNode(object):
             n_components=None, algorithm='parallel', whiten=True, max_iter=10)
         clusters = self.products['clusters']['by_key']
         self.products['eigensignals'] = []
+        self.products['mixing_matrices'] = []
         for cluster_keys in clusters.values():
             # Get signals for current cluster
             indices = numpy.array([self.labels[k][0] for k in cluster_keys])
@@ -319,10 +343,8 @@ class AnalystNode(object):
 
             # Generate sources from cluster signals
             estimator.fit(data.T)
-            source = estimator.sources_.T
-            mixing_matrix = 
-            self.products['eigensignals'].append(source)
-            self.products['mixing_matrices'].append()
+            self.products['eigensignals'].append(estimator.sources_.T)
+            self.products['mixing_matrices'].append(estimator.components_.T)
 
 class Analyst(dict):
     
