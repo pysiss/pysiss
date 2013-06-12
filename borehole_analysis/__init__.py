@@ -15,9 +15,10 @@ import borehole_analysis.analyser as analyser
 from borehole_analysis.borehole import Borehole
 import borehole_analysis.importers as importers
 import borehole_analysis.domaining as domaining
+from borehole_analysis.domaining import WaveletLabeller
 import borehole_analysis.plotting as plotting
 
 # Reassign the data classes to the base namespace
-OBJECTS = [Borehole, Analyst]
+OBJECTS = [Borehole, Analyst, WaveletLabeller]
 for obj in OBJECTS:
     obj.__module__ = 'borehole_analysis'
