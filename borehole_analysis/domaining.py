@@ -78,8 +78,8 @@ class WaveletLabeller(object):
         # Generate & combine labels
         pos_labs, npos_labs = scipy.ndimage.label(pos)
         neg_labs, nneg_labs = scipy.ndimage.label(neg)
-        self.labelled_array = (neg * (neg_labs - 1) \
-            + pos * (pos_labs + nneg_labs - 1)).astype(int)
+        self.labelled_array = (pos * pos_labs \
+            - neg * (neg_labs - 1) + nneg_labs - 1).astype(int)
         self.labels = numpy.arange(nneg_labs + npos_labs, dtype=numpy.int)
 
     def __generate_enclosures(self):
