@@ -158,3 +158,5 @@ class WaveletLabeller(object):
         # Undo the negative, reset first label to zero
         self.labelled_array *= -1
         self.labelled_array -= 1
+
+
