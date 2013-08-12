@@ -8,178 +8,76 @@
     description: Data munging utilities for the borehole_analysis module.
 """
 
-import numpy
-from borehole_analysis.utilities import ReSampler, mask_all_nans, detrend
+import pandas, numpy
+from borehole_analysis.utilities import mask_all_nans
+
+def boreholes_from_csv(csvfile, borehole_key, domain_key=None,
+    labels=None, verbose=False):
+    """ Return a borehole from a csv via a pandas.dataframe instance
+    """
+    dataframe = pandas.read_csv(csvfile)
+    dataframe = dataframe.convert_objects(convert_numeric=True)
+    if domain_key is None:
+        dataframe['Depth'] = (dataframe['From'] + dataframe['To']) / 2.
+        domain_key = 'Depth'
+    if labels is None:
+        labels = { k: k for k in dataframe.keys() }
+
+    # Group into boreholes
+    grouped = dataframe.groupby(borehole_key)
+    boreholes = list()
+    for name, datum in grouped:
+        data_dict = { key: (numpy.asarray(datum[key]), label)
+            for key, label in labels.items() }
+        boreholes.append((name,
+            Borehole(
+                domain=numpy.asarray(datum[domain_key]),
+                data=data_dict,
+                verbose=verbose)))
+    return boreholes
+
 
 class Borehole(object):
 
     """ A class to manage borehole data
 
-        :param data: A dict containing the following keys: 'ID', with an ID 
-            for the dataset, 'label', with the label of the dataset as a 
-            value, 'domain', with the sample locations, and 'signal', with the 
+        :param data: A dict containing the following keys: 'ID', with an ID
+            for the dataset, 'label', with the label of the dataset as a
+            value, 'domain', with the sample locations, and 'signal', with the
             signal values corresponding to the sample locations in 'domain'.
         :type data: tuple
     """
 
     def __init__(self, verbose=False):
         super(Borehole, self).__init__()
-        
+
         # Initialise attributes
         self.verbose = verbose
-        self.samplers = {}
         self.labels = {}
-        self.data = None
-        self.domain = None
-        self.default_sprops = {
-            'nsamples': None,
-            'domain_bounds': None
-        }
+        self.data = {}
+        self.__current_index = 0
 
-    def add_datum(self, domain, signal, key, label=None):
-        """ Add a single dataset to the Borehole
+    def add_datum(self, domain, data, key, label=None):
+        """ Add a single dataset to the borehole
         """
-        # Update names and symbols
-        if label is None:
-            label = key
-        self.labels.update({key: (None, label)})
-        self.print_info(
-            'Adding dataset {0} with {1} entries, and label {2}'.format(
-                key, len(signal), label), 'info')
-
-        # Mask out Nans before generating resampler instance
-        nan_mask = mask_all_nans(domain, signal)
-        self.samplers[key] = ReSampler(
-            domain = domain[nan_mask],
-            signal = signal[nan_mask], 
-            order=1)
-
-        # Check whether this will change the bounds of the domain
-        if self.default_sprops['nsamples'] is None:
-            self.default_sprops['nsamples'] = len(domain[nan_mask])
-            self.default_sprops['domain_bounds'] = (domain[nan_mask].min(), 
-                domain[nan_mask].max())
+        # Update labels
+        if label is not None:
+            labels[key] = label
         else:
-            self.default_sprops['nsamples'] = max(
-                self.default_sprops['nsamples'], 
-                len(domain[nan_mask]))
-            self.default_sprops['domain_bounds'] = (
-                max(self.default_sprops['domain_bounds'][0], 
-                    domain[nan_mask].min()),
-                min(self.default_sprops['domain_bounds'][1], 
-                    domain[nan_mask].max()))
+            labels[key] = key
 
-    def resample(self, nsamples=None, domain_bounds=None, normalize=False, 
-        detrend_method=None):
-        """ Aligns and resamples data so that all vectors have the same length
-            and sample spacing.
+        # Check that all data is (a) NaN-free ...
+        datum = data_values[0]
+        nan_mask = mask_all_nans(domain, datum)
+        _domain = domain[nan_mask]
+        _datum = datum[nan_mask]
 
-            This generates `data` and `domain` attributes for the Borehole 
-            instance. The domain is a one-dimensional vector of length 
-            `nsamples` containing the sample locations, and the `data` 
-            instance is an array where each column contains the resampled data 
-            for one of the datasets in the borehole.
+        # ... and (b) domain-ordered
+        order_idx = numpy.argsort(_domain)
+        self.data[key]['domain'] = _domain[order_idx][:]
+        self.data[key]['data'] = _data[order_idx][:]
 
-            This uses masked arrays to remove NaN values from a series, and 
-            then realigns the data sampling so that all signals are sampled at 
-            the same time. It does this using linear interpolation.
-
-            If `normalize=True`, then the data is then normalised so that 
-            each column has zero mean and unit variance. To clear this (and go 
-            back to unnormalised data), just call resample again wiht 
-            `normalize=False`
-        """
-        # Align data
-        self.print_info('Aligning datasets', 'info')
-
-        # Define domain vector
-        sampler_properties = self.default_sprops
-        if nsamples is not None:
-            sampler_properties['nsamples'] = nsamples
-        if domain_bounds is None:
-            sampler_properties['domain_bounds'] = domain_bounds
-
-        # Generate empty data array and populate with data
-        ndata = len(self.samplers)
-        self.data = numpy.empty((ndata, sampler_properties['nsamples']), 
-                                dtype=numpy.float)
-        for index, key_and_sampler in enumerate(self.samplers.items()):
-            key, sampler = key_and_sampler
-            resampled_domain, resampled_signal = \
-                sampler.resample(**sampler_properties) 
-            if detrend_method is not None:
-                detrend(resampled_signal, detrend_method)
-            self.data[index] = resampled_signal
-            self.labels[key] = (index, self.labels[key][1])
-
-        # Transpose data
-        self.data = self.data.T
-        self.domain = resampled_domain
-
-        # Generate normalised data if required
-        if normalize:
-            self.print_info('Normalising datasets', 'info')
-            self.data = (self.data - self.data.mean(axis=0)) \
-                        / self.data.std(axis=0)
-
-    def get_raw_data(self, *keys):
-        """ Returns the raw data used in the Borehole resamplers.
-        """
-        if keys is None:
-            keys = self.labels.keys()
-
-        data = {}
-        for key in keys:
-            data[key] = dict(
-                key=key,
-                signal=self.samplers[key].signal, 
-                domain=self.samplers[key].domain, 
-                label=self.labels[key])
-
-        return data
-
-    def get_keys(self):
-        """ Return the keys for all the variables in the borehole dataset
-
-            These are guarenteed to come back in the order they are stored in 
-            the data array.
-        """
-        keys, indices = [], []
-        for key in self.labels.keys():
-            keys.append(key)
-            indices.append(self.labels[key][0])
-        return [keys[i] for i in indices]
-
-    def get_labels(self, *keys):
-        """ Return the labels for the given keys. If no keys are specified, 
-            return labels for all keys.
-
-            These are guarenteed to come back in the order they are stored in 
-            the data array.
-        """
-        if not keys: 
-            return [self.labels[k][1] for k in self.get_keys()]
-        else:
-            return [self.labels[k][1] for k in self.get_keys()
-                                      if k in keys]
-
-    def get_domain(self):
-        """ Returns a view of the current domain
-        """
-        return self.domain
-
-    def get_signal(self, *keys):
-        """ Returns views of the current data for the given keys. If no keys 
-            are specified, return views for all keys.
-
-            These are guarenteed to come back in the order they are stored in 
-            the data array.
-        """
-        if keys is None:
-            indices = [self.labels[k][0] for k in self.get_keys()]
-        else:
-            indices = [self.labels[k][0] for k in self.get_keys() if k in keys]
-        return dict((k, self.data.T[i]) for k, i in zip(keys, indices))
+        # Split domain into seperate values
 
     def print_info(self, message, flag=None):
         """ Print a message if we're tracking transformations
@@ -195,3 +93,28 @@ class Borehole(object):
             except KeyError:
                 header = header_dict['default']
             print header, message
+
+    def find_subdomains(self, coeff=10):
+        """ Find subdomains which remove large gaps in a given dataset.
+
+            A 'large' gap is defined as any non-NaN data for which the gap
+            between this sample and the next is more than coeff * the median
+            sample spacing. This function identifies these gaps and returns a
+            set of domain intervals which are 'non-gappy' by this definition.
+
+            :returns:
+                A list of tuples of the form (start_domain_i, end_domain_i)
+        """
+        # Generate subdomains within the domain
+        spacing = numpy.diff(self.domain)
+        med_spacing = numpy.median(spacing)
+        gap_indices = numpy.flatnonzero(spacing > coeff * med_spacing)
+
+        # Form a list of data subdomains
+        subdomains = [(self.domain[0], self.domain[gap_indices[0]])]
+        for idx in range(len(gap_indices) - 1):
+            subdomains.append((
+                self.domain[gap_indices[idx] + 1],   # Start _after_ the gap!
+                self.domain[gap_indices[idx + 1]]))  # End with next gap
+        subdomains.append((self.domain[gap_indices[-1] + 1], self.domain[-1]))
+        return subdomains
