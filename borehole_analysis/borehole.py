@@ -113,7 +113,7 @@ class Borehole(object):
         # Form a list of data subdomains
         subdomains = [(self.domain[0], self.domain[gap_indices[0]])]
         for idx in range(len(gap_indices) - 1):
-            subdomains.append((
+            subdomains.append((p0
                 self.domain[gap_indices[idx] + 1],   # Start _after_ the gap!
                 self.domain[gap_indices[idx + 1]]))  # End with next gap
         subdomains.append((self.domain[gap_indices[-1] + 1], self.domain[-1]))
