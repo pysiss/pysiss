@@ -17,6 +17,11 @@ class BoreholeTest(unittest.TestCase):
     def setUp(self):
         self.borehole = bh.Borehole("test")
 
+    def test_name(self):
+        """ Test that name is being captured for borehole
+        """
+        self.assertEquals(self.borehole.name, "test")
+
     def test_features(self):
         """Test store and retrieve a single point feature with a one single-valued category property"""
         feature = self.borehole.add_feature("fault-1", 27.3)
@@ -55,6 +60,7 @@ class BoreholeTest(unittest.TestCase):
         self.assertEquals(depths, self.borehole.sampling_domains["samples"].depths)
         self.assertEquals(densities, self.borehole.sampling_domains["samples"].properties["d"].values)
         self.assertEquals(impedances, self.borehole.sampling_domains["samples"].properties["imp"].values)
+        self.assertEquals("samples", self.borehole.sampling_domains['samples'].name)
 
     def test_interval_domain_depths_empty(self):
         """Test that empty interval depths raises an AssertionError"""
