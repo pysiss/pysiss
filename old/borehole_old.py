@@ -94,7 +94,7 @@ class Borehole(object):
                 header = header_dict['default']
             print header, message
 
-    def find_subdomains(self, coeff=10):
+    def find_sampling_interval_gaps(sampling_interval, coeff=10):
         """ Find subdomains which remove large gaps in a given dataset.
 
             A 'large' gap is defined as any non-NaN data for which the gap
@@ -103,7 +103,7 @@ class Borehole(object):
             set of domain intervals which are 'non-gappy' by this definition.
 
             :returns:
-                A list of tuples of the form (start_domain_i, end_domain_i)
+                An IntervalDomain subdivided into 'data' and 'gap' regions
         """
         # Generate subdomains within the domain
         spacing = numpy.diff(self.domain)
