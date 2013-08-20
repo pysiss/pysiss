@@ -2,7 +2,7 @@
 """Unit tests to demonstrate the borehole model.
 """
 
-import borehole_analysis.borehole as bh
+import borehole_analysis as bh
 import unittest
 
 DENSITY = bh.PropertyType(name="d", long_name="density", units="g/cm3")

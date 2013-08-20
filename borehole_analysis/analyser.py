@@ -9,7 +9,7 @@
 """
 
 import numpy
-from borehole_analysis.utilities import ReSampler, mask_all_nans, detrend
+from borehole_analysis.utilities import detrend
 import sklearn.covariance
 import sklearn.cluster
 import sklearn.manifold

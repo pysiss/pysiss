@@ -1,17 +1,20 @@
 #!/usr/bin/env python
 """ Classes to represent data domains etc in boreholes
 
-An IntervalDomain is is a sequence of borehole segments each having a single
-value for each property; this value is taken to be the same across the entire
-length of the interval. IntervalDomains can be merged to form a new
-IntervalDomain that has the intervals whose boundaries are the union of the
-boundaries of the source IntervalDomains. An IntervalDomain can be
-interpolated onto a SamplingDomain.
+    An IntervalDomain is is a sequence of borehole segments each having a
+    single value for each property; this value is taken to be the same across
+    the entire length of the interval. IntervalDomains can be merged to form a
+    new IntervalDomain that has the intervals whose boundaries are the union of
+    the boundaries of the source IntervalDomains. An IntervalDomain can be
+    interpolated onto a SamplingDomain.
 
-A SamplingDomain is a sequence of depths at which continuous properties are
-sampled. Analogous to a coverage. One SamplingDomain can be interpolated onto
-another.
+    A SamplingDomain is a sequence of depths at which continuous properties are
+    sampled. Analogous to a coverage. One SamplingDomain can be interpolated
+    onto another.
 """
+
+import numpy
+from scipy.interpolate import InterpolatedUnivariateSpline as Spline
 
 class Domain(object):
 
@@ -28,56 +31,243 @@ class Domain(object):
         assert size > 0, "domain must have at least one element"
         self.properties = dict()
         self.size = size  # size of all values sequences
+        self.name = name
+        self.subdomains = None
+        self.gaps = None
 
     def add_property(self, property_type, values):
-        """Add and return a new property"""
-        assert self.size == len(values), "values must have the same number of elements as the domain"
+        """ Add and return a new property
+        """
+        assert self.size == len(values), ("values must have the same number "
+            "of elements as the domain")
         self.properties[property_type.name] = Property(property_type, values)
         return self.properties[property_type.name]
 
     def get_property_names(self):
+        """ Return the properties defined over this domain
+        """
         return self.properties.keys()
-
 
 class IntervalDomain(Domain):
 
-    def __init__(self, name, from_depths, to_depths):
-        """Constructor.
+    """ IntervalDomain contains data which is defined over some depth interval.
 
-        Intervals must be in depth order and not overlap, but there might be gaps between intervals.
+        An IntervalDomain is is a sequence of borehole segments each having a
+        single value for each property; this value is taken to be the same
+        across the entire length of the interval. IntervalDomains can be merged
+        to form a new IntervalDomain that has the intervals whose boundaries
+        are the union of the boundaries of the source IntervalDomains. An
+        IntervalDomain can be interpolated onto a SamplingDomain.
+
+        Intervals must be in depth order and not overlap, but there might
+        be gaps between intervals.
 
         name -- identifier (string)
-        from_depths -- interval start point down-hole depths in metres from collar (any sequence, could be a list or numpy array)
-        to_depths -- interval end point down-hole depths in metres from collar (any sequence, could be a list or numpy array)
-        """
-        Domain.__init__(self, name, len(from_depths))
+        from_depths -- interval start point down-hole depths in metres
+            from collar (any sequence, could be a list or numpy array)
+        to_depths -- interval end point down-hole depths in metres from
+            collar (any sequence, could be a list or numpy array)
+    """
+
+    def __init__(self, name, from_depths, to_depths):
+        super(IntervalDomain, self).__init__(name, len(from_depths))
         assert len(from_depths) == len(to_depths)
         for i in range(self.size - 1):
-            assert from_depths[i] < from_depths[i + 1], "from_depths must be monotonically increasing"
-            assert to_depths[i] < to_depths[i + 1], "to_depths must be monotonically increasing"
-            assert to_depths[i] <= from_depths[i + 1], "intervals must not overlap"
+            assert from_depths[i] < from_depths[i + 1], \
+                "from_depths must be monotonically increasing"
+            assert to_depths[i] < to_depths[i + 1], \
+                "to_depths must be monotonically increasing"
+            assert to_depths[i] <= from_depths[i + 1], \
+                "intervals must not overlap"
         for i in range(self.size):
-            assert from_depths[i] < to_depths[i], "intervals must have positive length"
+            assert from_depths[i] < to_depths[i], \
+                "intervals must have positive length"
         self.from_depths = from_depths
         self.to_depths = to_depths
 
+    def __repr__(self):
+        info = 'IntervalDomain {0}: with {1} depth intervals and {2} '\
+               'properties'
+        return info.format(self.name, len(self.from_depths),
+            len(self.properties))
+
+    def get_interval(self, from_depth, to_depth, domain_name=None):
+        """ Return the data between the given depths as as new IntervalDomain
+
+            Only intervals completely contained by the from_depth/to_depth
+            interval are returned.
+        """
+        # Specify a name if not already passed
+        if domain_name is None:
+            domain_name = '{0}: subdomain {1} to {2}'.format(
+                self.name, from_depth, to_depth)
+
+        # Select a data mask
+        indices = numpy.where(
+            numpy.logical_and(self.from_depths >= from_depth,
+                              self.to_depths <= to_depth))
+
+        # Generate a new SamplingDomain
+        newdom = IntervalDomain(domain_name,
+            self.from_depths[indices],
+            self.to_depths[indices])
+        for prop in self.properties.values():
+            newdom.add_property(
+                property_type=prop.property_type,
+                values=prop.values[indices])
+        return newdom
+
+    def split_at_gaps(self):
+        """ Split a domain by finding significant gaps in the domain.
+
+            A metric to define 'gaps' is required. Currently we only have
+            'spacing_median', which is really only suitable for SamplingDomain
+            instances.
+
+            Available metrics:
+                'spacing_median': a gap is defined as a spacing between
+                    samples which is an order of magnitude above the median
+                    sample spacing in a domain.
+        """
+        # Generate gap locations
+        gap_indices = numpy.flatnonzero(
+            self.from_depths[1:] - self.to_depths[:-1])
+
+        # Aggregate gap intervals
+        self.gaps = []
+        for idx in gap_indices:
+            self.gaps.append((self.to_depths[idx], self.from_depths[idx + 1]))
+
+        # We need to include the start and end of the domain!
+        gap_indices = [0] + list(gap_indices) + [-1]
+
+        # Form a list of data subdomains
+        self.subdomains = []
+        for idx in range(len(gap_indices) - 1):
+            # Domains start _after_ the gap & end with next gap
+            self.subdomains.append((
+                self.from_depths[gap_indices[idx] + 1],
+                self.to_depths[gap_indices[idx + 1]]))
+        return self.subdomains, self.gaps
 
 class SamplingDomain(Domain):
 
-    def __init__(self, name, depths):
-        """Constructor.
+    """ Domain for data defined at points in the domain.
+
+        A SamplingDomain is a sequence of depths at which continuous
+        properties are sampled. Analogous to a coverage. One SamplingDomain
+        can be interpolated onto another.
 
         Depths must be in monotonically increasing order.
 
         name -- identifier (string)
-        depths -- sample down-hole depths in metres from collar (any sequence, could be a list or numpy array)
-        """
-        Domain.__init__(self, name, len(depths))
+        depths -- sample down-hole depths in metres from collar (any sequence,
+            could be a list or numpy array)
+    """
+
+    def __init__(self, name, depths):
+        super(SamplingDomain, self).__init__(name, len(depths))
         for i in range(self.size - 1):
-            assert depths[i] < depths[i + 1], "depths must be monotonically increasing"
+            assert depths[i] < depths[i + 1], \
+                "depths must be monotonically increasing"
         self.depths = depths
 
+    def __repr__(self):
+        info = 'SamplingDomain {0}: with {1} depths and {2} '\
+               'properties'
+        return info.format(self.name, len(self.depths),
+            len(self.properties))
 
+    def get_interval(self, from_depth, to_depth, domain_name=None):
+        """ Return the data between the given depths as as new SamplingDomain
+        """
+        # Specify a name if not already passed
+        if domain_name is None:
+            domain_name = '{0}: subdomain {1} to {2}'.format(
+                self.name, from_depth, to_depth)
+
+        # Select a data mask
+        indices = numpy.where(
+            numpy.logical_and(self.depths >= from_depth,
+                              self.depths <= to_depth))
+
+        # Generate a new SamplingDomain
+        newdom = SamplingDomain(domain_name, self.depths[indices])
+        for prop in self.properties.values():
+            newdom.add_property(
+                property_type=prop.property_type,
+                values=prop.values[indices])
+        return newdom
+
+    def split_at_gaps(self, gap_metric='spacing_median'):
+        """ Split a domain by finding significant gaps in the domain.
+
+            A metric to define 'gaps' is required. Currently we only have
+            'spacing_median', which is really only suitable for SamplingDomain
+            instances.
+
+            Available metrics:
+                'spacing_median': a gap is defined as a spacing between
+                    samples which is an order of magnitude above the median
+                    sample spacing in a domain.
+        """
+        # Select gap metric to use, generate gap locations
+        depths = self.depths
+        spacing = numpy.diff(depths)
+        if gap_metric is 'spacing_median':
+            med_spacing = numpy.median(spacing)
+            gap_indices = numpy.flatnonzero(spacing > 10 * med_spacing)
+        else:
+            raise NotImplementedError(
+                "Unknown gap metric {0}".format(gap_metric))
+
+        # Aggregate gap intervals
+        self.gaps = []
+        for idx in gap_indices:
+            self.gaps.append((depths[idx], depths[idx + 1]))
+
+        # We need to include the start and end of the domain!
+        gap_indices = [0] + list(gap_indices) + [-1]
+
+        # Form a list of data subdomains
+        self.subdomains = []
+        for idx in range(len(gap_indices) - 1):
+            # Domains start _after_ the gap & end with next gap
+            self.subdomains.append((
+                depths[gap_indices[idx] + 1],
+                depths[gap_indices[idx + 1]]))
+        return self.subdomains, self.gaps
+
+    def regularize(self, npoints=None, domain_name=None, degree=1):
+        """ Resample domain onto regular grid.
+
+            This regularizes the data so that all sample spacings are equal to the median spacing of the raw data. Returns a new SamplingDomain instance with the new data.
+
+            Arguments:
+                npoints - the number of new points. Optional, if not specified then the reinterpolated data will have the median spacing of the raw data.
+                domain_name - the name for the returned SamplingDomain. Optional, defaults to "<current_name> resampled".
+                degree - the degree of the interpolation. Optional, defaults to 1 (i.e. linear interpolation).
+        """
+        # We need to identify gaps first
+        if self.gaps is None:
+            self.split_at_gaps()
+
+       # Specify name & number of points if not already passed
+        if domain_name is None:
+            domain_name = '{0} resampled'.format(self.name)
+        if npoints is None:
+            spacing = float(numpy.median(numpy.diff(self.depths)))
+            npoints = abs(self.depths[-1] - self.depths[0]) / spacing
+
+        # Generate a new Domain with the resampled data
+        new_depths = numpy.linspace(self.depths[0], self.depths[-1], npoints)
+        newdom = SamplingDomain(domain_name, new_depths)
+        for prop in self.properties.values():
+            spl = Spline(self.depths, prop.values, k=degree)
+            newdom.add_property(prop.property_type, spl(new_depths))
+        newdom.gaps = self.gaps
+        newdom.subdomains = self.subdomains
+        return newdom
 
 
 class PropertyType(object):
@@ -97,19 +287,23 @@ class PropertyType(object):
         self.description = description
         self.units = units
 
+    def __repr__(self):
+        info = 'PropertyType {0}: long name is "{1}", units are {2}'
+        return info.format(self.name, self.long_name, self.units)
+
     @property
     def long_name(self):
-        """Return long name or name if no long name."""
+        "Return long name or name if no long name."
         return self._long_name if self._long_name is not None else self.name
 
 
 class Property(object):
 
-    """Container for values with type.
+    """ Container for values with type.
 
-    values must match the length of the domain: for sampling and interval domains,
-    it must be a sequence of the same length as the depths. For a feature is should be
-    a single value unless it is a multivalued category.
+        Values must match the length of the domain: for sampling and interval
+        domains, it must be a sequence of the same length as the depths. For a
+        feature is should be a single value unless it is a multivalued category
     """
 
     def __init__(self, property_type, values):
@@ -117,57 +311,11 @@ class Property(object):
         self.values = values
 
     def __repr__(self):
-        """ String representation
-        """
-        info = 'Property {0}: type {1} with {2} values'
-        return info.format(self.name, self.property_type.long_name(),
-            len(self.values))
+        info = 'Property {0}: {1} values in units of {2}'
+        return info.format(self.name, len(self.values),
+            self.property_type.units)
 
     @property
     def name(self):
+        "The name of the property"
         return self.property_type.name
-
-
-## Transfer functions
-def interpolate_property(interval_domain, sampling_domain, method='linear'):
-    """ Interpolate a property from an IntervalDomain to a SamplingDomain.
-    """
-    raise NotImplementedError
-
-def average_property(sampling_domain, interval_domain, method='mean'):
-    """ Average a property from a SamplingDomain to an IntervalDomain
-    """
-    raise NotImplementedError
-
-## Splitting functions
-def split_at_gaps(domain, gap_metric='spacing_median'):
-    """ Split a domain by finding significant gaps in the domain.
-
-        A metric to define 'gaps' is required. Currently we only have 'spacing_median', which is really only suitable for SamplingDomain instances.
-
-        Available metrics:
-            'spacing_median': a gap is defined as a spacing between samples which is an order of magnitude above the median sample spacing in a domain.
-    """
-    # Select gap metric to use, generate gap locations
-    spacing = numpy.diff(domain)
-    if gap_metric is 'spacing_mean':
-        med_spacing = numpy.median(spacing)
-        gap_indices = numpy.flatnonzero(spacing > 10 * med_spacing)
-    else:
-        raise NotImplementedError("Unknown gap metric {0}".format(gap_metric))
-
-    # We need to include the start and end of the domain!
-    gap_indices = [0] + list(gap_indices) + [-1]
-
-    # Form a list of data subdomains
-    for idx in range(len(gap_indices) - 1):
-        # Domains start _after_ the gap & end with next gap
-        subdomains.append((
-            domain.depths[(gap_indices[idx] + 1):(gap_indices[idx + 1])]))
-    subdomains.append((self.domain[gap_indices[-1] + 1], self.domain[-1]))
-    return subdomains
-
-def spacing_split_metric(coeff):
-    """ Specifies a gap in data based on sample spacing relative to mean
-        sample spacing.
-    """

@@ -10,18 +10,17 @@
 
 import sklearn
 import cwavelets
-import borehole_analysis.analyser as analyser
-from analyser import Analyst
-from borehole_analysis.borehole import Borehole
+from borehole_analysis.borehole import Borehole, Feature
 import borehole_analysis.importers as importers
 import borehole_analysis.domaining as domaining
-from borehole_analysis.domaining import Domainer
 from borehole_analysis.domains import Domain, \
     SamplingDomain, IntervalDomain, Property, PropertyType
+from borehole_analysis.survey import CoordinateReferenceSystem, Survey
 import borehole_analysis.plotting as plotting
 
 # Reassign the data classes to the base namespace
-OBJECTS = [Borehole, Analyst, Domainer, Domain, \
-    SamplingDomain, IntervalDomain, Property, PropertyType]
+OBJECTS = [Borehole, Feature, Domain, \
+    SamplingDomain, IntervalDomain, Property, PropertyType, \
+    CoordinateReferenceSystem, Survey]
 for obj in OBJECTS:
     obj.__module__ = 'borehole_analysis'

@@ -26,8 +26,8 @@ Property units are expressed as Unified Code for Units of Measure (UCUM):
 http://unitsofmeasure.org/ucum.html
 """
 
-from borehole_analysis.domains import Domain, SamplingDomain, IntervalDomain, Property, PropertyType
-from borehole_analysis.survey import CoordinateReferenceSystem, Survey
+from borehole_analysis.domains import SamplingDomain, IntervalDomain, \
+    Property
 
 class Borehole(object):
 
@@ -80,7 +80,8 @@ class Borehole(object):
 
             Returns: the new IntervalDomain instance.
         """
-        self.interval_domains[name] = IntervalDomain(name, from_depth, to_depths)
+        self.interval_domains[name] = \
+            IntervalDomain(name, from_depth, to_depths)
         return self.interval_domains[name]
 
     def add_sampling_domain(self, name, depths):
@@ -96,11 +97,12 @@ class Borehole(object):
         return self.sampling_domains[name]
 
     def desurvey(self, depths, crs):
-        """ Return the depths as three-dimensional points in the given coordinate reference system
+        """ Return the depths as three-dimensional points in the given
+            coordinate reference system
         """
         raise NotImplementedError
 
-    def add_merged_interval_domain(self, name, source_name_one, source_name_two):
+    def add_merged_interval_domain(self, name, source_name_a, source_name_b):
         """ Add a new merged interval domain from the two sources
         """
         raise NotImplementedError
