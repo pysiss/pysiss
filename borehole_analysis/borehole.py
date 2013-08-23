@@ -63,11 +63,11 @@ class Borehole(object):
             'Borehole {0}: {1}/{2} interval/sampling domains & {3} '
             + 'features'
             + '\nIDs: '
-            + '\n    '.join(map(str, self.interval_domains.values()))
+            + '\n     '.join(map(str, self.interval_domains.values()))
             + '\nSDs: '
-            + '\n    '.join(map(str, self.sampling_domains.values()))
+            + '\n     '.join(map(str, self.sampling_domains.values()))
             + '\nWDs: '
-            + '\n    '.join(map(str, self.wavelet_domains.values()))
+            + '\n     '.join(map(str, self.wavelet_domains.values()))
         )
         return info_str.format(self.name,
             len(self.interval_domains), len(self.sampling_domains),
@@ -161,7 +161,8 @@ class Feature(object):
     def add_property(self, property_type, values):
         """ Add a property to this feature.
 
-            values - a single value or multiple values for a multivalued property
+            values - a single value or multiple values for a multivalued
+                property
         """
         self.properties[property_type.name] = Property(property_type, values)
 
@@ -180,9 +181,11 @@ class CoordinateReferenceSystem(object):
 
 class Survey(object):
 
-    """The spatial shape of the borehole path in three dimensions from the collar.
-    Used to convert a sequence of down-hole depths into a sequence of three-dimensional
-    points in some coordinate reference system.
+    """ The spatial shape of the borehole path in three dimensions from the
+        collar.
+
+        Used to convert a sequence of down-hole depths into a sequence of
+        three-dimensional points in some coordinate reference system.
     """
 
     def __init__(self):

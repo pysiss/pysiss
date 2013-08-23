@@ -14,7 +14,7 @@ touch ${test_log}
 
 echo " --> Pylinting..." | tee -a ${build_log} ${test_log}
 pylint borehole_analysis --reports=n | tee -a ${build_log}
-pylint borehole_analysis --reports=y >> ${test_log}
+# pylint borehole_analysis --reports=y >> ${test_log}
 echo "" >> ${build_log}
 echo "" >> ${test_log}
 

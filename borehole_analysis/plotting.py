@@ -387,6 +387,14 @@ def plot_node_connection_graph(node, embedding=None):
     axes.set_title('Network graph')
     return fig, axes
 
+def gen_axes_grid(nplots, ncols):
+    """ Make an axes grid with the given number of columns and plots
+    """
+    nrows = nplots // ncols
+    if nrows * ncols != nplots:
+        nrows += 1
+    return matplotlib.gridspec.GridSpec(nrows, ncols)
+
 def wavelet_plot(wavelet_domain, property_name):
     """ Plot a CWT decomposition for a given domain
     """
@@ -419,15 +427,15 @@ def wavelet_plot(wavelet_domain, property_name):
     trace_ax.set_xticklabels([xlim[0], 0, xlim[1]], rotation='vertical')
 
     # Make transform plot
-    transform_ax.contour(scales_grid.T, depths_grid.T, coi.mask.T, [1e-6],
+    transform_ax.contour(scales_grid.T, depths_grid.T, coi.mask, [1e-6],
         colors='white')
-    transform_ax.contour(scales_grid.T, depths_grid.T, gap.mask.T, [1 - 1e-6],
+    transform_ax.contour(scales_grid.T, depths_grid.T, gap.mask, [1 - 1e-6],
         colors='black', alpha=0.4)
-    transform_ax.contourf(scales_grid.T, depths_grid.T, gap.T, 1,
+    transform_ax.contourf(scales_grid.T, depths_grid.T, gap, 1,
         colors='black', alpha=0.1)
     transform_ax.contourf(scales_grid.T, depths_grid.T, transform,
-        20, cmap = matplotlib.pyplot.get_cmap('RdYlBu_r'))
-    transform_ax.contourf(scales_grid.T, depths_grid.T, coi.T, 1,
+        40, cmap = matplotlib.pyplot.get_cmap('RdYlBu_r'))
+    transform_ax.contourf(scales_grid.T, depths_grid.T, coi, 1,
         colors='white', alpha=0.3)
     transform_ax.set_xscale('log')
     transform_ax.set_xlabel(r'Wavelength $\lambda$')
@@ -435,3 +443,115 @@ def wavelet_plot(wavelet_domain, property_name):
     transform_ax.set_ylim(depths[-1], depths[0])
     fig.tight_layout()
     return fig, trace_ax, transform_ax
+
+def wavelet_label_plot(wavelet_domain, property_name):
+    """ Plot a CWT decomposition for a given domain
+    """
+    # Set up figure
+    fig = matplotlib.pyplot.figure(figsize=(8, 12))
+    grid = matplotlib.gridspec.GridSpec(1, 2, width_ratios=[0.1, 1])
+    trace_ax = matplotlib.pyplot.subplot(grid[0])
+    transform_ax = matplotlib.pyplot.subplot(grid[1])
+
+    # Get info from wavelet
+    wavelet = wavelet_domain.wavelets[property_name]
+    depths, data = wavelet.get_data()
+    scales = wavelet.get_scales(fourier=True)
+    label_array = \
+        wavelet_domain.properties[property_name + ' domains'].values
+    depths_grid, scales_grid = numpy.meshgrid(depths, scales)
+    coi = wavelet_domain.cone_of_influence
+    gap = wavelet_domain.gap_cones
+
+    # Make borehole trace plot
+    xlim = int(numpy.min(data)), int(numpy.max(data))
+    trace_ax.plot(data, depths, 'k')
+    trace_ax.set_ylim(depths[-1], depths[0])
+    for subdomain in wavelet_domain.subdomains:
+        trace_ax.fill_between(xlim, subdomain[0], subdomain[1], color='red',
+            alpha=0.2)
+    for dgap in wavelet_domain.gaps:
+        trace_ax.fill_between(xlim, dgap[0], dgap[1], color='black', alpha=0.1)
+    trace_ax.set_ylabel('Depth')
+    trace_ax.set_xticks([xlim[0], 0, xlim[1]])
+    trace_ax.set_xticklabels([xlim[0], 0, xlim[1]], rotation='vertical')
+
+    # Make transform plot
+    transform_ax.contour(scales_grid.T, depths_grid.T, coi.mask, [1e-6],
+        colors='white')
+    transform_ax.contour(scales_grid.T, depths_grid.T, gap.mask, [1 - 1e-6],
+        colors='black', alpha=0.4)
+    transform_ax.contourf(scales_grid.T, depths_grid.T, gap, 1,
+        colors='black', alpha=0.1)
+    transform_ax.contourf(scales_grid.T, depths_grid.T, label_array,
+        40, cmap = matplotlib.pyplot.get_cmap('RdGy'))
+    transform_ax.contourf(scales_grid.T, depths_grid.T, coi, 1,
+        colors='white', alpha=0.3)
+    transform_ax.set_xscale('log')
+    transform_ax.set_xlabel(r'Wavelength $\lambda$')
+    transform_ax.set_yticklabels('')
+    transform_ax.set_ylim(depths[-1], depths[0])
+    fig.tight_layout()
+    return fig, trace_ax, transform_ax
+
+def plot_all_wavelets(wavelet_domain):
+    """ Plot all the wavelets in a WaveletDomain
+    """
+    # Generate figure
+    fig = matplotlib.pyplot.figure(figsize=(11, 20))
+    props = wavelet_domain.properties.values()
+    gaps = wavelet_domain.gap_cones
+    coi = wavelet_domain.cone_of_influence
+    nplots = len(props)
+    grid = gen_axes_grid(nplots, 5)
+
+    # Plot each property
+    for idx, prop in enumerate(props):
+        axe = matplotlib.pyplot.subplot(grid[idx])
+        axe.set_xticks([])
+        axe.set_yticks([])
+        axe.contourf(prop.values, 5, cmap=matplotlib.pyplot.get_cmap('RdYlBu'))
+        axe.contourf(coi, 1, colors=['white'], alpha=0.5)
+        axe.contourf(gaps, 1, colors=['black'], alpha=0.2)
+        axe.set_title(prop.property_type.long_name)
+    fig.tight_layout()
+    return fig, axe
+
+def plot_label_tree(tree):
+    """ Plot up a LabelTree instance
+    """
+    # Plot up boundaries using a linecollection
+    fig = matplotlib.pyplot.figure(figsize=(12, 8))
+    axe = fig.gca()
+    cmap = matplotlib.pyplot.get_cmap('RdGy')
+    colors = cmap(numpy.linspace(0, 1, len(tree.labels)))
+
+    # Add connections
+    intervals = numpy.asarray(tree.intervals)
+    mid_domain = (intervals[:, 0] + intervals[:, 1]) / 2.
+    connect_midpoints = lambda p, c: \
+        [[tree.max_scales[0][p], mid_domain[p]],
+         [tree.max_scales[0][c], mid_domain[c]]]
+    for index in range(len(mid_domain)):
+        parent, children = (index, tree.connections[index])
+        if parent is 'root':
+            continue
+        segments = [connect_midpoints(parent, child) for child in children]
+        color = colors[parent]
+        axe.add_collection(matplotlib.collections.LineCollection(segments,
+            linewidths=(0.5,), linestyle='solid', colors=[color]))
+    for label, point in enumerate(zip(tree.max_scales[0], mid_domain)):
+        matplotlib.pyplot.text(point[0], point[1], str(label))
+
+    segments = zip(
+        numpy.vstack(numpy.transpose(
+            [tree.max_scales[:][0], tree.min_domain])),
+        numpy.vstack(numpy.transpose(
+            [tree.max_scales[:][0], tree.max_domain])))
+    axe.add_collection(matplotlib.collections.LineCollection(segments,
+        linewidths=(3,), linestyle='solid', colors=colors))
+
+    # Plot boundaries
+    axe.set_ylim(tree.depths[-1], tree.depths[0])
+    axe.set_xscale('log')
+    axe.set_xlim(tree.labels[0], tree.labels[-1])
