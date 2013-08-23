@@ -20,8 +20,8 @@ def parse_csv(csv_filename, all_keys):
         # Read in data to DictReader
         reader = DictReader(fhandle)
         data_dicts = [l for l in reader]
-        
-        # Just check that you aren't passing some weird key which will end 
+
+        # Just check that you aren't passing some weird key which will end
         # up with all NaNs
         for key in all_keys:
             if key not in reader.fieldnames:
@@ -29,12 +29,12 @@ def parse_csv(csv_filename, all_keys):
                     "get from the CSV file '{1}' which is not present in the "
                     "file (it's keys are {2}). I've filled the array with "
                     "NaNs instead, but if you pass this to a Borehole "
-                    "instance it will probably choke.\n\n").format(key, 
+                    "instance it will probably choke.\n\n").format(key,
                         fhandle.name, ', '.join(reader.fieldnames))
 
         # Generate the list of dicts
         all_data = dict([(k, []) for k in all_keys])
-        
+
         # Cycle through and convert where necessary
         for ddict in data_dicts:
             current_dict = dict(zip(all_keys, itertools.repeat(numpy.nan)))
@@ -58,9 +58,9 @@ def add_to_borehole(borehole, domain_data, data, labels):
             label=labels[key])
 
 def add_csv(borehole, csv_filename, domain_key, data_keys, labels=None):
-    """ Add data from a CSV file 
+    """ Add data from a CSV file
 
-        Don't try to read massive files in with this - it will probably 
+        Don't try to read massive files in with this - it will probably
         fall over.
     """
     # Generate labels
@@ -74,6 +74,6 @@ def add_csv(borehole, csv_filename, domain_key, data_keys, labels=None):
     # Generate domain data from intervals (we take midpoints here)
     domain_data = data[domain_key]
     del data[domain_key]
-    
+
     # Add the datasets that need adding
     add_to_borehole(borehole, domain_data, data, labels)

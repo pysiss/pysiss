@@ -1,197 +1,193 @@
 #!/usr/bin/env python
-""" file:   borehole.py (borehole_analysis)
-    author: Jess Robertson
-            CSIRO Earth Science and Resource Engineering
-    email:  jesse.robertson@csiro.au
-    date:   Wednesday May 1, 2013
+"""Classes to represent a borehole.
 
-    description: Data munging utilities for the borehole_analysis module.
+Borehole has point features and domains on which properties are defined. A
+property can be defined on multiple domains. Features and domains are
+containers for the properties defined on them.
+
+A Feature is analogous to a spatial point feature. It has a depth and
+properties but it makes no sense to perform any interpolation on these.
+
+An IntervalDomain is is a sequence of borehole segments each having a single
+value for each property; this value is taken to be the same across the entire
+length of the interval. IntervalDomains can be merged to form a new
+IntervalDomain that has the intervals whose boundaries are the union of the
+boundaries of the source IntervalDomains. An IntervalDomain can be
+interpolated onto a SamplingDomain.
+
+A SamplingDomain is a sequence of depths at which continuous properties are
+sampled. Analogous to a coverage. One SamplingDomain can be interpolated onto
+another.
+
+Depths are measured in metres down-hole from the borehole collar; depth
+sequences must be in monotonically increasing order.
+
+Property units are expressed as Unified Code for Units of Measure (UCUM):
+http://unitsofmeasure.org/ucum.html
 """
 
-import numpy
-from borehole_analysis.utilities import ReSampler, mask_all_nans, detrend
+from borehole_analysis.domains import SamplingDomain, IntervalDomain, \
+    Property
+from borehole_analysis.wavelets import WaveletDomain
 
 class Borehole(object):
 
-    """ A class to manage borehole data
+    """ Borehole model.
 
-        :param data: A dict containing the following keys: 'ID', with an ID 
-            for the dataset, 'label', with the label of the dataset as a 
-            value, 'domain', with the sample locations, and 'signal', with the 
-            signal values corresponding to the sample locations in 'domain'.
-        :type data: tuple
+        Properties:
+            features - dict mapping feature name to Feature
+            interval_domains - dict mapping interval domain name to
+                IntervalDomain
+            sampling_domains - dict mapping sampling domain name to
+                SamplingDomain
+            wavelet_domains - dict mapping wavelet domain names to
+                WaveletDomain instances
+
+        Arguments to constructor:
+            name - identifier (string)
     """
 
-    def __init__(self, verbose=False):
-        super(Borehole, self).__init__()
-        
-        # Initialise attributes
-        self.verbose = verbose
-        self.samplers = {}
-        self.labels = {}
-        self.data = None
-        self.domain = None
-        self.default_sprops = {
-            'nsamples': None,
-            'domain_bounds': None
-        }
+    def __init__(self, name):
+        self.name = name
+        self.collar_location = None
+        self.survey = None
+        self.features = dict()
+        self.interval_domains = dict()
+        self.sampling_domains = dict()
+        self.wavelet_domains = dict()
 
-    def add_datum(self, domain, signal, key, label=None):
-        """ Add a single dataset to the Borehole
+    def __repr__(self):
+        """ String representation
         """
-        # Update names and symbols
-        if label is None:
-            label = key
-        self.labels.update({key: (None, label)})
-        self.print_info(
-            'Adding dataset {0} with {1} entries, and label {2}'.format(
-                key, len(signal), label), 'info')
+        info_str = (
+            'Borehole {0}: {1}/{2} interval/sampling domains & {3} '
+            + 'features'
+            + '\nIDs: '
+            + '\n     '.join(map(str, self.interval_domains.values()))
+            + '\nSDs: '
+            + '\n     '.join(map(str, self.sampling_domains.values()))
+            + '\nWDs: '
+            + '\n     '.join(map(str, self.wavelet_domains.values()))
+        )
+        return info_str.format(self.name,
+            len(self.interval_domains), len(self.sampling_domains),
+            len(self.features))
 
-        # Mask out Nans before generating resampler instance
-        nan_mask = mask_all_nans(domain, signal)
-        self.samplers[key] = ReSampler(
-            domain = domain[nan_mask],
-            signal = signal[nan_mask], 
-            order=1)
+    def add_feature(self, name, depth):
+        """Add and return a new Feature.
 
-        # Check whether this will change the bounds of the domain
-        if self.default_sprops['nsamples'] is None:
-            self.default_sprops['nsamples'] = len(domain[nan_mask])
-            self.default_sprops['domain_bounds'] = (domain[nan_mask].min(), 
-                domain[nan_mask].max())
-        else:
-            self.default_sprops['nsamples'] = max(
-                self.default_sprops['nsamples'], 
-                len(domain[nan_mask]))
-            self.default_sprops['domain_bounds'] = (
-                max(self.default_sprops['domain_bounds'][0], 
-                    domain[nan_mask].min()),
-                min(self.default_sprops['domain_bounds'][1], 
-                    domain[nan_mask].max()))
+            Arguments:
+                name - identifier (string)
+                depth - down-hole depth in metres from collar (numeric)
 
-    def resample(self, nsamples=None, domain_bounds=None, normalize=False, 
-        detrend_method=None):
-        """ Aligns and resamples data so that all vectors have the same length
-            and sample spacing.
-
-            This generates `data` and `domain` attributes for the Borehole 
-            instance. The domain is a one-dimensional vector of length 
-            `nsamples` containing the sample locations, and the `data` 
-            instance is an array where each column contains the resampled data 
-            for one of the datasets in the borehole.
-
-            This uses masked arrays to remove NaN values from a series, and 
-            then realigns the data sampling so that all signals are sampled at 
-            the same time. It does this using linear interpolation.
-
-            If `normalize=True`, then the data is then normalised so that 
-            each column has zero mean and unit variance. To clear this (and go 
-            back to unnormalised data), just call resample again wiht 
-            `normalize=False`
+            Returns: the new Feature instance
         """
-        # Align data
-        self.print_info('Aligning datasets', 'info')
+        self.features[name] = Feature(name, depth)
+        return self.features[name]
 
-        # Define domain vector
-        sampler_properties = self.default_sprops
-        if nsamples is not None:
-            sampler_properties['nsamples'] = nsamples
-        if domain_bounds is None:
-            sampler_properties['domain_bounds'] = domain_bounds
+    def add_interval_domain(self, name, from_depth, to_depths):
+        """ Add and return a new IntervalDomain
 
-        # Generate empty data array and populate with data
-        ndata = len(self.samplers)
-        self.data = numpy.empty((ndata, sampler_properties['nsamples']), 
-                                dtype=numpy.float)
-        for index, key_and_sampler in enumerate(self.samplers.items()):
-            key, sampler = key_and_sampler
-            resampled_domain, resampled_signal = \
-                sampler.resample(**sampler_properties) 
-            if detrend_method is not None:
-                detrend(resampled_signal, detrend_method)
-            self.data[index] = resampled_signal
-            self.labels[key] = (index, self.labels[key][1])
+            Arguments:
+                name - identifier (string)
+                from_depths - interval start point down-hole depths in metres
+                    from collar (any sequence, could be a list or numpy array)
+                to_depths - interval end point down-hole depths in metres from
+                    collar (any sequence, could be a list or numpy array)
 
-        # Transpose data
-        self.data = self.data.T
-        self.domain = resampled_domain
-
-        # Generate normalised data if required
-        if normalize:
-            self.print_info('Normalising datasets', 'info')
-            self.data = (self.data - self.data.mean(axis=0)) \
-                        / self.data.std(axis=0)
-
-    def get_raw_data(self, *keys):
-        """ Returns the raw data used in the Borehole resamplers.
+            Returns: the new IntervalDomain instance.
         """
-        if keys is None:
-            keys = self.labels.keys()
+        self.interval_domains[name] = \
+            IntervalDomain(name, from_depth, to_depths)
+        return self.interval_domains[name]
 
-        data = {}
-        for key in keys:
-            data[key] = dict(
-                key=key,
-                signal=self.samplers[key].signal, 
-                domain=self.samplers[key].domain, 
-                label=self.labels[key])
+    def add_sampling_domain(self, name, depths):
+        """ Add and return a new SamplingDomain.
 
-        return data
+            Arguments:
+                name - the name of the SamplingDomain
+                depths - sampling point down-hole depths in metres from collar
+                    (any sequence, could be a list or numpy array)
 
-    def get_keys(self):
-        """ Return the keys for all the variables in the borehole dataset
-
-            These are guarenteed to come back in the order they are stored in 
-            the data array.
+            Returns: the new SamplingDomain instance
         """
-        keys, indices = [], []
-        for key in self.labels.keys():
-            keys.append(key)
-            indices.append(self.labels[key][0])
-        return [keys[i] for i in indices]
+        self.sampling_domains[name] = SamplingDomain(name, depths)
+        return self.sampling_domains[name]
 
-    def get_labels(self, *keys):
-        """ Return the labels for the given keys. If no keys are specified, 
-            return labels for all keys.
-
-            These are guarenteed to come back in the order they are stored in 
-            the data array.
+    def add_wavelet_domain(self, name, sampling_domain,
+        wavelet=None, wav_properties=None):
+        """ Add and return a new WaveletDomain.
         """
-        if not keys: 
-            return [self.labels[k][1] for k in self.get_keys()]
-        else:
-            return [self.labels[k][1] for k in self.get_keys()
-                                      if k in keys]
+        self.wavelet_domains[name] = WaveletDomain(name, sampling_domain,
+            wavelet, wav_properties)
+        return self.wavelet_domains[name]
 
-    def get_domain(self):
-        """ Returns a view of the current domain
+    def desurvey(self, depths, crs):
+        """ Return the depths as three-dimensional points in the given
+            coordinate reference system
         """
-        return self.domain
+        raise NotImplementedError
 
-    def get_signal(self, *keys):
-        """ Returns views of the current data for the given keys. If no keys 
-            are specified, return views for all keys.
-
-            These are guarenteed to come back in the order they are stored in 
-            the data array.
+    def add_merged_interval_domain(self, name, source_name_a, source_name_b):
+        """ Add a new merged interval domain from the two sources
         """
-        if keys is None:
-            indices = [self.labels[k][0] for k in self.get_keys()]
-        else:
-            indices = [self.labels[k][0] for k in self.get_keys() if k in keys]
-        return dict((k, self.data.T[i]) for k, i in zip(keys, indices))
+        raise NotImplementedError
 
-    def print_info(self, message, flag=None):
-        """ Print a message if we're tracking transformations
+
+class Feature(object):
+
+    """A point feature with properties but no spatial extent.
+
+        Properties:
+            depth - down-hole depth in metres
+            properties - dict mapping property name to Property
+
+        Arguments to constructor:
+            name - identifier (string)
+            depth - the depth of the feature
+    """
+
+    def __init__(self, name, depth):
+        self.name = name
+        self.depth = depth
+        self.properties = dict()
+
+    def __repr__(self):
+        """ String representation
         """
-        header_dict = {
-            'default': '         ',
-            'info': '   info: ',
-            'warn': 'warning: '
-        }
-        if self.verbose:
-            try:
-                header = header_dict[flag]
-            except KeyError:
-                header = header_dict['default']
-            print header, message
+        info = 'Feature {0}: at {1} depth with {2} properties'
+        return info.format(self.name, len(self.depth), len(self.properties))
+
+    def add_property(self, property_type, values):
+        """ Add a property to this feature.
+
+            values - a single value or multiple values for a multivalued
+                property
+        """
+        self.properties[property_type.name] = Property(property_type, values)
+
+    def get_property_names(self):
+        """ Return the names of the available properties for this feature
+        """
+        return self.properties.keys()
+
+class CoordinateReferenceSystem(object):
+
+    """System for describing a spatial location as a tuple of real numbers."""
+
+    def  __init__(self):
+        raise NotImplementedError
+
+
+class Survey(object):
+
+    """ The spatial shape of the borehole path in three dimensions from the
+        collar.
+
+        Used to convert a sequence of down-hole depths into a sequence of
+        three-dimensional points in some coordinate reference system.
+    """
+
+    def __init__(self):
+        raise NotImplementedError
+
