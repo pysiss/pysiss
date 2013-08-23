@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" file:   domaining.py (borehole_analysis)
+""" file:   wavelets.py (borehole_analysis)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     email:  jesse.robertson@csiro.au
@@ -13,6 +13,132 @@ import cwavelets
 import scipy.ndimage
 from collections import defaultdict
 from scipy.ndimage.measurements import maximum_position, minimum_position
+from borehole_analysis.domains import SamplingDomain, PropertyType
+
+class WaveletDomain(SamplingDomain):
+
+    """ Domain class to store continuous wavelet transform data.
+
+        Arguments:
+            wavelet - a `cwavelets.CWTransform` subclass
+            domain - a `borehole_analysis.SamplingDomain` instance which contains
+    """
+
+    def __init__(self, name, sampling_domain, wavelet=None,
+        wav_properties=None):
+        super(WaveletDomain, self).__init__(name, sampling_domain.depths)
+        self.sampling_domain = sampling_domain
+        self.wavelet_type = wavelet or cwavelets.Hermitian
+        self.wav_properties = cwavelets.WaveletProperties()
+        if wav_properties is not None:
+            self.wav_properties.update(wav_properties)
+
+        # Check that we have identified gaps in the domain
+        if sampling_domain.gaps is None:
+            raise AttributeError("You need to identify gaps in your domain "
+                "first - try calling the split_at_gaps method")
+        else:
+            self.gaps = sampling_domain.gaps
+            self.subdomains = sampling_domain.subdomains
+
+        # Calculate COI and gap regions
+        wav = self.wavelet_type(
+            signal=numpy.ones_like(self.depths),
+            domain=self.depths,
+            properties=self.wav_properties)
+        scales = wav.get_scales(fourier=False)
+        tau_e = wav.properties['efolding_time']
+        depths_grid, scales_grid = numpy.meshgrid(self.depths, scales)
+
+        # Define gap masks
+        self.gap_mask = numpy.zeros(depths_grid.shape, dtype=bool)
+        for gap in self.gaps:
+            self.gap_mask = numpy.logical_or(
+                self.gap_mask,
+                numpy.logical_and(
+                    (depths_grid - gap[0]) / (scales_grid * tau_e) >= 1,
+                    (gap[1] - depths_grid) / (scales_grid * tau_e) >= 1))
+        self.gap_cones = numpy.ma.masked_array(
+            numpy.ones_like(depths_grid),
+            mask=numpy.logical_not(self.gap_mask))
+
+        # Define COI masks
+        coi_mask = numpy.zeros(depths_grid.shape, dtype=bool)
+        for sub in self.subdomains:
+            coi_mask = numpy.logical_or(
+                coi_mask,
+                numpy.logical_not(numpy.logical_or(
+                    (depths_grid - sub[0]) / (scales_grid * tau_e) < 1,
+                    (sub[1] - depths_grid) / (scales_grid * tau_e) < 1)))
+        self.cone_of_influence = numpy.ma.masked_array(
+            numpy.ones_like(depths_grid),
+            mask=coi_mask)
+
+        # Placeholders for other datasets
+        self.wavelets = {}
+        self.labels = {}
+
+    def add_transform(self, prop):
+        """ Add transforms to domain from a given sampling_domain instance
+        """
+        assert len(prop.values) == len(self.depths), \
+            "Length of WaveletDomain and SamplingDomain must be the same"
+        wav = self.wavelets[prop.name] = self.wavelet_type(
+            signal=prop.values,
+            domain=self.depths,
+            properties=self.wav_properties)
+        masked_transform = numpy.ma.masked_array(
+            wav.get_transform(),
+            mask=self.gap_mask)
+        self.add_property(prop.property_type,
+            masked_transform.transpose())
+
+    def label_domains(self, property_name, sort_regions_by_size=False):
+        """ Label domains wihtin a CWT
+        """
+        # Generate thresholded masks
+        transform = self.properties[property_name]
+        pos = numpy.zeros_like(transform)
+        neg = numpy.zeros_like(transform)
+        pos[transform >= 0] = 1
+        neg[transform < 0] = 1
+
+        # Generate & combine labels
+        pos_labs, npos_labs = scipy.ndimage.label(pos)
+        neg_labs, nneg_labs = scipy.ndimage.label(neg)
+        labelled_array = (pos * pos_labs \
+            - neg * (neg_labs - 1) + nneg_labs - 1).astype(int)
+        labels = self.labels[property_name] = \
+            numpy.arange(nneg_labs + npos_labs, dtype=numpy.int)
+
+        if sort_regions_by_size:
+            # We'll use tallies to add up how big a region is
+            nscales = len(self.wavelets[property_name].get_scales())
+            label_tallies = numpy.zeros_like(labels, dtype=numpy.int)
+            for i in range(nscales):
+                vals = numpy.unique(labelled_array[i])
+                label_tallies[vals] += 1
+
+            # Sort by size - larger labels show up in more decomps
+            # We use negative integers in loop to avoid clobbering labels we
+            # haven't used yet
+            sort_idx = numpy.argsort(label_tallies)[::-1]
+            for i, j in enumerate(labels[sort_idx]):
+                labelled_array[labelled_array == j] = -(i+1)
+
+            # Undo the negative, reset first label to zero
+            labelled_array *= -1
+            labelled_array -= 1
+
+        ptype = self.properties[property_name].property_type
+        labelled_array = \
+            numpy.ma.masked_array(labelled_array, mask=transform.mask)
+        self.add_property(
+            PropertyType(name=ptype.name + ' domains',
+                long_name=ptype.long_name + ' domains', units=None),
+            labelled_array)
+        return labelled_array, labels
+
 
 def tree_reduce(connections, root, function, compare):
     """ Reduce a tree to a single value using a function and a comparison.
