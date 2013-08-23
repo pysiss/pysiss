@@ -186,18 +186,21 @@ class SamplingDomain(Domain):
             domain_name = '{0}: subdomain {1} to {2}'.format(
                 self.name, from_depth, to_depth)
 
-        # Select a data mask
-        indices = numpy.where(
-            numpy.logical_and(self.depths >= from_depth,
-                              self.depths <= to_depth))
-
         # Generate a new SamplingDomain
+        indices = self.get_interval_indices(from_depth, to_depth)
         newdom = SamplingDomain(domain_name, self.depths[indices])
         for prop in self.properties.values():
             newdom.add_property(
                 property_type=prop.property_type,
                 values=prop.values[indices])
         return newdom
+
+    def get_interval_indices(self, from_depth, to_depth):
+        """ Returns the indices for the depths in the given interval
+        """
+        return numpy.where(
+            numpy.logical_and(self.depths >= from_depth,
+                              self.depths <= to_depth))
 
     def split_at_gaps(self, gap_metric='spacing_median'):
         """ Split a domain by finding significant gaps in the domain.
@@ -246,7 +249,7 @@ class SamplingDomain(Domain):
             Arguments:
                 npoints - the number of new points. Optional, if not specified then the reinterpolated data will have the median spacing of the raw data.
                 domain_name - the name for the returned SamplingDomain. Optional, defaults to "<current_name> resampled".
-                degree - the degree of the interpolation. Optional, defaults to 1 (i.e. linear interpolation).
+                degree - the degree of the interpolation. Optional, defaults to 1 (i.e. linear interpolation). Values > 0 denote polynomial interpolation, a value of 0 uses nearest-neighbour interpolation, and a value of -1
         """
         # We need to identify gaps first
         if self.gaps is None:
@@ -263,8 +266,27 @@ class SamplingDomain(Domain):
         new_depths = numpy.linspace(self.depths[0], self.depths[-1], npoints)
         newdom = SamplingDomain(domain_name, new_depths)
         for prop in self.properties.values():
-            spl = Spline(self.depths, prop.values, k=degree)
-            newdom.add_property(prop.property_type, spl(new_depths))
+            if degree > 0:
+                # Add interpolated values to new domain
+                spl = Spline(self.depths, prop.values, k=degree)
+                newdom.add_property(prop.property_type, spl(new_depths))
+            elif degree == 0:
+                # Nearest neighbour interp
+                raise NotImplementedError
+            elif degree < 0:
+                # Mean value in gaps, linear interp otherwise
+                interp = numpy.ones(npoints) * prop.values.mean()
+                spl = Spline(self.depths, prop.values, k=-degree)
+
+                # Get values for each subdomain
+                for subdom in self.subdomains:
+                    idx = newdom.get_interval_indices(*subdom)
+                    interp[idx] = spl(newdom.depths[idx])
+
+                # Push back to new domain
+                newdom.add_property(prop.property_type, interp)
+            else:
+                raise NotImplementedError
         newdom.gaps = self.gaps
         newdom.subdomains = self.subdomains
         return newdom
@@ -296,6 +318,12 @@ class PropertyType(object):
         "Return long name or name if no long name."
         return self._long_name if self._long_name is not None else self.name
 
+    def copy(self):
+        """ Return a copy of the PropertyType instance
+        """
+        return PropertyType(self.name, self.long_name, self.description,
+            self.units)
+
 
 class Property(object):
 
@@ -319,3 +347,8 @@ class Property(object):
     def name(self):
         "The name of the property"
         return self.property_type.name
+
+    def copy(self):
+        """ Return a copy of the Property instance
+        """
+        return Property(self.property_type, self.values[:])

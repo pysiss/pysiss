@@ -28,6 +28,7 @@ http://unitsofmeasure.org/ucum.html
 
 from borehole_analysis.domains import SamplingDomain, IntervalDomain, \
     Property
+from borehole_analysis.wavelets import WaveletDomain
 
 class Borehole(object):
 
@@ -35,8 +36,12 @@ class Borehole(object):
 
         Properties:
             features - dict mapping feature name to Feature
-            interval_domains - dict mapping interval domain name to IntervalDomain
-            sampling_domains - dict mapping sampling domain name to SamplingDomain
+            interval_domains - dict mapping interval domain name to
+                IntervalDomain
+            sampling_domains - dict mapping sampling domain name to
+                SamplingDomain
+            wavelet_domains - dict mapping wavelet domain names to
+                WaveletDomain instances
 
         Arguments to constructor:
             name - identifier (string)
@@ -49,12 +54,22 @@ class Borehole(object):
         self.features = dict()
         self.interval_domains = dict()
         self.sampling_domains = dict()
+        self.wavelet_domains = dict()
 
     def __repr__(self):
         """ String representation
         """
-        info = 'Borehole {0}: {1}/{2} interval/sampling domains & {3} features'
-        return info.format(self.name,
+        info_str = (
+            'Borehole {0}: {1}/{2} interval/sampling domains & {3} '
+            + 'features'
+            + '\nIDs: '
+            + '\n    '.join(map(str, self.interval_domains.values()))
+            + '\nSDs: '
+            + '\n    '.join(map(str, self.sampling_domains.values()))
+            + '\nWDs: '
+            + '\n    '.join(map(str, self.wavelet_domains.values()))
+        )
+        return info_str.format(self.name,
             len(self.interval_domains), len(self.sampling_domains),
             len(self.features))
 
@@ -75,8 +90,10 @@ class Borehole(object):
 
             Arguments:
                 name - identifier (string)
-                from_depths - interval start point down-hole depths in metres from collar (any sequence, could be a list or numpy array)
-                to_depths - interval end point down-hole depths in metres from collar (any sequence, could be a list or numpy array)
+                from_depths - interval start point down-hole depths in metres
+                    from collar (any sequence, could be a list or numpy array)
+                to_depths - interval end point down-hole depths in metres from
+                    collar (any sequence, could be a list or numpy array)
 
             Returns: the new IntervalDomain instance.
         """
@@ -89,12 +106,21 @@ class Borehole(object):
 
             Arguments:
                 name - the name of the SamplingDomain
-                depths - sampling point down-hole depths in metres from collar (any sequence, could be a list or numpy array)
+                depths - sampling point down-hole depths in metres from collar
+                    (any sequence, could be a list or numpy array)
 
             Returns: the new SamplingDomain instance
         """
         self.sampling_domains[name] = SamplingDomain(name, depths)
         return self.sampling_domains[name]
+
+    def add_wavelet_domain(self, name, sampling_domain,
+        wavelet=None, wav_properties=None):
+        """ Add and return a new WaveletDomain.
+        """
+        self.wavelet_domains[name] = WaveletDomain(name, sampling_domain,
+            wavelet, wav_properties)
+        return self.wavelet_domains[name]
 
     def desurvey(self, depths, crs):
         """ Return the depths as three-dimensional points in the given
@@ -143,4 +169,22 @@ class Feature(object):
         """ Return the names of the available properties for this feature
         """
         return self.properties.keys()
+
+class CoordinateReferenceSystem(object):
+
+    """System for describing a spatial location as a tuple of real numbers."""
+
+    def  __init__(self):
+        raise NotImplementedError
+
+
+class Survey(object):
+
+    """The spatial shape of the borehole path in three dimensions from the collar.
+    Used to convert a sequence of down-hole depths into a sequence of three-dimensional
+    points in some coordinate reference system.
+    """
+
+    def __init__(self):
+        raise NotImplementedError
 

@@ -386,3 +386,52 @@ def plot_node_connection_graph(node, embedding=None):
     axes.get_yaxis().set_visible(False)
     axes.set_title('Network graph')
     return fig, axes
+
+def wavelet_plot(wavelet_domain, property_name):
+    """ Plot a CWT decomposition for a given domain
+    """
+    # Set up figure
+    fig = matplotlib.pyplot.figure(figsize=(8, 12))
+    grid = matplotlib.gridspec.GridSpec(1, 2, width_ratios=[0.1, 1])
+    trace_ax = matplotlib.pyplot.subplot(grid[0])
+    transform_ax = matplotlib.pyplot.subplot(grid[1])
+
+    # Get info from wavelet
+    wavelet = wavelet_domain.wavelets[property_name]
+    depths, data = wavelet.get_data()
+    scales = wavelet.get_scales(fourier=True)
+    transform = wavelet_domain.properties[property_name].values.real
+    depths_grid, scales_grid = numpy.meshgrid(depths, scales)
+    coi = wavelet_domain.cone_of_influence
+    gap = wavelet_domain.gap_cones
+
+    # Make borehole trace plot
+    xlim = int(numpy.min(data)), int(numpy.max(data))
+    trace_ax.plot(data, depths, 'k')
+    trace_ax.set_ylim(depths[-1], depths[0])
+    for subdomain in wavelet_domain.subdomains:
+        trace_ax.fill_between(xlim, subdomain[0], subdomain[1], color='yellow',
+            alpha=0.2)
+    for dgap in wavelet_domain.gaps:
+        trace_ax.fill_between(xlim, dgap[0], dgap[1], color='black', alpha=0.1)
+    trace_ax.set_ylabel('Depth')
+    trace_ax.set_xticks([xlim[0], 0, xlim[1]])
+    trace_ax.set_xticklabels([xlim[0], 0, xlim[1]], rotation='vertical')
+
+    # Make transform plot
+    transform_ax.contour(scales_grid.T, depths_grid.T, coi.mask.T, [1e-6],
+        colors='white')
+    transform_ax.contour(scales_grid.T, depths_grid.T, gap.mask.T, [1 - 1e-6],
+        colors='black', alpha=0.4)
+    transform_ax.contourf(scales_grid.T, depths_grid.T, gap.T, 1,
+        colors='black', alpha=0.1)
+    transform_ax.contourf(scales_grid.T, depths_grid.T, transform,
+        20, cmap = matplotlib.pyplot.get_cmap('RdYlBu_r'))
+    transform_ax.contourf(scales_grid.T, depths_grid.T, coi.T, 1,
+        colors='white', alpha=0.3)
+    transform_ax.set_xscale('log')
+    transform_ax.set_xlabel(r'Wavelength $\lambda$')
+    transform_ax.set_yticklabels('')
+    transform_ax.set_ylim(depths[-1], depths[0])
+    fig.tight_layout()
+    return fig, trace_ax, transform_ax
