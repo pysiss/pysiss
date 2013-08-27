@@ -15,6 +15,7 @@
 
 import numpy
 from scipy.interpolate import InterpolatedUnivariateSpline as Spline
+from scipy.interpolate import NearestNDInterpolator as NDInterp
 
 class Domain(object):
 
@@ -202,24 +203,30 @@ class SamplingDomain(Domain):
             numpy.logical_and(self.depths >= from_depth,
                               self.depths <= to_depth))
 
-    def split_at_gaps(self, gap_metric='spacing_median'):
+    def split_at_gaps(self, gap_metric='spacing_median', threshold=10):
         """ Split a domain by finding significant gaps in the domain.
 
             A metric to define 'gaps' is required. Currently we only have
             'spacing_median', which is really only suitable for SamplingDomain
-            instances.
+            instances. A gap is found where the sample spacing is greater than
+            threshold * <gap_metric>.
 
             Available metrics:
                 'spacing_median': a gap is defined as a spacing between
                     samples which is an order of magnitude above the median
                     sample spacing in a domain.
         """
+        # We need to add a small amount to the dataset so that the interval
+        # picker works well in the case of subdomains with only one value
+        epsilon = 1e-10
+        jitter = lambda a, b: (a - epsilon, b + epsilon)
+
         # Select gap metric to use, generate gap locations
         depths = self.depths
         spacing = numpy.diff(depths)
         if gap_metric is 'spacing_median':
             med_spacing = numpy.median(spacing)
-            gap_indices = numpy.flatnonzero(spacing > 10 * med_spacing)
+            gap_indices = numpy.flatnonzero(spacing > threshold * med_spacing)
         else:
             raise NotImplementedError(
                 "Unknown gap metric {0}".format(gap_metric))
@@ -236,12 +243,17 @@ class SamplingDomain(Domain):
         self.subdomains = []
         for idx in range(len(gap_indices) - 1):
             # Domains start _after_ the gap & end with next gap
-            self.subdomains.append((
-                depths[gap_indices[idx] + 1],
-                depths[gap_indices[idx + 1]]))
+            from_depth = depths[gap_indices[idx] + 1]
+            to_depth = depths[gap_indices[idx + 1]]
+
+            # Check whether we need to jitter
+            if gap_indices[idx] + 1 == gap_indices[idx + 1]:
+                from_depth, to_depth = jitter(from_depth, to_depth)
+            self.subdomains.append((from_depth, to_depth))
         return self.subdomains, self.gaps
 
-    def regularize(self, npoints=None, domain_name=None, degree=1):
+    def regularize(self, npoints=None, domain_name=None, fill_method='mean',
+        degree=0):
         """ Resample domain onto regular grid.
 
             This regularizes the data so that all sample spacings are equal to the median spacing of the raw data. Returns a new SamplingDomain instance with the new data.
@@ -249,10 +261,13 @@ class SamplingDomain(Domain):
             Arguments:
                 npoints - the number of new points. Optional, if not specified then the reinterpolated data will have the median spacing of the raw data.
                 domain_name - the name for the returned SamplingDomain. Optional, defaults to "<current_name> resampled".
-                degree - the degree of the interpolation. Optional, defaults to 1 (i.e. linear interpolation). Values > 0 denote polynomial interpolation, a value of 0 uses nearest-neighbour interpolation, and a value of -1
+                fill_method - the method for filling the gaps. 'interpolate' uses the interpolated spline, 'mean' fills gaps with the mean value for the borehole.
+                degree - the degree of the interpolation. Optional, defaults to 1 (i.e. linear interpolation). Values > 0 denote polynomial interpolation, a value of 0 uses nearest-neighbour interpolation.
         """
         # We need to identify gaps first
         if self.gaps is None:
+            print "Warning - your domain hasn't been analysed for gaps yet. " \
+                + "I'm going to assume you just want to use the default values"
             self.split_at_gaps()
 
        # Specify name & number of points if not already passed
@@ -266,17 +281,24 @@ class SamplingDomain(Domain):
         new_depths = numpy.linspace(self.depths[0], self.depths[-1], npoints)
         newdom = SamplingDomain(domain_name, new_depths)
         for prop in self.properties.values():
-            if degree > 0:
-                # Add interpolated values to new domain
+            if prop.property_type.isnumeric is False:
+                # We can't interpolate non-numeric data
+                continue
+
+            # Generate spline if required, else use nearest-neighbours
+            if degree == 0:
+                spl = NDInterp(self.depths, prop.values)
+            else:
                 spl = Spline(self.depths, prop.values, k=degree)
+
+            # Deal with gaps
+            if fill_method is 'interpolate':
+                # Add interpolated values to new domain
                 newdom.add_property(prop.property_type, spl(new_depths))
-            elif degree == 0:
-                # Nearest neighbour interp
-                raise NotImplementedError
-            elif degree < 0:
-                # Mean value in gaps, linear interp otherwise
+
+            elif fill_method is 'mean':
+                # Mean value in gaps, poly interp otherwise
                 interp = numpy.ones(npoints) * prop.values.mean()
-                spl = Spline(self.depths, prop.values, k=-degree)
 
                 # Get values for each subdomain
                 for subdom in self.subdomains:
@@ -285,8 +307,10 @@ class SamplingDomain(Domain):
 
                 # Push back to new domain
                 newdom.add_property(prop.property_type, interp)
+
             else:
                 raise NotImplementedError
+
         newdom.gaps = self.gaps
         newdom.subdomains = self.subdomains
         return newdom
@@ -296,18 +320,21 @@ class PropertyType(object):
 
     """The metadata for a property."""
 
-    def __init__(self, name, long_name=None, description=None, units=None):
+    def __init__(self, name, long_name=None, description=None, units=None,
+        isnumeric=True):
         """
 
         name -- identifier (string)
         long_name -- name for presentation to user (string) or None
         description -- descriptive phrase (string)
         units -- unit in Unified Code for Units of Measure (UCUM) (string)
+        isnumeric -- whether property is numeric or categorical
         """
         self.name = name
         self._long_name = long_name
         self.description = description
         self.units = units
+        self.isnumeric = isnumeric
 
     def __repr__(self):
         info = 'PropertyType {0}: long name is "{1}", units are {2}'

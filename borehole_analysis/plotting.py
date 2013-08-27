@@ -408,7 +408,7 @@ def wavelet_plot(wavelet_domain, property_name):
     wavelet = wavelet_domain.wavelets[property_name]
     depths, data = wavelet.get_data()
     scales = wavelet.get_scales(fourier=True)
-    transform = wavelet_domain.properties[property_name].values.real
+    transform = wavelet_domain.properties[property_name].values.real[:, 0, :]
     depths_grid, scales_grid = numpy.meshgrid(depths, scales)
     coi = wavelet_domain.cone_of_influence
     gap = wavelet_domain.gap_cones
@@ -458,7 +458,7 @@ def wavelet_label_plot(wavelet_domain, property_name):
     depths, data = wavelet.get_data()
     scales = wavelet.get_scales(fourier=True)
     label_array = \
-        wavelet_domain.properties[property_name + ' domains'].values
+        wavelet_domain.properties[property_name + ' domains'].values[:, 0, :]
     depths_grid, scales_grid = numpy.meshgrid(depths, scales)
     coi = wavelet_domain.cone_of_influence
     gap = wavelet_domain.gap_cones
@@ -510,7 +510,8 @@ def plot_all_wavelets(wavelet_domain):
         axe = matplotlib.pyplot.subplot(grid[idx])
         axe.set_xticks([])
         axe.set_yticks([])
-        axe.contourf(prop.values, 5, cmap=matplotlib.pyplot.get_cmap('RdYlBu'))
+        axe.contourf(prop.values[:, 0, :],
+            5, cmap=matplotlib.pyplot.get_cmap('RdYlBu'))
         axe.contourf(coi, 1, colors=['white'], alpha=0.5)
         axe.contourf(gaps, 1, colors=['black'], alpha=0.2)
         axe.set_title(prop.property_type.long_name)
