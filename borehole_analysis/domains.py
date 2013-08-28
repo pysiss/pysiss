@@ -15,7 +15,6 @@
 
 import numpy
 from scipy.interpolate import InterpolatedUnivariateSpline as Spline
-from scipy.interpolate import NearestNDInterpolator as NDInterp
 
 class Domain(object):
 
@@ -201,7 +200,7 @@ class SamplingDomain(Domain):
         """
         return numpy.where(
             numpy.logical_and(self.depths >= from_depth,
-                              self.depths <= to_depth))
+                              self.depths <= to_depth))[0]
 
     def split_at_gaps(self, gap_metric='spacing_median', threshold=10):
         """ Split a domain by finding significant gaps in the domain.
@@ -252,7 +251,7 @@ class SamplingDomain(Domain):
             self.subdomains.append((from_depth, to_depth))
         return self.subdomains, self.gaps
 
-    def regularize(self, npoints=None, domain_name=None, fill_method='mean',
+    def regularize(self, npoints=None, domain_name=None, fill_method='median',
         degree=0):
         """ Resample domain onto regular grid.
 
@@ -280,37 +279,79 @@ class SamplingDomain(Domain):
         # Generate a new Domain with the resampled data
         new_depths = numpy.linspace(self.depths[0], self.depths[-1], npoints)
         newdom = SamplingDomain(domain_name, new_depths)
+
+        # If we're doing nearest neighbours then we only need to work out the
+        # interpolation once
+        if degree == 0:
+            # This line generates a set of indices which will reconstruct a
+            # new signal using nearest neighbours, just do:
+            # >>> property.values[interp_indices]
+            interp_indices = numpy.argmin(
+                numpy.asarray([
+                    (self.depths - new_depths[:, numpy.newaxis]) ** 2]),
+                axis=-1)[0]
+
+        # Get gap indices etc and store for faster lookup
+        if fill_method in ['mean', 'median', 'local mean', 'local median']:
+            # These methods need gap indices
+            gap_idxs = [newdom.get_interval_indices(*gap) for gap in self.gaps]
+        if fill_method in ['local mean', 'local median']:
+            # These methods need subdomain indices from the old domain
+            sdom_idxs = [self.get_interval_indices(*sdom)
+                for sdom in self.subdomains]
+
+        # Resample properties
         for prop in self.properties.values():
             if prop.property_type.isnumeric is False:
                 # We can't interpolate non-numeric data
                 continue
 
-            # Generate spline if required, else use nearest-neighbours
+            # Generate spline fit if required, else use nearest-neighbours
             if degree == 0:
-                spl = NDInterp(self.depths, prop.values)
+                new_values = prop.values[interp_indices]
             else:
                 spl = Spline(self.depths, prop.values, k=degree)
+                new_values = spl(new_depths)
 
             # Deal with gaps
-            if fill_method is 'interpolate':
-                # Add interpolated values to new domain
-                newdom.add_property(prop.property_type, spl(new_depths))
+            if fill_method == 'interpolate':
+                # We've already generated an interpolated value, so move on
+                # This option is here for error checking purposes
+                pass
 
-            elif fill_method is 'mean':
+            elif fill_method == 'mean':
                 # Mean value in gaps, poly interp otherwise
-                interp = numpy.ones(npoints) * prop.values.mean()
+                meanval = prop.values.mean()
+                for gidx in gap_idxs:
+                    new_values[gidx] = meanval
 
-                # Get values for each subdomain
-                for subdom in self.subdomains:
-                    idx = newdom.get_interval_indices(*subdom)
-                    interp[idx] = spl(newdom.depths[idx])
+            elif fill_method == 'median':
+                # Median value in gaps
+                medval = numpy.median(prop.values)
+                for gidx in gap_idxs:
+                    new_values[gidx] = medval
 
-                # Push back to new domain
-                newdom.add_property(prop.property_type, interp)
+            elif fill_method == 'local mean':
+                # local mean value in gaps
+                smeans = [prop.values[s].mean() for s in sdom_idxs]
+                for sma, gidx, smb in zip(smeans[:-1], gap_idxs, smeans[1:]):
+                    new_values[gidx] = (sma + smb) / 2.
+
+            elif fill_method == 'local median':
+                # local median value in gaps
+                gap_neighbours = zip(sdom_idxs[:-1], gap_idxs, sdom_idxs[1:])
+                for sidxa, gidx, sidxb in gap_neighbours:
+                    new_values[gidx] = numpy.median(numpy.concatenate(
+                        prop.values[sidxa],
+                        prop.values[sidxb]))
 
             else:
                 raise NotImplementedError
 
+            # Push back to new domain
+            newdom.add_property(prop.property_type, new_values)
+
+        # Copy over gaps and subdomains
         newdom.gaps = self.gaps
         newdom.subdomains = self.subdomains
         return newdom
@@ -321,7 +362,7 @@ class PropertyType(object):
     """The metadata for a property."""
 
     def __init__(self, name, long_name=None, description=None, units=None,
-        isnumeric=True):
+        isnumeric=True, detection_limit=None):
         """
 
         name -- identifier (string)
@@ -335,6 +376,7 @@ class PropertyType(object):
         self.description = description
         self.units = units
         self.isnumeric = isnumeric
+        self.detection_limit = detection_limit
 
     def __repr__(self):
         info = 'PropertyType {0}: long name is "{1}", units are {2}'

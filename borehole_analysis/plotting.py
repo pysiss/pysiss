@@ -217,25 +217,29 @@ def float_label(index, position, embedding):
     return (xloc, yloc), (horizontalalignment, verticalalignment)
 
 ## Borehole plotting
-def plot_borehole_data(borehole, keys_to_plot=None):
+def plot_sampling_domain_data(sampling_domain, keys_to_plot=None):
     """ Plot the data stored in the current node object
 
         :returns: handles to the figure and axes
     """
     if keys_to_plot is None:
-        keys_to_plot = borehole.get_keys()
-
-    # Get data from borehole
-    domain = borehole.get_domain()
-    signals = dict([(k, borehole.get_signal(k)) for k in keys_to_plot])
-    domain_bounds = (borehole.domain.min(), borehole.domain.max())
+        keys_to_plot = [k for k in sampling_domain.properties.keys()
+                        if sampling_domain.properties[k].property_type.\
+                            isnumeric]
 
     # Plot data
     fig = matplotlib.pyplot.figure(figsize=(1*len(keys_to_plot), 20))
+    domain_bounds = (sampling_domain.depths.max(),
+        sampling_domain.depths.min())
     for i, key in enumerate(keys_to_plot):
         axes = matplotlib.pyplot.subplot(1, len(keys_to_plot), i+1)
-        plot_signal(axes, signal=signals[key], domain=domain,
-            orientation='vertical')
+        try:
+            plot_signal(axes,
+                signal=sampling_domain.properties[key].values,
+                domain=sampling_domain.depths,
+                orientation='vertical')
+        except TypeError:
+            print key
         axes.set_xlabel("")
         if i == 0:
             axes.set_ylabel('Depth (m)')
@@ -244,7 +248,7 @@ def plot_borehole_data(borehole, keys_to_plot=None):
             axes.set_yticklabels("")
         axes.set_ylim(domain_bounds)
         axes.xaxis.set_major_locator(matplotlib.pyplot.MaxNLocator(3))
-        axes.set_title(borehole.labels[key][1],
+        axes.set_title(sampling_domain.properties[key].property_type.long_name,
             rotation=90, verticalalignment='bottom',
             horizontalalignment='center')
     fig.tight_layout()
@@ -457,8 +461,8 @@ def wavelet_label_plot(wavelet_domain, property_name):
     wavelet = wavelet_domain.wavelets[property_name]
     depths, data = wavelet.get_data()
     scales = wavelet.get_scales(fourier=True)
-    label_array = \
-        wavelet_domain.properties[property_name + ' domains'].values[:, 0, :]
+    label_array = wavelet_domain.domains[property_name][:, 0, :]
+    nlabels = len(wavelet_domain.labels[property_name])
     depths_grid, scales_grid = numpy.meshgrid(depths, scales)
     coi = wavelet_domain.cone_of_influence
     gap = wavelet_domain.gap_cones
@@ -484,7 +488,7 @@ def wavelet_label_plot(wavelet_domain, property_name):
     transform_ax.contourf(scales_grid.T, depths_grid.T, gap, 1,
         colors='black', alpha=0.1)
     transform_ax.contourf(scales_grid.T, depths_grid.T, label_array,
-        40, cmap = matplotlib.pyplot.get_cmap('RdGy'))
+        nlabels, cmap = matplotlib.pyplot.get_cmap('RdGy'))
     transform_ax.contourf(scales_grid.T, depths_grid.T, coi, 1,
         colors='white', alpha=0.3)
     transform_ax.set_xscale('log')
@@ -510,11 +514,36 @@ def plot_all_wavelets(wavelet_domain):
         axe = matplotlib.pyplot.subplot(grid[idx])
         axe.set_xticks([])
         axe.set_yticks([])
-        axe.contourf(prop.values[:, 0, :],
+        axe.contourf(prop.values[::-1, 0, :].real,
             5, cmap=matplotlib.pyplot.get_cmap('RdYlBu'))
-        axe.contourf(coi, 1, colors=['white'], alpha=0.5)
-        axe.contourf(gaps, 1, colors=['black'], alpha=0.2)
+        axe.contourf(coi[::-1, :], 1, colors=['white'], alpha=0.5)
+        axe.contourf(gaps[::-1, :], 1, colors=['black'], alpha=0.2)
         axe.set_title(prop.property_type.long_name)
+    fig.tight_layout()
+    return fig, axe
+
+def plot_all_label_arrays(wavelet_domain):
+    """ Plot all the label arrays in a WaveletDomain
+    """
+    # Generate figure
+    fig = matplotlib.pyplot.figure(figsize=(11, 20))
+    domain_keys = wavelet_domain.domains.keys()
+    gaps = wavelet_domain.gap_cones
+    coi = wavelet_domain.cone_of_influence
+    nplots = len(domain_keys)
+    grid = gen_axes_grid(nplots, 5)
+
+    # Plot each property
+    for idx, key in enumerate(domain_keys):
+        domains = wavelet_domain.domains[key].real[::-1, 0, :]
+        ndomans = len(wavelet_domain.labels[key])
+        axe = matplotlib.pyplot.subplot(grid[idx])
+        axe.set_xticks([])
+        axe.set_yticks([])
+        axe.contourf(domains, ndomans, cmap=matplotlib.pyplot.get_cmap('RdGy'))
+        axe.contourf(coi[::-1, :], 1, colors=['white'], alpha=0.5)
+        axe.contourf(gaps[::-1, :], 1, colors=['black'], alpha=0.2)
+        axe.set_title(wavelet_domain.properties[key].property_type.long_name)
     fig.tight_layout()
     return fig, axe
 
@@ -555,4 +584,6 @@ def plot_label_tree(tree):
     # Plot boundaries
     axe.set_ylim(tree.depths[-1], tree.depths[0])
     axe.set_xscale('log')
-    axe.set_xlim(tree.labels[0], tree.labels[-1])
+    axe.set_xlabel(r'Wavelength $\lambda$')
+    axe.set_ylabel(r'Depth')
+    axe.set_xlim(numpy.min(tree.max_scales), numpy.max(tree.max_scales))

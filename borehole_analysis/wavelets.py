@@ -13,7 +13,10 @@ import cwavelets
 import scipy.ndimage
 from collections import defaultdict
 from scipy.ndimage.measurements import maximum_position, minimum_position
-from borehole_analysis.domains import SamplingDomain, PropertyType
+from borehole_analysis.domains import SamplingDomain
+import borehole_analysis.metrics as metrics
+
+__all__ = ['WaveletDomain', 'LabelTree', 'metrics']
 
 class WaveletDomain(SamplingDomain):
 
@@ -76,7 +79,10 @@ class WaveletDomain(SamplingDomain):
 
         # Placeholders for other datasets
         self.wavelets = {}
+        self.domains = {}
         self.labels = {}
+        self.label_trees = {}
+        self.label_weights = {}
 
     def add_transform(self, prop):
         """ Add transforms to domain from a given sampling_domain instance
@@ -93,7 +99,7 @@ class WaveletDomain(SamplingDomain):
         self.add_property(prop.property_type,
             masked_transform.transpose())
 
-    def label_domains(self, property_name, sort_by_size=False):
+    def label_domains(self, property_name):
         """ Label domains within a CWT
         """
         # Generate thresholded masks
@@ -106,38 +112,40 @@ class WaveletDomain(SamplingDomain):
         # Generate & combine labels
         pos_labs, npos_labs = scipy.ndimage.label(pos)
         neg_labs, nneg_labs = scipy.ndimage.label(neg)
-        labelled_array = (pos * pos_labs \
+        labelled_array = (pos * pos_labs
             - neg * (neg_labs - 1) + nneg_labs - 1).astype(int)
-        labels = self.labels[property_name] = \
+        self.labels[property_name] = \
             numpy.arange(nneg_labs + npos_labs, dtype=numpy.int)
-
-        if sort_by_size:
-            # We'll use tallies to add up how big a region is
-            nscales = len(self.wavelets[property_name].get_scales())
-            label_tallies = numpy.zeros_like(labels, dtype=numpy.int)
-            for i in range(nscales):
-                vals = numpy.unique(labelled_array[i])
-                label_tallies[vals] += 1
-
-            # Sort by size - larger labels show up in more decomps
-            # We use negative integers in loop to avoid clobbering labels we
-            # haven't used yet
-            sort_idx = numpy.argsort(label_tallies)[::-1]
-            for i, j in enumerate(labels[sort_idx]):
-                labelled_array[labelled_array == j] = -(i+1)
-
-            # Undo the negative, reset first label to zero
-            labelled_array *= -1
-            labelled_array -= 1
-
-        ptype = self.properties[property_name].property_type
         labelled_array = \
             numpy.ma.masked_array(labelled_array, mask=self.gap_mask.T)
-        self.add_property(
-            PropertyType(name=ptype.name + ' domains',
-                long_name=ptype.long_name + ' domains', units=None),
-            labelled_array)
-        return labelled_array, labels
+
+        # Add labelled array to properties
+        self.domains[property_name] = labelled_array
+
+        # Generate a LabelTree instance to order labels in scale space
+        if len(self.labels[property_name]) is not 0:
+            self.label_trees[property_name] = LabelTree(self, property_name)
+
+    def rank_labels(self, property_name, sort_by=metrics.thickness):
+        """ Relabel domains so that labels are sorted by some metric
+        """
+        # Determine importance order
+        weights = sort_by(self, property_name)
+        sort_idx = numpy.argsort(-weights)
+        self.label_weights[property_name] = weights[sort_idx]
+        labels = self.labels[property_name]
+        mapping = dict(zip(sort_idx, labels))
+
+        # Update label array
+        labelled_array = self.domains[property_name]
+        sorted_labels = numpy.empty(labelled_array.shape, dtype=int)
+        for old_label, new_label in mapping.items():
+            sorted_labels[labelled_array == old_label] = new_label
+        self.domains[property_name] = \
+            numpy.ma.masked_array(sorted_labels, mask=self.gap_mask.T)
+
+        # Update LabelTree attributes
+        self.label_trees[property_name].update_labels(sort_idx)
 
 
 class LabelTree(object):
@@ -146,12 +154,15 @@ class LabelTree(object):
         labelled array.
     """
 
-    def __init__(self, depths, scales, labelled_array, labels):
+    def __init__(self, wavelet_domain, property_name):
         super(LabelTree, self).__init__()
-        self.scales = scales
-        self.depths = depths
-        self.labelled_array = labelled_array
-        self.labels = labels
+        self.wavelet_domain = wavelet_domain
+        self.property_name = property_name
+        self.scales = self.wavelet_domain.scales
+        self.depths = self.wavelet_domain.depths
+        self.labelled_array = \
+            self.wavelet_domain.domains[property_name][:, 0, :]
+        self.labels = self.wavelet_domain.labels[self.property_name]
         self.intervals = None
 
         # Get labels, then use measurements.maximum with a list of scales to
@@ -238,3 +249,27 @@ class LabelTree(object):
             if compare(result, child_value):
                 result = child_value
         return result
+
+    def update_labels(self, sort_idx):
+        """ Update the labels in the tree after a resort
+        """
+        # Update label array
+        self.labelled_array = \
+            self.wavelet_domain.domains[self.property_name][:, 0, :]
+
+        # Sort label properties
+        to_sort = ['thicknesses', 'min_domain', 'max_domain', 'intervals']
+        for attr in to_sort:
+            self.__dict__[attr] = self.__dict__[attr][sort_idx]
+        to_sort_pairs = ['max_scales', 'min_scales']
+        for attr in to_sort_pairs:
+            self.__dict__[attr] = self.__dict__[attr][:, sort_idx]
+
+        # Update connection tree with new labels
+        new_connections = {}
+        mapping = dict(zip(sort_idx, self.labels))
+        mapping['root'] = 'root'
+        for parent, children in self.connections.items():
+            new_connections[mapping[parent]] = \
+                [mapping[c] for c in children]
+        self.connections = new_connections
