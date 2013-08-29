@@ -78,7 +78,7 @@ lines.linewidth   : 2.0     # line width in points
 patch.linewidth        : 0.5     # edge width in points
 patch.facecolor        : blue
 patch.edgecolor        : eeeeee
-patch.antialiased      : True  
+patch.antialiased      : True
 
 ### FONT
 #
@@ -181,7 +181,7 @@ patch.antialiased      : True
                        #             or the autohinter if none is available.
                        # For backward compatibility, this value may also be
                        # True === 'auto' or False === 'none'.
-text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
+#text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
                          # horizontal direction.  A value of 1 will hint to full
                          # pixels.  A value of 2 will hint to half pixels etc.
 
