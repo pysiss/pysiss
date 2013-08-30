@@ -15,6 +15,7 @@ from collections import defaultdict
 from scipy.ndimage.measurements import maximum_position, minimum_position
 from borehole_analysis.domains import SamplingDomain
 import borehole_analysis.metrics as metrics
+from itertools import product, repeat
 
 __all__ = ['WaveletDomain', 'LabelTree', 'metrics']
 
@@ -273,3 +274,73 @@ class LabelTree(object):
             new_connections[mapping[parent]] = \
                 [mapping[c] for c in children]
         self.connections = new_connections
+
+def get_matches(*wav_domains):
+    """ Return the matches between different subdomains withing the given
+        wavelet domain.
+
+        All wavelet domains must be pre-labelled.
+    """
+    # We need the superset of all properties in the wavelet domains
+    property_names = list()
+    wavelet = dict()
+    for domain in wav_domains:
+        props = domain.properties.keys()
+        property_names.extend(props)
+        wavelet.update(zip(props, repeat(domain)))
+
+    # Set up data structures
+    all_matches = dict()
+    for name in property_names:
+        nlabels = len(wavelet[name].labels[name])
+        all_matches[name] = []
+        for _ in range(nlabels):
+            all_matches[name].append(dict(zip(property_names, repeat(None))))
+            all_matches[name][-1]['nmatches'] = 0 # Init counter for matches
+    domain_metrics = dict()
+
+    # For each label, pull statistics from tree: (lmax, dmax, dmin)
+    for name in property_names:
+        tree = wavelet[name].label_trees[name]
+        domain_metrics[name] = numpy.vstack([tree.max_scales[0],
+            tree.max_domain, tree.min_domain]).transpose()
+
+    # Determine cross-domain metrics, select best matches
+    already_checked = []
+    for name1, name2 in product(property_names, property_names):
+        # Check that we actually need to do the work
+        if name1 == name2 or (name1, name2) in already_checked:
+            continue
+        else:
+            # Append this one to avoid doing work in future (we only need to
+            # each pair once since the results are symmetric)
+            already_checked.append((name2, name1))
+
+        # Work out cross-correlation between domains
+        metric1 = domain_metrics[name1]
+        metric2 = domain_metrics[name2]
+        metric_cross = numpy.sum(
+            2 * numpy.abs(metric1 - metric2[:, numpy.newaxis])
+                / (metric1 + metric2[:, numpy.newaxis]),
+            axis=-1)
+
+        # Determine matches as local minima - we only keep matches which are
+        # the minimum in both row and column
+        best_matches_row = set(zip(
+            numpy.arange(metric_cross.shape[1]),
+            numpy.argmin(metric_cross, axis=0)))
+        best_matches_col = set(zip(
+            numpy.argmin(metric_cross, axis=1),
+            numpy.arange(metric_cross.shape[0])))
+        agreeing_matches = [m for m in best_matches_row
+            if m in best_matches_col]
+
+        # For each match, add the relevant matching domain in the matches list
+        # of dicts
+        for match_dom1, match_dom2 in agreeing_matches:
+            all_matches[name1][match_dom1][name2] = match_dom2
+            all_matches[name1][match_dom1]['nmatches'] += 1
+            all_matches[name2][match_dom2][name1] = match_dom1
+            all_matches[name2][match_dom2]['nmatches'] += 1
+
+    return all_matches
