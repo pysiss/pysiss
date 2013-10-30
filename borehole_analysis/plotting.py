@@ -410,8 +410,9 @@ def wavelet_plot(wavelet_domain, property_name):
 
     # Get info from wavelet
     wavelet = wavelet_domain.wavelets[property_name]
-    depths, data = wavelet.get_data()
-    scales = wavelet.get_scales(fourier=True)
+    depths = wavelet_domain.depths
+    data = wavelet.signal
+    scales = wavelet.scales * wavelet.properties['equivalent_fourier_period']
     transform = wavelet_domain.properties[property_name].values.real[:, 0, :]
     depths_grid, scales_grid = numpy.meshgrid(depths, scales)
     coi = wavelet_domain.cone_of_influence
@@ -459,8 +460,9 @@ def wavelet_label_plot(wavelet_domain, property_name):
 
     # Get info from wavelet
     wavelet = wavelet_domain.wavelets[property_name]
-    depths, data = wavelet.get_data()
-    scales = wavelet.get_scales(fourier=True)
+    depths = wavelet_domain.depths
+    data = wavelet.signal
+    scales = wavelet.scales * wavelet.properties['equivalent_fourier_period']
     label_array = wavelet_domain.domains[property_name][:, 0, :]
     nlabels = len(wavelet_domain.labels[property_name])
     depths_grid, scales_grid = numpy.meshgrid(depths, scales)
