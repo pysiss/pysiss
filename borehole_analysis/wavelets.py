@@ -40,7 +40,8 @@ class WaveletDomain(SamplingDomain):
             signal=numpy.ones_like(self.depths),
             domain_axes=[self.depths],
             properties=self.wav_properties)
-        self.scales = self._dummy_wav.get_scales(fourier=False)
+        self._dummy_wav.generate_domains()
+        self.scales = self._dummy_wav.scales
         tau_e = self._dummy_wav.properties['efolding_time']
 
         # Check that we have identified gaps in the domain
@@ -92,10 +93,11 @@ class WaveletDomain(SamplingDomain):
             "Length of WaveletDomain and SamplingDomain must be the same"
         wav = self.wavelets[prop.name] = self.wavelet_type(
             signal=prop.values,
-            domain=self.depths,
+            domain_axes=[self.depths],
             properties=self.wav_properties)
+        wav.calculate_transform()
         masked_transform = numpy.ma.masked_array(
-            wav.get_transform(),
+            wav.transform,
             mask=self.gap_mask)
         self.add_property(prop.property_type,
             masked_transform.transpose())
