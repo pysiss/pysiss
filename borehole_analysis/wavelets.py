@@ -38,7 +38,7 @@ class WaveletDomain(SamplingDomain):
             self.wav_properties.update(wav_properties)
         self._dummy_wav = self.wavelet_type(
             signal=numpy.ones_like(self.depths),
-            domain=self.depths,
+            domain_axes=[self.depths],
             properties=self.wav_properties)
         self.scales = self._dummy_wav.get_scales(fourier=False)
         tau_e = self._dummy_wav.properties['efolding_time']
