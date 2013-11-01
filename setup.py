@@ -20,7 +20,7 @@ if version < '2.2.3':
 ## PACKAGE INFORMATION
 setup(
     name='Borehole analysis',
-    version='0.1.1',
+    version='0.1.1a',
     description='Python functions for analysing borehole data',
     long_description=open('README.md').read(),
     author='Jess Robertson',
