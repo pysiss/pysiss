@@ -20,9 +20,9 @@ if version < '2.2.3':
 ## PACKAGE INFORMATION
 setup(
     name='Borehole analysis',
-    version='0.1.0',
+    version='0.1.1',
     description='Python functions for analysing borehole data',
-    long_description=open('README.txt').read(),
+    long_description=open('README.md').read(),
     author='Jess Robertson',
     author_email='jesse.robertson@csiro.au',
     url='http://bitbucket.org/jessrobertson/borehole_analysis',

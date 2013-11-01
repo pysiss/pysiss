@@ -75,9 +75,9 @@ def unique(array, return_index=True, sort_method='heapsort', eqtest=None):
     perm = array.argsort(kind=sort_method)
     aux = array[perm]
 
-    # Check for inequality (i.e. we want to mask values with False in the mask 
+    # Check for inequality (i.e. we want to mask values with False in the mask
     # array for which eqtest is true)
-    neqflag = numpy.concatenate(([True], 
+    neqflag = numpy.concatenate(([True],
         numpy.logical_not(eqtest(aux[1:], aux[:-1]))))
     if return_index:
         return aux[neqflag], perm[neqflag]
@@ -86,7 +86,7 @@ def unique(array, return_index=True, sort_method='heapsort', eqtest=None):
 
 
 class ReSampler(scipy.interpolate.InterpolatedUnivariateSpline):
-    """ Resamples a dataset over a given domain onto a regularly 
+    """ Resamples a dataset over a given domain onto a regularly
         gridded dataset.
 
         On initialisation, a spline fit to the signal is generated. Subsequent calls to the ReSampler instance will use this spline to generate the resampled arrays.
@@ -131,7 +131,7 @@ class ReSampler(scipy.interpolate.InterpolatedUnivariateSpline):
     def resample(self, nsamples, domain_bounds=None, derivative=0):
         """ Generate a resampled dataset.
 
-            The locations of the resampled points are uniformly distributed over the range specified in `domain_bounds`, which defaults to the range of domain values supplied. 
+            The locations of the resampled points are uniformly distributed over the range specified in `domain_bounds`, which defaults to the range of domain values supplied.
 
             :param nsamples: number of resampled points
             :type nsamples: int
@@ -143,7 +143,7 @@ class ReSampler(scipy.interpolate.InterpolatedUnivariateSpline):
         """
         if domain_bounds is None:
             domain_bounds = self.domain_bounds
-        resampled_domain = numpy.linspace(domain_bounds[0], 
+        resampled_domain = numpy.linspace(domain_bounds[0],
             domain_bounds[1], nsamples)
         resampled_data = super(ReSampler, self).__call__(
             x=resampled_domain, nu=derivative)
@@ -152,9 +152,9 @@ class ReSampler(scipy.interpolate.InterpolatedUnivariateSpline):
 
 # Detrend helper functions
 def _detrend_mean(data):
-    """ Detrend a signal by subtracting the mean. 
+    """ Detrend a signal by subtracting the mean.
 
-        This function is internal to cwavelets.utilities and should not be 
+        This function is internal to cwavelets.utilities and should not be
         called outside of it. See cwavelets.utilities.detrend instead.
 
         Data is modified in place.
@@ -168,15 +168,15 @@ def _detrend_mean(data):
 def _detrend_function(data, func, param_guess):
     """ Detrend a signal using the given function.
 
-        Calculates the best fit trend function using `numpy.linalg.leastsq` 
+        Calculates the best fit trend function using `numpy.linalg.leastsq`
         and subtracts it from the data. Data is modified in place.
 
-        This function is internal to cwavelets.utilities and should not be 
+        This function is internal to cwavelets.utilities and should not be
         called outside of it. See cwavelets.utilities.detrend instead.
 
         :param data: the one-dimensional input data
         :type data: `numpy.array`
-        :param func: specify a model function to use in the 
+        :param func: specify a model function to use in the
             detrending.
         :param param_guess: An initial guess at the parameters in the model. Usually an array of ones, or an array with the highest polynomial factor set to one and the rest to zero works well. A `ValueError` will be raised if `func` is specified but not `param_guess`.
         :type param_guess: `numpy.ndarray`
@@ -186,7 +186,7 @@ def _detrend_function(data, func, param_guess):
     drange, dmean = numpy.max(data) - numpy.min(data), data.mean()
     data_scaled = (data - dmean) / drange
 
-    # We define the domain to just be the unit interval which is fine for most 
+    # We define the domain to just be the unit interval which is fine for most
     # detrending things, when the actual parameter values don't matter
     domain = numpy.linspace(0, 1, len(data))
     residuals = lambda p, y, x: y - func(p, x)
@@ -203,13 +203,13 @@ def _detrend_function(data, func, param_guess):
 BUILTIN_TRENDS = {
     'none': lambda data: None, # Not sure why you'd use this
     'mean': _detrend_mean,
-    'linear': lambda data: _detrend_function(data, 
+    'linear': lambda data: _detrend_function(data,
         func = lambda b, x: b[1] * x + b[0],
         param_guess = [1, 0]),
-    'quadratic': lambda data: _detrend_function(data, 
+    'quadratic': lambda data: _detrend_function(data,
         func = lambda b, x: b[2] * x ** 2 + b[1] * x + b[0],
         param_guess = [1, 0, 0]),
-    'cubic': lambda data: _detrend_function(data, 
+    'cubic': lambda data: _detrend_function(data,
         func = lambda b, x: b[3] * x ** 3 + b[2] * x ** 2 + b[1] * x + b[0],
         param_guess = [1, 0, 0, 0])
 }
@@ -219,32 +219,32 @@ def detrend(data, trend=None, func=None, param_guess=None):
 
         The behavior of the function depends on the trend supplied:
             -   If `trend` is `none`, no detrending is done
-            -   if `trend` is `mean`, the data mean is subtracted from each 
+            -   if `trend` is `mean`, the data mean is subtracted from each
                 data point.
-            -   If `trend` is one of `linear`, `quadratic` or `cubic`, the 
-                data is detrended using best least-squares fit to the relevant 
+            -   If `trend` is one of `linear`, `quadratic` or `cubic`, the
+                data is detrended using best least-squares fit to the relevant
                 model.
 
-        Alternatively you can supply your own function for detrending using 
-        the func argument. This model function should take a one-dimensional 
-        numpy array, plus a vector of variables which can be fit to the data 
-        using `scipy.optimize.leastsq`. Note that specifying both `trend` and 
+        Alternatively you can supply your own function for detrending using
+        the func argument. This model function should take a one-dimensional
+        numpy array, plus a vector of variables which can be fit to the data
+        using `scipy.optimize.leastsq`. Note that specifying both `trend` and
         `func` when calling this function will raise a ValueError.
 
-        If no extra parameters are specified, this function performs linear 
+        If no extra parameters are specified, this function performs linear
         detrending.
 
-        Internally, the input data are rescaled to the unit inteval to improve 
-        the detrending. This might cause a problem for cases where the range 
+        Internally, the input data are rescaled to the unit inteval to improve
+        the detrending. This might cause a problem for cases where the range
         of the data is very small relative to machine precision.
 
         :param data: the one-dimensional input data
         :type data: `numpy.array`
-        :param trend: Optional, use a builtin trend model. One of 'none', 'mean', 'linear', 'quadratic' or 'cubic'. Defaults to 'linear' if 
+        :param trend: Optional, use a builtin trend model. One of 'none', 'mean', 'linear', 'quadratic' or 'cubic'. Defaults to 'linear' if
             `func` is not specified.
         :type trend: str
-        :param func: Optional, specify a model function to use in the 
-            detrending. The function should be of the form :math:`f(p, x)` where :math:`x` is some domain parameter, and :math:`p` is a paramter vector for the model. See `scipy.optimize.leastsq` for more details on the form 
+        :param func: Optional, specify a model function to use in the
+            detrending. The function should be of the form :math:`f(p, x)` where :math:`x` is some domain parameter, and :math:`p` is a paramter vector for the model. See `scipy.optimize.leastsq` for more details on the form
             of this function.
         :param param_guess: An initial guess at the parameters in the model. Usually an array of ones, or an array with the highest polynomial factor set to one and the rest to zero works well. A `ValueError` will be raised if `func` is specified but not `param_guess`.
         :type param_guess: `numpy.ndarray`
@@ -273,11 +273,11 @@ def mask_all_nans(*arrays):
         Example usage:
 
             >>> mask = mask_all_nans(array1, array2)
-            >>> array1[mask]            # Both of these are guarenteed 
+            >>> array1[mask]            # Both of these are guarenteed
             >>> array2[mask]            # to be nan-free
 
         :param *arrays: The arrays to generate masks for. They should all have the same size or a ValueError will be raised.
-        :type *arrays: `numpy.ndarrays` 
+        :type *arrays: `numpy.ndarrays`
         :returns: A `numpy.boolean_array` which can be used as a mask.
     """
     # Convert arrays to numpy arrays if required
@@ -294,7 +294,7 @@ def mask_all_nans(*arrays):
             "size (arrays have shapes {0})".format(shapes))
 
     # Return the non-nan indices
-    return numpy.logical_not(functools.reduce(numpy.logical_or, 
+    return numpy.logical_not(functools.reduce(numpy.logical_or,
                                     [numpy.isnan(a) for a in arrays]))
 
 def try_float(value_str):
@@ -304,3 +304,4 @@ def try_float(value_str):
         return float(value_str)
     except ValueError:
         return numpy.nan
+
