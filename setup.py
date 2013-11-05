@@ -3,7 +3,7 @@
     author: Jess Robertson, CSIRO Earth Science and Resource Engineering
     date: Wednesday 1 May, 2013
 
-    description: Distutils installer script for borehole_analysis.
+    description: Distutils installer script for python_boreholes.
 """
 
 import distribute_setup

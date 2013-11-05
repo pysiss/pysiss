@@ -2,9 +2,9 @@
 """Classes to represent a borehole.
 """
 
-from borehole_analysis.domains import SamplingDomain, IntervalDomain, \
+from python_boreholes.domains import SamplingDomain, IntervalDomain, \
     Property
-from borehole_analysis.wavelets import WaveletDomain
+from python_boreholes.wavelets import WaveletDomain
 
 class Borehole(object):
 

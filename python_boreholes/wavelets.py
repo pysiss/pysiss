@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-""" file:   wavelets.py (borehole_analysis)
+""" file:   wavelets.py (python_boreholes)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     email:  jesse.robertson@csiro.au
     date:   Wednesday May 1, 2013
 
-    description: Domaining module of the borehole_analysis module.
+    description: Domaining module of the python_boreholes module.
 """
 
 import numpy
@@ -13,8 +13,8 @@ import cwavelets
 import scipy.ndimage
 from collections import defaultdict
 from scipy.ndimage.measurements import maximum_position, minimum_position
-from borehole_analysis.domains import SamplingDomain
-import borehole_analysis.metrics as metrics
+from python_boreholes.domains import SamplingDomain
+import python_boreholes.metrics as metrics
 from itertools import product, repeat
 
 __all__ = ['WaveletDomain', 'LabelTree', 'metrics']
@@ -25,7 +25,7 @@ class WaveletDomain(SamplingDomain):
 
         Arguments:
             wavelet - a `cwavelets.CWTransform` subclass
-            domain - a `borehole_analysis.SamplingDomain` instance which contains
+            domain - a `python_boreholes.SamplingDomain` instance which contains
     """
 
     def __init__(self, name, sampling_domain, wavelet=None,

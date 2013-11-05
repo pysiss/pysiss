@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-""" file:   plotting.py (borehole_analysis)
+""" file:   plotting.py (python_boreholes)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     email:  jesse.robertson@csiro.au
     date:   Wednesday May 1, 2013
 
-    description: Plotting for the borehole_analysis module.
+    description: Plotting for the python_boreholes module.
 """
 
 import matplotlib.pyplot
@@ -13,7 +13,7 @@ import matplotlib.cm
 import matplotlib.collections
 import numpy
 import sklearn.manifold
-from borehole_analysis.analyser import AnalystError
+from python_boreholes.analyser import AnalystError
 
 def make_figure_grid(nplots, ncols=3, size=6):
     """ Make a grid of images
