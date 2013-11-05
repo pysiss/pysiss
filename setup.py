@@ -6,7 +6,7 @@
     description: Distutils installer script for borehole_analysis.
 """
 
-from distutils.core import setup
+from distutils.core import setup, find_packages
 
 ## VERSION NUMBERS
 # Patch disutils if it can't cope with the 'classifiers' or 'download_url' 
@@ -19,14 +19,14 @@ if version < '2.2.3':
 
 ## PACKAGE INFORMATION
 setup(
-    name='Borehole analysis',
+    name='python_boreholes',
     version='0.1.1b',
     description='Python functions for analysing borehole data',
     long_description=open('README.md').read(),
     author='Jess Robertson',
     author_email='jesse.robertson@csiro.au',
-    url='http://bitbucket.org/jessrobertson/borehole_analysis',
-    packages=['borehole_analysis', 'borehole_analysis.importers'],
+    url='https://stash.csiro.au/projects/DARDA/repos/python_boreholes',
+    packages=find_packages(),
     requires=['numpy', 'matplotlib', 'sklearn'],
     ext_modules=[],
     classifiers=[
