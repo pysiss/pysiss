@@ -1,29 +1,5 @@
 #!/usr/bin/env python
 """Classes to represent a borehole.
-
-Borehole has point features and domains on which properties are defined. A
-property can be defined on multiple domains. Features and domains are
-containers for the properties defined on them.
-
-A Feature is analogous to a spatial point feature. It has a depth and
-properties but it makes no sense to perform any interpolation on these.
-
-An IntervalDomain is is a sequence of borehole segments each having a single
-value for each property; this value is taken to be the same across the entire
-length of the interval. IntervalDomains can be merged to form a new
-IntervalDomain that has the intervals whose boundaries are the union of the
-boundaries of the source IntervalDomains. An IntervalDomain can be
-interpolated onto a SamplingDomain.
-
-A SamplingDomain is a sequence of depths at which continuous properties are
-sampled. Analogous to a coverage. One SamplingDomain can be interpolated onto
-another.
-
-Depths are measured in metres down-hole from the borehole collar; depth
-sequences must be in monotonically increasing order.
-
-Property units are expressed as Unified Code for Units of Measure (UCUM):
-http://unitsofmeasure.org/ucum.html
 """
 
 from borehole_analysis.domains import SamplingDomain, IntervalDomain, \
@@ -33,6 +9,30 @@ from borehole_analysis.wavelets import WaveletDomain
 class Borehole(object):
 
     """ Borehole model.
+
+        A borehole has point features and domains on which properties are
+        defined. A property can be defined on multiple domains. Features and
+        domains are containers for the properties defined on them.
+
+        A Feature is analogous to a spatial point feature. It has a depth and
+        properties but it makes no sense to perform any interpolation on these.
+
+        An IntervalDomain is is a sequence of borehole segments each having a
+        single value for each property; this value is taken to be the same
+        across the entire length of the interval. IntervalDomains can be merged
+        to form a new IntervalDomain that has the intervals whose boundaries are
+        the union of the boundaries of the source IntervalDomains. An
+        IntervalDomain can be interpolated onto a SamplingDomain.
+
+        A SamplingDomain is a sequence of depths at which continuous properties
+        are sampled. Analogous to a coverage. One SamplingDomain can be
+        interpolated onto another.
+
+        Depths are measured in metres down-hole from the borehole collar; depth
+        sequences must be in monotonically increasing order.
+
+        Property units are expressed as Unified Code for Units of Measure
+        (UCUM): http://unitsofmeasure.org/ucum.html
 
         Properties:
             features - dict mapping feature name to Feature

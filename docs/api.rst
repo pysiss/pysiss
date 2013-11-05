@@ -18,10 +18,26 @@ Borehole class
 Domain classes
 ==============
 
-.. autoclass:: python_boreholes.
+.. autoclass:: python_boreholes.domains.Domain
+    :members:
+
+.. autoclass:: python_boreholes.domains.IntervalDomain
+    :members:
+
+.. autoclass:: python_boreholes.domains.SamplingDomain
+    :members:
+
+.. autoclass:: python_boreholes.wavelets.WaveletDomain
+    :members:
 
 Property classes
 ================
+
+.. autoclass:: python_boreholes.domains.PropertyType
+    :members:
+
+.. autoclass:: python_boreholes.domains.Property
+    :members:
 
 Data importers
 ==============
