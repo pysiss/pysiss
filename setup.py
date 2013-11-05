@@ -6,10 +6,12 @@
     description: Distutils installer script for borehole_analysis.
 """
 
-from distutils.core import setup, find_packages
+import distribute_setup
+distribute_setup.use_setuptools()
+from setuptools import setup, find_packages
 
 ## VERSION NUMBERS
-# Patch disutils if it can't cope with the 'classifiers' or 'download_url' 
+# Patch disutils if it can't cope with the 'classifiers' or 'download_url'
 # keywords (for Python < 2.2.3)
 from sys import version
 if version < '2.2.3':
