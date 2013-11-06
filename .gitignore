@@ -7,3 +7,4 @@ docs/build/
 *.sublime-workspace
 logs
 tests/*.pdf
+.ipynb_checkpoints
