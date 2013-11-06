@@ -12,8 +12,6 @@ import matplotlib.pyplot
 import matplotlib.cm
 import matplotlib.collections
 import numpy
-import sklearn.manifold
-from python_boreholes.analyser import AnalystError
 
 def make_figure_grid(nplots, ncols=3, size=6):
     """ Make a grid of images
@@ -308,87 +306,6 @@ def plot_cusum(node, *keys):
     axes.set_ylim(node.domain[-1], node.domain[0])
     axes.legend(loc='upper left', bbox_to_anchor=(1, 1))
     fig.tight_layout()
-    return fig, axes
-
-def plot_connection_matrix(node):
-    """ Plots the connection matrix assicated with the data in the current
-        node.
-
-        :returns: handles to the figure and axes
-    """
-    # Calculate correlation matrix
-    names = node.borehole.get_labels()
-    correlations = node.products['correlations']
-
-    # Plot results
-    side_len = 0.5*len(names)
-    fig = matplotlib.pyplot.figure(figsize=(side_len, side_len))
-    axes = matplotlib.pyplot.gca()
-    image = axes.imshow(correlations,
-        interpolation='none',
-        cmap=matplotlib.cm.get_cmap("RdBu_r"))
-    cbar = matplotlib.pyplot.colorbar(image,
-        fraction=0.2,
-        shrink=(1 - 0.25))
-    cbar.set_label('Correlation')
-    axes.set_xticks(range(len(names)))
-    axes.set_xticklabels(names, rotation=90,
-        horizontalalignment='center',
-        verticalalignment='top')
-    axes.set_yticks(range(len(names)))
-    axes.set_yticklabels(names)
-    return fig, axes
-
-def plot_node_connection_graph(node, embedding=None):
-    """ Plot the clusters and connections between data signals.
-
-        We use manifold learning methods to find a low-dimension embedding
-        for visualisation. For the methods here we use a dense eigensolver
-        to achieve reproducibility (since arpack is initialised with
-        random vectors - the result would be different each time) In
-        addition, we use a large number of neighbours to capture the large-
-        scale structure.
-
-        This could potentially be sped up significantly by using a sparse
-        representation, at the cost of introducing some randomness to the
-        visualisation.
-
-        :param embedding: The model to use to embed the nodes in two-dimensional space. If None, it defaults to 'isomap'.
-        :type embedding: `'lle'` or `'isomap'`
-        :returns: handles to the figure and axes
-    """
-    # Get node infomation
-    names = node.borehole.get_labels()
-    clusters = node.products['clusters']['as_vector']
-
-    # Calculate embedding
-    embedding = embedding or 'isomap'
-    if embedding is 'isomap':
-        node_position_model = sklearn.manifold.Isomap(
-            n_components=2,
-            eigen_solver='dense',
-            n_neighbors=len(names) - 2)
-    elif embedding is 'lle':
-        node_position_model = sklearn.manifold.LocallyLinearEmbedding(
-            n_components=2,
-            eigen_solver='dense',
-            n_neighbors=len(names) - 2)
-    else:
-        raise AnalystError("Embedding argument to plot_connection_graph"
-            "must be one of 'lle' or 'isomap'")
-    embedding = node_position_model.fit_transform(node.data.T).T
-
-    # Plot results
-    fig = matplotlib.pyplot.figure(figsize=(15, 15))
-    plot_connection_graph(
-        names=names,
-        cluster_labels=clusters,
-        embedding=embedding,
-        correlations=node.products['correlations'])
-    axes = matplotlib.pyplot.gca()
-    axes.get_xaxis().set_visible(False)
-    axes.get_yaxis().set_visible(False)
-    axes.set_title('Network graph')
     return fig, axes
 
 def gen_axes_grid(nplots, ncols):
