@@ -7,6 +7,9 @@
     description: Utilities to low-pass filter regularly spaced data in a SamplingDomain instance (i.e. detrending).
 """
 
+import numpy
+import scipy.optimize
+
 def demean(data, axis=0):
     """ Return data minus its mean along the specified axis.
 

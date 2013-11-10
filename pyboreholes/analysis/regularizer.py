@@ -8,8 +8,7 @@
         grids.
 """
 
-from ..borehole import Borehole
-from ..domains import SamplingDomain
+import numpy
 
 # Reinterpolate functions
 def unique(array, return_index=True, sort_method='heapsort', eqtest=None):

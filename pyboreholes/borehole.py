@@ -3,9 +3,8 @@
     author: Jess Robertson & Ben Caradoc-Davies
 """
 
-from pyboreholes.domains import SamplingDomain, IntervalDomain, \
-    Property
-from pyboreholes.wavelets import WaveletDomain
+from .domains import SamplingDomain, IntervalDomain, WaveletDomain
+from .properties import Property
 
 class Borehole(object):
 

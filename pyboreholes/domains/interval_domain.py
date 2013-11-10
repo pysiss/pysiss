@@ -20,7 +20,6 @@
 
 from .domain import Domain
 import numpy
-from scipy.interpolate import InterpolatedUnivariateSpline as Spline
 
 class IntervalDomain(Domain):
 

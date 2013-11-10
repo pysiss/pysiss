@@ -9,8 +9,6 @@
 """
 
 import numpy
-import scipy.optimize
-import scipy.interpolate
 import functools
 
 def heaviside(values):
