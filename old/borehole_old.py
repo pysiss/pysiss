@@ -1,15 +1,15 @@
 #!/usr/bin/env python
-""" file:   borehole.py (python_boreholes)
+""" file:   borehole.py (pyboreholes)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     email:  jesse.robertson@csiro.au
     date:   Wednesday May 1, 2013
 
-    description: Data munging utilities for the python_boreholes module.
+    description: Data munging utilities for the pyboreholes module.
 """
 
 import pandas, numpy
-from python_boreholes.utilities import mask_all_nans
+from pyboreholes.utilities import mask_all_nans
 
 def boreholes_from_csv(csvfile, borehole_key, domain_key=None,
     labels=None, verbose=False):

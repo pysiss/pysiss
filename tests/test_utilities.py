@@ -8,8 +8,8 @@
 
 import unittest
 import numpy
-from python_boreholes import *
-from python_boreholes.utilities import *
+from pyboreholes import *
+from pyboreholes.utilities import *
 
 class TestMaskNans(unittest.TestCase):
 

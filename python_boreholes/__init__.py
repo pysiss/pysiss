@@ -1,20 +1,20 @@
 #!/usr/bin/env python
-""" file:   __init__.py (python_boreholes)
+""" file:   __init__.py (pyboreholes)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     email:  jesse.robertson@csiro.au
     date:   Wednesday May 1, 2013
 
-    description: Initialisation of the python_boreholes module.
+    description: Initialisation of the pyboreholes module.
 """
 
 import sklearn
 import cwavelets
-from python_boreholes.borehole import Borehole, Feature, \
+from pyboreholes.borehole import Borehole, Feature, \
     CoordinateReferenceSystem, Survey
-import python_boreholes.importers as importers
-import python_boreholes.wavelets as wavelets
-from python_boreholes.wavelets import WaveletDomain
-from python_boreholes.domains import Domain, \
+import pyboreholes.importers as importers
+import pyboreholes.wavelets as wavelets
+from pyboreholes.wavelets import WaveletDomain
+from pyboreholes.domains import Domain, \
     SamplingDomain, IntervalDomain, Property, PropertyType
-import python_boreholes.plotting as plotting
+import pyboreholes.plotting as plotting

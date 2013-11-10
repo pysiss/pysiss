@@ -1,15 +1,15 @@
 #!/usr/bin/env python
-""" file:   analyser.py (python_boreholes)
+""" file:   analyser.py (pyboreholes)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     email:  jesse.robertson@csiro.au
     date:   Wednesday May 1, 2013
 
-    description: Clustering utilities for the python_boreholes module.
+    description: Clustering utilities for the pyboreholes module.
 """
 
 import numpy
-from python_boreholes.utilities import detrend
+from pyboreholes.utilities import detrend
 import sklearn.covariance
 import sklearn.cluster
 import sklearn.manifold

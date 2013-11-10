@@ -13,8 +13,8 @@ touch ${build_log}
 touch ${test_log}
 
 echo " --> Pylinting..." | tee -a ${build_log} ${test_log}
-pylint python_boreholes --reports=n | tee -a ${build_log}
-# pylint python_boreholes --reports=y >> ${test_log}
+pylint pyboreholes --reports=n | tee -a ${build_log}
+# pylint pyboreholes --reports=y >> ${test_log}
 echo "" >> ${build_log}
 echo "" >> ${test_log}
 
@@ -40,7 +40,7 @@ echo "" >> ${build_log}
 
 # # Make documentation
 # echo " --> Making documentation..." | tee -a ${build_log}
-# export PYTHONPATH=`pwd`/python_boreholes/:${PYTHONPATH}
+# export PYTHONPATH=`pwd`/pyboreholes/:${PYTHONPATH}
 # cd docs
 # echo "     --> Cleaning documentation..." | tee -a ../${build_log}
 # make clean >> ../${build_log}

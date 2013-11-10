@@ -1,14 +1,14 @@
 #!/usr/bin/env python
-""" file:   __init__.py (python_boreholes.importers)
+""" file:   __init__.py (pyboreholes.importers)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     email:  jesse.robertson@csiro.au
     date:   Wednesday May 1, 2013
 
-    description: Initialisation of the python_boreholes.importers module.
+    description: Initialisation of the pyboreholes.importers module.
 """
 
-from python_boreholes.importers.detcrc_xml import add_detcrc_xml
-from python_boreholes.importers.leapfrog_csv import add_leapfrog_csv
-from python_boreholes.importers.normal_csv import add_csv, parse_csv, \
+from pyboreholes.importers.detcrc_xml import add_detcrc_xml
+from pyboreholes.importers.leapfrog_csv import add_leapfrog_csv
+from pyboreholes.importers.normal_csv import add_csv, parse_csv, \
     add_to_borehole
