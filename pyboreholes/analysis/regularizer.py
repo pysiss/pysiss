@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" file: regularizer.py
+""" file: regularizer.py (pyboreholes.analysis)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     date: Sunday November 10, 2013
@@ -15,7 +15,10 @@ from ..domains import SamplingDomain
 def unique(array, return_index=True, sort_method='heapsort', eqtest=None):
     """ Find the unique elements of an array.
 
-        Returns the sorted unique elements of an array. There are two optional outputs in addition to the unique elements: the indices of the input array that give the unique values, and the indices of the unique array that reconstruct the input array.
+        Returns the sorted unique elements of an array. There are two optional 
+        outputs in addition to the unique elements: the indices of the input 
+        array that give the unique values, and the indices of the unique array 
+        that reconstruct the input array.
 
         :param array: Input array. This will be flattened if it is not already 1-D.
         :type array: array_like
@@ -57,15 +60,24 @@ class ReSampler(scipy.interpolate.InterpolatedUnivariateSpline):
     """ Resamples a dataset over a given domain onto a regularly
         gridded dataset.
 
-        On initialisation, a spline fit to the signal is generated. Subsequent calls to the ReSampler instance will use this spline to generate the resampled arrays.
+        On initialisation, a spline fit to the signal is generated. Subsequent 
+        calls to the ReSampler instance will use this spline to generate the 
+        resampled arrays.
 
-        This is really just a wrapper around `scipy.interpolate.InterpolatedUnivariateSpline` which adds some cruft to generate a uniform grid. If you want a non-uniform grid then you might like to take a look at that function.
+        This is really just a wrapper around `scipy.interpolate.
+        InterpolatedUnivariateSpline` which adds some cruft to generate a 
+        uniform grid. If you want a non-uniform grid then you might like to 
+        take a look at that function.
 
-        :param domain: the locations of each signal value in the domain. Optional, if `spline` is specified then these signal will be ignored.
+        :param domain: the locations of each signal value in the domain. 
+            Optional, if `spline` is specified then these signal will be 
+            ignored.
         :type domain: `numpy.ndarray`
-        :param signal: the signal evaluated at a given set of points. If `spline` is specified then these signal will be ignored.
+        :param signal: the signal evaluated at a given set of points. If 
+            `spline` is specified then these signal will be ignored.
         :type signal: `numpy.ndarray`
-        :param order: the interpolation order for the spline. Optional, defaults to 3 (giving cubic interpolation)
+        :param order: the interpolation order for the spline. Optional, 
+            defaults to 3 (giving cubic interpolation)
         :type order: `int`
     """
 
