@@ -4,7 +4,7 @@
             CSIRO Earth Science and Resource Engineering
     date: Sunday November 10, 2013
 
-    description: Imports for domains
+    description: Imports for pyborholes.domains
 """
 
 from .domain import Domain
