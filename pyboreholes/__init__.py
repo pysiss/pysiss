@@ -8,13 +8,10 @@
     description: Initialisation of the pyboreholes module.
 """
 
-import sklearn
-import cwavelets
-from pyboreholes.borehole import Borehole, Feature, \
+from .borehole import Borehole, Feature, \
     CoordinateReferenceSystem, Survey
-import pyboreholes.importers as importers
-import pyboreholes.wavelets as wavelets
-from pyboreholes.wavelets import WaveletDomain
+import importers
 from pyboreholes.domains import Domain, \
-    SamplingDomain, IntervalDomain, Property, PropertyType
-import pyboreholes.plotting as plotting
+    SamplingDomain, IntervalDomain, WaveletDomain, SpectralDomain
+from .properties import Property, PropertyType
+import plotting
