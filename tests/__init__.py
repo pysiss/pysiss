@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" file:   __init__.py (borehole_analysis tests)
+""" file:   __init__.py (python_boreholes tests)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     email:  jesse.robertson@csiro.au

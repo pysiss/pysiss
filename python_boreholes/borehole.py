@@ -26,9 +26,9 @@ Property units are expressed as Unified Code for Units of Measure (UCUM):
 http://unitsofmeasure.org/ucum.html
 """
 
-from borehole_analysis.domains import SamplingDomain, IntervalDomain, \
+from python_boreholes.domains import SamplingDomain, IntervalDomain, \
     Property
-from borehole_analysis.wavelets import WaveletDomain
+from python_boreholes.wavelets import WaveletDomain
 
 class Borehole(object):
 

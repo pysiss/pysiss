@@ -3,7 +3,7 @@
     author: Jess Robertson, CSIRO Earth Science and Resource Engineering
     date: Wednesday 1 May, 2013
 
-    description: Distutils installer script for borehole_analysis.
+    description: Distutils installer script for python_boreholes.
 """
 
 from distutils.core import setup
@@ -25,8 +25,8 @@ setup(
     long_description=open('README.txt').read(),
     author='Jess Robertson',
     author_email='jesse.robertson@csiro.au',
-    url='http://bitbucket.org/jessrobertson/borehole_analysis',
-    packages=['borehole_analysis', 'borehole_analysis.importers'],
+    url='http://bitbucket.org/jessrobertson/python_boreholes',
+    packages=['python_boreholes', 'python_boreholes.importers'],
     requires=['numpy', 'matplotlib', 'sklearn'],
     ext_modules=[],
     classifiers=[
