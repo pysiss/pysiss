@@ -18,9 +18,12 @@ class Domain(object):
 
     This is an abstract base class
 
-    Properties:
-
-    properties -- dict mapping property name to Property
+    Some important properties are:
+        properties - dict mapping property name to Property
+        size - the size of all the values sequences
+        name - an identifier
+        subdomains - a list of subdomain locations
+        gaps - a list of gap locations
     """
 
     def __init__(self, name, size):
