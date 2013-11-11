@@ -11,7 +11,7 @@ distribute_setup.use_setuptools()
 from setuptools import setup, find_packages
 
 ## VERSION NUMBERS
-# Patch disutils if it can't cope with the 'classifiers' or 'download_url' 
+# Patch disutils if it can't cope with the 'classifiers' or 'download_url'
 # keywords (for Python < 2.2.3)
 from sys import version
 if version < '2.2.3':
@@ -21,10 +21,10 @@ if version < '2.2.3':
 
 ## PACKAGE INFORMATION
 setup(
-    name='pyBoreholes',
+    name='pyboreholes',
     version='0.1.0',
     description='Python functions for analysing borehole data',
-    long_description=open('README.txt').read(),
+    long_description=open('README.md').read(),
     author='Jess Robertson',
     author_email='jesse.robertson@csiro.au',
     url='http://bitbucket.org/jessrobertson/pyboreholes',

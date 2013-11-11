@@ -1,0 +1,27 @@
+Building and installing `python_boreholes`
+==========================================
+
+.. _installation:
+
+All you should need to do is enter the python directory, and execute::
+
+    python setup.py build && python setup.py install
+
+which should build and install the Python bindings for your system. Depending on your system, you may need adminstrator priviledges to run the install command.
+
+Building documentation
+----------------------
+
+If you want to build the documentation for PyMELTS then you will need to have a version of `sphinx <http://sphinx.pocoo.org/>`_ installed -- you can check by doing the following at a terminal prompt::
+
+  python -c 'import sphinx'
+
+If that fails grab the latest version of and install it with::
+
+  sudo easy_install -U Sphinx
+
+Now you are ready to build your docs, using make (or run the batch script :file:`make.bst` if you're on Windows)::
+
+  cd docs && make html
+
+(or :file:`latexpdf` if you want a LaTeX version - type :file:`make` to see all the options). The documentation will be dumped under :file:`build/<format>`. For HTML, if you point a browser to :file:`build/html/index.html`, you should see a basic sphinx site with the documentation for PyMELTS. For LaTeX you can open :file:`build/latex/pymelts.pdf` in your favourite PDF viewer to browse the documentation.

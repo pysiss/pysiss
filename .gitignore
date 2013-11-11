@@ -1,9 +1,12 @@
 build/
+dist/
+*.egg*
 docs/build/
 *.pyc
 *.pkl
 *.sublime-workspace
 logs
 tests/*.pdf
-dist
 *.egg-info
+.ipynb_checkpoints
+.merge*
