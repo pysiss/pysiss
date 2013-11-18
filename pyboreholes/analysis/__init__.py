@@ -9,4 +9,5 @@
 """
 
 from .layers import LabelTree, metrics
-from .regularizer import *
+from .regularizer import ReSampler, unique
+from .detrend import detrend, demean
