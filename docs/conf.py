@@ -18,7 +18,7 @@ import sys, os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 sys.path.append(os.path.abspath('sphinxext'))
-sys.path.append(os.path.abspath('../python_boreholes'))
+sys.path.append(os.path.abspath('../pyboreholes'))
 
 # -- General configuration -----------------------------------------------------
 
@@ -50,7 +50,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'python_boreholes'
+project = u'pyboreholes'
 copyright = u'2013, Jess Robertson, CSIRO Earth Science and Resource Engineering'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -174,7 +174,7 @@ html_static_path = ['.static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'python_boreholes_doc'
+htmlhelp_basename = 'pyboreholes_doc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -193,7 +193,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'python_boreholes.tex', u'cWavelets Documentation',
+  ('index', 'pyboreholes.tex', u'cWavelets Documentation',
    u'Jess Robertson', 'manual'),
 ]
 
