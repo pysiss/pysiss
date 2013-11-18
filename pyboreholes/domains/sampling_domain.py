@@ -148,7 +148,7 @@ class SamplingDomain(Domain):
         if degree == 0:
             # This line generates a set of indices which will reconstruct a
             # new signal using nearest neighbours, just do:
-            # >>> property.values[interp_indices]
+            # property.values[interp_indices]
             interp_indices = numpy.argmin(
                 numpy.asarray([
                     (self.depths - new_depths[:, numpy.newaxis]) ** 2]),
@@ -167,6 +167,11 @@ class SamplingDomain(Domain):
         for prop in self.properties.values():
             if prop.property_type.isnumeric is False:
                 # We can't interpolate non-numeric data
+                print ("Property {0} in domain {1} is not numeric so I'm "
+                    "skipping it. If this is a suprise to you, maybe you "
+                    "should check whether you've correctly set the is_numeric "
+                    "flag in the PropertyType class for this property."
+                    ).format(prop.property_type.name, self.name)
                 continue
 
             # Generate spline fit if required, else use nearest-neighbours
