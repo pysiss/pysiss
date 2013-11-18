@@ -20,7 +20,7 @@ Build and install `cwavelets`
 The `cwavelets` library is currently being developed internally in CSIRO - if you have access to this repository through the `DARDA Stash site <https://stash.csiro.au/projects/DARDA>`_ then you've probably got access to this library as well. You'll have to download and install the code following the instructions on that page (many of the dependencies are the same as for here). This is an optional install but you won't have access to the `WaveletDomain` class if you don't have this available on your system.
 
 Build and install the library
-----------------------------
+-----------------------------
 
 If you've installed all the libraries above, all you should need to do is enter the python directory, and execute
 
@@ -32,7 +32,7 @@ which should build and install the Python bindings for your system. Depending on
 
 for more details.
 
-.. _documentation
+.. _documentation:
 
 Building documentation
 ----------------------
@@ -49,4 +49,4 @@ Now you are ready to build your docs, using make (or run the batch script `make.
 
   cd docs && make html
 
-(or `latexpdf` if you want a LaTeX versionm, or `epub` for ePub format - type `make` to see all the options). The documentation will be dumped under `build/<format>`_. For HTML, if you point a browser to `build/html/index.html`, you should see a basic sphinx site with the documentation for pyboreholes. For LaTeX you can open `build/latex/pyboreholes.pdf` in your favourite PDF viewer to browse the documentation.
+(or :file:`latexpdf` if you want a LaTeX versionm, or :file:`epub` for ePub format - type :file:`make` to see all the options). The documentation will be dumped under :file:`build/<format>`. For HTML, if you point a browser to :file:`build/html/index.html`, you should see a basic sphinx site with the documentation for pyboreholes. For LaTeX you can open :file:`build/latex/pyboreholes.pdf` in your favourite PDF viewer to browse the documentation.
