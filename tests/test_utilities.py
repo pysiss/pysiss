@@ -10,6 +10,7 @@ import unittest
 import numpy
 from pyboreholes import *
 from pyboreholes.utilities import *
+from pyboreholes.analysis import detrend
 
 class TestMaskNans(unittest.TestCase):
 
