@@ -6,18 +6,18 @@ Building and installing `pyboreholes`
 Installing dependencies
 -----------------------
 
-`pyboreholes` has a few dependencies, most of which come from the numpy/scipy/matplotlib ecosystem. You will have to have `numpy <http://numpy.org>` at a minimum, while you will need `scipy <http://scipy.org>` and `cwavelets <https://stash.csiro.au/projects/DARDA/repos/cwavelets/browse>` to use the pyboreholes.analysis module, `matplotlib <http://matplotlib.org>` for the plotting module, and `pywavelets <http://www.pybytes.com/pywavelets/>` to have access to the SpectralDomain class. You can install all of these (with the exception of the `cwavelets` library, see below) in a single line with the following command:
+`pyboreholes` has a few dependencies, most of which come from the numpy/scipy/matplotlib ecosystem. You will have to have `numpy <http://numpy.org>`_ at a minimum, while you will need `scipy <http://scipy.org>`_ and `cwavelets <https://stash.csiro.au/projects/DARDA/repos/cwavelets/browse>`_ to use the pyboreholes.analysis module, `matplotlib <http://matplotlib.org>`_ for the plotting module, and `pywavelets <http://www.pybytes.com/pywavelets/>`_ to have access to the SpectralDomain class. You can install all of these (with the exception of the `cwavelets` library, see below) in a single line with the following command:
 
     pip install numpy scipy matplotlib pywavelets
 
 If your system complains that it can't find `pip`, then try `easy_install install ...` instead. If you're running some version of Linux then there are probably packages for all of these - see your package manager for more info.
 
-If the command line is a bit scary than most of these libraries should come for free with a standard scientific Python stack these days, check out `Enthought Canopy <https://www.enthought.com/products/canopy/>`, `Anaconda <https://store.continuum.io/cshop/anaconda/>`, `Python(x, y) <https://code.google.com/p/pythonxy/> or `Pyzo <http://www.pyzo.org/>` if you want an easy install experience.
+If the command line is a bit scary than most of these libraries should come for free with a standard scientific Python stack these days, check out `Enthought Canopy <https://www.enthought.com/products/canopy/>`_, `Anaconda <https://store.continuum.io/cshop/anaconda/>`_, `Python(x, y) <https://code.google.com/p/pythonxy/> or `Pyzo <http://www.pyzo.org/>`_ if you want an easy install experience.
 
 Build and install `cwavelets`
 -----------------------------
 
-The `cwavelets` library is currently being developed internally in CSIRO - if you have access to this repository through the `DARDA Stash site <https://stash.csiro.au/projects/DARDA>` then you've probably got access to this library as well. You'll have to download and install the code following the instructions on that page (many of the dependencies are the same as for here). This is an optional install but you won't have access to the `WaveletDomain` class if you don't have this available on your system.
+The `cwavelets` library is currently being developed internally in CSIRO - if you have access to this repository through the `DARDA Stash site <https://stash.csiro.au/projects/DARDA>`_ then you've probably got access to this library as well. You'll have to download and install the code following the instructions on that page (many of the dependencies are the same as for here). This is an optional install but you won't have access to the `WaveletDomain` class if you don't have this available on your system.
 
 Build and install the library
 ----------------------------
@@ -37,7 +37,7 @@ for more details.
 Building documentation
 ----------------------
 
-You're currently reading some version of the documentation generated from the pyboreholes library. If you want to build your own version then you will need to have a version of `sphinx <http://sphinx.pocoo.org/>` installed -- you can check by doing the following at a terminal prompt:
+You're currently reading some version of the documentation generated from the pyboreholes library. If you want to build your own version then you will need to have a version of `sphinx <http://sphinx.pocoo.org/>`_ installed -- you can check by doing the following at a terminal prompt:
 
   python -c 'import sphinx'
 
@@ -49,4 +49,4 @@ Now you are ready to build your docs, using make (or run the batch script `make.
 
   cd docs && make html
 
-(or `latexpdf` if you want a LaTeX versionm, or `epub` for ePub format - type `make` to see all the options). The documentation will be dumped under `build/<format>`. For HTML, if you point a browser to `build/html/index.html`, you should see a basic sphinx site with the documentation for pyboreholes. For LaTeX you can open `build/latex/pyboreholes.pdf` in your favourite PDF viewer to browse the documentation.
+(or `latexpdf` if you want a LaTeX versionm, or `epub` for ePub format - type `make` to see all the options). The documentation will be dumped under `build/<format>`_. For HTML, if you point a browser to `build/html/index.html`, you should see a basic sphinx site with the documentation for pyboreholes. For LaTeX you can open `build/latex/pyboreholes.pdf` in your favourite PDF viewer to browse the documentation.
