@@ -1,4 +1,4 @@
-Introduction to `python_boreholes`
+Introduction to `pyboreholes`
 ==================================
 
 author: Jess Robertson, CSIRO Earth Science and Resource Engineering
@@ -9,7 +9,7 @@ date: Wednesday 1 May 2013
 
 This is a python module to carry out some basic analysis of borehole data
 
-Building and installing `python_boreholes`
+Building and installing `pyboreholes`
 ------------------------------------------
 
 All you should need to do is enter the python directory, and execute
