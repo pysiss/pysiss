@@ -10,7 +10,7 @@
     or all the domain data types; it should not be instantiated by users.
 """
 
-from .properties import Property, PropertyType
+from ..properties import Property, PropertyType
 
 class Domain(object):
 
