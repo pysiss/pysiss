@@ -7,12 +7,12 @@
     description: Utilities for munging CSV data exported from Leapfrog.
 """
 
-from python_boreholes.importers.normal_csv import parse_csv, add_to_borehole
+from pyboreholes.importers.normal_csv import parse_csv, add_to_borehole
 
 def add_leapfrog_csv(borehole, csv_filename, data_keys, labels=None):
-    """ Add data from a CSV file exported from Leapfrog
+    """ Add data from a CSV file exported from Leapfrog 
 
-        Don't try to read massive files in with this - it will probably
+        Don't try to read massive files in with this - it will probably 
         fall over.
     """
     # Generate labels

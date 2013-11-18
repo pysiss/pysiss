@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-""" file:   plotting.py (python_boreholes)
+""" file:   plotting.py (pyboreholes)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     email:  jesse.robertson@csiro.au
     date:   Wednesday May 1, 2013
 
-    description: Plotting for the python_boreholes module.
+    description: Plotting for the pyboreholes module.
 """
 
 import matplotlib.pyplot
@@ -252,62 +252,6 @@ def plot_sampling_domain_data(sampling_domain, keys_to_plot=None):
     fig.tight_layout()
     return fig, axes
 
-
-## Analyst plotting
-def plot_eigensignals(node):
-    """ Plot the eigensignal axes for the current data
-    """
-    # Get clusters from current node
-    clusters = node.products['clusters']['by_key']
-    cluster_sources = node.products['eigensignals']
-    domain = node.get_domain()
-
-    # Plot eigensignals for node
-    data = zip(clusters.items(), cluster_sources)
-    for (cluster_index, cluster_keys), sources in data:
-        fig = matplotlib.pyplot.figure(figsize=(10, 2*len(sources)))
-        for index, source in enumerate(sources):
-            axes = matplotlib.pyplot.subplot(len(sources), 1, index+1)
-            plot_signal(axes,
-                domain=domain,
-                signal=source,
-                orientation='horizontal')
-            axes.set_ylabel(r'$S_{{{0}, {1}}}(x)$'.format(cluster_index,
-                index))
-            if index == 0:
-                axes.set_title('Cluster {0}: {1}'.format(cluster_index,
-                    ', '.join(cluster_keys)))
-            if index == len(sources) - 1:
-                axes.set_xlabel(r'Depth $x$ (m)')
-            else:
-                axes.set_xlabel('')
-                axes.set_xticklabels('')
-        fig.tight_layout()
-
-def plot_cusum(node, *keys):
-    """ Plot the CUSUM for the given keys.
-    """
-    fig = matplotlib.pyplot.figure(figsize=(5, 8))
-    axes = fig.gca()
-    for key in keys:
-        # Generate cusum
-        signal = node.get_signal(key)
-        cusum = numpy.cumsum((signal - signal.mean()) / signal.std())
-
-        # Renormalise to lie between [0, 1]
-        maxsum, minsum = cusum.max(), cusum.min()
-        cusum -= minsum
-        cusum /= maxsum - minsum
-
-        # Plot it
-        axes.plot(cusum, node.domain,
-            label=node.labels[key][1],
-            linewidth=2)
-    axes.set_ylim(node.domain[-1], node.domain[0])
-    axes.legend(loc='upper left', bbox_to_anchor=(1, 1))
-    fig.tight_layout()
-    return fig, axes
-
 def gen_axes_grid(nplots, ncols):
     """ Make an axes grid with the given number of columns and plots
     """
@@ -327,9 +271,8 @@ def wavelet_plot(wavelet_domain, property_name):
 
     # Get info from wavelet
     wavelet = wavelet_domain.wavelets[property_name]
-    depths = wavelet_domain.depths
-    data = wavelet.signal
-    scales = wavelet.scales * wavelet.properties['equivalent_fourier_period']
+    depths, data = wavelet.get_data()
+    scales = wavelet.get_scales(fourier=True)
     transform = wavelet_domain.properties[property_name].values.real[:, 0, :]
     depths_grid, scales_grid = numpy.meshgrid(depths, scales)
     coi = wavelet_domain.cone_of_influence
@@ -377,9 +320,8 @@ def wavelet_label_plot(wavelet_domain, property_name):
 
     # Get info from wavelet
     wavelet = wavelet_domain.wavelets[property_name]
-    depths = wavelet_domain.depths
-    data = wavelet.signal
-    scales = wavelet.scales * wavelet.properties['equivalent_fourier_period']
+    depths, data = wavelet.get_data()
+    scales = wavelet.get_scales(fourier=True)
     label_array = wavelet_domain.domains[property_name][:, 0, :]
     nlabels = len(wavelet_domain.labels[property_name])
     depths_grid, scales_grid = numpy.meshgrid(depths, scales)

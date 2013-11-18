@@ -7,4 +7,6 @@ docs/build/
 *.sublime-workspace
 logs
 tests/*.pdf
+*.egg-info
 .ipynb_checkpoints
+.merge*

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-""" file: setup.py
+""" file: setup.pyb (pyboreholes)
     author: Jess Robertson, CSIRO Earth Science and Resource Engineering
     date: Wednesday 1 May, 2013
 
-    description: Distutils installer script for python_boreholes.
+    description: Distutils installer script for pyboreholes.
 """
 
 import distribute_setup
@@ -21,15 +21,20 @@ if version < '2.2.3':
 
 ## PACKAGE INFORMATION
 setup(
-    name='python_boreholes',
-    version='0.1.1b',
+    name='pyboreholes',
+    version='0.1.0',
     description='Python functions for analysing borehole data',
     long_description=open('README.md').read(),
     author='Jess Robertson',
     author_email='jesse.robertson@csiro.au',
-    url='https://stash.csiro.au/projects/DARDA/repos/python_boreholes',
+    url='http://bitbucket.org/jessrobertson/pyboreholes',
     packages=find_packages(),
-    requires=['numpy', 'matplotlib', 'sklearn'],
+    requires=['numpy', 'matplotlib'],
+    extras_require={
+        "continuous_wavelets": ['cwavelets'],
+        "discrete_wavelets": ['pywavelets'],
+        "machine_learning": ['sklearn']
+    },
     ext_modules=[],
     classifiers=[
         'Development Status :: 1 - Planning',
