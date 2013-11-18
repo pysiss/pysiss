@@ -9,6 +9,7 @@
 """
 
 import numpy
+import scipy.interpolate
 
 # Reinterpolate functions
 def unique(array, return_index=True, sort_method='heapsort', eqtest=None):
