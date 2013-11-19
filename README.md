@@ -12,7 +12,7 @@ This is a python module to carry out some basic analysis of borehole data
 Building and installing `pyboreholes`
 -------------------------------------
 
-`pyboreholes` has a few dependencies, most of which come from the numpy/scipy/matplotlib ecosystem. You will have to have [`numpy`][1] at a minimum, while you will need [`scipy`][2] and [`cwavelets`][3] to use the pyboreholes.analysis module, [`matplotlib`][4] for the plotting module, and [`pywavelets`][5] to have access to the SpectralDomain class. You can install all of these (with the exception of the `cwavelets` library, see below) in a single line with the following command:
+`pyboreholes` has a few dependencies, most of which come from the numpy/scipy/matplotlib ecosystem. You will have to have [numpy][1] at a minimum, while you will need [scipy][2] and [cwavelets][3] to use the pyboreholes.analysis module, [matplotlib][4] for the plotting module, and [pywavelets][5] to have access to the SpectralDomain class. You can install all of these (with the exception of the `cwavelets` library, see below) in a single line with the following command:
 
     pip install numpy scipy matplotlib pywavelets
 
@@ -35,7 +35,7 @@ for more details.
 Building documentation
 ----------------------
 
-You're currently reading some version of the documentation generated from the pyboreholes library. If you want to build your own version then you will need to have a version of [`sphinx`][10] installed -- you can check by doing the following at a terminal prompt:
+You're currently reading some version of the documentation generated from the pyboreholes library. If you want to build your own version then you will need to have a version of [sphinx][10] installed -- you can check by doing the following at a terminal prompt:
 
   python -c 'import sphinx'
 
@@ -49,14 +49,14 @@ Now you are ready to build your docs, using make (or run the batch script `make.
 
 (or `latexpdf` if you want a LaTeX versionm, or `epub` for ePub format - type `make` to see all the options). The documentation will be dumped under `build/<format>`. For HTML, if you point a browser to `build/html/index.html`, you should see a basic sphinx site with the documentation for pyboreholes. For LaTeX you can open `build/latex/pyboreholes.pdf` in your favourite PDF viewer to browse the documentation.
 
-[1] http://numpy.org
-[2] http://scipy.org
-[3] https://stash.csiro.au/projects/DARDA/repos/cwavelets/browse
-[4] http://matplotlib.org
-[5] http://www.pybytes.com/pywavelets/
-[6] https://www.enthought.com/products/canopy/
-[7] https://store.continuum.io/cshop/anaconda/
-[8] https://code.google.com/p/pythonxy/
-[9] https://stash.csiro.au/projects/DARDA
-[10] http://sphinx.pocoo.org/
-[11] http://www.pyzo.org/
+[1]: http://numpy.org
+[2]: http://scipy.org
+[3]: https://stash.csiro.au/projects/DARDA/repos/cwavelets/browse
+[4]: http://matplotlib.org
+[5]: http://www.pybytes.com/pywavelets/
+[6]: https://www.enthought.com/products/canopy/
+[7]: https://store.continuum.io/cshop/anaconda/
+[8]: https://code.google.com/p/pythonxy/
+[9]: https://stash.csiro.au/projects/DARDA
+[10]: http://sphinx.pocoo.org/
+[11]: http://www.pyzo.org/
