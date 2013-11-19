@@ -11,8 +11,9 @@
 import unittest
 
 #pylint: disable=W0401
-from tests.test_borehole import *
-from tests.test_utilities import *
+from .test_borehole import *
+from .test_utilities import *
+from .test_detrend import *
 
 if __name__ == '__main__':
     unittest.main()
