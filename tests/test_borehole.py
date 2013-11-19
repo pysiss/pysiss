@@ -62,6 +62,9 @@ class BoreholeTest(unittest.TestCase):
         self.assertEquals(impedances, self.borehole.sampling_domains["samples"].properties["imp"].values)
         self.assertEquals("samples", self.borehole.sampling_domains['samples'].name)
 
+    def test_wavelet_domain(self):
+        """Test store and retrieve a
+
     def test_interval_domain_depths_empty(self):
         """Test that empty interval depths raises an AssertionError"""
         self.assertRaises(AssertionError, lambda: bh.IntervalDomain("test", [], []))
