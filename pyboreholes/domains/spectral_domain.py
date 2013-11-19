@@ -8,7 +8,6 @@
 """
 
 from .sampling_domain import SamplingDomain
-import pywt
 
 class SpectralDomain(SamplingDomain):
     
