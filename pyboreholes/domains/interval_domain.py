@@ -1,17 +1,17 @@
 #!/usr/bin/env python
-""" file: interval_domain.py (pyboreholes.domains)
-    author: Jess Robertson
+""" file:   interval_domain.py (pyboreholes.domains)
+    author: Jess Robertson & Ben Caradoc-Davies
             CSIRO Earth Science and Resource Engineering
-    date: Sunday November 10, 2013
+    date:   Sunday November 10, 2013
 
-    description: Domain for interval data (data defined over an interval in 
+    description: Domain for interval data (data defined over an interval in
         the borehole).
 
-    An IntervalDomain is is a sequence of borehole segments each having a 
-    single value for each property; this value is taken to be the same across 
-    the entire length of the interval. IntervalDomains can be merged to form a 
-    new IntervalDomain that has the intervals whose boundaries are the union 
-    of the boundaries of the source IntervalDomains. An IntervalDomain can be 
+    An IntervalDomain is is a sequence of borehole segments each having a
+    single value for each property; this value is taken to be the same across
+    the entire length of the interval. IntervalDomains can be merged to form a
+    new IntervalDomain that has the intervals whose boundaries are the union
+    of the boundaries of the source IntervalDomains. An IntervalDomain can be
     interpolated onto a SamplingDomain.
 
     Intervals must be in depth order and not overlap, but there might

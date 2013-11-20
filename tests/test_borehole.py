@@ -1,5 +1,10 @@
 #!/usr/bin/env python
-"""Unit tests to demonstrate the borehole model.
+""" file:   test_borehole.py
+    author: Ben Caradoc-Davies
+            CSIRO Earth Science and Resource ENgineering
+    date:   November 20, 2013
+
+    description: Unit tests to demonstrate the borehole model.
 """
 
 import pyboreholes as bh
