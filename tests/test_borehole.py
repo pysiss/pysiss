@@ -7,20 +7,20 @@
     description: Unit tests to demonstrate the borehole model.
 """
 
-import pyboreholes as bh
+import pyboreholes as pybh
 import unittest
 
-DENSITY = bh.PropertyType(name="d", long_name="density", units="g/cm3")
+DENSITY = pybh.PropertyType(name="d", long_name="density", units="g/cm3")
 
 # bogus unit from original spreadsheet
-IMPEDANCE = bh.PropertyType(name="imp", long_name="impedance", units="kg/m2.s.10-3")
+IMPEDANCE = pybh.PropertyType(name="imp", long_name="impedance", units="kg/m2.s.10-3")
 
-ROCK_TYPE = bh.PropertyType(name="rock", long_name="rock type")
+ROCK_TYPE = pybh.PropertyType(name="rock", long_name="rock type")
 
 class BoreholeTest(unittest.TestCase):
 
     def setUp(self):
-        self.borehole = bh.Borehole("test")
+        self.borehole = pybh.Borehole("test")
 
     def test_name(self):
         """ Test that name is being captured for borehole
@@ -30,7 +30,7 @@ class BoreholeTest(unittest.TestCase):
     def test_features(self):
         """Test store and retrieve a single point feature with a one single-valued category property"""
         feature = self.borehole.add_feature("fault-1", 27.3)
-        feature.add_property(bh.PropertyType("age"), "last friday")
+        feature.add_property(pybh.PropertyType("age"), "last friday")
         self.assertEquals("last friday", self.borehole.features["fault-1"].properties["age"].values)
 
     def test_interval_domain(self):
@@ -72,45 +72,45 @@ class BoreholeTest(unittest.TestCase):
 
     def test_interval_domain_depths_empty(self):
         """Test that empty interval depths raises an AssertionError"""
-        self.assertRaises(AssertionError, lambda: bh.IntervalDomain("test", [], []))
+        self.assertRaises(AssertionError, lambda: pybh.IntervalDomain("test", [], []))
 
     def test_interval_domain_depths_different_size(self):
         """Test that interval depths of different size raises an AssertionError"""
-        self.assertRaises(AssertionError, lambda: bh.IntervalDomain("test", [1, 3, 5], [2, 4]))
+        self.assertRaises(AssertionError, lambda: pybh.IntervalDomain("test", [1, 3, 5], [2, 4]))
 
     def test_interval_domain_depths_decreasing(self):
         """Test that decreasing interval depths raises an AssertionError"""
-        self.assertRaises(AssertionError, lambda: bh.IntervalDomain("test", [3, 1], [4, 2]))
+        self.assertRaises(AssertionError, lambda: pybh.IntervalDomain("test", [3, 1], [4, 2]))
 
     def test_interval_domain_zero_length(self):
         """Test that zero interval length raises an AssertionError"""
-        self.assertRaises(AssertionError, lambda: bh.IntervalDomain("test", [1, 3], [2, 3]))
+        self.assertRaises(AssertionError, lambda: pybh.IntervalDomain("test", [1, 3], [2, 3]))
 
     def test_interval_domain_negative_length(self):
         """Test that negative interval length raises an AssertionError"""
-        self.assertRaises(AssertionError, lambda: bh.IntervalDomain("test", [1, 4], [2, 3]))
+        self.assertRaises(AssertionError, lambda: pybh.IntervalDomain("test", [1, 4], [2, 3]))
 
     def test_interval_domain_overlap(self):
         """Test that interval overlap raises an AssertionError"""
-        self.assertRaises(AssertionError, lambda: bh.IntervalDomain("test", [1, 2], [3, 4]))
+        self.assertRaises(AssertionError, lambda: pybh.IntervalDomain("test", [1, 2], [3, 4]))
 
     def test_interval_domain_wrong_property_size(self):
         """Test that interval property with wrong number of values raises an AssertionError"""
         self.assertRaises(AssertionError,
-                          lambda: bh.IntervalDomain("test", [1, 3], [2, 4]).add_property(DENSITY, [1.3]))
+                          lambda: pybh.IntervalDomain("test", [1, 3], [2, 4]).add_property(DENSITY, [1.3]))
 
     def test_sampling_domain_depths_empty(self):
         """Test that empty sampling depths raises an AssertionError"""
-        self.assertRaises(AssertionError, lambda: bh.SamplingDomain("test", []))
+        self.assertRaises(AssertionError, lambda: pybh.SamplingDomain("test", []))
 
     def test_sampling_domain_depths_decreasing(self):
         """Test that decreasing sampling depths raises an AssertionError"""
-        self.assertRaises(AssertionError, lambda: bh.SamplingDomain("test", [2, 1]))
+        self.assertRaises(AssertionError, lambda: pybh.SamplingDomain("test", [2, 1]))
 
     def test_sampling_domain_wrong_property_size(self):
         """Test that sampling property with wrong number of values raises an AssertionError"""
         self.assertRaises(AssertionError,
-                          lambda: bh.SamplingDomain("test", [1, 2]).add_property(DENSITY, [1.3]))
+                          lambda: pybh.SamplingDomain("test", [1, 2]).add_property(DENSITY, [1.3]))
 
 
 if __name__ == "__main__":

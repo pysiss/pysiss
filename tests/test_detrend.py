@@ -13,7 +13,7 @@ from pyboreholes.analysis import detrend
 
 class TestDetrend(unittest.TestCase):
 
-    """ Unit tests for cwavelets.detrend
+    """ Unit tests for pyboreholes.analysis.detrend
     """
 
     def setUp(self):
