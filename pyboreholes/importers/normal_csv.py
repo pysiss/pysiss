@@ -10,7 +10,7 @@
 import numpy
 import itertools
 from csv import DictReader
-from borehole_analysis.utilities import try_float
+from pyboreholes.utilities import try_float
 
 def parse_csv(csv_filename, all_keys):
     """ Parse a CSV file, return data as numpy arrays

@@ -4,11 +4,11 @@
 		{
 			"path": ".",
 			"name": "Project files",
-			"folder_exclude_patterns": ["borehole_analysis", "tests", "logs", "build", "docs", "examples"],
+			"folder_exclude_patterns": ["pyboreholes", "tests", "logs", "build", "docs", "examples", "dist", "*.egg-info"],
 			"file_exclude_patterns": ["*.sublime-workspace"]
 		},
 		{
-			"path": "borehole_analysis",
+			"path": "pyboreholes",
 			"name": "Source",
 			"folder_exclude_patterns": [],
 			"file_exclude_patterns": ["*.o"]
@@ -24,12 +24,6 @@
 			"name": "Tests",
 			"folder_exclude_patterns": [],
 			"file_exclude_patterns": []
-		},
-		{
-			"path": "build",
-			"name": "Build",
-			"folder_exclude_patterns": ["*.dSYM"],
-			"file_exclude_patterns": ["*.o"]
 		},
 		{
 			"path": "docs",
