@@ -1,5 +1,5 @@
 """ file: test_utilities.py
-    author: Jess Robertson
+    author: Jess Robertson & Ben Caradoc-Davies
             CSIRO Earth Science and Resource Engineering
     date: Tuesday May 14, 2013
 
