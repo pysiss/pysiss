@@ -271,9 +271,9 @@ def wavelet_plot(wavelet_domain, property_name):
 
     # Get info from wavelet
     wavelet = wavelet_domain.wavelets[property_name]
-    depths, data = wavelet.get_data()
-    scales = wavelet.get_scales(fourier=True)
-    transform = wavelet_domain.properties[property_name].values.real[:, 0, :]
+    depths, data = wavelet_domain.depths, wavelet_domain.signals[property_name].values
+    scales = wavelet_domain.scales * wavelet_domain.wav_properties['equivalent_fourier_period']
+    transform = wavelet_domain.properties[property_name].values.real
     depths_grid, scales_grid = numpy.meshgrid(depths, scales)
     coi = wavelet_domain.cone_of_influence
     gap = wavelet_domain.gap_cones
@@ -320,9 +320,9 @@ def wavelet_label_plot(wavelet_domain, property_name):
 
     # Get info from wavelet
     wavelet = wavelet_domain.wavelets[property_name]
-    depths, data = wavelet.get_data()
-    scales = wavelet.get_scales(fourier=True)
-    label_array = wavelet_domain.domains[property_name][:, 0, :]
+    depths, data = wavelet_domain.depths, wavelet_domain.signals[property_name].values
+    scales = wavelet_domain.scales * wavelet_domain.wav_properties['equivalent_fourier_period']
+    label_array = wavelet_domain.domains[property_name]
     nlabels = len(wavelet_domain.labels[property_name])
     depths_grid, scales_grid = numpy.meshgrid(depths, scales)
     coi = wavelet_domain.cone_of_influence
@@ -375,10 +375,10 @@ def plot_all_wavelets(wavelet_domain):
         axe = matplotlib.pyplot.subplot(grid[idx])
         axe.set_xticks([])
         axe.set_yticks([])
-        axe.contourf(prop.values[::-1, 0, :].real,
+        axe.contourf(prop.values.real[::-1],
             5, cmap=matplotlib.pyplot.get_cmap('RdYlBu'))
-        axe.contourf(coi[::-1, :], 1, colors=['white'], alpha=0.5)
-        axe.contourf(gaps[::-1, :], 1, colors=['black'], alpha=0.2)
+        axe.contourf(coi[::-1], 1, colors=['white'], alpha=0.5)
+        axe.contourf(gaps[::-1], 1, colors=['black'], alpha=0.2)
         axe.set_title(prop.property_type.long_name)
     fig.tight_layout()
     return fig, axe
@@ -396,14 +396,14 @@ def plot_all_label_arrays(wavelet_domain):
 
     # Plot each property
     for idx, key in enumerate(domain_keys):
-        domains = wavelet_domain.domains[key].real[::-1, 0, :]
+        domains = wavelet_domain.domains[key].real
         ndomans = len(wavelet_domain.labels[key])
         axe = matplotlib.pyplot.subplot(grid[idx])
         axe.set_xticks([])
         axe.set_yticks([])
-        axe.contourf(domains, ndomans, cmap=matplotlib.pyplot.get_cmap('RdGy'))
-        axe.contourf(coi[::-1, :], 1, colors=['white'], alpha=0.5)
-        axe.contourf(gaps[::-1, :], 1, colors=['black'], alpha=0.2)
+        axe.contourf(domains[::-1], ndomans, cmap=matplotlib.pyplot.get_cmap('RdGy'))
+        axe.contourf(coi[::-1], 1, colors=['white'], alpha=0.5)
+        axe.contourf(gaps[::-1], 1, colors=['black'], alpha=0.2)
         axe.set_title(wavelet_domain.properties[key].property_type.long_name)
     fig.tight_layout()
     return fig, axe
