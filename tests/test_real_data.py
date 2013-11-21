@@ -8,9 +8,9 @@
 """
 
 import pyboreholes as pybh
-import pandas, numpy, os
+import pandas, numpy
 import cPickle as pickle
-import itertools
+import itertools, os, unittest
 
 # Location of data files
 PROP_TYPE_PKL = os.path.join('.', 'test_real_ptypes.pkl')

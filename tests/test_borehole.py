@@ -8,6 +8,7 @@
 """
 
 import pyboreholes as pybh
+import cwavelets as cw
 import unittest
 
 DENSITY = pybh.PropertyType(name="d", long_name="density", units="g/cm3")
@@ -68,7 +69,32 @@ class BoreholeTest(unittest.TestCase):
         self.assertEquals("samples", self.borehole.sampling_domains['samples'].name)
 
     def test_wavelet_domain(self):
-        """Test store and retrieve a
+        """Test store and retrieve a wavelet domain"""
+        # Make a SamplingDomain instance as in test_sampling_domain
+        # the depths of the domain
+        depths = [4.0, 4.02, 4.0603, 4.0803]
+        # two numerical properties
+        densities = [2.8073, 2.837, 2.8569, 2.8158]
+        impedances = [9010.898, 9250.686, 11854.32, 11621.28]
+        domain = self.borehole.add_sampling_domain("wavelet_samples", depths)
+        domain.add_property(DENSITY, densities)
+        domain.add_property(IMPEDANCE, impedances)
+
+        # Generate a wavelet domain from this sampling domain
+        wdomain = self.borehole.add_wavelet_domain(
+            name            = 'test_domain',
+            sampling_domain = domain,
+            wavelet         = cw.Hermitian,
+            wav_properties  = cw.WaveletProperties(order=1))
+        for key in ('d', 'imp'):
+            wdomain.add_transform(key)
+
+        # Check results are stored in borehole
+        self.assertEquals(wdomain,
+            self.borehole.wavelet_domains['test_domain'])
+        for key, values in [('d', densities), ('imp', impedances)]:
+            self.assertEquals(wdomain.signals[key].values, values)
+        self.assertEquals(wdomain.depths, depths)
 
     def test_interval_domain_depths_empty(self):
         """Test that empty interval depths raises an AssertionError"""
