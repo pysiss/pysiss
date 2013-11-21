@@ -6,11 +6,11 @@
 
     description: Classes to represent data domains etc in boreholes
 
-    This file defines the abstract base class Domain which acts as a parent 
+    This file defines the abstract base class Domain which acts as a parent
     or all the domain data types; it should not be instantiated by users.
 """
 
-from ..properties import Property, PropertyType
+from ..properties import Property
 
 class Domain(object):
 

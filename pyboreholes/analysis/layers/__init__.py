@@ -9,4 +9,4 @@
 """
 
 from .label_tree import LabelTree
-import metrics
+from . import metrics
