@@ -53,9 +53,7 @@ class SamplingDomain(Domain):
         indices = self.get_interval_indices(from_depth, to_depth)
         newdom = SamplingDomain(domain_name, self.depths[indices])
         for prop in self.properties.values():
-            newdom.add_property(
-                property_type=prop.property_type,
-                values=prop.values[indices])
+            newdom.add_property(prop.property_type, prop.values[indices])
         return newdom
 
     def get_interval_indices(self, from_depth, to_depth):
