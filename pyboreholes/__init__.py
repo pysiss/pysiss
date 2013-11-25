@@ -10,8 +10,7 @@
 
 from .borehole import Borehole, Feature, \
     CoordinateReferenceSystem, Survey
-import importers
-from pyboreholes.domains import Domain, \
+from .domains import Domain, \
     SamplingDomain, IntervalDomain, WaveletDomain, SpectralDomain
 from .properties import Property, PropertyType
-import plotting
+from . import importers, plotting, analysis

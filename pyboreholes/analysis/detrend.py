@@ -4,7 +4,8 @@
             CSIRO Earth Science and Resource Engineering
     date: Sunday November 10, 2013
 
-    description: Utilities to low-pass filter regularly spaced data in a SamplingDomain instance (i.e. detrending).
+    description: Utilities to low-pass filter regularly spaced data in a
+    SamplingDomain instance (i.e. detrending).
 """
 
 import numpy
@@ -55,7 +56,10 @@ def _detrend_function(data, func, param_guess):
         :type data: `numpy.array`
         :param func: specify a model function to use in the
             detrending.
-        :param param_guess: An initial guess at the parameters in the model. Usually an array of ones, or an array with the highest polynomial factor set to one and the rest to zero works well. A `ValueError` will be raised if `func` is specified but not `param_guess`.
+        :param param_guess: An initial guess at the parameters in the model.
+            Usually an array of ones, or an array with the highest polynomial
+            factor set to one and the rest to zero works well. A `ValueError`
+            will be raised if `func` is specified but not `param_guess`.
         :type param_guess: `numpy.ndarray`
         :returns: None (data modified in place)
     """
@@ -117,13 +121,19 @@ def detrend(data, trend=None, func=None, param_guess=None):
 
         :param data: the one-dimensional input data
         :type data: `numpy.array`
-        :param trend: Optional, use a builtin trend model. One of 'none', 'mean', 'linear', 'quadratic' or 'cubic'. Defaults to 'linear' if
+        :param trend: Optional, use a builtin trend model. One of 'none',
+            'mean', 'linear', 'quadratic' or 'cubic'. Defaults to 'linear' if
             `func` is not specified.
         :type trend: str
         :param func: Optional, specify a model function to use in the
-            detrending. The function should be of the form :math:`f(p, x)` where :math:`x` is some domain parameter, and :math:`p` is a paramter vector for the model. See `scipy.optimize.leastsq` for more details on the form
-            of this function.
-        :param param_guess: An initial guess at the parameters in the model. Usually an array of ones, or an array with the highest polynomial factor set to one and the rest to zero works well. A `ValueError` will be raised if `func` is specified but not `param_guess`.
+            detrending. The function should be of the form :math:`f(p, x)`
+            where :math:`x` is some domain parameter, and :math:`p` is a
+            paramter vector for the model. See `scipy.optimize.leastsq` for
+            more details on the form of this function.
+        :param param_guess: An initial guess at the parameters in the model.
+            Usually an array of ones, or an array with the highest polynomial
+            factor set to one and the rest to zero works well. A `ValueError`
+            will be raised if `func` is specified but not `param_guess`.
         :type param_guess: `numpy.ndarray`
         :returns: None (data modified in place)
     """

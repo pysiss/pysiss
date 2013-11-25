@@ -42,19 +42,28 @@ def plot_difference(axes, domain, observed_value, expected_value,
     colors=('red', 'blue'), orientation='horizontal'):
     """ Plots the difference between two series.
 
-        This plot also includes a set of lines in the shading to indicate the sample spacing. You can set the colors that you want to use to highlight differences between the two series.
+        This plot also includes a set of lines in the shading to indicate the
+        sample spacing. You can set the colors that you want to use to
+        highlight differences between the two series.
 
         :param axee: The axes to plot in
         :type axes: `matplotlib.pyplot.axes`
         :param domain: The domain variable
         :type domain: `numpy.ndarray`
-        :param observed_value: The actual value given as a numpy array. Must be the same length as the domain vector.
+        :param observed_value: The actual value given as a numpy array. Must
+            be the same length as the domain vector.
         :type observed_value: `numpy.ndarray`
-        :param expected_value: The expected value. Can be a constant, in which case the value will be constant, or an array of the same size as the domain.
+        :param expected_value: The expected value. Can be a constant, in which
+            case the value will be constant, or an array of the same size as
+            the domain.
         :type expected_value: `numpy.ndarray` or number
-        :param colors: A tuple of colors. The fill and lines will be shaded `color[0]` when `observed_value` < `expected_value` and `color[1]` when `observed_value` >= `expected_value`. Any color accepted by matplotlib is allowed.
+        :param colors: A tuple of colors. The fill and lines will be shaded
+            `color[0]` when `observed_value` < `expected_value` and `color[1]`
+            when `observed_value` >= `expected_value`. Any color accepted by
+            matplotlib is allowed.
         :type colors: Tuple
-        :param orientation: The orientation of the plot, one of 'horizontal', or 'vertical'.
+        :param orientation: The orientation of the plot, one of 'horizontal',
+            or 'vertical'.
         :type orientation: str
     """
     # Expand the expected value if required
@@ -105,13 +114,16 @@ def plot_difference(axes, domain, observed_value, expected_value,
 def plot_signal(axes, domain, signal, orientation='horizontal'):
     """ Plots a one-dimensional signal against some domain.
 
-        This assumes that you're plotting a detrended signal, so it fills in red for negative anomalies and blue for positive anomalies, so that you can compare the deviation from the trend.
+        This assumes that you're plotting a detrended signal, so it fills in
+        red for negative anomalies and blue for positive anomalies, so that
+        you can compare the deviation from the trend.
 
         :param axes: The axes instance in which to plot the signal
         :type axes: `matplotlib.axes`
         :param domain: An array of domain locations
         :type domain: `numpy.ndarray`
-        :param signal: An array of signal values. Must be the same length as `domain` or an error will be raised.
+        :param signal: An array of signal values. Must be the same length as
+            `domain` or an error will be raised.
         :type signal: `numpy.ndarray`
         :param orientation: One of `'horizontal'` or `'vertical'`
         :type orientation: `str`
@@ -269,11 +281,12 @@ def wavelet_plot(wavelet_domain, property_name):
     trace_ax = matplotlib.pyplot.subplot(grid[0])
     transform_ax = matplotlib.pyplot.subplot(grid[1])
 
-    # Get info from wavelet
-    wavelet = wavelet_domain.wavelets[property_name]
-    depths, data = wavelet.get_data()
-    scales = wavelet.get_scales(fourier=True)
-    transform = wavelet_domain.properties[property_name].values.real[:, 0, :]
+    # Get info from wavelet domain
+    depths = wavelet_domain.depths
+    data = wavelet_domain.signals[property_name].values
+    scales = wavelet_domain.scales * \
+        wavelet_domain.wav_properties['equivalent_fourier_period']
+    transform = wavelet_domain.properties[property_name].values.real
     depths_grid, scales_grid = numpy.meshgrid(depths, scales)
     coi = wavelet_domain.cone_of_influence
     gap = wavelet_domain.gap_cones
@@ -318,11 +331,12 @@ def wavelet_label_plot(wavelet_domain, property_name):
     trace_ax = matplotlib.pyplot.subplot(grid[0])
     transform_ax = matplotlib.pyplot.subplot(grid[1])
 
-    # Get info from wavelet
-    wavelet = wavelet_domain.wavelets[property_name]
-    depths, data = wavelet.get_data()
-    scales = wavelet.get_scales(fourier=True)
-    label_array = wavelet_domain.domains[property_name][:, 0, :]
+    # Get info from wavelet domain
+    depths = wavelet_domain.depths
+    data = wavelet_domain.signals[property_name].values
+    scales = wavelet_domain.scales * \
+        wavelet_domain.wav_properties['equivalent_fourier_period']
+    label_array = wavelet_domain.domains[property_name]
     nlabels = len(wavelet_domain.labels[property_name])
     depths_grid, scales_grid = numpy.meshgrid(depths, scales)
     coi = wavelet_domain.cone_of_influence
@@ -375,10 +389,10 @@ def plot_all_wavelets(wavelet_domain):
         axe = matplotlib.pyplot.subplot(grid[idx])
         axe.set_xticks([])
         axe.set_yticks([])
-        axe.contourf(prop.values[::-1, 0, :].real,
+        axe.contourf(prop.values.real[::-1],
             5, cmap=matplotlib.pyplot.get_cmap('RdYlBu'))
-        axe.contourf(coi[::-1, :], 1, colors=['white'], alpha=0.5)
-        axe.contourf(gaps[::-1, :], 1, colors=['black'], alpha=0.2)
+        axe.contourf(coi[::-1], 1, colors=['white'], alpha=0.5)
+        axe.contourf(gaps[::-1], 1, colors=['black'], alpha=0.2)
         axe.set_title(prop.property_type.long_name)
     fig.tight_layout()
     return fig, axe
@@ -396,14 +410,15 @@ def plot_all_label_arrays(wavelet_domain):
 
     # Plot each property
     for idx, key in enumerate(domain_keys):
-        domains = wavelet_domain.domains[key].real[::-1, 0, :]
+        domains = wavelet_domain.domains[key].real
         ndomans = len(wavelet_domain.labels[key])
         axe = matplotlib.pyplot.subplot(grid[idx])
         axe.set_xticks([])
         axe.set_yticks([])
-        axe.contourf(domains, ndomans, cmap=matplotlib.pyplot.get_cmap('RdGy'))
-        axe.contourf(coi[::-1, :], 1, colors=['white'], alpha=0.5)
-        axe.contourf(gaps[::-1, :], 1, colors=['black'], alpha=0.2)
+        axe.contourf(domains[::-1], ndomans,
+            cmap=matplotlib.pyplot.get_cmap('RdGy'))
+        axe.contourf(coi[::-1], 1, colors=['white'], alpha=0.5)
+        axe.contourf(gaps[::-1], 1, colors=['black'], alpha=0.2)
         axe.set_title(wavelet_domain.properties[key].property_type.long_name)
     fig.tight_layout()
     return fig, axe

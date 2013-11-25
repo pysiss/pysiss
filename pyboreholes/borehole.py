@@ -1,6 +1,10 @@
 #!/usr/bin/env python
-""" file: borehole.py (pyboreholes)
+""" file:   borehole.py (pyboreholes)
     author: Jess Robertson & Ben Caradoc-Davies
+            CSIRO Earth Science and Resource Engineering
+    date:   September 10, 2013
+
+    description: Borehole class implementation
 """
 
 from .domains import SamplingDomain, IntervalDomain, WaveletDomain
@@ -10,8 +14,8 @@ class Borehole(object):
 
     """ Class to represent a borehole.
 
-        Borehole has point features and domains on which properties are 
-        defined. A property can be defined on multiple domains. Features and 
+        Borehole has point features and domains on which properties are
+        defined. A property can be defined on multiple domains. Features and
         domains are containers for the properties defined on them.
 
         A Feature is analogous to a spatial point feature. It has a depth and
@@ -20,8 +24,8 @@ class Borehole(object):
         An IntervalDomain is is a sequence of borehole segments each having a
         single value for each property; this value is taken to be the same
         across the entire length of the interval. IntervalDomains can be merged
-        to form a new IntervalDomain that has the intervals whose boundaries 
-        are the union of the boundaries of the source IntervalDomains. An 
+        to form a new IntervalDomain that has the intervals whose boundaries
+        are the union of the boundaries of the source IntervalDomains. An
         IntervalDomain can be interpolated onto a SamplingDomain.
 
         A SamplingDomain is a sequence of depths at which continuous properties
@@ -77,8 +81,8 @@ class Borehole(object):
         """ Add and return a new Feature.
 
             :param name: The identifier for the new feature
-            :type name: `string` 
-            :param depth: Down-hole depth in metres from collar 
+            :type name: `string`
+            :param depth: Down-hole depth in metres from collar
             :type depth: `int` or `float`
             :returns: the new `pyboreholes.Feature` instance
         """
@@ -89,9 +93,9 @@ class Borehole(object):
         """ Add and return a new IntervalDomain
 
             :param name: The identifier for the new IntervalDomain
-            :type name: `string` 
+            :type name: `string`
             :param from_depths: Interval start point down-hole depths in metres
-                    from collar 
+                    from collar
             :type from_depths: iterable of numeric values
             :param to_depths: Interval end point down-hole depths in metres from collar
             :type to_depths: iterable of numeric values
@@ -106,9 +110,9 @@ class Borehole(object):
         """ Add and return a new SamplingDomain.
 
             :param name: The identifier for the new SamplingDomain
-            :type name: `string` 
+            :type name: `string`
             :param depths: Sample locations given as down-hole depths in metres
-                    from collar 
+                    from collar
             :type depths: iterable of numeric values
             :returns: the new `pyboreholes.SamplingDomain` instance.
         """
@@ -144,9 +148,9 @@ class Feature(object):
             properties - dict mapping property name to Property
 
         :param name: The identifier for the new SamplingDomain
-        :type name: `string` 
+        :type name: `string`
         :param depth: Feature location given as down-hole depth in metres
-                from collar 
+                from collar
         :type depth: numeric value
     """
 

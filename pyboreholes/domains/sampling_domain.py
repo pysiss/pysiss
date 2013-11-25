@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-""" file: sampling_domain.py (pyboreholes.domains)
-    author: Jess Robertson
+""" file:   sampling_domain.py (pyboreholes.domains)
+    author: Jess Robertson & Ben Caradoc-Davies
             CSIRO Earth Science and Resource Engineering
-    date: Sunday November 10, 2013
+    date:   Sunday November 10, 2013
 
-    description: Domain for sampling data (data sampled at a finite set of 
+    description: Domain for sampling data (data sampled at a finite set of
             points down a borehole)
 """
 
@@ -53,9 +53,7 @@ class SamplingDomain(Domain):
         indices = self.get_interval_indices(from_depth, to_depth)
         newdom = SamplingDomain(domain_name, self.depths[indices])
         for prop in self.properties.values():
-            newdom.add_property(
-                property_type=prop.property_type,
-                values=prop.values[indices])
+            newdom.add_property(prop.property_type, prop.values[indices])
         return newdom
 
     def get_interval_indices(self, from_depth, to_depth):
