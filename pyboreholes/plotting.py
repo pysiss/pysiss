@@ -373,12 +373,24 @@ def wavelet_label_plot(wavelet_domain, property_name):
     fig.tight_layout()
     return fig, trace_ax, transform_ax
 
-def plot_all_wavelets(wavelet_domain):
+def plot_all_wavelets(wavelet_domain, properties=None):
     """ Plot all the wavelets in a WaveletDomain
+
+        :param wavelet_domain: The wavelet domain to pull data from
+        :type wavelet_domain: pyboreholes.domains.WaveletDomain
+        :param properties: A list of property names to plot. Defaults to None if not specified, in which case all properties are plotted.
+        :type properties: list of strings
     """
+    # Check whether we've specified keys to plot
+    all_prop_names = wavelet_domain.properties.keys()
+    if properties is None:
+        props_to_plot = all_prop_names
+    else:
+        props_to_plot = properties
+
     # Generate figure
     fig = matplotlib.pyplot.figure(figsize=(11, 20))
-    props = wavelet_domain.properties.values()
+    props = [wavelet_domain.properties[prop] for prop in props_to_plot]
     gaps = wavelet_domain.gap_cones
     coi = wavelet_domain.cone_of_influence
     nplots = len(props)
@@ -395,7 +407,7 @@ def plot_all_wavelets(wavelet_domain):
         axe.contourf(gaps[::-1], 1, colors=['black'], alpha=0.2)
         axe.set_title(prop.property_type.long_name)
     fig.tight_layout()
-    return fig, axe
+    return fig, axes
 
 def plot_all_label_arrays(wavelet_domain):
     """ Plot all the label arrays in a WaveletDomain
