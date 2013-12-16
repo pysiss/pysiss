@@ -380,6 +380,7 @@ def plot_all_wavelets(wavelet_domain, properties=None):
         :type wavelet_domain: pyboreholes.domains.WaveletDomain
         :param properties: A list of property names to plot. Defaults to None if not specified, in which case all properties are plotted.
         :type properties: list of strings
+        :returns: the current matplotlib.pyplot.Figure instance and a list of matplotlib.pyplot.Axes instances corresponding to each wavelet plot
     """
     # Check whether we've specified keys to plot
     all_prop_names = wavelet_domain.properties.keys()
@@ -388,17 +389,20 @@ def plot_all_wavelets(wavelet_domain, properties=None):
     else:
         props_to_plot = properties
 
-    # Generate figure
-    fig = matplotlib.pyplot.figure(figsize=(11, 20))
+    # Get figure infomation
     props = [wavelet_domain.properties[prop] for prop in props_to_plot]
     gaps = wavelet_domain.gap_cones
     coi = wavelet_domain.cone_of_influence
     nplots = len(props)
     grid = gen_axes_grid(nplots, 5)
+    geom = grid.get_geometry()
 
     # Plot each property
+    fig = matplotlib.pyplot.figure(figsize=(11, 7 * geom[1]))
+    axes = []
     for idx, prop in enumerate(props):
         axe = matplotlib.pyplot.subplot(grid[idx])
+        axes.append(axe)
         axe.set_xticks([])
         axe.set_yticks([])
         axe.contourf(prop.values.real[::-1],
