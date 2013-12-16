@@ -11,4 +11,3 @@ from .domain import Domain
 from .sampling_domain import SamplingDomain
 from .interval_domain import IntervalDomain
 from .wavelet_domain import WaveletDomain
-from .spectral_domain import SpectralDomain
