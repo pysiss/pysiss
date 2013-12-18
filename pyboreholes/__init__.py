@@ -11,6 +11,6 @@
 from .borehole import Borehole, Feature, \
     CoordinateReferenceSystem, Survey
 from .domains import Domain, \
-    SamplingDomain, IntervalDomain, WaveletDomain, SpectralDomain
+    SamplingDomain, IntervalDomain, WaveletDomain
 from .properties import Property, PropertyType
 from . import importers, plotting, analysis
