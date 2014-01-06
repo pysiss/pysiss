@@ -89,8 +89,11 @@ def get_borehole_datasets(dataurl, holeident):
     """
     xmltree = None
     holeurl = 'getDatasetCollection.html?holeidentifier={0}'.format(holeident)
-    with urllib.urlopen(dataurl + holeurl)  as fhandle:
-        xmltree = xml.etree.ElementTree.parse(fhandle)
+    url_handle = urllib.urlopen(dataurl + holeurl)
+    try:
+        xmltree = xml.etree.ElementTree.parse(url_handle)
+    finally:
+        url_handle.close()
 
     datasets = []
     for dset in xmltree.findall(".//Dataset"):
@@ -113,8 +116,11 @@ def get_logged_analytes(dataurl, datasetid):
     xmltree = None
     dseturl = 'getLogCollection.html?mosaicsvc=no&datasetid={0}'.format(
             datasetid)
-    with urllib.urlopen(dataurl + dseturl) as fhandle:
-        xmltree = xml.etree.ElementTree.parse(fhandle)
+    url_handle = urllib.urlopen(dataurl + dseturl)
+    try:
+        xmltree = xml.etree.ElementTree.parse(url_handle)
+    finally:
+        url_handle.close()
 
     analytes = []
     for anlyt in xmltree.findall(".//Log"):
@@ -143,9 +149,9 @@ def get_analytes_as_borehole(dataurl, name, *scalarids):
         url += '&logid={0}'.format(id)
 
     bhl = Borehole(name)
-
-    with urllib.urlopen(url) as fhandle:
-        analytedata = pandas.read_csv(fhandle, header=0)
+    url_handle = urllib.urlopen(url)
+    try:
+        analytedata = pandas.read_csv(url_handle, header=0)
         startcol = 'STARTDEPTH'
         endcol = 'ENDDEPTH'
         analytecols = [k for k in analytedata.keys()
@@ -157,7 +163,7 @@ def get_analytes_as_borehole(dataurl, name, *scalarids):
         startdepths = numpy.asarray(analytedata[startcol])
         for analyte in analytecols:
             domain = bhl.add_sampling_domain(analyte, startdepths)
-            property_type = pyboreholes.PropertyType(
+            property_type = PropertyType(
                name=analyte,
                long_name=analyte,
                units=None,
@@ -165,6 +171,8 @@ def get_analytes_as_borehole(dataurl, name, *scalarids):
                isnumeric=False)
             domain.add_property(property_type,
                 numpy.asarray(analytedata[analyte]))
+    finally:
+        url_handle.close
 
     return bhl
 
