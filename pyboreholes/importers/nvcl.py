@@ -146,12 +146,13 @@ def get_analytes_as_borehole(dataurl, name, *scalarids):
     """
     url = dataurl + 'downloadscalars.html?'
     for ident in scalarids:
-        url += '&logid={0}'.format(id)
+        url += '&logid={0}'.format(ident)
+    print url
 
     bhl = Borehole(name)
-    url_handle = urllib.urlopen(url)
+    fhandle = urllib.urlopen(url)
     try:
-        analytedata = pandas.read_csv(url_handle, header=0)
+        analytedata = pandas.read_csv(fhandle)
         startcol = 'STARTDEPTH'
         endcol = 'ENDDEPTH'
         analytecols = [k for k in analytedata.keys()
@@ -172,7 +173,7 @@ def get_analytes_as_borehole(dataurl, name, *scalarids):
             domain.add_property(property_type,
                 numpy.asarray(analytedata[analyte]))
     finally:
-        url_handle.close
+        fhandle.close
 
     return bhl
 
