@@ -1,8 +1,18 @@
 #!/usr/bin/env python
+""" file: nvcl.py
+    author: Josh Vote
+            CSIRO Earth Science and Resource Engineering
+    date: 23 December 2013
+
+    description: Importer for NVCL data services
+"""
 
 from owslib.wfs import WebFeatureService
-import pyboreholes
-import urllib, xml, numpy, pandas
+from .. import Borehole, PropertyType, Property
+import numpy
+import pandas
+import urllib
+import xml
 import xml.etree.ElementTree
 
 # Various NVCL providers keyed by a short abbreviation
@@ -10,7 +20,8 @@ NVCL_ENDPOINTS = {
     'CSIRO' : {
         'wfsurl' : 'http://nvclwebservices.vm.csiro.au/geoserverBH/wfs',
         'dataurl' : 'http://nvclwebservices.vm.csiro.au/NVCLDataServices/',
-        'downloadurl' : 'http://nvclwebservices.vm.csiro.au/NVCLDownloadServices/'
+        'downloadurl' : 'http://nvclwebservices.vm.csiro.' \
+                        'au/NVCLDownloadServices/'
     },
     'GSWA' : {
         'wfsurl' : 'http://geossdi.dmp.wa.gov.au/services/wfs',
@@ -39,10 +50,10 @@ NVCL_ENDPOINTS = {
     }
 }
 
-def nvcl_get_borehole_ids(wfsurl, maxids=None):    
+def get_borehole_ids(wfsurl, maxids=None):
     """ Generates an array of tuples representing
         The boreholes with NVCL scanned data at a given WFS endpoint
-        
+
         returns an array of (href, title) tuples
 
         :param wfsurl: The web feature service URL to request data from
@@ -51,74 +62,73 @@ def nvcl_get_borehole_ids(wfsurl, maxids=None):
         :type maxids: integer
     """
     wfs = WebFeatureService(wfsurl, version="1.1.0")
-    wfsresponse = wfs.getfeature(typename="nvcl:ScannedBoreholeCollection", maxfeatures=maxids)
+    wfsresponse = wfs.getfeature(typename="nvcl:ScannedBoreholeCollection",
+        maxfeatures=maxids)
     xmltree = xml.etree.ElementTree.parse(wfsresponse)
-    
-    ids = []
-    for sb in xmltree.findall(".//{http://www.auscope.org/nvcl}scannedBorehole"):
-        href = sb.get('{http://www.w3.org/1999/xlink}href')
-        title = sb.get('{http://www.w3.org/1999/xlink}title')
-        ids.append((href, title))
-    return ids
 
-def nvcl_get_borehole_datasets(dataurl, holeidentifier):
-    """ Generates an array of tuples representing
-        All the NVCL datasets associated with this particular borehole
-        
-        returns an array of (id, name, omUrl) tuples
+    idents = []
+    bhstring = ".//{http://www.auscope.org/nvcl}scannedBorehole"
+    for match in xmltree.findall(bhstring):
+        href = match.get('{http://www.w3.org/1999/xlink}href')
+        title = match.get('{http://www.w3.org/1999/xlink}title')
+        idents.append((href, title))
+    return idents
+
+def get_borehole_datasets(dataurl, holeident):
+
+    """ Generates an array of tuples representing all the NVCL datasets
+        associated with this particular borehole
 
         :param dataurl: The NVCL dataservice URL to request data from
         :type dataurl: string
-        :param holeidentifier: The GUID for a borehole available at dataurl
-        :type holeidentifier: string
+        :param holeident:
+        The GUID for a borehole available at dataurl
+        :type holeident:
+        string
+        :returns: an array of (id, name, omUrl) tuples
     """
     xmltree = None
-    fp = urllib.urlopen(dataurl + 'getDatasetCollection.html?holeidentifier={0}'.format(holeidentifier))
-    try:
-        xmltree = xml.etree.ElementTree.parse(fp)
-    finally:
-        fp.close()
-    
+    holeurl = 'getDatasetCollection.html?holeidentifier={0}'.format(holeident)
+    with urllib.urlopen(dataurl + holeurl)  as fhandle:
+        xmltree = xml.etree.ElementTree.parse(fhandle)
+
     datasets = []
-    for ds in xmltree.findall(".//Dataset"):
-        id = ds.find('DatasetID').text
-        name = ds.find('DatasetName').text
-        omurl = ds.find('OmUrl').text
-        datasets.append((id, name, omurl))
+    for dset in xmltree.findall(".//Dataset"):
+        ident = dset.find('DatasetID').text
+        name = dset.find('DatasetName').text
+        omurl = dset.find('OmUrl').text
+        datasets.append((ident, name, omurl))
     return datasets
 
-def nvcl_get_logged_analytes(dataurl, datasetid):
-    """ Generates an array of tuples representing
-        all the NVCL analytes for a given dataset
-        
-        returns an array of (logid, analytename) tuples
+def get_logged_analytes(dataurl, datasetid):
+    """ Generates an array of tuples representing all the NVCL analytes for a
+        given dataset.
 
         :param dataurl: The NVCL dataservice URL to request data from
         :type dataurl: string
         :param datasetid: The GUID for a dataset available at dataurl
         :type datasetid: string
+        :returns: an array of (logid, analytename) tuples
     """
     xmltree = None
-    fp = urllib.urlopen(dataurl + 'getLogCollection.html?mosaicsvc=no&datasetid={0}'.format(datasetid))
-    try:
-        xmltree = xml.etree.ElementTree.parse(fp)
-    finally:
-        fp.close()
+    dseturl = 'getLogCollection.html?mosaicsvc=no&datasetid={0}'.format(
+            datasetid)
+    with urllib.urlopen(dataurl + dseturl) as fhandle:
+        xmltree = xml.etree.ElementTree.parse(fhandle)
 
     analytes = []
-    for an in xmltree.findall(".//Log"):
-        logid = an.find("LogID").text
-        name = an.find("logName").text
+    for anlyt in xmltree.findall(".//Log"):
+        logid = anlyt.find("LogID").text
+        name = anlyt.find("logName").text
         analytes.append((logid, name))
-        
+
     return analytes
 
-def nvcl_get_analytes_as_borehole(dataurl, name, *scalarids):
-    """ Requests a CSV in the form of (startDepth, endDepth, analyteValue1, ... , analyteValueN)
-        before parsing the analyte data into a pyboreholes.borehole with a set of a sampling domains 
-        representing each of the analytes.
-        
-        returns a pyboreholes.Borehole object
+def get_analytes_as_borehole(dataurl, name, *scalarids):
+    """ Requests a CSV in the form of (startDepth, endDepth, analyteValue1,
+        ..., analyteValueN) before parsing the analyte data into a
+        pyboreholes.Borehole with a set of a sampling domains representing
+        each of the analytes.
 
         :param dataurl: The NVCL dataservice URL to request data from
         :type dataurl: string
@@ -126,41 +136,37 @@ def nvcl_get_analytes_as_borehole(dataurl, name, *scalarids):
         :type name: string
         :param scalarids: A variable number of strings, each representing the GUID for scalars available at dataurl
         :type scalarids: string
+        :returns: a `pyboreholes.Borehole` object
     """
     url = dataurl + 'downloadscalars.html?'
-    for id in scalarids:
+    for ident in scalarids:
         url += '&logid={0}'.format(id)
-    
-    bh = pyboreholes.Borehole(name)
-    
-    fp = urllib.urlopen(url)
-    try:
-        analytedata = pandas.read_csv(fp, header=0)
-        
+
+    bhl = Borehole(name)
+
+    with urllib.urlopen(url) as fhandle:
+        analytedata = pandas.read_csv(fhandle, header=0)
         startcol = 'STARTDEPTH'
         endcol = 'ENDDEPTH'
-        analytecols = [k for k in analytedata.keys() if k not in (startcol, endcol)]
-        
-        # NVCL data results in start depths == end depths.  
+        analytecols = [k for k in analytedata.keys()
+                         if k not in (startcol, endcol)]
+
+        # NVCL data results in start depths == end depths.
         # Ranges aren't really appropriate. Better to use sampling domain
         analytedata = analytedata.drop_duplicates(startcol)
         startdepths = numpy.asarray(analytedata[startcol])
-        
         for analyte in analytecols:
-            domain = bh.add_sampling_domain(analyte, startdepths)
-            propertyType = pyboreholes.PropertyType(
+            domain = bhl.add_sampling_domain(analyte, startdepths)
+            property_type = pyboreholes.PropertyType(
                name=analyte,
                long_name=analyte,
                units=None,
                description=None,
-               isnumeric=False
-            )
-            
-            domain.add_property(propertyType, numpy.asarray(analytedata[analyte]))
-    finally:
-        fp.close()
-        
-    return bh
+               isnumeric=False)
+            domain.add_property(property_type,
+                numpy.asarray(analytedata[analyte]))
 
-    
+    return bhl
+
+
 
