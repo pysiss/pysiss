@@ -147,7 +147,6 @@ def get_analytes_as_borehole(dataurl, name, *scalarids):
     url = dataurl + 'downloadscalars.html?'
     for ident in scalarids:
         url += '&logid={0}'.format(ident)
-    print url
 
     bhl = Borehole(name)
     fhandle = urllib.urlopen(url)
