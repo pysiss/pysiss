@@ -406,7 +406,7 @@ def plot_all_wavelets(wavelet_domain, properties=None):
         axe.set_xticks([])
         axe.set_yticks([])
         axe.contourf(prop.values.real[::-1],
-            5, cmap=matplotlib.pyplot.get_cmap('RdYlBu'))
+            5, cmap=matplotlib.pyplot.get_cmap('RdYlBu_r'))
         axe.contourf(coi[::-1], 1, colors=['white'], alpha=0.5)
         axe.contourf(gaps[::-1], 1, colors=['black'], alpha=0.2)
         axe.set_title(prop.property_type.long_name)
