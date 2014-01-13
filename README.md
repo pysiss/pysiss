@@ -12,9 +12,9 @@ This is a python module to carry out some basic analysis of borehole data. Warni
 Building and installing pyboreholes
 -----------------------------------
 
-`pyboreholes` has a few dependencies, most of which come from the numpy/scipy/matplotlib ecosystem. You will have to have [numpy][1] at a minimum, while you will need [scipy][2] and [cwavelets][3] to use the pyboreholes.analysis module, [matplotlib][4] for the plotting module, and [pywavelets][5] to have access to the SpectralDomain class. You can install all of these (with the exception of the cwavelets library, see below) in a single line with the following command:
+`pyboreholes` has a few dependencies, most of which come from the numpy/scipy/matplotlib ecosystem. You will have to have [numpy][1] at a minimum, while you will need [scipy][2] and [cwavelets][3] to use the pyboreholes.analysis module, [matplotlib][4] for the plotting module, [owslib][12] for OWS calls in the NVCL importer, and [pywavelets][5] to have access to the SpectralDomain class. You can install all of these (with the exception of the cwavelets library, see below) in a single line with the following command:
 
-    pip install numpy scipy matplotlib pywavelets
+    pip install numpy scipy matplotlib pywavelets owslib
 
 If your system complains that it can't find pip, then try easy_install install ... instead.
 
@@ -60,3 +60,4 @@ Now you are ready to build your docs, using make (or run the batch script make.b
 [9]: https://stash.csiro.au/projects/DARDA
 [10]: http://sphinx.pocoo.org/
 [11]: http://www.pyzo.org/
+[12]: https://pypi.python.org/pypi/OWSLib/

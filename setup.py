@@ -33,7 +33,8 @@ setup(
     extras_require={
         "continuous_wavelets": ['cwavelets'],
         "discrete_wavelets": ['pywavelets'],
-        "machine_learning": ['sklearn']
+        "machine_learning": ['sklearn'],
+        "nvcl_import": ['owslib']
     },
     ext_modules=[],
     classifiers=[
