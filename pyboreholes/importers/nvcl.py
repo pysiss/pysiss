@@ -8,7 +8,7 @@
 """
 
 from owslib.wfs import WebFeatureService
-from .. import Borehole, PropertyType, Property
+from .. import Borehole, PropertyType
 import numpy
 import pandas
 import urllib
@@ -17,38 +17,39 @@ import xml.etree.ElementTree
 
 # Various NVCL providers keyed by a short abbreviation
 NVCL_ENDPOINTS = {
-    'CSIRO' : {
-        'wfsurl' : 'http://nvclwebservices.vm.csiro.au/geoserverBH/wfs',
-        'dataurl' : 'http://nvclwebservices.vm.csiro.au/NVCLDataServices/',
-        'downloadurl' : 'http://nvclwebservices.vm.csiro.' \
-                        'au/NVCLDownloadServices/'
+    'CSIRO': {
+        'wfsurl': 'http://nvclwebservices.vm.csiro.au/geoserverBH/wfs',
+        'dataurl': 'http://nvclwebservices.vm.csiro.au/NVCLDataServices/',
+        'downloadurl':
+        'http://nvclwebservices.vm.csiro.au/NVCLDownloadServices/'
     },
-    'GSWA' : {
-        'wfsurl' : 'http://geossdi.dmp.wa.gov.au/services/wfs',
-        'dataurl' : 'http://geossdi.dmp.wa.gov.au/NVCLDataServices/',
-        'downloadurl' : 'http://geossdi.dmp.wa.gov.au/NVCLDownloadServices/'
+    'GSWA': {
+        'wfsurl': 'http://geossdi.dmp.wa.gov.au/services/wfs',
+        'dataurl': 'http://geossdi.dmp.wa.gov.au/NVCLDataServices/',
+        'downloadurl': 'http://geossdi.dmp.wa.gov.au/NVCLDownloadServices/'
     },
-    'MRT' : {
-        'wfsurl' : 'http://www.mrt.tas.gov.au/web-services/wfs',
-        'dataurl' : 'http://www.mrt.tas.gov.au/NVCLDataServices/',
-        'downloadurl' : None
+    'MRT': {
+        'wfsurl': 'http://www.mrt.tas.gov.au/web-services/wfs',
+        'dataurl': 'http://www.mrt.tas.gov.au/NVCLDataServices/',
+        'downloadurl': None
     },
-    'NTGS' : {
-        'wfsurl' : 'http://geology.data.nt.gov.au/nvcl/wfs',
-        'dataurl' : 'http://geology.data.nt.gov.au/NVCLDataServices/',
-        'downloadurl' : 'http://geology.data.nt.gov.au/NVCLDownloadServices/'
+    'NTGS': {
+        'wfsurl': 'http://geology.data.nt.gov.au/nvcl/wfs',
+        'dataurl': 'http://geology.data.nt.gov.au/NVCLDataServices/',
+        'downloadurl': 'http://geology.data.nt.gov.au/NVCLDownloadServices/'
     },
-    'PIRSA' : {
-        'wfsurl' : 'https://egate.pir.sa.gov.au/nvcl/geoserver/wfs',
-        'dataurl' : 'https://egate.pir.sa.gov.au/nvcl/NVCLDataServices/',
-        'downloadurl' : 'https://egate.pir.sa.gov.au/nvcl/NVCLDownloadServices/'
+    'PIRSA': {
+        'wfsurl': 'https://egate.pir.sa.gov.au/nvcl/geoserver/wfs',
+        'dataurl': 'https://egate.pir.sa.gov.au/nvcl/NVCLDataServices/',
+        'downloadurl': 'https://egate.pir.sa.gov.au/nvcl/NVCLDownloadServices/'
     },
-    'DPINSW' : {
-        'wfsurl' : 'http://auscope.dpi.nsw.gov.au/geoserver/wfs',
-        'dataurl' : 'http://auscope.dpi.nsw.gov.au/NVCLDataServices/',
-        'downloadurl' : 'http://auscope.dpi.nsw.gov.au/NVCLDownloadServices/'
+    'DPINSW': {
+        'wfsurl': 'http://auscope.dpi.nsw.gov.au/geoserver/wfs',
+        'dataurl': 'http://auscope.dpi.nsw.gov.au/NVCLDataServices/',
+        'downloadurl': 'http://auscope.dpi.nsw.gov.au/NVCLDownloadServices/'
     }
 }
+
 
 def get_borehole_ids(wfsurl, maxids=None):
     """ Generates an array of tuples representing
@@ -58,12 +59,13 @@ def get_borehole_ids(wfsurl, maxids=None):
 
         :param wfsurl: The web feature service URL to request data from
         :type wfsurl: string
-        :param maxids: The maximum number of boreholes to request or None for no limit
+        :param maxids: The maximum number of boreholes to request or None for
+            no limit
         :type maxids: integer
     """
     wfs = WebFeatureService(wfsurl, version="1.1.0")
     wfsresponse = wfs.getfeature(typename="nvcl:ScannedBoreholeCollection",
-        maxfeatures=maxids)
+                                 maxfeatures=maxids)
     xmltree = xml.etree.ElementTree.parse(wfsresponse)
 
     idents = []
@@ -73,6 +75,7 @@ def get_borehole_ids(wfsurl, maxids=None):
         title = match.get('{http://www.w3.org/1999/xlink}title')
         idents.append((href, title))
     return idents
+
 
 def get_borehole_datasets(dataurl, holeident):
 
@@ -103,6 +106,7 @@ def get_borehole_datasets(dataurl, holeident):
         datasets.append((ident, name, omurl))
     return datasets
 
+
 def get_logged_analytes(dataurl, datasetid):
     """ Generates an array of tuples representing all the NVCL analytes for a
         given dataset.
@@ -114,9 +118,9 @@ def get_logged_analytes(dataurl, datasetid):
         :returns: an array of (logid, analytename) tuples
     """
     xmltree = None
-    dseturl = 'getLogCollection.html?mosaicsvc=no&datasetid={0}'.format(
-            datasetid)
-    url_handle = urllib.urlopen(dataurl + dseturl)
+    dseturl = 'getLogCollection.html?mosaicsvc=no&datasetid={0}'
+    url_handle = urllib.urlopen(dataurl
+                                + dseturl.format(datasetid))
     try:
         xmltree = xml.etree.ElementTree.parse(url_handle)
     finally:
@@ -130,6 +134,7 @@ def get_logged_analytes(dataurl, datasetid):
 
     return analytes
 
+
 def get_analytes_as_borehole(dataurl, name, *scalarids):
     """ Requests a CSV in the form of (startDepth, endDepth, analyteValue1,
         ..., analyteValueN) before parsing the analyte data into a
@@ -140,7 +145,8 @@ def get_analytes_as_borehole(dataurl, name, *scalarids):
         :type dataurl: string
         :param name: Descriptive name for this borehole
         :type name: string
-        :param scalarids: A variable number of strings, each representing the GUID for scalars available at dataurl
+        :param scalarids: A variable number of strings, each representing the
+            GUID for scalars available at dataurl
         :type scalarids: string
         :returns: a `pyboreholes.Borehole` object
     """
@@ -155,26 +161,25 @@ def get_analytes_as_borehole(dataurl, name, *scalarids):
         startcol = 'STARTDEPTH'
         endcol = 'ENDDEPTH'
         analytecols = [k for k in analytedata.keys()
-                         if k not in (startcol, endcol)]
+                       if k not in (startcol, endcol)]
 
         # NVCL data results in start depths == end depths.
         # Ranges aren't really appropriate. Better to use sampling domain
         analytedata = analytedata.drop_duplicates(startcol)
         startdepths = numpy.asarray(analytedata[startcol])
+        domain = bhl.add_sampling_domain('nvcl', startdepths)
+
+        # Make a property for each analyte in the borehole
         for analyte in analytecols:
-            domain = bhl.add_sampling_domain(analyte, startdepths)
             property_type = PropertyType(
-               name=analyte,
-               long_name=analyte,
-               units=None,
-               description=None,
-               isnumeric=False)
+                name=analyte,
+                long_name=analyte,
+                units=None,
+                description=None,
+                isnumeric=False)
             domain.add_property(property_type,
-                numpy.asarray(analytedata[analyte]))
+                                numpy.asarray(analytedata[analyte]))
     finally:
         fhandle.close
 
     return bhl
-
-
-
