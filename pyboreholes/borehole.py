@@ -10,6 +10,7 @@
 from .domains import SamplingDomain, IntervalDomain, WaveletDomain
 from .properties import Property
 
+
 class Borehole(object):
 
     """ Class to represent a borehole.
@@ -63,19 +64,22 @@ class Borehole(object):
     def __repr__(self):
         """ String representation
         """
-        info_str = (
-            'Borehole {0}: {1}/{2} interval/sampling domains & {3} '
-            + 'features'
-            + '\nIDs: '
-            + '\n     '.join(map(str, self.interval_domains.values()))
-            + '\nSDs: '
-            + '\n     '.join(map(str, self.sampling_domains.values()))
-            + '\nWDs: '
-            + '\n     '.join(map(str, self.wavelet_domains.values()))
-        )
-        return info_str.format(self.name,
+        info_str = 'Borehole {0} contains '.format(self.name)
+        summary_str = '{0}/{1}/{2} sampling/interval/wavelet domains'.format(
             len(self.interval_domains), len(self.sampling_domains),
-            len(self.features))
+            len(self.wavelet_domains))
+        summary_str += ' & {0} features'.format(len(self.features))
+        domain_list = ''
+        if len(self.interval_domains) > 0:
+            domain_list += ('\nIDs: ' + '\n     '.join(
+                            map(str, self.interval_domains.values())))
+        if len(self.sampling_domains) > 0:
+            domain_list += ('\nSDs: ' + '\n     '.join(
+                            map(str, self.sampling_domains.values())))
+        if len(self.wavelet_domains) > 0:
+            domain_list += ('\nWDs: ' + '\n     '.join(
+                            map(str, self.wavelet_domains.values())))
+        return info_str + summary_str + domain_list
 
     def add_feature(self, name, depth):
         """ Add and return a new Feature.
@@ -97,7 +101,8 @@ class Borehole(object):
             :param from_depths: Interval start point down-hole depths in metres
                     from collar
             :type from_depths: iterable of numeric values
-            :param to_depths: Interval end point down-hole depths in metres from collar
+            :param to_depths: Interval end point down-hole depths in metres
+                from collar
             :type to_depths: iterable of numeric values
 
             :returns: the new `pyboreholes.IntervalDomain` instance.
@@ -120,11 +125,11 @@ class Borehole(object):
         return self.sampling_domains[name]
 
     def add_wavelet_domain(self, name, sampling_domain,
-        wavelet=None, wav_properties=None):
+                           wavelet=None, wav_properties=None):
         """ Add and return a new WaveletDomain.
         """
         self.wavelet_domains[name] = WaveletDomain(name, sampling_domain,
-            wavelet, wav_properties)
+                                                   wavelet, wav_properties)
         return self.wavelet_domains[name]
 
     def desurvey(self, depths, crs):
@@ -178,11 +183,12 @@ class Feature(object):
         """
         return self.properties.keys()
 
+
 class CoordinateReferenceSystem(object):
 
     """System for describing a spatial location as a tuple of real numbers."""
 
-    def  __init__(self):
+    def __init__(self):
         raise NotImplementedError
 
 
@@ -197,4 +203,3 @@ class Survey(object):
 
     def __init__(self):
         raise NotImplementedError
-
