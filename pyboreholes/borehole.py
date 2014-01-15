@@ -93,7 +93,7 @@ class Borehole(object):
         self.features[name] = Feature(name, depth)
         return self.features[name]
 
-    def add_interval_domain(self, name, from_depth, to_depths):
+    def add_interval_domain(self, name, from_depths, to_depths):
         """ Add and return a new IntervalDomain
 
             :param name: The identifier for the new IntervalDomain
@@ -108,7 +108,7 @@ class Borehole(object):
             :returns: the new `pyboreholes.IntervalDomain` instance.
         """
         self.interval_domains[name] = \
-            IntervalDomain(name, from_depth, to_depths)
+            IntervalDomain(name, from_depths, to_depths)
         return self.interval_domains[name]
 
     def add_sampling_domain(self, name, depths):
