@@ -13,4 +13,4 @@ from .borehole import Borehole, Feature, \
 from .domains import Domain, \
     SamplingDomain, IntervalDomain, WaveletDomain
 from .properties import Property, PropertyType
-from . import importers, plotting, analysis
+from . import importers, plotting, analysis, utilities
