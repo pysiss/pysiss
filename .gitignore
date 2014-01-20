@@ -5,3 +5,6 @@ docs/build/
 *.sublime-workspace
 logs
 tests/*.pdf
+dist
+core
+*.egg-info
