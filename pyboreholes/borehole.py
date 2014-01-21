@@ -73,7 +73,7 @@ class Borehole(object):
         """ String representation
         """
         info_str = 'Borehole {0} contains '.format(self.name)
-        summary_str = '{0}/{1}/{2} sampling/interval/wavelet domains'.format(
+        summary_str = '{0}/{1}/{2} interval/sampling/wavelet domains'.format(
             len(self.interval_domains), len(self.sampling_domains),
             len(self.wavelet_domains))
         summary_str += ' & {0} features'.format(len(self.features))
