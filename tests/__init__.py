@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" file:   __init__.py (borehole_analysis tests)
+""" file:   __init__.py (pyboreholes tests)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     email:  jesse.robertson@csiro.au
@@ -11,8 +11,10 @@
 import unittest
 
 #pylint: disable=W0401
-from tests.test_borehole import *
-from tests.test_utilities import *
+from .test_borehole import *
+from .test_utilities import *
+from .test_detrend import *
+from .test_real_data import *
 
 if __name__ == '__main__':
     unittest.main()

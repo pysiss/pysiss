@@ -1,4 +1,6 @@
 build/
+dist/
+*.egg*
 docs/build/
 *.pyc
 *.pkl
@@ -8,3 +10,5 @@ tests/*.pdf
 dist
 core
 *.egg-info
+.ipynb_checkpoints
+.merge*

@@ -1,19 +1,17 @@
 #!/usr/bin/env python
-""" file:   plotting.py (borehole_analysis)
+""" file:   plotting.py (pyboreholes)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     email:  jesse.robertson@csiro.au
     date:   Wednesday May 1, 2013
 
-    description: Plotting for the borehole_analysis module.
+    description: Plotting for the pyboreholes module.
 """
 
 import matplotlib.pyplot
 import matplotlib.cm
 import matplotlib.collections
 import numpy
-import sklearn.manifold
-from borehole_analysis.analyser import AnalystError
 
 def make_figure_grid(nplots, ncols=3, size=6):
     """ Make a grid of images
@@ -44,19 +42,28 @@ def plot_difference(axes, domain, observed_value, expected_value,
     colors=('red', 'blue'), orientation='horizontal'):
     """ Plots the difference between two series.
 
-        This plot also includes a set of lines in the shading to indicate the sample spacing. You can set the colors that you want to use to highlight differences between the two series.
+        This plot also includes a set of lines in the shading to indicate the
+        sample spacing. You can set the colors that you want to use to
+        highlight differences between the two series.
 
         :param axee: The axes to plot in
         :type axes: `matplotlib.pyplot.axes`
         :param domain: The domain variable
         :type domain: `numpy.ndarray`
-        :param observed_value: The actual value given as a numpy array. Must be the same length as the domain vector.
+        :param observed_value: The actual value given as a numpy array. Must
+            be the same length as the domain vector.
         :type observed_value: `numpy.ndarray`
-        :param expected_value: The expected value. Can be a constant, in which case the value will be constant, or an array of the same size as the domain.
+        :param expected_value: The expected value. Can be a constant, in which
+            case the value will be constant, or an array of the same size as
+            the domain.
         :type expected_value: `numpy.ndarray` or number
-        :param colors: A tuple of colors. The fill and lines will be shaded `color[0]` when `observed_value` < `expected_value` and `color[1]` when `observed_value` >= `expected_value`. Any color accepted by matplotlib is allowed.
+        :param colors: A tuple of colors. The fill and lines will be shaded
+            `color[0]` when `observed_value` < `expected_value` and `color[1]`
+            when `observed_value` >= `expected_value`. Any color accepted by
+            matplotlib is allowed.
         :type colors: Tuple
-        :param orientation: The orientation of the plot, one of 'horizontal', or 'vertical'.
+        :param orientation: The orientation of the plot, one of 'horizontal',
+            or 'vertical'.
         :type orientation: str
     """
     # Expand the expected value if required
@@ -107,13 +114,16 @@ def plot_difference(axes, domain, observed_value, expected_value,
 def plot_signal(axes, domain, signal, orientation='horizontal'):
     """ Plots a one-dimensional signal against some domain.
 
-        This assumes that you're plotting a detrended signal, so it fills in red for negative anomalies and blue for positive anomalies, so that you can compare the deviation from the trend.
+        This assumes that you're plotting a detrended signal, so it fills in
+        red for negative anomalies and blue for positive anomalies, so that
+        you can compare the deviation from the trend.
 
         :param axes: The axes instance in which to plot the signal
         :type axes: `matplotlib.axes`
         :param domain: An array of domain locations
         :type domain: `numpy.ndarray`
-        :param signal: An array of signal values. Must be the same length as `domain` or an error will be raised.
+        :param signal: An array of signal values. Must be the same length as
+            `domain` or an error will be raised.
         :type signal: `numpy.ndarray`
         :param orientation: One of `'horizontal'` or `'vertical'`
         :type orientation: `str`
@@ -254,143 +264,6 @@ def plot_sampling_domain_data(sampling_domain, keys_to_plot=None):
     fig.tight_layout()
     return fig, axes
 
-
-## Analyst plotting
-def plot_eigensignals(node):
-    """ Plot the eigensignal axes for the current data
-    """
-    # Get clusters from current node
-    clusters = node.products['clusters']['by_key']
-    cluster_sources = node.products['eigensignals']
-    domain = node.get_domain()
-
-    # Plot eigensignals for node
-    data = zip(clusters.items(), cluster_sources)
-    for (cluster_index, cluster_keys), sources in data:
-        fig = matplotlib.pyplot.figure(figsize=(10, 2*len(sources)))
-        for index, source in enumerate(sources):
-            axes = matplotlib.pyplot.subplot(len(sources), 1, index+1)
-            plot_signal(axes,
-                domain=domain,
-                signal=source,
-                orientation='horizontal')
-            axes.set_ylabel(r'$S_{{{0}, {1}}}(x)$'.format(cluster_index,
-                index))
-            if index == 0:
-                axes.set_title('Cluster {0}: {1}'.format(cluster_index,
-                    ', '.join(cluster_keys)))
-            if index == len(sources) - 1:
-                axes.set_xlabel(r'Depth $x$ (m)')
-            else:
-                axes.set_xlabel('')
-                axes.set_xticklabels('')
-        fig.tight_layout()
-
-def plot_cusum(node, *keys):
-    """ Plot the CUSUM for the given keys.
-    """
-    fig = matplotlib.pyplot.figure(figsize=(5, 8))
-    axes = fig.gca()
-    for key in keys:
-        # Generate cusum
-        signal = node.get_signal(key)
-        cusum = numpy.cumsum((signal - signal.mean()) / signal.std())
-
-        # Renormalise to lie between [0, 1]
-        maxsum, minsum = cusum.max(), cusum.min()
-        cusum -= minsum
-        cusum /= maxsum - minsum
-
-        # Plot it
-        axes.plot(cusum, node.domain,
-            label=node.labels[key][1],
-            linewidth=2)
-    axes.set_ylim(node.domain[-1], node.domain[0])
-    axes.legend(loc='upper left', bbox_to_anchor=(1, 1))
-    fig.tight_layout()
-    return fig, axes
-
-def plot_connection_matrix(node):
-    """ Plots the connection matrix assicated with the data in the current
-        node.
-
-        :returns: handles to the figure and axes
-    """
-    # Calculate correlation matrix
-    names = node.borehole.get_labels()
-    correlations = node.products['correlations']
-
-    # Plot results
-    side_len = 0.5*len(names)
-    fig = matplotlib.pyplot.figure(figsize=(side_len, side_len))
-    axes = matplotlib.pyplot.gca()
-    image = axes.imshow(correlations,
-        interpolation='none',
-        cmap=matplotlib.cm.get_cmap("RdBu_r"))
-    cbar = matplotlib.pyplot.colorbar(image,
-        fraction=0.2,
-        shrink=(1 - 0.25))
-    cbar.set_label('Correlation')
-    axes.set_xticks(range(len(names)))
-    axes.set_xticklabels(names, rotation=90,
-        horizontalalignment='center',
-        verticalalignment='top')
-    axes.set_yticks(range(len(names)))
-    axes.set_yticklabels(names)
-    return fig, axes
-
-def plot_node_connection_graph(node, embedding=None):
-    """ Plot the clusters and connections between data signals.
-
-        We use manifold learning methods to find a low-dimension embedding
-        for visualisation. For the methods here we use a dense eigensolver
-        to achieve reproducibility (since arpack is initialised with
-        random vectors - the result would be different each time) In
-        addition, we use a large number of neighbours to capture the large-
-        scale structure.
-
-        This could potentially be sped up significantly by using a sparse
-        representation, at the cost of introducing some randomness to the
-        visualisation.
-
-        :param embedding: The model to use to embed the nodes in two-dimensional space. If None, it defaults to 'isomap'.
-        :type embedding: `'lle'` or `'isomap'`
-        :returns: handles to the figure and axes
-    """
-    # Get node infomation
-    names = node.borehole.get_labels()
-    clusters = node.products['clusters']['as_vector']
-
-    # Calculate embedding
-    embedding = embedding or 'isomap'
-    if embedding is 'isomap':
-        node_position_model = sklearn.manifold.Isomap(
-            n_components=2,
-            eigen_solver='dense',
-            n_neighbors=len(names) - 2)
-    elif embedding is 'lle':
-        node_position_model = sklearn.manifold.LocallyLinearEmbedding(
-            n_components=2,
-            eigen_solver='dense',
-            n_neighbors=len(names) - 2)
-    else:
-        raise AnalystError("Embedding argument to plot_connection_graph"
-            "must be one of 'lle' or 'isomap'")
-    embedding = node_position_model.fit_transform(node.data.T).T
-
-    # Plot results
-    fig = matplotlib.pyplot.figure(figsize=(15, 15))
-    plot_connection_graph(
-        names=names,
-        cluster_labels=clusters,
-        embedding=embedding,
-        correlations=node.products['correlations'])
-    axes = matplotlib.pyplot.gca()
-    axes.get_xaxis().set_visible(False)
-    axes.get_yaxis().set_visible(False)
-    axes.set_title('Network graph')
-    return fig, axes
-
 def gen_axes_grid(nplots, ncols):
     """ Make an axes grid with the given number of columns and plots
     """
@@ -408,12 +281,12 @@ def wavelet_plot(wavelet_domain, property_name):
     trace_ax = matplotlib.pyplot.subplot(grid[0])
     transform_ax = matplotlib.pyplot.subplot(grid[1])
 
-    # Get info from wavelet
-    wavelet = wavelet_domain.wavelets[property_name]
+    # Get info from wavelet domain
     depths = wavelet_domain.depths
-    data = wavelet.signal
-    scales = wavelet.scales * wavelet.properties['equivalent_fourier_period']
-    transform = wavelet_domain.properties[property_name].values.real[:, 0, :]
+    data = wavelet_domain.signals[property_name].values
+    scales = wavelet_domain.scales * \
+        wavelet_domain.wav_properties['equivalent_fourier_period']
+    transform = wavelet_domain.properties[property_name].values.real
     depths_grid, scales_grid = numpy.meshgrid(depths, scales)
     coi = wavelet_domain.cone_of_influence
     gap = wavelet_domain.gap_cones
@@ -458,12 +331,12 @@ def wavelet_label_plot(wavelet_domain, property_name):
     trace_ax = matplotlib.pyplot.subplot(grid[0])
     transform_ax = matplotlib.pyplot.subplot(grid[1])
 
-    # Get info from wavelet
-    wavelet = wavelet_domain.wavelets[property_name]
+    # Get info from wavelet domain
     depths = wavelet_domain.depths
-    data = wavelet.signal
-    scales = wavelet.scales * wavelet.properties['equivalent_fourier_period']
-    label_array = wavelet_domain.domains[property_name][:, 0, :]
+    data = wavelet_domain.signals[property_name].values
+    scales = wavelet_domain.scales * \
+        wavelet_domain.wav_properties['equivalent_fourier_period']
+    label_array = wavelet_domain.domains[property_name]
     nlabels = len(wavelet_domain.labels[property_name])
     depths_grid, scales_grid = numpy.meshgrid(depths, scales)
     coi = wavelet_domain.cone_of_influence
@@ -516,10 +389,10 @@ def plot_all_wavelets(wavelet_domain):
         axe = matplotlib.pyplot.subplot(grid[idx])
         axe.set_xticks([])
         axe.set_yticks([])
-        axe.contourf(prop.values[::-1, 0, :].real,
+        axe.contourf(prop.values.real[::-1],
             5, cmap=matplotlib.pyplot.get_cmap('RdYlBu'))
-        axe.contourf(coi[::-1, :], 1, colors=['white'], alpha=0.5)
-        axe.contourf(gaps[::-1, :], 1, colors=['black'], alpha=0.2)
+        axe.contourf(coi[::-1], 1, colors=['white'], alpha=0.5)
+        axe.contourf(gaps[::-1], 1, colors=['black'], alpha=0.2)
         axe.set_title(prop.property_type.long_name)
     fig.tight_layout()
     return fig, axe
@@ -537,14 +410,15 @@ def plot_all_label_arrays(wavelet_domain):
 
     # Plot each property
     for idx, key in enumerate(domain_keys):
-        domains = wavelet_domain.domains[key].real[::-1, 0, :]
+        domains = wavelet_domain.domains[key].real
         ndomans = len(wavelet_domain.labels[key])
         axe = matplotlib.pyplot.subplot(grid[idx])
         axe.set_xticks([])
         axe.set_yticks([])
-        axe.contourf(domains, ndomans, cmap=matplotlib.pyplot.get_cmap('RdGy'))
-        axe.contourf(coi[::-1, :], 1, colors=['white'], alpha=0.5)
-        axe.contourf(gaps[::-1, :], 1, colors=['black'], alpha=0.2)
+        axe.contourf(domains[::-1], ndomans,
+            cmap=matplotlib.pyplot.get_cmap('RdGy'))
+        axe.contourf(coi[::-1], 1, colors=['white'], alpha=0.5)
+        axe.contourf(gaps[::-1], 1, colors=['black'], alpha=0.2)
         axe.set_title(wavelet_domain.properties[key].property_type.long_name)
     fig.tight_layout()
     return fig, axe
