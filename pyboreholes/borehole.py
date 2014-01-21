@@ -7,7 +7,7 @@
     description: Borehole class implementation
 """
 
-from .domains import SamplingDomain, IntervalDomain, WaveletDomain
+from .domains import Domain, SamplingDomain, IntervalDomain, WaveletDomain
 from .properties import Property
 
 
@@ -52,6 +52,14 @@ class Borehole(object):
         :type name: `string`
     """
 
+    # Mapping domain types to class attributes
+    type_to_attribute = {
+        Domain: 'domains',
+        SamplingDomain: 'sampling_domains',
+        IntervalDomain: 'interval_domains',
+        WaveletDomain: 'wavelet_domains',
+    }
+
     def __init__(self, name):
         self.name = name
         self.collar_location = None
@@ -92,6 +100,18 @@ class Borehole(object):
         """
         self.features[name] = Feature(name, depth)
         return self.features[name]
+
+    def add_domain(self, domain):
+        """ Add an existing domain instance to the borehole.
+
+            :param domain: A precooked domain with data
+            :type domain: subclassed from `pyboreholes.Domain`
+        """
+        # Work out which attribute we should add the domain to
+        add_to_attr = self.type_to_attribute[type(domain)]
+
+        # Add to the given attribute using the domain name as a key
+        getattr(self, add_to_attr)[domain.name] = domain
 
     def add_interval_domain(self, name, from_depths, to_depths):
         """ Add and return a new IntervalDomain
