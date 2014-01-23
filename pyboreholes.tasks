@@ -1,0 +1,6 @@
+Other tasks:
+
+  - Redo interpolation in regularize so that knots are only calculated once, use splpack wrappers in scipy.interpolate
+  - Work out 2D interpolation for wavelet domains 
+    - use bisplev again in scipy.interpolate to only calculate knots once, evaluate over grid.
+    - Is it better to calculate this using a matrix-vector multiply? Can use lookups because we'll always have a regular grid to do things off. Moving to irregular grids with wavelets might make things difficult though...
