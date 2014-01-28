@@ -53,7 +53,7 @@ class Borehole(object):
     """
 
     # Mapping domain types to class attributes
-    type_to_attribute = {
+    _type_to_attr = {
         Domain: 'domains',
         SamplingDomain: 'sampling_domains',
         IntervalDomain: 'interval_domains',
@@ -65,17 +65,18 @@ class Borehole(object):
         self.collar_location = None
         self.survey = None
         self.features = dict()
-        self.interval_domains = dict()
-        self.sampling_domains = dict()
-        self.wavelet_domains = dict()
+
+        # Initialize domain lists
+        for domain_attr in self._type_to_attr.values():
+            setattr(self, domain_attr, dict())
 
     def __repr__(self):
         """ String representation
         """
         info_str = 'Borehole {0} contains '.format(self.name)
-        summary_str = '{0}/{1}/{2} interval/sampling/wavelet domains'.format(
-            len(self.interval_domains), len(self.sampling_domains),
-            len(self.wavelet_domains))
+        n_domains = sum([len(getattr(self, a))
+                         for a in self._type_to_attr.values()])
+        summary_str = '{0} domains'.format(n_domains)
         summary_str += ' & {0} features'.format(len(self.features))
         domain_list = ''
         if len(self.interval_domains) > 0:
@@ -108,7 +109,7 @@ class Borehole(object):
             :type domain: subclassed from `pyboreholes.Domain`
         """
         # Work out which attribute we should add the domain to
-        add_to_attr = self.type_to_attribute[type(domain)]
+        add_to_attr = self._type_to_attr[type(domain)]
 
         # Add to the given attribute using the domain name as a key
         getattr(self, add_to_attr)[domain.name] = domain
