@@ -54,7 +54,6 @@ class Borehole(object):
 
     # Mapping domain types to class attributes
     _type_to_attr = {
-        Domain: 'domains',
         SamplingDomain: 'sampling_domains',
         IntervalDomain: 'interval_domains',
         WaveletDomain: 'wavelet_domains',
