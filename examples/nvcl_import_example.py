@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')
 import pyboreholes as pybh
 import pyboreholes.importers.nvcl as nvcl
 import matplotlib.pyplot as plt
