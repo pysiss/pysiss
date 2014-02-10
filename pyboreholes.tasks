@@ -1,6 +1,11 @@
 Other tasks:
 
-  - Redo interpolation in regularize so that knots are only calculated once, use splpack wrappers in scipy.interpolate
-  - Work out 2D interpolation for wavelet domains 
-    - use bisplev again in scipy.interpolate to only calculate knots once, evaluate over grid.
-    - Is it better to calculate this using a matrix-vector multiply? Can use lookups because we'll always have a regular grid to do things off. Moving to irregular grids with wavelets might make things difficult though...
+    - Redo interpolation in regularize so that knots are only calculated once, use splpack wrappers in scipy.interpolate
+   - Work out 2D interpolation for wavelet domains
+      - use bisplev again in scipy.interpolate to only calculate knots once,   evaluate over grid.
+      - Is it better to calculate using this a matrix-vector multiply? Can use lookups because we'll always have a regular grid to do things off. Moving to irregular grids with wavelets might make things difficult though...
+
+JIRA issues:
+
+	- Issues with wavelet scale, see jira.csiro.au/browse/DETCRC-16
+		- This is possibly something to do with the way that the dummy wavelet is setting up scales - need to check that everything is being copied over properly.
