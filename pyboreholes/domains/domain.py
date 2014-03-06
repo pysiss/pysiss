@@ -42,6 +42,8 @@ class Domain(object):
         self.properties[property_type.name] = Property(property_type, values)
         return self.properties[property_type.name]
 
+    # TODO: add an add_properties() method
+    
     def get_property_names(self):
         """ Return the properties defined over this domain
         """
