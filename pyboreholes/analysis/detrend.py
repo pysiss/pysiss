@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """ file: detrend.py (pyboreholes.analysis)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """ file:   plotting.py (pyboreholes)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering

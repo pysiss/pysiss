@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """ file:   sampling_domain.py (pyboreholes.domains)
     author: Jess Robertson & Ben Caradoc-Davies
             CSIRO Earth Science and Resource Engineering

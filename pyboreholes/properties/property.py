@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """ file: property.py (pyboreholes.properties)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering

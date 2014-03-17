@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-""" file: nvcl.py
+""" file: nvcl.py (pyboreholes.importers)
     author: Josh Vote
             CSIRO Earth Science and Resource Engineering
     date: 23 December 2013

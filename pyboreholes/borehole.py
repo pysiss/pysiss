@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """ file:   borehole.py (pyboreholes)
     author: Jess Robertson & Ben Caradoc-Davies
             CSIRO Earth Science and Resource Engineering

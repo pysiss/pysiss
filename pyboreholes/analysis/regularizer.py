@@ -1,10 +1,9 @@
-#!/usr/bin/env python
 """ file: regularizer.py (pyboreholes.analysis)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     date: Sunday November 10, 2013
 
-    description: Utilities to generate regularly spaced data from irregular 
+    description: Utilities to generate regularly spaced data from irregular
         grids.
 """
 

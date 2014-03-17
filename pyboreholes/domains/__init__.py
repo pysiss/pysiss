@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """ file: __init__.py (pyboreholes.domains)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
