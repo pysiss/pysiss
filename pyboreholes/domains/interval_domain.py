@@ -18,6 +18,7 @@
 """
 
 from .domain import Domain
+from .sampling_domain import SamplingDomain
 import numpy
 
 
@@ -122,3 +123,41 @@ class IntervalDomain(Domain):
                 self.from_depths[gap_indices[idx] + 1],
                 self.to_depths[gap_indices[idx + 1]]))
         return self.subdomains, self.gaps
+
+    def to_sampling_domain(self, name=None, depths='midpoint'):
+        """ Convert an IntervalDomain to a SamplingDomain
+
+            Uses the specified method to recalculate the depths of the
+            SamplingDomain points. Defaults to using the midpoint of each
+            interval.
+
+            Available depth converters:
+                'midpoint': Uses the midpoint of the sampled interval
+                'from': Uses the upper depth of the sampled interval
+                'to': Uses the lower depths of the sampled interval
+
+            :param name: The identifier for the new domain. Optional, defaults
+                to the same name as the interval domain.
+            :type name: string
+            :param depths: the depth converter to use
+            :returns: the new SamplingDomain instance
+        """
+        # Generate name
+        if name is None:
+            name = self.name
+
+        # Generate new depths
+        if depths == 'midpoint':
+            depths = (self.from_depths + self.to_depths) / 2.
+        elif depths == 'from':
+            depths = self.from_depths
+        elif depths == 'to':
+            depths = self.to_depths
+        else:
+            raise ValueError(
+                'Unknown depth conversion method {0}'.format(depths))
+
+        # Generate new domain
+        sdom = SamplingDomain(name=name, depths=depths)
+        sdom.properties = self.properties.copy()
+        return sdom
