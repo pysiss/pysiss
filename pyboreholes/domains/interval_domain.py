@@ -20,6 +20,7 @@
 from .domain import Domain
 import numpy
 
+
 class IntervalDomain(Domain):
 
     """ IntervalDomain contains data which is defined over some depth interval.
@@ -61,7 +62,7 @@ class IntervalDomain(Domain):
         info = 'IntervalDomain {0}: with {1} depth intervals and {2} '\
                'properties'
         return info.format(self.name, len(self.from_depths),
-            len(self.properties))
+                           len(self.properties))
 
     def get_interval(self, from_depth, to_depth, domain_name=None):
         """ Return the data between the given depths as as new IntervalDomain
@@ -79,10 +80,10 @@ class IntervalDomain(Domain):
             numpy.logical_and(self.from_depths >= from_depth,
                               self.to_depths <= to_depth))
 
-        # Generate a new SamplingDomain
+        # Generate a new IntervalDomain
         newdom = IntervalDomain(domain_name,
-            self.from_depths[indices],
-            self.to_depths[indices])
+                                self.from_depths[indices],
+                                self.to_depths[indices])
         for prop in self.properties.values():
             newdom.add_property(
                 property_type=prop.property_type,

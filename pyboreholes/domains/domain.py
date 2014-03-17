@@ -11,6 +11,7 @@
 
 from ..properties import Property
 
+
 class Domain(object):
 
     """Spatial extent over which properties are defined.
@@ -37,7 +38,7 @@ class Domain(object):
         """ Add and return a new property
         """
         assert self.size == len(values), ("values must have the same number "
-            "of elements as the domain")
+                                          "of elements as the domain")
         self.properties[property_type.name] = Property(property_type, values)
         return self.properties[property_type.name]
 
@@ -45,4 +46,3 @@ class Domain(object):
         """ Return the properties defined over this domain
         """
         return self.properties.keys()
-

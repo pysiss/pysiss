@@ -10,6 +10,7 @@
 import numpy
 import scipy.optimize
 
+
 def demean(data, axis=0):
     """ Return data minus its mean along the specified axis.
 
@@ -27,6 +28,7 @@ def demean(data, axis=0):
         index[axis] = numpy.newaxis
         return data - data.mean(axis)[index]
 
+
 # Detrend helper functions
 def _detrend_mean(data):
     """ Detrend a signal by subtracting the mean.
@@ -41,6 +43,7 @@ def _detrend_mean(data):
         :returns: None (data modified in place)
     """
     data -= data.mean()
+
 
 def _detrend_function(data, func, param_guess):
     """ Detrend a signal using the given function.
@@ -80,19 +83,24 @@ def _detrend_function(data, func, param_guess):
     data -= drange * func(param_lsq, domain) + dmean
     return None
 
+
 BUILTIN_TRENDS = {
-    'none': lambda data: None, # Not sure why you'd use this
+    'none': lambda data: None,  # Not sure why you'd use this
     'mean': _detrend_mean,
-    'linear': lambda data: _detrend_function(data,
-        func = lambda b, x: b[1] * x + b[0],
-        param_guess = [1, 0]),
-    'quadratic': lambda data: _detrend_function(data,
-        func = lambda b, x: b[2] * x ** 2 + b[1] * x + b[0],
-        param_guess = [1, 0, 0]),
-    'cubic': lambda data: _detrend_function(data,
-        func = lambda b, x: b[3] * x ** 3 + b[2] * x ** 2 + b[1] * x + b[0],
-        param_guess = [1, 0, 0, 0])
+    'linear': lambda data: _detrend_function(
+        data,
+        func=lambda b, x: b[1] * x + b[0],
+        param_guess=[1, 0]),
+    'quadratic': lambda data: _detrend_function(
+        data,
+        func=lambda b, x: b[2] * x ** 2 + b[1] * x + b[0],
+        param_guess=[1, 0, 0]),
+    'cubic': lambda data: _detrend_function(
+        data,
+        func=lambda b, x: b[3] * x ** 3 + b[2] * x ** 2 + b[1] * x + b[0],
+        param_guess=[1, 0, 0, 0])
 }
+
 
 def detrend(data, trend=None, func=None, param_guess=None):
     r""" Detrend a data array in-place using the given method
@@ -149,6 +157,6 @@ def detrend(data, trend=None, func=None, param_guess=None):
     # If we're here, we are going to use a builtin funciton.
     default = 'linear'
     if (trend is not None) and (trend not in BUILTIN_TRENDS.keys()):
-        raise ValueError("trend should be one of {0}"\
+        raise ValueError("trend should be one of {0}"
                          .format(BUILTIN_TRENDS.keys()))
     return BUILTIN_TRENDS[trend or default](data)

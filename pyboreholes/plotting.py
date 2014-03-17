@@ -12,6 +12,7 @@ import matplotlib.cm
 import matplotlib.collections
 import numpy
 
+
 def make_figure_grid(nplots, ncols=3, size=6):
     """ Make a grid of images
     """
@@ -19,9 +20,10 @@ def make_figure_grid(nplots, ncols=3, size=6):
     if nrows * ncols != nplots:
         nrows += 1
     fig = matplotlib.pyplot.figure(figsize=(ncols * size, nrows * size))
-    axeses = [matplotlib.pyplot.subplot(nrows, ncols, i+1)
+    axeses = [matplotlib.pyplot.subplot(nrows, ncols, i + 1)
               for i in range(nplots)]
     return fig, axeses
+
 
 def plot_variable(axes, variable, cmap=None):
     """ Generate a single image of a wavelet transform
@@ -37,8 +39,9 @@ def plot_variable(axes, variable, cmap=None):
     axes.set_yticklabels([''])
     axes.set_yticks([])
 
+
 def plot_difference(axes, domain, observed_value, expected_value,
-    colors=('red', 'blue'), orientation='horizontal'):
+                    colors=('red', 'blue'), orientation='horizontal'):
     """ Plots the difference between two series.
 
         This plot also includes a set of lines in the shading to indicate the
@@ -70,8 +73,8 @@ def plot_difference(axes, domain, observed_value, expected_value,
         expected_value = expected_value * numpy.ones_like(domain)
 
     # Helper functions for plotting the lines
-    pos_diff = lambda a, b: a + numpy.maximum(b-a, 0)
-    neg_diff = lambda a, b: a + numpy.minimum(b-a, 0)
+    pos_diff = lambda a, b: a + numpy.maximum(b - a, 0)
+    neg_diff = lambda a, b: a + numpy.minimum(b - a, 0)
 
     # Generate plot
     if orientation is 'horizontal':
@@ -81,15 +84,18 @@ def plot_difference(axes, domain, observed_value, expected_value,
 
         # Generate fills
         axes.vlines(domain, expected_value,
-            pos_diff(expected_value, observed_value), color=colors[1])
+                    pos_diff(expected_value, observed_value),
+                    color=colors[1])
         axes.vlines(domain, neg_diff(expected_value, observed_value),
-            expected_value, color=colors[0])
+                    expected_value, color=colors[0])
         axes.fill_between(domain, expected_value, observed_value,
-            where=(observed_value >= expected_value),
-            alpha=0.1, facecolor=colors[1])
+                          where=(observed_value >= expected_value),
+                          alpha=0.1,
+                          facecolor=colors[1])
         axes.fill_between(domain, expected_value, observed_value,
-            where=(observed_value <  expected_value),
-            alpha=0.1, facecolor=colors[0])
+                          where=(observed_value < expected_value),
+                          alpha=0.1,
+                          facecolor=colors[0])
     elif orientation is 'vertical':
         # Plot the two signals
         axes.plot(observed_value, domain, color='black', linewidth=2)
@@ -97,18 +103,22 @@ def plot_difference(axes, domain, observed_value, expected_value,
 
         # Generate fills
         axes.hlines(domain, expected_value,
-            pos_diff(expected_value, observed_value), color=colors[1])
+                    pos_diff(expected_value, observed_value),
+                    color=colors[1])
         axes.hlines(domain, neg_diff(expected_value, observed_value),
-            expected_value, color=colors[0])
+                    expected_value, color=colors[0])
         axes.fill_betweenx(domain, expected_value, observed_value,
-            where=(observed_value >= expected_value),
-            alpha=0.1, facecolor=colors[1])
+                           where=(observed_value >= expected_value),
+                           alpha=0.1,
+                           facecolor=colors[1])
         axes.fill_betweenx(domain, expected_value, observed_value,
-            where=(observed_value <  expected_value),
-            alpha=0.1, facecolor=colors[0])
+                           where=(observed_value < expected_value),
+                           alpha=0.1,
+                           facecolor=colors[0])
     else:
         raise ValueError('Argument `orientation` must be "horizontal" or '
-            'vertical"')
+                         'vertical"')
+
 
 def plot_signal(axes, domain, signal, orientation='horizontal'):
     """ Plots a one-dimensional signal against some domain.
@@ -129,14 +139,14 @@ def plot_signal(axes, domain, signal, orientation='horizontal'):
     """
     # Generate plot
     plot_difference(axes, domain, signal, signal.mean(),
-        colors=('red', 'blue'),
-        orientation=orientation)
+                    colors=('red', 'blue'),
+                    orientation=orientation)
     if orientation is 'horizontal':
         axes.set_xlabel('Domain $x$')
         axes.set_ylabel(r'Signal $f(x)$',
-            rotation=0,
-            horizontalalignment='right',
-            verticalalignment='center')
+                        rotation=0,
+                        horizontalalignment='right',
+                        verticalalignment='center')
         axes.set_xlim(domain[0], domain[-1])
         axes.set_ylim(numpy.min(signal), numpy.max(signal))
     elif orientation is 'vertical':
@@ -146,7 +156,8 @@ def plot_signal(axes, domain, signal, orientation='horizontal'):
         axes.set_ylim(domain[-1], domain[0])
     else:
         raise ValueError('Argument `orientation` must be "horizontal" or '
-            'vertical"')
+                         'vertical"')
+
 
 def plot_connection_graph(embedding, correlations, names, cluster_labels):
     """ Plots a connection graph in 2D given an embedding and a correlation
@@ -155,8 +166,8 @@ def plot_connection_graph(embedding, correlations, names, cluster_labels):
     # Plot the nodes using the coordinates of our embedding
     axes = matplotlib.pyplot.gca()
     axes.scatter(embedding[0], embedding[1],
-        c=cluster_labels,
-        cmap=matplotlib.cm.get_cmap('Spectral'))
+                 c=cluster_labels,
+                 cmap=matplotlib.cm.get_cmap('Spectral'))
 
     # Plot the edges - a sequence of (*line0*, *line1*, *line2*), where
     #            linen = (x0, y0), (x1, y1), ... (xm, ym)
@@ -165,7 +176,8 @@ def plot_connection_graph(embedding, correlations, names, cluster_labels):
     segments = [[embedding[:, start], embedding[:, stop]]
                 for start, stop in zip(start_idx, end_idx)]
     values = correlations[non_zero]
-    lines = matplotlib.collections.LineCollection(segments,
+    lines = matplotlib.collections.LineCollection(
+        segments,
         zorder=0,
         cmap=matplotlib.cm.get_cmap('RdBu'),
         norm=matplotlib.pylab.Normalize(.7 * values.min(), .7 * values.max()))
@@ -179,18 +191,20 @@ def plot_connection_graph(embedding, correlations, names, cluster_labels):
         (xloc, yloc), alignment = float_label(index, (xloc, yloc), embedding)
         point_color = matplotlib.cm.get_cmap('Spectral')(
             label / float(max(cluster_labels)))
-        matplotlib.pylab.text(xloc, yloc, name, size=10,
-                horizontalalignment=alignment[0],
-                verticalalignment=alignment[1],
-                bbox=dict(facecolor=point_color,
-                          edgecolor=point_color,
-                          alpha=.3))
+        matplotlib.pylab.text(
+            xloc, yloc, name, size=10,
+            horizontalalignment=alignment[0],
+            verticalalignment=alignment[1],
+            bbox=dict(facecolor=point_color,
+                      edgecolor=point_color,
+                      alpha=.3))
 
     # Adjust axes limits
     axes.set_xlim(embedding[0].min() - .15 * embedding[0].ptp(),
-            embedding[0].max() + .10 * embedding[0].ptp(),)
+                  embedding[0].max() + .10 * embedding[0].ptp(),)
     axes.set_ylim(embedding[1].min() - .03 * embedding[1].ptp(),
-            embedding[1].max() + .03 * embedding[1].ptp())
+                  embedding[1].max() + .03 * embedding[1].ptp())
+
 
 def float_label(index, position, embedding):
     """ Floating labels for plot so that they avoid one another.
@@ -225,6 +239,7 @@ def float_label(index, position, embedding):
 
     return (xloc, yloc), (horizontalalignment, verticalalignment)
 
+
 ## Borehole plotting
 def plot_sampling_domain_data(sampling_domain, keys_to_plot=None):
     """ Plot the data stored in the current node object
@@ -232,21 +247,21 @@ def plot_sampling_domain_data(sampling_domain, keys_to_plot=None):
         :returns: handles to the figure and axes
     """
     if keys_to_plot is None:
-        keys_to_plot = [k for k in sampling_domain.properties.keys()
-                        if sampling_domain.properties[k].property_type.\
-                            isnumeric]
+        keys_to_plot = [
+            k for k in sampling_domain.properties.keys()
+            if sampling_domain.properties[k].property_type.isnumeric]
 
     # Plot data
-    fig = matplotlib.pyplot.figure(figsize=(1*len(keys_to_plot), 20))
+    fig = matplotlib.pyplot.figure(figsize=(1 * len(keys_to_plot), 20))
     domain_bounds = (sampling_domain.depths.max(),
-        sampling_domain.depths.min())
+                     sampling_domain.depths.min())
     for i, key in enumerate(keys_to_plot):
-        axes = matplotlib.pyplot.subplot(1, len(keys_to_plot), i+1)
+        axes = matplotlib.pyplot.subplot(1, len(keys_to_plot), i + 1)
         try:
             plot_signal(axes,
-                signal=sampling_domain.properties[key].values,
-                domain=sampling_domain.depths,
-                orientation='vertical')
+                        signal=sampling_domain.properties[key].values,
+                        domain=sampling_domain.depths,
+                        orientation='vertical')
         except TypeError:
             print key
         axes.set_xlabel("")
@@ -258,10 +273,12 @@ def plot_sampling_domain_data(sampling_domain, keys_to_plot=None):
         axes.set_ylim(domain_bounds)
         axes.xaxis.set_major_locator(matplotlib.pyplot.MaxNLocator(3))
         axes.set_title(sampling_domain.properties[key].property_type.long_name,
-            rotation=90, verticalalignment='bottom',
-            horizontalalignment='center')
+                       rotation=90,
+                       verticalalignment='bottom',
+                       horizontalalignment='center')
     fig.tight_layout()
     return fig, axes
+
 
 def gen_axes_grid(nplots, ncols):
     """ Make an axes grid with the given number of columns and plots
@@ -270,6 +287,7 @@ def gen_axes_grid(nplots, ncols):
     if nrows * ncols != nplots:
         nrows += 1
     return matplotlib.gridspec.GridSpec(nrows, ncols)
+
 
 def wavelet_plot(wavelet_domain, property_name):
     """ Plot a CWT decomposition for a given domain
@@ -295,8 +313,9 @@ def wavelet_plot(wavelet_domain, property_name):
     trace_ax.plot(data, depths, 'k')
     trace_ax.set_ylim(depths[-1], depths[0])
     for subdomain in wavelet_domain.subdomains:
-        trace_ax.fill_between(xlim, subdomain[0], subdomain[1], color='yellow',
-            alpha=0.2)
+        trace_ax.fill_between(xlim, subdomain[0], subdomain[1],
+                              color='yellow',
+                              alpha=0.2)
     for dgap in wavelet_domain.gaps:
         trace_ax.fill_between(xlim, dgap[0], dgap[1], color='black', alpha=0.1)
     trace_ax.set_ylabel('Depth')
@@ -305,21 +324,25 @@ def wavelet_plot(wavelet_domain, property_name):
 
     # Make transform plot
     transform_ax.contour(scales_grid.T, depths_grid.T, coi.mask, [1e-6],
-        colors='white')
+                         colors='white')
     transform_ax.contour(scales_grid.T, depths_grid.T, gap.mask, [1 - 1e-6],
-        colors='black', alpha=0.4)
+                         colors='black',
+                         alpha=0.4)
     transform_ax.contourf(scales_grid.T, depths_grid.T, gap, 1,
-        colors='black', alpha=0.1)
-    transform_ax.contourf(scales_grid.T, depths_grid.T, transform,
-        40, cmap = matplotlib.pyplot.get_cmap('RdYlBu_r'))
+                          colors='black',
+                          alpha=0.1)
+    transform_ax.contourf(scales_grid.T, depths_grid.T, transform, 40,
+                          cmap=matplotlib.pyplot.get_cmap('RdYlBu_r'))
     transform_ax.contourf(scales_grid.T, depths_grid.T, coi, 1,
-        colors='white', alpha=0.3)
+                          colors='white',
+                          alpha=0.3)
     transform_ax.set_xscale('log')
     transform_ax.set_xlabel(r'Wavelength $\lambda$')
     transform_ax.set_yticklabels('')
     transform_ax.set_ylim(depths[-1], depths[0])
     fig.tight_layout()
     return fig, trace_ax, transform_ax
+
 
 def wavelet_label_plot(wavelet_domain, property_name):
     """ Plot a CWT decomposition for a given domain
@@ -346,8 +369,8 @@ def wavelet_label_plot(wavelet_domain, property_name):
     trace_ax.plot(data, depths, 'k')
     trace_ax.set_ylim(depths[-1], depths[0])
     for subdomain in wavelet_domain.subdomains:
-        trace_ax.fill_between(xlim, subdomain[0], subdomain[1], color='red',
-            alpha=0.2)
+        trace_ax.fill_between(xlim, subdomain[0], subdomain[1],
+                              color='red', alpha=0.2)
     for dgap in wavelet_domain.gaps:
         trace_ax.fill_between(xlim, dgap[0], dgap[1], color='black', alpha=0.1)
     trace_ax.set_ylabel('Depth')
@@ -356,15 +379,15 @@ def wavelet_label_plot(wavelet_domain, property_name):
 
     # Make transform plot
     transform_ax.contour(scales_grid.T, depths_grid.T, coi.mask, [1e-6],
-        colors='white')
+                         colors='white')
     transform_ax.contour(scales_grid.T, depths_grid.T, gap.mask, [1 - 1e-6],
-        colors='black', alpha=0.4)
+                         colors='black', alpha=0.4)
     transform_ax.contourf(scales_grid.T, depths_grid.T, gap, 1,
-        colors='black', alpha=0.1)
+                          colors='black', alpha=0.1)
     transform_ax.contourf(scales_grid.T, depths_grid.T, label_array,
-        nlabels, cmap = matplotlib.pyplot.get_cmap('RdGy'))
+                          nlabels, cmap=matplotlib.pyplot.get_cmap('RdGy'))
     transform_ax.contourf(scales_grid.T, depths_grid.T, coi, 1,
-        colors='white', alpha=0.3)
+                          colors='white', alpha=0.3)
     transform_ax.set_xscale('log')
     transform_ax.set_xlabel(r'Wavelength $\lambda$')
     transform_ax.set_yticklabels('')
@@ -372,14 +395,17 @@ def wavelet_label_plot(wavelet_domain, property_name):
     fig.tight_layout()
     return fig, trace_ax, transform_ax
 
+
 def plot_all_wavelets(wavelet_domain, properties=None):
     """ Plot all the wavelets in a WaveletDomain
 
         :param wavelet_domain: The wavelet domain to pull data from
         :type wavelet_domain: pyboreholes.domains.WaveletDomain
-        :param properties: A list of property names to plot. Defaults to None if not specified, in which case all properties are plotted.
+        :param properties: A list of property names to plot. Defaults to None
+            if not specified, in which case all properties are plotted.
         :type properties: list of strings
-        :returns: the current matplotlib.pyplot.Figure instance and a list of matplotlib.pyplot.Axes instances corresponding to each wavelet plot
+        :returns: the current matplotlib.pyplot.Figure instance and a list of
+            matplotlib.pyplot.Axes instances corresponding to each wavelet plot
     """
     # Check whether we've specified keys to plot
     all_prop_names = wavelet_domain.properties.keys()
@@ -404,13 +430,14 @@ def plot_all_wavelets(wavelet_domain, properties=None):
         axes.append(axe)
         axe.set_xticks([])
         axe.set_yticks([])
-        axe.contourf(prop.values.real[::-1],
-            5, cmap=matplotlib.pyplot.get_cmap('RdYlBu_r'))
+        axe.contourf(prop.values.real[::-1], 5,
+                     cmap=matplotlib.pyplot.get_cmap('RdYlBu_r'))
         axe.contourf(coi[::-1], 1, colors=['white'], alpha=0.5)
         axe.contourf(gaps[::-1], 1, colors=['black'], alpha=0.2)
         axe.set_title(prop.property_type.long_name)
     fig.tight_layout()
     return fig, axes
+
 
 def plot_all_label_arrays(wavelet_domain):
     """ Plot all the label arrays in a WaveletDomain
@@ -431,12 +458,13 @@ def plot_all_label_arrays(wavelet_domain):
         axe.set_xticks([])
         axe.set_yticks([])
         axe.contourf(domains[::-1], ndomans,
-            cmap=matplotlib.pyplot.get_cmap('RdGy'))
+                     cmap=matplotlib.pyplot.get_cmap('RdGy'))
         axe.contourf(coi[::-1], 1, colors=['white'], alpha=0.5)
         axe.contourf(gaps[::-1], 1, colors=['black'], alpha=0.2)
         axe.set_title(wavelet_domain.properties[key].property_type.long_name)
     fig.tight_layout()
     return fig, axe
+
 
 def plot_label_tree(tree):
     """ Plot up a LabelTree instance
@@ -460,7 +488,9 @@ def plot_label_tree(tree):
         segments = [connect_midpoints(parent, child) for child in children]
         color = colors[parent]
         axe.add_collection(matplotlib.collections.LineCollection(segments,
-            linewidths=(0.5,), linestyle='solid', colors=[color]))
+                           linewidths=(0.5,),
+                           linestyle='solid',
+                           colors=[color]))
     for label, point in enumerate(zip(tree.max_scales[0], mid_domain)):
         matplotlib.pyplot.text(point[0], point[1], str(label))
 
@@ -470,7 +500,9 @@ def plot_label_tree(tree):
         numpy.vstack(numpy.transpose(
             [tree.max_scales[:][0], tree.max_domain])))
     axe.add_collection(matplotlib.collections.LineCollection(segments,
-        linewidths=(3,), linestyle='solid', colors=colors))
+                       linewidths=(3,),
+                       linestyle='solid',
+                       colors=colors))
 
     # Plot boundaries
     axe.set_ylim(tree.depths[-1], tree.depths[0])
