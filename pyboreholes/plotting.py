@@ -510,3 +510,78 @@ def plot_label_tree(tree):
     axe.set_xlabel(r'Wavelength $\lambda$')
     axe.set_ylabel(r'Depth')
     axe.set_xlim(numpy.min(tree.max_scales), numpy.max(tree.max_scales))
+
+
+def plot_time_domain(domain):
+    """ Generate a timeseries plot of what's going in a given TimeDomain
+        instance
+    """
+    nplots = 3
+    fig = matplotlib.pyplot.figure(figsize=(11, 2.5 * nplots))
+    gspec = matplotlib.pyplot.GridSpec(
+        nplots, 1,
+        height_ratios=([1] + (nplots - 1) * [0.3]))
+    axes_list = []
+
+    # Get some data from the TimeDomain
+    times = domain.times
+
+    # Bit depth plot
+    axes = matplotlib.pyplot.subplot(gspec[0])
+
+    # Plot ROP=0 zones as they are advected through the system
+    for bstart, bend in domain.break_intervals:
+        # Generate traces for the start and end fluid samples
+        bstart_trace = domain.sample_trace(
+            initial_time=bstart, initial_depth=domain.bit_depth(bstart))(times)
+        bend_trace = domain.sample_trace(
+            initial_time=bend, initial_depth=domain.bit_depth(bstart))(times)
+        bend_trace[times < bstart] = numpy.nan
+        bstart_trace[times < bstart] = numpy.nan
+
+        # Shade between the traces in gray
+        axes.fill_between(times, bend_trace, bstart_trace,
+                          color='gray', alpha=0.5)
+
+        # Plot the traces without the extensions
+        axes.plot(times, bstart_trace, color='gray', linewidth=2, alpha=0.8)
+        axes.plot(times, bend_trace, color='gray', linewidth=2, alpha=0.8)
+    axes.plot(times, domain.bit_depth(times),
+              color='black',
+              marker=None,
+              linewidth=2,
+              alpha=0.7,
+              label='bit depth')
+    axes.set_xticklabels('')
+    axes.set_ylabel('Depth (m)')
+    axes.set_xlim(times[0], times[-1])
+    axes.set_ylim(domain.bit_depth(times[-1]), 0)
+    axes_list.append(axes)
+
+    # ROP plot
+    axes = matplotlib.pyplot.subplot(gspec[1])
+    axes.plot(times, domain.rop(times),
+              color='black',
+              marker=None,
+              linewidth=2,
+              alpha=0.7)
+    axes.set_ylabel('ROP (m / min)')
+    axes.set_xlim(times[0], times[-1])
+    axes.set_ylim(-0.01, None)
+    axes_list.append(axes)
+
+    # Flow rate plot
+    axes = matplotlib.pyplot.subplot(gspec[2])
+    axes.plot(times, domain.flow_rate(times),
+              color='black',
+              marker=None,
+              linewidth=2,
+              alpha=0.7)
+    axes.set_ylabel('Flow rate (cu. m / min)')
+    axes.set_xlim(times[0], times[-1])
+    axes.set_ylim(-0.01, None)
+    axes.set_xlabel('Time (min)')
+    axes_list.append(axes)
+
+    fig.tight_layout()
+    return fig, axes_list

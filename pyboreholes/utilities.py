@@ -28,6 +28,21 @@ def heaviside(values):
     return result
 
 
+def same_sign(value1, value2):
+    """ Determine whether two values have the same sign
+
+    """
+    return numpy.sign(value1, dtype=int) == numpy.sign(value2, dtype=int)
+
+
+def integrate_spline(spline, times):
+    """ Return the definite integral of the given spline function at the given
+        times
+    """
+    _calc_integral = numpy.vectorize(lambda t: spline.integral(times[0], t))
+    return _calc_integral(times)
+
+
 def mask_all_nans(*arrays):
     """ Mask all indices where any array has a NaN.
 

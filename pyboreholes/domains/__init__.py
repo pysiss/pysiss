@@ -7,6 +7,7 @@
 """
 
 from .domain import Domain
+from .time_domain import TimeDomain
 from .sampling_domain import SamplingDomain
 from .interval_domain import IntervalDomain
 from .wavelet_domain import WaveletDomain

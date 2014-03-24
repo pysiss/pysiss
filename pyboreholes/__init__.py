@@ -9,7 +9,7 @@
 
 from .borehole import Borehole, Feature, \
     CoordinateReferenceSystem, Survey
-from .domains import Domain, \
+from .domains import Domain, TimeDomain, \
     SamplingDomain, IntervalDomain, WaveletDomain
 from .properties import Property, PropertyType
 from . import importers, plotting, analysis, utilities
