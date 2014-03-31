@@ -7,8 +7,7 @@
     description: Initialisation of the pyboreholes module.
 """
 
-from .borehole import Borehole, Feature, \
-    CoordinateReferenceSystem, Survey
+from .borehole import Borehole, Feature
 from .domains import Domain, TimeDomain, \
     SamplingDomain, IntervalDomain, WaveletDomain
 from .properties import Property, PropertyType

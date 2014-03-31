@@ -35,12 +35,13 @@ def same_sign(value1, value2):
     return numpy.sign(value1, dtype=int) == numpy.sign(value2, dtype=int)
 
 
-def integrate_spline(spline, times):
-    """ Return the definite integral of the given spline function at the given
+def integrate(times, values):
+    """ Return the definite integral of the given data at the given
         times
     """
-    _calc_integral = numpy.vectorize(lambda t: spline.integral(times[0], t))
-    return _calc_integral(times)
+    times = numpy.asarray(times)
+    values = numpy.asarray(values)
+    return numpy.cumsum(numpy.gradient(times) * values)
 
 
 def mask_all_nans(*arrays):

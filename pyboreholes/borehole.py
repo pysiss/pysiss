@@ -6,8 +6,10 @@
     description: Borehole class implementation
 """
 
-from .domains import Domain, SamplingDomain, IntervalDomain, WaveletDomain
+from .borehole_details import BoreholeDetails
+from .domains import Domain, SamplingDomain, IntervalDomain, WaveletDomain, TimeDomain, TimeIntervalDomain
 from .properties import Property
+from .analysis.time_conversion import TimeConverter
 
 
 class Borehole(object):
@@ -56,6 +58,8 @@ class Borehole(object):
         Domain: 'domains',
         SamplingDomain: 'sampling_domains',
         IntervalDomain: 'interval_domains',
+        TimeDomain: 'time_domains',
+        TimeIntervalDomain: 'time_interval_domains',
         WaveletDomain: 'wavelet_domains',
     }
 
@@ -64,6 +68,7 @@ class Borehole(object):
         self.collar_location = None
         self.survey = None
         self.features = dict()
+        self.details = BoreholeDetails()
 
         # Initialize domain lists
         for domain_attr in self._type_to_attr.values():

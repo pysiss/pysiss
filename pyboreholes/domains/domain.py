@@ -14,16 +14,16 @@ from ..properties import Property
 
 class Domain(object):
 
-    """Spatial extent over which properties are defined.
+    """ Spatial extent over which properties are defined.
 
-    This is an abstract base class
+        This is an abstract base class
 
-    Some important properties are:
-        properties - dict mapping property name to Property
-        size - the size of all the values sequences
-        name - an identifier
-        subdomains - a list of subdomain locations
-        gaps - a list of gap locations
+        Some important properties are:
+            properties - dict mapping property name to Property
+            size - the size of all the values sequences
+            name - an identifier
+            subdomains - a list of subdomain locations
+            gaps - a list of gap locations
     """
 
     def __init__(self, name, size):

@@ -30,9 +30,9 @@ class SamplingDomain(Domain):
 
     def __init__(self, name, depths):
         super(SamplingDomain, self).__init__(name, len(depths))
-        for i in range(self.size - 1):
-            assert depths[i] < depths[i + 1], \
-                "depths must be monotonically increasing"
+        depths = numpy.asarray(depths)
+        assert all(numpy.gradient(depths) > 0), \
+            "depths must be monotonically increasing"
         self.depths = depths
 
     def __repr__(self):

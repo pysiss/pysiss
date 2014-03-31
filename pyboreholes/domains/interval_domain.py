@@ -45,17 +45,18 @@ class IntervalDomain(Domain):
 
     def __init__(self, name, from_depths, to_depths):
         super(IntervalDomain, self).__init__(name, len(from_depths))
-        assert len(from_depths) == len(to_depths)
-        for i in range(self.size - 1):
-            assert from_depths[i] < from_depths[i + 1], \
-                "from_depths must be monotonically increasing"
-            assert to_depths[i] < to_depths[i + 1], \
-                "to_depths must be monotonically increasing"
-            assert to_depths[i] <= from_depths[i + 1], \
-                "intervals must not overlap"
-        for i in range(self.size):
-            assert from_depths[i] < to_depths[i], \
-                "intervals must have positive length"
+        from_depths = numpy.asarray(from_depths)
+        to_depths = numpy.asarray(to_depths)
+        assert len(from_depths) == len(to_depths), \
+            "from_ and to_depths must be same length"
+        assert all(numpy.gradient(from_depths) > 0), \
+            "from_depths must be monotonically increasing"
+        assert all(numpy.gradient(to_depths) > 0), \
+            "to_depths must be monotonically increasing"
+        assert all(to_depths - from_depths > 0), \
+            "intervals must have positive length"
+        assert all(to_depths[:-1] <= from_depths[1:]), \
+            "intervals must not overlap"
         self.from_depths = from_depths
         self.to_depths = to_depths
 

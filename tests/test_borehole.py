@@ -9,6 +9,7 @@
 
 import pyboreholes as pybh
 import cwavelets as cw
+import numpy
 import unittest
 
 DENSITY = pybh.PropertyType(name="d", long_name="density", units="g/cm3")
@@ -43,14 +44,14 @@ class BoreholeTest(unittest.TestCase):
             [14.0, 15.0, "SC", "FE"]
         ]
         # the starts and ends of the intervals
-        from_depths = [x[0] for x in geology_intervals]
-        to_depths = [x[1] for x in geology_intervals]
+        from_depths = numpy.asarray([x[0] for x in geology_intervals])
+        to_depths = numpy.asarray([x[1] for x in geology_intervals])
         # rock type is a multivalued category property
         rock_type = [x[2:] for x in geology_intervals]
         domain = self.borehole.add_interval_domain("geology", from_depths, to_depths)
         domain.add_property(ROCK_TYPE, rock_type)
-        self.assertEquals(from_depths, self.borehole.interval_domains["geology"].from_depths)
-        self.assertEquals(to_depths, self.borehole.interval_domains["geology"].to_depths)
+        self.assertTrue(all(from_depths == self.borehole.interval_domains["geology"].from_depths))
+        self.assertTrue(all(to_depths == self.borehole.interval_domains["geology"].to_depths))
         self.assertEquals(["SC", "FE"], self.borehole.interval_domains["geology"].properties["rock"].values[-1])
 
     def test_sampling_domain(self):
@@ -63,7 +64,7 @@ class BoreholeTest(unittest.TestCase):
         domain = self.borehole.add_sampling_domain("samples", depths)
         domain.add_property(DENSITY, densities)
         domain.add_property(IMPEDANCE, impedances)
-        self.assertEquals(depths, self.borehole.sampling_domains["samples"].depths)
+        self.assertTrue(all(depths == self.borehole.sampling_domains["samples"].depths))
         self.assertEquals(densities, self.borehole.sampling_domains["samples"].properties["d"].values)
         self.assertEquals(impedances, self.borehole.sampling_domains["samples"].properties["imp"].values)
         self.assertEquals("samples", self.borehole.sampling_domains['samples'].name)
@@ -94,7 +95,7 @@ class BoreholeTest(unittest.TestCase):
             self.borehole.wavelet_domains['test_domain'])
         for key, values in [('d', densities), ('imp', impedances)]:
             self.assertEquals(wdomain.signals[key].values, values)
-        self.assertEquals(wdomain.depths, depths)
+        self.assertTrue(all(wdomain.depths == depths))
 
     def test_interval_domain_depths_empty(self):
         """Test that empty interval depths raises an AssertionError"""
