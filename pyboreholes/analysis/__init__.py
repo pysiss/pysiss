@@ -11,4 +11,4 @@
 from .regularizer import ReSampler, unique
 from .detrend import detrend, demean
 import layers
-import time_conversion
+import converters

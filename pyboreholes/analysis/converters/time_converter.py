@@ -33,45 +33,47 @@ HOLE_GEOMETRY = {
 
 
 class TimeConverter(object):
-    
+
     """ Converts timestamped data into depthstamped data
     """
-    
+
     def __init__(self, borehole):
         super(TimeConverter, self).__init__()
-        
+
         # Check that we can access the relevant data from the borehole
         self.borehole = borehole
         self.details = borehole.details
         try:
             flow_rate_times, flow_rate = \
-                map(numpy.asarray, 
-                    self.details['flow_rate'].data)
+                map(numpy.asarray,
+                    self.details['flow_rate'].values)
             rop_times, rop = \
-                map(numpy.asarray, 
-                    self.details['rate_of_penetration'].data)
+                map(numpy.asarray,
+                    self.details['rate_of_penetration'].values)
             break_intervals = numpy.asarray(self.details['break_intervals'])
         except KeyError:
-            raise ValueError('Cannot generate a TimeConverter for a borehole '
+            raise ValueError(
+                'Cannot generate a TimeConverter for a borehole '
                 'unless it has data for "flow_rate", "rate_of_penetration" '
                 'and "break_intervals" in the details attribute.')
 
         # Calculate borehole flow area
         try:
-            geom = HOLE_GEOMETRY[self.details['borehole_type'].data]
+            geom = HOLE_GEOMETRY[self.details['borehole_type'].values]
             flow_area = numpy.pi * (geom['hole_diameter'] ** 2
                                     - geom['outer_diameter'] ** 2)
         except KeyError:
-            raise ValueError('Borehole type needs to be specified in the'
+            raise ValueError(
+                'Borehole type needs to be specified in the'
                 'details attribute of borehole. Allowed values are '
                 'borehole_type=<{0}>.'.format(HOLE_GEOMETRY.keys()))
 
         # Generate bounds on the time we can convert over
         self.time_bounds = (min(flow_rate_times[0], rop_times[0]),
                             max(flow_rate_times[-1], rop_times[-1]))
-        break_data = numpy.sort(self.details['break_intervals'].data, axis=0)
-        break_intervals = TimeIntervalDomain('break_intervals', 
-                                             from_times=break_data[:, 0], 
+        break_data = numpy.sort(self.details['break_intervals'].values, axis=0)
+        break_intervals = TimeIntervalDomain('break_intervals',
+                                             from_times=break_data[:, 0],
                                              to_times=break_data[:, 1])
         self.borehole.add_domain(break_intervals)
 
@@ -80,9 +82,9 @@ class TimeConverter(object):
         self.rop = Spline(rop_times, rop, k=1)
         self.details.add_detail('bit_depth', integrate(rop_times, rop), None)
         self.bit_depth = Spline(
-            rop_times, self.details['bit_depth'].data, k=1)
+            rop_times, self.details['bit_depth'].values, k=1)
         self.distance = Spline(
-            flow_rate_times, 
+            flow_rate_times,
             integrate(flow_rate_times, flow_rate) / flow_area, k=1)
 
     def get_advection_trace(self, initial_time, initial_depth):
