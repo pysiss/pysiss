@@ -9,7 +9,6 @@
 from .borehole_details import BoreholeDetails
 from .domains import Domain, SamplingDomain, IntervalDomain, WaveletDomain, TimeDomain, TimeIntervalDomain
 from .properties import Property
-from .analysis.time_conversion import TimeConverter
 
 
 class Borehole(object):
