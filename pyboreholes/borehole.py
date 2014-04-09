@@ -10,6 +10,9 @@
 from .domains import SamplingDomain, IntervalDomain, WaveletDomain
 from .properties import Property
 
+from collections import namedtuple
+
+BoreholeDetail = namedtuple('BoreholeDetail', 'name values property_type')
 
 class Borehole(object):
 
@@ -47,9 +50,12 @@ class Borehole(object):
                 SamplingDomain
             wavelet_domains - dict mapping wavelet domain names to
                 WaveletDomain instances
-
+                
         :param name: An identifier for the borehole
         :type name: `string`
+        :param origin_position: The borehole's position (lat/long; defaults to None)
+        :type origin_position: OriginPosition class
+
     """
 
     # Mapping domain types to class attributes
@@ -59,9 +65,10 @@ class Borehole(object):
         WaveletDomain: 'wavelet_domains',
     }
 
-    def __init__(self, name):
+    def __init__(self, name, origin_position=None):
         self.name = name
-        self.collar_location = None
+        self.origin_position = origin_position
+        self.details = BoreholeDetails()
         self.survey = None
         self.features = dict()
 
@@ -72,7 +79,8 @@ class Borehole(object):
     def __repr__(self):
         """ String representation
         """
-        info_str = 'Borehole {0} contains '.format(self.name)
+        info = 'Borehole {0} at origin position {1} contains '
+        info_str = info.format(self.origin_position, self.name)
         n_domains = sum([len(getattr(self, a))
                          for a in self._type_to_attr.values()])
         summary_str = '{0} domains'.format(n_domains)
@@ -87,7 +95,12 @@ class Borehole(object):
         if len(self.wavelet_domains) > 0:
             domain_list += ('\nWDs: ' + '\n     '.join(
                             map(str, self.wavelet_domains.values())))
-        return info_str + summary_str + domain_list
+        if len(self.details.values()) > 0:
+            borehole_details_str = '\nBorehole details: {0}'.format(self.details)
+        else:
+            borehole_details_str = ''
+                
+        return info_str + summary_str + domain_list + borehole_details_str
 
     def add_feature(self, name, depth):
         """ Add and return a new Feature.
@@ -163,7 +176,19 @@ class Borehole(object):
         """
         raise NotImplementedError
 
+    def add_detail(self, name, values, property_type=None):
+        """ Add a detail to this borehole object. 
 
+            :param name: An identifier for the detail
+            :type name: string
+            :param values: The data to add
+            :type values: any Python object
+            :param property_type: The property type of the detail, optional,
+                   defaults to None
+            :type property_type: pyboreholes.PropertyType
+        """
+        self.details.add_detail(name, values, property_type);
+        
 class Feature(object):
 
     """A point feature with properties but no spatial extent.
@@ -224,3 +249,56 @@ class Survey(object):
     def __init__(self):
         raise NotImplementedError
 
+
+class OriginPosition(object):
+    
+    """Representation of borehole origin position in terms of latitude 
+       and longitude.
+    """
+    
+    def __init__(self, latitude, longitude):
+        self.latitude = latitude
+        self.longitude = longitude
+        
+    def __repr__(self):
+        """ String representation
+        """
+        info = "Origin position: latitude {0}, longitude {1}"
+        return info.format(self.latitude, self.longitude)
+   
+     
+class BoreholeDetails(dict):
+
+    """ Class to store details about drilling a borehole.
+    """
+
+    def __init__(self):
+        super(BoreholeDetails, self).__init__()
+
+    def add_detail(self, name, values, property_type=None):
+        """ Add a detail to this borehole object.
+
+            :param name: An identifier for the detail
+            :type name: string
+            :param values: The data to add
+            :type values: any Python object
+            :param property_type: The property type of the detail, optional,
+                   defaults to None
+            :type property_type: pyboreholes.PropertyType
+        """
+        # TODO: implement Flyweight in terms of immutable named tuples; may not
+        # be necessary by virtue of this immutability if each BoreholeDetail
+        # instance is canonical/uniquely interned
+        self[name] = BoreholeDetail(name=name,
+                                    values=values,
+                                    property_type=property_type)
+                
+    def __repr__(self):
+        """ String representation of all borehole details.
+        """
+        return "\n".join(["Borehole detail: {0}".format(detail) for detail in self.values()])
+        
+    def __setattr__(self):
+        """ Disable setattr method
+        """
+        raise NotImplementedError('Use add_detail to add details')
