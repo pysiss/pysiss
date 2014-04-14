@@ -7,5 +7,6 @@
     description: Initialisation of the pyboreholes.importers module.
 """
 
+import detcrc_csv
 import detcrc_xml
 import nvcl
