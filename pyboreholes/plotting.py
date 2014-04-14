@@ -241,26 +241,26 @@ def float_label(index, position, embedding):
 
 
 ## Borehole plotting
-def plot_sampling_domain_data(sampling_domain, keys_to_plot=None):
+def plot_point_samples_data(point_samples, keys_to_plot=None):
     """ Plot the data stored in the current node object
 
         :returns: handles to the figure and axes
     """
     if keys_to_plot is None:
         keys_to_plot = [
-            k for k in sampling_domain.properties.keys()
-            if sampling_domain.properties[k].property_type.isnumeric]
+            k for k in point_samples.properties.keys()
+            if point_samples.properties[k].property_type.isnumeric]
 
     # Plot data
     fig = matplotlib.pyplot.figure(figsize=(1 * len(keys_to_plot), 20))
-    domain_bounds = (sampling_domain.depths.max(),
-                     sampling_domain.depths.min())
+    domain_bounds = (point_samples.depths.max(),
+                     point_samples.depths.min())
     for i, key in enumerate(keys_to_plot):
         axes = matplotlib.pyplot.subplot(1, len(keys_to_plot), i + 1)
         try:
             plot_signal(axes,
-                        signal=sampling_domain.properties[key].values,
-                        domain=sampling_domain.depths,
+                        signal=point_samples.properties[key].values,
+                        domain=point_samples.depths,
                         orientation='vertical')
         except TypeError:
             print key
@@ -272,7 +272,7 @@ def plot_sampling_domain_data(sampling_domain, keys_to_plot=None):
             axes.set_yticklabels("")
         axes.set_ylim(domain_bounds)
         axes.xaxis.set_major_locator(matplotlib.pyplot.MaxNLocator(3))
-        axes.set_title(sampling_domain.properties[key].property_type.long_name,
+        axes.set_title(point_samples.properties[key].property_type.long_name,
                        rotation=90,
                        verticalalignment='bottom',
                        horizontalalignment='center')

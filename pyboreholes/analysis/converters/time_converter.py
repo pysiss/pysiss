@@ -8,8 +8,8 @@
         module.
 """
 
-from ...domains import TimeDomain, TimeIntervalDomain, SamplingDomain, \
-    IntervalDomain
+from ...domains import TimeDomain, TimeIntervalSamples, PointSamples, \
+    IntervalSamples
 from ...utilities import integrate
 import numpy
 from scipy.interpolate import InterpolatedUnivariateSpline as Spline
@@ -72,7 +72,7 @@ class TimeConverter(object):
         self.time_bounds = (min(flow_rate_times[0], rop_times[0]),
                             max(flow_rate_times[-1], rop_times[-1]))
         break_data = numpy.sort(self.details['break_intervals'].values, axis=0)
-        break_intervals = TimeIntervalDomain('break_intervals',
+        break_intervals = TimeIntervalSamples('break_intervals',
                                              from_times=break_data[:, 0],
                                              to_times=break_data[:, 1])
         self.borehole.add_domain(break_intervals)

@@ -4,7 +4,7 @@
     date: Sunday November 10, 2013
 
     description: Utilities to low-pass filter regularly spaced data in a
-    SamplingDomain instance (i.e. detrending).
+    PointSamples instance (i.e. detrending).
 """
 
 import numpy

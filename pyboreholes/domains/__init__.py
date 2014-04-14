@@ -8,7 +8,7 @@
 
 from .domain import Domain
 from .time_domain import TimeDomain
-from .time_interval_domain import TimeIntervalDomain
-from .sampling_domain import SamplingDomain
-from .interval_domain import IntervalDomain
+from .time_interval_domain import TimeIntervalSamples
+from .point_samples import PointSamples
+from .interval_samples import IntervalSamples
 from .wavelet_domain import WaveletDomain

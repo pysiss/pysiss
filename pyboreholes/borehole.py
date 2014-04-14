@@ -7,7 +7,7 @@
 """
 
 from .borehole_details import BoreholeDetails
-from .domains import Domain, SamplingDomain, IntervalDomain, WaveletDomain, TimeDomain, TimeIntervalDomain
+from .domains import Domain, PointSamples, IntervalSamples, WaveletDomain, TimeDomain, TimeIntervalSamples
 from .properties import Property
 
 
@@ -22,15 +22,15 @@ class Borehole(object):
         A Feature is analogous to a spatial point feature. It has a depth and
         properties but it makes no sense to perform any interpolation on these.
 
-        An IntervalDomain is is a sequence of borehole segments each having a
+        An IntervalSamples is is a sequence of borehole segments each having a
         single value for each property; this value is taken to be the same
-        across the entire length of the interval. IntervalDomains can be merged
-        to form a new IntervalDomain that has the intervals whose boundaries
-        are the union of the boundaries of the source IntervalDomains. An
-        IntervalDomain can be interpolated onto a SamplingDomain.
+        across the entire length of the interval. IntervalSampless can be merged
+        to form a new IntervalSamples that has the intervals whose boundaries
+        are the union of the boundaries of the source IntervalSampless. An
+        IntervalSamples can be interpolated onto a PointSamples.
 
-        A SamplingDomain is a sequence of depths at which continuous properties
-        are sampled. Analogous to a coverage. One SamplingDomain can be
+        A PointSamples is a sequence of depths at which continuous properties
+        are sampled. Analogous to a coverage. One PointSamples can be
         interpolated onto another.
 
         Depths are measured in metres down-hole from the borehole collar; depth
@@ -41,10 +41,10 @@ class Borehole(object):
 
         Some useful properties include:
             features - dict mapping feature name to Feature
-            interval_domains - dict mapping interval domain name to
-                IntervalDomain
-            sampling_domains - dict mapping sampling domain name to
-                SamplingDomain
+            interval_samples - dict mapping interval domain name to
+                IntervalSamples
+            point_samples - dict mapping sampling domain name to
+                PointSamples
             wavelet_domains - dict mapping wavelet domain names to
                 WaveletDomain instances
 
@@ -55,10 +55,10 @@ class Borehole(object):
     # Mapping domain types to class attributes
     _type_to_attr = {
         Domain: 'domains',
-        SamplingDomain: 'sampling_domains',
-        IntervalDomain: 'interval_domains',
+        PointSamples: 'point_samples',
+        IntervalSamples: 'interval_samples',
         TimeDomain: 'time_domains',
-        TimeIntervalDomain: 'time_interval_domains',
+        TimeIntervalSamples: 'time_interval_domains',
         WaveletDomain: 'wavelet_domains',
     }
 
@@ -82,12 +82,12 @@ class Borehole(object):
         summary_str = '{0} domains'.format(n_domains)
         summary_str += ' & {0} features'.format(len(self.features))
         domain_list = ''
-        if len(self.interval_domains) > 0:
+        if len(self.interval_samples) > 0:
             domain_list += ('\nIDs: ' + '\n     '.join(
-                            map(str, self.interval_domains.values())))
-        if len(self.sampling_domains) > 0:
+                            map(str, self.interval_samples.values())))
+        if len(self.point_samples) > 0:
             domain_list += ('\nSDs: ' + '\n     '.join(
-                            map(str, self.sampling_domains.values())))
+                            map(str, self.point_samples.values())))
         if len(self.wavelet_domains) > 0:
             domain_list += ('\nWDs: ' + '\n     '.join(
                             map(str, self.wavelet_domains.values())))
@@ -117,10 +117,10 @@ class Borehole(object):
         # Add to the given attribute using the domain name as a key
         getattr(self, add_to_attr)[domain.name] = domain
 
-    def add_interval_domain(self, name, from_depths, to_depths):
-        """ Add and return a new IntervalDomain
+    def add_interval_samples(self, name, from_depths, to_depths):
+        """ Add and return a new IntervalSamples
 
-            :param name: The identifier for the new IntervalDomain
+            :param name: The identifier for the new IntervalSamples
             :type name: `string`
             :param from_depths: Interval start point down-hole depths in metres
                     from collar
@@ -129,30 +129,30 @@ class Borehole(object):
                 from collar
             :type to_depths: iterable of numeric values
 
-            :returns: the new `pyboreholes.IntervalDomain` instance.
+            :returns: the new `pyboreholes.IntervalSamples` instance.
         """
-        self.interval_domains[name] = \
-            IntervalDomain(name, from_depths, to_depths)
-        return self.interval_domains[name]
+        self.interval_samples[name] = \
+            IntervalSamples(name, from_depths, to_depths)
+        return self.interval_samples[name]
 
-    def add_sampling_domain(self, name, depths):
-        """ Add and return a new SamplingDomain.
+    def add_point_samples(self, name, depths):
+        """ Add and return a new PointSamples.
 
-            :param name: The identifier for the new SamplingDomain
+            :param name: The identifier for the new PointSamples
             :type name: `string`
             :param depths: Sample locations given as down-hole depths in metres
                     from collar
             :type depths: iterable of numeric values
-            :returns: the new `pyboreholes.SamplingDomain` instance.
+            :returns: the new `pyboreholes.PointSamples` instance.
         """
-        self.sampling_domains[name] = SamplingDomain(name, depths)
-        return self.sampling_domains[name]
+        self.point_samples[name] = PointSamples(name, depths)
+        return self.point_samples[name]
 
-    def add_wavelet_domain(self, name, sampling_domain,
+    def add_wavelet_domain(self, name, point_samples,
                            wavelet=None, wav_properties=None):
         """ Add and return a new WaveletDomain.
         """
-        self.wavelet_domains[name] = WaveletDomain(name, sampling_domain,
+        self.wavelet_domains[name] = WaveletDomain(name, point_samples,
                                                    wavelet, wav_properties)
         return self.wavelet_domains[name]
 
@@ -176,7 +176,7 @@ class Feature(object):
             depth - down-hole depth in metres
             properties - dict mapping property name to Property
 
-        :param name: The identifier for the new SamplingDomain
+        :param name: The identifier for the new PointSamples
         :type name: `string`
         :param depth: Feature location given as down-hole depth in metres
                 from collar
