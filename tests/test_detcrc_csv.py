@@ -15,8 +15,8 @@ def find_test_filename(basefilename):
 class DetCrcCsvTest(unittest.TestCase):
 
     def test_load_log(self):
-        domain = det.load_log(find_test_filename("xRD01_alt_log.csv"))
-        self.assertIsInstance(domain, pyboreholes.IntervalDomain)
+        dataset = det.load_log(find_test_filename("xRD01_alt_log.csv"))
+        self.assertIsInstance(dataset, pyboreholes.IntervalDataSet)
 
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromTestCase(DetCrcCsvTest)

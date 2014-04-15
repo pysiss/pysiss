@@ -4,7 +4,7 @@
     date: Sunday November 10, 2013
 
     description: Utilities to low-pass filter regularly spaced data in a
-    PointSamples instance (i.e. detrending).
+    PointDataSet instance (i.e. detrending).
 """
 
 import numpy
@@ -69,18 +69,18 @@ def _detrend_function(data, func, param_guess):
     drange, dmean = numpy.max(data) - numpy.min(data), data.mean()
     data_scaled = (data - dmean) / drange
 
-    # We define the domain to just be the unit interval which is fine for most
+    # We define the dataset to just be the unit interval which is fine for most
     # detrending things, when the actual parameter values don't matter
-    domain = numpy.linspace(0, 1, len(data))
+    dataset = numpy.linspace(0, 1, len(data))
     residuals = lambda p, y, x: y - func(p, x)
 
     # Perform least-squares fit
     param_guess = numpy.asarray(param_guess)
     param_lsq, flag = scipy.optimize.leastsq(
-        residuals, param_guess, args=(data_scaled, domain))
+        residuals, param_guess, args=(data_scaled, dataset))
     if flag not in [1, 2, 3, 4]:
         raise ValueError("Least-squares routine failed to converge")
-    data -= drange * func(param_lsq, domain) + dmean
+    data -= drange * func(param_lsq, dataset) + dmean
     return None
 
 
@@ -134,7 +134,7 @@ def detrend(data, trend=None, func=None, param_guess=None):
         :type trend: str
         :param func: Optional, specify a model function to use in the
             detrending. The function should be of the form :math:`f(p, x)`
-            where :math:`x` is some domain parameter, and :math:`p` is a
+            where :math:`x` is some dataset parameter, and :math:`p` is a
             paramter vector for the model. See `scipy.optimize.leastsq` for
             more details on the form of this function.
         :param param_guess: An initial guess at the parameters in the model.

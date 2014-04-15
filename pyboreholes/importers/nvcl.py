@@ -166,7 +166,7 @@ def get_analytes_as_borehole(dataurl, name, *scalarids):
         # Ranges aren't really appropriate. Better to use point samples
         analytedata = analytedata.drop_duplicates(startcol)
         startdepths = numpy.asarray(analytedata[startcol])
-        domain = bhl.add_point_samples('nvcl', startdepths)
+        dataset = bhl.add_point_dataset('nvcl', startdepths)
 
         # Make a property for each analyte in the borehole
         for analyte in analytecols:
@@ -176,7 +176,7 @@ def get_analytes_as_borehole(dataurl, name, *scalarids):
                 units=None,
                 description=None,
                 isnumeric=False)
-            domain.add_property(property_type,
+            dataset.add_property(property_type,
                                 numpy.asarray(analytedata[analyte]))
     finally:
         fhandle.close

@@ -29,7 +29,7 @@ print bh
 
 # Generate counts for the mineral groups in the borehole
 groups = {}
-for name in bh.point_samples['nvcl'].properties['GRP1UTSAS'].values:
+for name in bh.point_dataset['nvcl'].properties['GRP1UTSAS'].values:
     try:
         groups[name] += 1
     except KeyError:

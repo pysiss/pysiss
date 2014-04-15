@@ -8,7 +8,7 @@
 """
 
 from .borehole import Borehole, Feature
-from .domains import Domain, TimeDomain, \
-    PointSamples, IntervalSamples, WaveletDomain
+from .datasets import DataSet, TimeDataSet, \
+    PointDataSet, IntervalDataSet, WaveletDataSet
 from .properties import Property, PropertyType
 from . import importers, plotting, analysis, utilities
