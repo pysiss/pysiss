@@ -12,7 +12,6 @@ from .. import Borehole, PropertyType
 import numpy
 import pandas
 import urllib
-import xml
 import xml.etree.ElementTree
 
 # Various NVCL providers keyed by a short abbreviation
@@ -135,7 +134,7 @@ def get_logged_analytes(dataurl, datasetid):
     return analytes
 
 
-def get_analytes_as_borehole(dataurl, name, *scalarids):
+def get_analytes_as_borehole(dataurl, scanned_borehole_url, name, *scalarids):
     """ Requests a CSV in the form of (startDepth, endDepth, analyteValue1,
         ..., analyteValueN) before parsing the analyte data into a
         pyboreholes.Borehole with a set of a sampling domains representing
@@ -143,6 +142,8 @@ def get_analytes_as_borehole(dataurl, name, *scalarids):
 
         :param dataurl: The NVCL dataservice URL to request data from
         :type dataurl: string
+        :param scanned_borehole_url: The NVCL scanned borehole URL
+        :type scanned_borehole_url: string
         :param name: Descriptive name for this borehole
         :type name: string
         :param scalarids: A variable number of strings, each representing the

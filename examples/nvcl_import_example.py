@@ -10,11 +10,11 @@ providerkey = 'CSIRO'
 endpoint = nvcl.NVCL_ENDPOINTS[providerkey]
 
 # Get a borehole
-href, title = nvcl.get_borehole_ids(endpoint['wfsurl'])[0]
+scanned_bh_url, title = nvcl.get_borehole_ids(endpoint['wfsurl'])[0]
 print 'First borehole from {0} has id "{1}"'.format(providerkey, title)
 
 # Query the datasets available
-ident, name, om_url = nvcl.get_borehole_datasets(endpoint['dataurl'], title)[0]
+ident, name, om_url = nvcl.get_borehole_datasets(endpoint['dataurl'], scanned_bh_url, title)[0]
 print '\nBorehole {0}\'s first dataset has ident "{1}" and name "{2}"'.format(title, ident, name)
 
 # Query the analytes available
@@ -31,7 +31,7 @@ print bh
 
 # Generate counts for the mineral groups in the borehole
 groups = {}
-for name in bh.sampling_domains['GRP1UTSAS'].properties['GRP1UTSAS'].values:
+for name in bh.sampling_domains['nvcl'].properties['GRP1UTSAS'].values:
     try:
         groups[name] += 1
     except KeyError:
