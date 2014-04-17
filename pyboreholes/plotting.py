@@ -358,7 +358,7 @@ def wavelet_label_plot(wavelet_dataset, property_name):
     data = wavelet_dataset.signals[property_name].values
     scales = wavelet_dataset.scales * \
         wavelet_dataset.wav_properties['equivalent_fourier_period']
-    label_array = wavelet_dataset.datasets[property_name]
+    label_array = wavelet_dataset.domains[property_name]
     nlabels = len(wavelet_dataset.labels[property_name])
     depths_grid, scales_grid = numpy.meshgrid(depths, scales)
     coi = wavelet_dataset.cone_of_influence
@@ -452,12 +452,12 @@ def plot_all_label_arrays(wavelet_dataset):
 
     # Plot each property
     for idx, key in enumerate(dataset_keys):
-        datasets = wavelet_dataset.datasets[key].real
-        ndomans = len(wavelet_dataset.labels[key])
+        domains = wavelet_dataset.domains[key].real
+        ndomains = len(wavelet_dataset.labels[key])
         axe = matplotlib.pyplot.subplot(grid[idx])
         axe.set_xticks([])
         axe.set_yticks([])
-        axe.contourf(datasets[::-1], ndomans,
+        axe.contourf(datasets[::-1], ndomains,
                      cmap=matplotlib.pyplot.get_cmap('RdGy'))
         axe.contourf(coi[::-1], 1, colors=['white'], alpha=0.5)
         axe.contourf(gaps[::-1], 1, colors=['black'], alpha=0.2)
