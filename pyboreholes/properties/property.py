@@ -10,8 +10,8 @@ class Property(object):
 
     """ Container for values with type.
 
-        Values must match the length of the domain: for sampling and interval
-        domains, it must be a sequence of the same length as the depths. For a
+        Values must match the length of the dataset: for sampling and interval
+        datasets, it must be a sequence of the same length as the depths. For a
         feature is should be a single value unless it is a multivalued category
 
         :param property_type: The property metadata for the property

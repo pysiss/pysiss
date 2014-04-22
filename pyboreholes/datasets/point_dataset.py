@@ -1,24 +1,24 @@
-""" file:   sampling_domain.py (pyboreholes.domains)
+""" file:   point_dataset.py (pyboreholes.datasets)
     author: Jess Robertson & Ben Caradoc-Davies
             CSIRO Earth Science and Resource Engineering
     date:   Sunday November 10, 2013
 
-    description: Domain for sampling data (data sampled at a finite set of
+    description: DataSet for point sample data (data sampled at a finite set of
             points down a borehole)
 """
 
-from .domain import Domain
+from .dataset import DataSet
 
 import numpy
 from scipy.interpolate import InterpolatedUnivariateSpline as Spline
 
 
-class SamplingDomain(Domain):
+class PointDataSet(DataSet):
 
-    """ Domain for data defined at points in the domain.
+    """ DataSet for data defined at points in the dataset.
 
-        A SamplingDomain is a sequence of depths at which continuous
-        properties are sampled. Analogous to a coverage. One SamplingDomain
+        A PointDataSet is a sequence of depths at which continuous
+        properties are sampled. Analogous to a coverage. One PointDataSet
         can be interpolated onto another.
 
         Depths must be in monotonically increasing order.
@@ -29,29 +29,29 @@ class SamplingDomain(Domain):
     """
 
     def __init__(self, name, depths):
-        super(SamplingDomain, self).__init__(name, len(depths))
+        super(PointDataSet, self).__init__(name, len(depths))
         depths = numpy.asarray(depths)
         assert all(numpy.gradient(depths) > 0), \
             "depths must be monotonically increasing"
         self.depths = depths
 
     def __repr__(self):
-        info = 'SamplingDomain {0}: with {1} depths and {2} '\
+        info = 'PointDataSet {0}: with {1} depths and {2} '\
                'properties'
         return info.format(self.name, len(self.depths),
                            len(self.properties))
 
-    def get_interval(self, from_depth, to_depth, domain_name=None):
-        """ Return the data between the given depths as as new SamplingDomain
+    def get_interval(self, from_depth, to_depth, dataset_name=None):
+        """ Return the data between the given depths as as new PointDataSet
         """
         # Specify a name if not already passed
-        if domain_name is None:
-            domain_name = '{0}: subdomain {1} to {2}'.format(
+        if dataset_name is None:
+            dataset_name = '{0}: subdataset {1} to {2}'.format(
                 self.name, from_depth, to_depth)
 
-        # Generate a new SamplingDomain
+        # Generate a new PointDataSet
         indices = self.get_interval_indices(from_depth, to_depth)
-        newdom = SamplingDomain(domain_name, self.depths[indices])
+        newdom = PointDataSet(dataset_name, self.depths[indices])
         for prop in self.properties.values():
             newdom.add_property(prop.property_type, prop.values[indices])
         return newdom
@@ -64,20 +64,20 @@ class SamplingDomain(Domain):
                               self.depths <= to_depth))[0]
 
     def split_at_gaps(self, gap_metric='spacing_median', threshold=10):
-        """ Split a domain by finding significant gaps in the domain.
+        """ Split a dataset by finding significant gaps in the dataset.
 
             A metric to define 'gaps' is required. Currently we only have
-            'spacing_median', which is really only suitable for SamplingDomain
+            'spacing_median', which is really only suitable for PointDataSet
             instances. A gap is found where the sample spacing is greater than
             threshold * <gap_metric>.
 
             Available metrics:
                 'spacing_median': a gap is defined as a spacing between
                     samples which is an order of magnitude above the median
-                    sample spacing in a domain.
+                    sample spacing in a dataset.
         """
         # We need to add a small amount to the dataset so that the interval
-        # picker works well in the case of subdomains with only one value
+        # picker works well in the case of subdatasets with only one value
         epsilon = 1e-10
         jitter = lambda a, b: (a - epsilon, b + epsilon)
 
@@ -96,35 +96,35 @@ class SamplingDomain(Domain):
         for idx in gap_indices:
             self.gaps.append((depths[idx], depths[idx + 1]))
 
-        # We need to include the start and end of the domain!
+        # We need to include the start and end of the dataset!
         gap_indices = [0] + list(gap_indices) + [-1]
 
-        # Form a list of data subdomains
-        self.subdomains = []
+        # Form a list of data subdatasets
+        self.subdatasets = []
         for idx in range(len(gap_indices) - 1):
-            # Domains start _after_ the gap & end with next gap
+            # DataSets start _after_ the gap & end with next gap
             from_depth = depths[gap_indices[idx] + 1]
             to_depth = depths[gap_indices[idx + 1]]
 
             # Check whether we need to jitter
             if gap_indices[idx] + 1 == gap_indices[idx + 1]:
                 from_depth, to_depth = jitter(from_depth, to_depth)
-            self.subdomains.append((from_depth, to_depth))
-        return self.subdomains, self.gaps
+            self.subdatasets.append((from_depth, to_depth))
+        return self.subdatasets, self.gaps
 
-    def regularize(self, npoints=None, domain_name=None, fill_method='median',
+    def regularize(self, npoints=None, dataset_name=None, fill_method='median',
                    degree=0):
-        """ Resample domain onto regular grid.
+        """ Resample dataset onto regular grid.
 
             This regularizes the data so that all sample spacings are equal to
-            the median spacing of the raw data. Returns a new SamplingDomain
+            the median spacing of the raw data. Returns a new PointDataSet
             instance with the new data.
 
             Arguments:
                 npoints - the number of new points. Optional, if not specified
                     then the reinterpolated data will have the median spacing
                     of the raw data.
-                domain_name - the name for the returned SamplingDomain.
+                dataset_name - the name for the returned PointDataSet.
                     Optional, defaults to "<current_name> resampled".
                 fill_method - the method for filling the gaps. 'interpolate'
                     uses the interpolated spline, 'mean' fills gaps with the
@@ -136,20 +136,20 @@ class SamplingDomain(Domain):
         """
         # We need to identify gaps first
         if self.gaps is None:
-            print "Warning - your domain hasn't been analysed for gaps yet. " \
+            print "Warning - your dataset hasn't been analysed for gaps yet. " \
                 + "I'm going to assume you just want to use the default values"
             self.split_at_gaps()
 
        # Specify name & number of points if not already passed
-        if domain_name is None:
-            domain_name = '{0} resampled'.format(self.name)
+        if dataset_name is None:
+            dataset_name = '{0} resampled'.format(self.name)
         if npoints is None:
             spacing = float(numpy.median(numpy.diff(self.depths)))
             npoints = abs(self.depths[-1] - self.depths[0]) / spacing
 
-        # Generate a new Domain with the resampled data
+        # Generate a new DataSet with the resampled data
         new_depths = numpy.linspace(self.depths[0], self.depths[-1], npoints)
-        newdom = SamplingDomain(domain_name, new_depths)
+        newdom = PointDataSet(dataset_name, new_depths)
 
         # If we're doing nearest neighbours then we only need to work out the
         # interpolation once
@@ -167,15 +167,15 @@ class SamplingDomain(Domain):
             # These methods need gap indices
             gap_idxs = [newdom.get_interval_indices(*gap) for gap in self.gaps]
         if fill_method in ['local mean', 'local median']:
-            # These methods need subdomain indices from the old domain
+            # These methods need subdataset indices from the old dataset
             sdom_idxs = [self.get_interval_indices(*sdom)
-                         for sdom in self.subdomains]
+                         for sdom in self.subdatasets]
 
         # Resample properties
         for prop in self.properties.values():
             if prop.property_type.isnumeric is False:
                 # We can't interpolate non-numeric data
-                print ("Property {0} in domain {1} is not numeric so I'm "
+                print ("Property {0} in dataset {1} is not numeric so I'm "
                        "skipping it. If this is a suprise to you, maybe you "
                        "should check whether you've correctly set the "
                        "is_numeric flag in the PropertyType class for this "
@@ -225,23 +225,23 @@ class SamplingDomain(Domain):
             else:
                 raise NotImplementedError
 
-            # Push back to new domain
+            # Push back to new dataset
             newdom.add_property(prop.property_type, new_values)
 
-        # Copy over gaps and subdomains
+        # Copy over gaps and subdatasets
         newdom.gaps = self.gaps
-        newdom.subdomains = self.subdomains
+        newdom.subdatasets = self.subdatasets
         return newdom
 
-    def resample(self, new_depths, domain_name=None, fill_method='median',
+    def resample(self, new_depths, dataset_name=None, fill_method='median',
                  degree=0):
-        """ Resample domain onto regular grid.
+        """ Resample dataset onto regular grid.
 
-            Returns a new SamplingDomain instance with the new data.
+            Returns a new PointDataSet instance with the new data.
 
             Arguments:
                 new_depths - The new depths to resample at.
-                domain_name - the name for the returned SamplingDomain.
+                dataset_name - the name for the returned PointDataSet.
                     Optional, defaults to "<current_name> resampled".
                 fill_method - the method for filling the gaps. 'interpolate'
                     uses the interpolated spline, 'mean' fills gaps with the
@@ -253,16 +253,16 @@ class SamplingDomain(Domain):
         """
         # We need to identify gaps first
         if self.gaps is None:
-            print "Warning - your domain hasn't been analysed for gaps yet. " \
+            print "Warning - your dataset hasn't been analysed for gaps yet. " \
                 + "I'm going to assume you just want to use the default values"
             self.split_at_gaps()
 
        # Specify name & number of points if not already passed
-        if domain_name is None:
-            domain_name = '{0} resampled'.format(self.name)
+        if dataset_name is None:
+            dataset_name = '{0} resampled'.format(self.name)
 
-        # Generate a new Domain with the resampled data
-        newdom = SamplingDomain(domain_name, new_depths)
+        # Generate a new DataSet with the resampled data
+        newdom = PointDataSet(dataset_name, new_depths)
 
         # If we're doing nearest neighbours then we only need to work out the
         # interpolation once
@@ -280,15 +280,15 @@ class SamplingDomain(Domain):
             # These methods need gap indices
             gap_idxs = [newdom.get_interval_indices(*gap) for gap in self.gaps]
         if fill_method in ['local mean', 'local median']:
-            # These methods need subdomain indices from the old domain
+            # These methods need subdataset indices from the old dataset
             sdom_idxs = [self.get_interval_indices(*sdom)
-                         for sdom in self.subdomains]
+                         for sdom in self.subdatasets]
 
         # Resample properties
         for prop in self.properties.values():
             if prop.property_type.isnumeric is False:
                 # We can't interpolate non-numeric data
-                print ("Property {0} in domain {1} is not numeric so I'm "
+                print ("Property {0} in dataset {1} is not numeric so I'm "
                        "skipping it. If this is a suprise to you, maybe you "
                        "should check whether you've correctly set the "
                        "is_numeric flag in the PropertyType class for this "
@@ -338,10 +338,10 @@ class SamplingDomain(Domain):
             else:
                 raise NotImplementedError
 
-            # Push back to new domain
+            # Push back to new dataset
             newdom.add_property(prop.property_type, new_values)
 
-        # Copy over gaps and subdomains
+        # Copy over gaps and subdatasets
         newdom.gaps = self.gaps
-        newdom.subdomains = self.subdomains
+        newdom.subdatasets = self.subdatasets
         return newdom

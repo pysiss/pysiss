@@ -137,7 +137,7 @@ def get_logged_analytes(dataurl, datasetid):
 def get_analytes_as_borehole(dataurl, name, *scalarids):
     """ Requests a CSV in the form of (startDepth, endDepth, analyteValue1,
         ..., analyteValueN) before parsing the analyte data into a
-        pyboreholes.Borehole with a set of a sampling domains representing
+        pyboreholes.Borehole with a set of a point samples representing
         each of the analytes.
 
         :param dataurl: The NVCL dataservice URL to request data from
@@ -163,10 +163,10 @@ def get_analytes_as_borehole(dataurl, name, *scalarids):
                        if k not in (startcol, endcol)]
 
         # NVCL data results in start depths == end depths.
-        # Ranges aren't really appropriate. Better to use sampling domain
+        # Ranges aren't really appropriate. Better to use point samples
         analytedata = analytedata.drop_duplicates(startcol)
         startdepths = numpy.asarray(analytedata[startcol])
-        domain = bhl.add_sampling_domain('nvcl', startdepths)
+        dataset = bhl.add_point_dataset('nvcl', startdepths)
 
         # Make a property for each analyte in the borehole
         for analyte in analytecols:
@@ -176,7 +176,7 @@ def get_analytes_as_borehole(dataurl, name, *scalarids):
                 units=None,
                 description=None,
                 isnumeric=False)
-            domain.add_property(property_type,
+            dataset.add_property(property_type,
                                 numpy.asarray(analytedata[analyte]))
     finally:
         fhandle.close

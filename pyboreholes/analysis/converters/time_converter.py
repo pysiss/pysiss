@@ -8,8 +8,8 @@
         module.
 """
 
-from ...domains import TimeDomain, TimeIntervalDomain, SamplingDomain, \
-    IntervalDomain
+from ...datasets import TimeDataSet, TimeIntervalDataSet, PointDataSet, \
+    IntervalDataSet
 from ...utilities import integrate
 import numpy
 from scipy.interpolate import InterpolatedUnivariateSpline as Spline
@@ -72,10 +72,10 @@ class TimeConverter(object):
         self.time_bounds = (min(flow_rate_times[0], rop_times[0]),
                             max(flow_rate_times[-1], rop_times[-1]))
         break_data = numpy.sort(self.details['break_intervals'].values, axis=0)
-        break_intervals = TimeIntervalDomain('break_intervals',
+        break_intervals = TimeIntervalDataSet('break_intervals',
                                              from_times=break_data[:, 0],
                                              to_times=break_data[:, 1])
-        self.borehole.add_domain(break_intervals)
+        self.borehole.add_dataset(break_intervals)
 
         # Generate driving spline fits
         self.flow_rate = Spline(flow_rate_times, flow_rate, k=1)
@@ -93,7 +93,7 @@ class TimeConverter(object):
 
             Note that this doesn't take into account whether the sample
             has been drilled or not. If you want to get a full trace for
-            a given sample use `TimeDomain.sample_trace`.
+            a given sample use `TimeDataSet.sample_trace`.
         """
         return lambda t: \
             self.distance(initial_time) + initial_depth - self.distance(t)
