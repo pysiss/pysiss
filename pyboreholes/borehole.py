@@ -80,7 +80,7 @@ class Borehole(object):
         """ String representation
         """
         info = 'Borehole {0} at origin position {1} contains '
-        info_str = info.format(self.origin_position, self.name)
+        info_str = info.format(self.name, self.origin_position)
         n_domains = sum([len(getattr(self, a))
                          for a in self._type_to_attr.values()])
         summary_str = '{0} domains'.format(n_domains)
@@ -263,7 +263,7 @@ class OriginPosition(object):
     def __repr__(self):
         """ String representation
         """
-        info = "Origin position: latitude {0}, longitude {1}"
+        info = "latitude {0}, longitude {1}"
         return info.format(self.latitude, self.longitude)
    
      
@@ -296,7 +296,7 @@ class BoreholeDetails(dict):
     def __repr__(self):
         """ String representation of all borehole details.
         """
-        return "\n".join(["Borehole detail: {0}".format(detail) for detail in self.values()])
+        return "\n".join(["{0}".format(detail) for detail in self.values()])
         
     def __setattr__(self):
         """ Disable setattr method

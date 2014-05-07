@@ -9,7 +9,7 @@
 
 from owslib.wfs import WebFeatureService
 #from .. import Borehole, PropertyTypeSISSBoreholeGenerator
-from .. import PropertyType, SISSBoreholeGenerator
+from .. import Borehole, PropertyType, SISSBoreholeGenerator
 import numpy
 import pandas
 import urllib
