@@ -8,7 +8,8 @@
 """
 
 from owslib.wfs import WebFeatureService
-from .. import Borehole, PropertyType
+#from .. import Borehole, PropertyTypeSISSBoreholeGenerator
+from .. import PropertyType, SISSBoreholeGenerator
 import numpy
 import pandas
 import urllib
@@ -155,7 +156,9 @@ def get_analytes_as_borehole(dataurl, scanned_borehole_url, name, *scalarids):
     for ident in scalarids:
         url += '&logid={0}'.format(ident)
 
-    bhl = Borehole(name)
+    siss_bhl_generator = SISSBoreholeGenerator()
+    bhl = siss_bhl_generator.geosciml_to_borehole(name, urllib.urlopen(scanned_borehole_url))
+    
     fhandle = urllib.urlopen(url)
     try:
         analytedata = pandas.read_csv(fhandle)
@@ -169,8 +172,13 @@ def get_analytes_as_borehole(dataurl, scanned_borehole_url, name, *scalarids):
         analytedata = analytedata.drop_duplicates(startcol)
         startdepths = numpy.asarray(analytedata[startcol])
         domain = bhl.add_sampling_domain('nvcl', startdepths)
-
+        
         # Make a property for each analyte in the borehole
+        #
+        # TODO: What to do with this? Despite now having borehole details, we still 
+        #       need to make a correspondence between analyte data and the borehole.
+        #       Is what follows still valid?
+        #  
         for analyte in analytecols:
             property_type = PropertyType(
                 name=analyte,

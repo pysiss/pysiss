@@ -45,7 +45,7 @@ class SissTest(unittest.TestCase):
             
     def _test_wfs(self):
         """
-        WFS test
+        WFS test (exploratory)
         """
         providerkey = 'CSIRO'
         endpoint = nvcl.NVCL_ENDPOINTS[providerkey]

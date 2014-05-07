@@ -1,6 +1,6 @@
 import matplotlib
 matplotlib.use('Agg')
-import pyboreholes as pybh
+#import pyboreholes as pybh
 import pyboreholes.importers.nvcl as nvcl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,7 +14,7 @@ scanned_bh_url, title = nvcl.get_borehole_ids(endpoint['wfsurl'])[0]
 print 'First borehole from {0} has id "{1}"'.format(providerkey, title)
 
 # Query the datasets available
-ident, name, om_url = nvcl.get_borehole_datasets(endpoint['dataurl'], scanned_bh_url, title)[0]
+ident, name, om_url = nvcl.get_borehole_datasets(endpoint['dataurl'], title)[0]
 print '\nBorehole {0}\'s first dataset has ident "{1}" and name "{2}"'.format(title, ident, name)
 
 # Query the analytes available
@@ -26,7 +26,8 @@ print 'The first few analytes read {0}'.format(an_names[0:4])
 
 # Make a request for the data in CSV format, parse and generate a Borehole instance
 print '\nThe formatted pyborehole.Borehole object:'
-bh = nvcl.get_analytes_as_borehole(nvcl.NVCL_ENDPOINTS['CSIRO']['dataurl'], name, *an_idents[0:4])
+bh = nvcl.get_analytes_as_borehole(nvcl.NVCL_ENDPOINTS['CSIRO']['dataurl'], scanned_bh_url, 
+                                   name, *an_idents[0:4])
 print bh
 
 # Generate counts for the mineral groups in the borehole
