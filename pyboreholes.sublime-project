@@ -5,7 +5,7 @@
 			"path": ".",
 			"name": "Project files",
 			"folder_exclude_patterns": ["pyboreholes", "tests", "logs", "build", "docs", "examples", "dist", "*.egg-info"],
-			"file_exclude_patterns": ["*.sublime-workspace"]
+			"file_exclude_patterns": ["*.sublime-workspace", ".coverage"]
 		},
 		{
 			"path": "pyboreholes",
