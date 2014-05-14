@@ -19,7 +19,7 @@ class TestNVCLEndpointRegistry(unittest.TestCase):
         """ Check that existing idents are not clobbered
         """
         urls = ('a/url', 'b/url', 'c/url')
-        self.assertRaises(KeyError, self.registry.update, 'CSIRO', *urls)
+        self.assertRaises(KeyError, self.registry.register, 'CSIRO', *urls)
 
     def test_update(self):
         """ Check that endpoint data is updated
@@ -35,7 +35,7 @@ class TestNVCLEndpointRegistry(unittest.TestCase):
         updated_urls = ('d/url', 'e/url', 'f/url')
         self.registry.register('myendpoint', *updated_urls,
                                update=True)
-        for url, key in zip(urls, keys):
+        for url, key in zip(updated_urls, keys):
             self.assertEquals(url, self.registry['myendpoint'][key])
 
         # Remove bogus data
@@ -62,15 +62,37 @@ class TestNVCLImporter(unittest.TestCase):
     """ Test NVCLImporter class
     """
 
-    def setUp(self, arg):
+    def setUp(self):
         # Get a pointer to the NVCL endpoint registry
         self.registry = nvcl.NVCLEndpointRegistry()
 
         # Make importers for each default endpoint
+        self.importers = {}
         for ept in self.registry.keys():
             self.importers[ept] = nvcl.NVCLImporter(ept)
 
-    def test_usage(self):
-        """ Test some sample usage using the CSIRO endpoint
+    def test_usage_1(self):
+        """ Test some sample usage using the GSWA endpoint
         """
-        
+        bh_info = self.importers['GSWA'].get_borehole_idents_and_urls()
+
+        for ident, url in dict(bh_info).items():
+            self.assertTrue(ident != '')
+            self.assertTrue(url != '')
+
+    def test_usage_2(self):
+        """ Test some sample usage using the GSWA endpoint
+        """
+        bh_idents = self.importers['GSWA'].get_borehole_idents()
+
+        # Get the datasets assocated with the borehole ident
+        datasets = {}
+        for ident in bh_idents:
+            datasets[ident] = \
+                self.importers['GSWA'].get_borehole_datasets(ident)
+
+    def test_usage_3(self):
+        """ Test some sample usage using the GSWA endpoint
+        """
+        bhl = self.importers['GSWA'].get_borehole('PDP2C')
+        print bhl
