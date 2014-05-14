@@ -58,7 +58,7 @@ else
 	echo " --> Couldn't find coverage.py on the current path" | tee -a ${test_log}
 	echo "     Skipping code coverage tests" | tee -a ${test_log}
 	echo "     To check test coverage, install coverage.py " | tee -a ${test_log}
-	echo "         with `pip install coverage`" | tee -a ${test_log}
+	echo "         with 'pip install coverage'" | tee -a ${test_log}
 fi
 
 # # Uncomment to make documentation
