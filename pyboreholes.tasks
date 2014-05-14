@@ -1,9 +1,14 @@
 Library:
 
 	- Finish NVCLImporter class
-	- Make includes of other libraries (cwavelets etc) optional
-	- Clean out examples directory
-	- Remove wavelets stuff from DARDA repo
+      - Do we want to think about caching stuff?
+        Might be messy if you have to start manually emptying caches...
+	
+  - Finish cleaning up
+    - Make includes of other libraries (cwavelets etc) optional
+  	- Clean out examples directory
+  	- Remove wavelets stuff from DARDA repo
+
 	- Implement interface for dealing with sematic vocabularies
 
 Testing:
