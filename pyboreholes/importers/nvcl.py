@@ -143,7 +143,7 @@ class NVCLImporter(object):
         for match in xmltree.findall(bhstring):
             href = match.get('{http://www.w3.org/1999/xlink}href')
             title = match.get('{http://www.w3.org/1999/xlink}title')
-            idents.append((href, title))
+            idents.append((title, href))
         return idents
 
     def get_borehole_datasets(self, holeident):
