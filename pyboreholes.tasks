@@ -1,0 +1,15 @@
+Library:
+
+	- Finish NVCLImporter class
+	- Make includes of other libraries (cwavelets etc) optional
+	- Clean out examples directory
+	- Remove wavelets stuff from DARDA repo
+	- Implement interface for dealing with sematic vocabularies
+
+Testing:
+
+	- ask about mocking out URLs for testing NVCL importers
+
+Demos:
+
+	- Make NVCL demo with wavelets blocking for identifying lithologies.

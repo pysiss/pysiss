@@ -112,7 +112,13 @@ class NVCLImporter(object):
                            'Registered endpoints: {0}'.format(registry.keys()))
 
         # Set up SISSBoreholeGenerator instance
-        self.bh_generator = SISSBoreholeGenerator()
+        self.generator = SISSBoreholeGenerator()
+
+    def __repr__(self):
+        """ String representation
+        """
+        str = 'NVCLImporter(endpoint={0})'.format(self.endpoint)
+        return str
 
     def get_borehole_ids(self, maxids=None):
         """ Generates an array of tuples representing
