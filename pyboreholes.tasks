@@ -1,20 +1,24 @@
 Library:
 
-	- Finish NVCLImporter class
-      - Do we want to think about caching stuff?
+  ☐ Finish NVCLImporter class @started(14-05-16 07:06)
+      ☐ Do we want to think about caching stuff?
         Might be messy if you have to start manually emptying caches...
+      ☐ Add option to import borehole images and mosaic @today
 	
-  - Finish cleaning up
-    - Make includes of other libraries (cwavelets etc) optional
-  	- Clean out examples directory
-  	- Remove wavelets stuff from DARDA repo
+  ☐ Finish cleaning up @started(14-05-16 07:06)
+    ☐ Make includes of other libraries (cwavelets etc) optional
+    ✔ Clean out examples directory @done (14-05-16 07:06)
+    ✔ Remove wavelets stuff from DARDA repo @done (14-05-16 07:06)
 
-	- Implement interface for dealing with sematic vocabularies
+  ☐ Implement interface for dealing with semantic vocabularies
+    ☐ Think about writing another proposal for IM&T data support
 
 Testing:
 
-	- ask about mocking out URLs for testing NVCL importers
+  ☐ ask about mocking out URLs for testing NVCL importers
+  ☐ Check out mock as a testing framework?
 
 Demos:
 
-	- Make NVCL demo with wavelets blocking for identifying lithologies.
+  ☐ Hacky image processing for pyboreholes demo next week @today @SISS4QGIS @started(14-05-16 07:06)
+  ☐ Make NVCL demo with wavelets blocking for identifying lithologies. @AuscopeRoadshow

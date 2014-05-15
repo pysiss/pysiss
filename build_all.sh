@@ -38,7 +38,7 @@ echo "" >> ${build_log}
 # Run unittests
 echo " --> Running unit tests..." | tee -a ${build_log} ${test_log}
 echo "     Output in ${test_log}" | tee -a ${build_log}
-coverage run --source=pyboreholes tests >> ${test_log} 2>&1
+coverage run --source=pyboreholes -m unittest tests >> ${test_log} 2>&1
 if [[ `cat ${test_log} | grep -c "FAILED"` -ne 0 ]]; then
     echo " --> WARNING: some tests failed! " \
         | tee -a ${build_log} ${test_log}

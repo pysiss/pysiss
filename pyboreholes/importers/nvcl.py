@@ -252,8 +252,6 @@ class NVCLImporter(object):
             bhl = siss_bhl_generator.geosciml_to_borehole(
                 name, urllib.urlopen(bh_url))
 
-            print bhl
-
             fhandle = urllib.urlopen(url)
             try:
                 analytedata = pandas.read_csv(fhandle)
