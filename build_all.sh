@@ -35,10 +35,23 @@ echo " --> Building..." | tee -a ${build_log}
 python setup.py install --user >> ${build_log} 2>&1
 echo "" >> ${build_log}
 
-# Run unittests
+# Check test coverage if coverage.py is in path
+path_to_coverage=$(which coverage)
 echo " --> Running unit tests..." | tee -a ${build_log} ${test_log}
 echo "     Output in ${test_log}" | tee -a ${build_log}
-coverage run --source=pyboreholes tests >> ${test_log} 2>&1
+if [[ -x "$path_to_coverage" ]] ; then
+	# Run unittests
+	coverage run --source=pyboreholes tests/__main__.py >> ${test_log} 2>&1
+else
+	echo "" | tee -a ${test_log}
+	echo " --> Couldn't find coverage.py on the current path" | tee -a ${test_log}
+	echo "     Skipping code coverage tests" | tee -a ${test_log}
+	echo "     To check test coverage, install coverage.py " | tee -a ${test_log}
+	echo "         with 'pip install coverage'" | tee -a ${test_log}
+	python tests >> ${test_log} 2>&1
+fi
+
+# Check whether unittests passed
 if [[ `cat ${test_log} | grep -c "FAILED"` -ne 0 ]]; then
     echo " --> WARNING: some tests failed! " \
         | tee -a ${build_log} ${test_log}
@@ -46,21 +59,17 @@ else
     echo " --> All tests passed." | tee -a ${build_log} ${test_log}
 fi
 
-# Check test coverage if coverage.py is in path
-path_to_coverage=$(which coverage)
+# Print unit test coverage report
 if [[ -x "$path_to_coverage" ]] ; then
 	echo "" >> ${test_log}
 	echo "Test coverage:" >> ${test_log}
 	echo "" >> ${test_log}
 	coverage report >> ${test_log}
 	echo "" >> ${test_log}
-else
-	echo "" | tee -a ${test_log}
-	echo " --> Couldn't find coverage.py on the current path" | tee -a ${test_log}
-	echo "     Skipping code coverage tests" | tee -a ${test_log}
-	echo "     To check test coverage, install coverage.py " | tee -a ${test_log}
-	echo "         with 'pip install coverage'" | tee -a ${test_log}
 fi
+
+# Uncomment to make Sublime Text open the file
+sublime_text ${test_log}
 
 # # Uncomment to make documentation
 # echo " --> Making documentation..." | tee -a ${build_log}
