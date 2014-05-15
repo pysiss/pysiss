@@ -116,13 +116,13 @@ class TestRealData(unittest.TestCase):
             # Construct the borehole instance first
             bh = boreholes[name] = pyboreholes.Borehole(name)
 
-            # Generate an IntervalDomain corresponding to the values in the spreadsheet
+            # Generate an IntervalDataSet corresponding to the values in the spreadsheet
             data = data.dropna()
             from_depths = numpy.asarray(data['From'])
             to_depths = numpy.asarray(data['To'])
-            domain = bh.add_interval_domain('geochemistry', from_depths, to_depths)
+            dataset = bh.add_interval_dataset('geochemistry', from_depths, to_depths)
 
             # Add all the geochemistry values as Properties
             for key in property_keys:
                 datum = numpy.asarray(data[key].convert_objects(convert_numeric=True))
-                domain.add_property(property_types[key], datum)
+                dataset.add_property(property_types[key], datum)
