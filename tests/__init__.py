@@ -15,7 +15,6 @@ from .test_borehole import *
 from .test_utilities import *
 from .test_detrend import *
 from .test_real_data import *
-from .test_detcrc_csv import *
 
 if __name__ == '__main__':
     unittest.main()

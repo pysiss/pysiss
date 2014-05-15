@@ -69,34 +69,6 @@ class BoreholeTest(unittest.TestCase):
         self.assertEquals(impedances, self.borehole.point_dataset["samples"].properties["imp"].values)
         self.assertEquals("samples", self.borehole.point_dataset['samples'].name)
 
-    def test_wavelet_dataset(self):
-        """Test store and retrieve a wavelet dataset"""
-        # Make a PointDataSet instance as in test_sampling_dataset
-        # the depths of the dataset
-        depths = [4.0, 4.02, 4.0603, 4.0803]
-        # two numerical properties
-        densities = [2.8073, 2.837, 2.8569, 2.8158]
-        impedances = [9010.898, 9250.686, 11854.32, 11621.28]
-        dataset = self.borehole.add_point_dataset("wavelet_samples", depths)
-        dataset.add_property(DENSITY, densities)
-        dataset.add_property(IMPEDANCE, impedances)
-
-        # Generate a wavelet dataset from this point dataset
-        wdataset = self.borehole.add_wavelet_dataset(
-            name            = 'test_dataset',
-            point_dataset = dataset,
-            wavelet         = cw.Hermitian,
-            wav_properties  = cw.WaveletProperties(order=1))
-        for key in ('d', 'imp'):
-            wdataset.add_transform(key)
-
-        # Check results are stored in borehole
-        self.assertEquals(wdataset,
-            self.borehole.wavelet_datasets['test_dataset'])
-        for key, values in [('d', densities), ('imp', impedances)]:
-            self.assertEquals(wdataset.signals[key].values, values)
-        self.assertTrue(all(wdataset.depths == depths))
-
     def test_interval_dataset_depths_empty(self):
         """Test that empty interval depths raises an AssertionError"""
         self.assertRaises(AssertionError, lambda: pybh.IntervalDataSet("test", [], []))

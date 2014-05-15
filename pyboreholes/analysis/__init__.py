@@ -10,5 +10,3 @@
 
 from .regularizer import ReSampler, unique
 from .detrend import detrend, demean
-import layers
-import converters
