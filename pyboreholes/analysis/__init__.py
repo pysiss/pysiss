@@ -8,6 +8,7 @@
     description: Initialisation of the pyboreholes.modifiers module.
 """
 
-from .layers import LabelTree, metrics
 from .regularizer import ReSampler, unique
 from .detrend import detrend, demean
+import layers
+import converters

@@ -26,7 +26,11 @@ If you've installed all the libraries above, all you should need to do is enter 
 
     python setup.py install
 
-which should build and install the Python bindings for your system. Depending on where you're trying to install the library, you may need administrator priviledges to install the library. You can install only part of the library if you wish (or if you're missing libraries), just run
+which should build and install the Python bindings for your system. Depending on where you're trying to install the library, you may need administrator priviledges to install the library. If you don't have adminstrator rights for your system, then you can install it locally using
+
+    python setup.py install --user
+
+which will install it under your home directory. You can install only part of the library if you wish (or if you're missing libraries), just run
 
     python setup.py --help
 
