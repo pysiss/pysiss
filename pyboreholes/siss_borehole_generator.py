@@ -1,7 +1,7 @@
-""" file: siss.py
+""" file:   siss_borehole_generator.py (pyboreholes)
     author: David Benn
             CSIRO IM&T Science Data Services
-    date: 18 February 2014
+    date:   18 February 2014
 
     description: Borehole object creation from SISS GeoSciML metadata.
 """
@@ -14,6 +14,7 @@ from borehole import Borehole, OriginPosition
 
 
 class SISSBoreholeGenerator:
+
     """ Spatial Information Services Stack class: creates borehole
         property type objects given GeoSciML input.
 

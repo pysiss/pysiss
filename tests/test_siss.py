@@ -28,8 +28,8 @@ class SissTest(unittest.TestCase):
         """ A test using one of the scanned borehole GeoSciML URLs returned by
             nvcl.get_borehole_ids()
         """
-        bh_urls = ['http://nvclwebservices.vm.csiro.au/resource/'
-                   'feature/CSIRO/borehole/WTB5']
+        bh_urls = ['http://nvclwebservices.vm.csiro.au/resource/feature/' +
+                   'CSIRO/borehole/WTB5']
         boreholes = []
 
         for bh_url in bh_urls:
@@ -52,8 +52,7 @@ class SissTest(unittest.TestCase):
                               str(borehole.details))
 
     def _test_wfs(self):
-        """
-        WFS test (exploratory)
+        """ WFS test (exploratory)
         """
         providerkey = 'CSIRO'
         endpoint = nvcl.NVCL_ENDPOINTS[providerkey]

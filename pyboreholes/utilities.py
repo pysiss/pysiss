@@ -11,8 +11,34 @@ import numpy
 import functools
 
 
+class Singleton(type):
+
+    """ A singleton metaclass for implementing registries.
+
+        This metaclass implements the Singleton pattern, so that only one
+        instance of a class is ever instantiated. Subsequent calls to
+        `__init__` will return a reference to this instantiation. To use
+        this in your classes, just add
+
+            __metaclass__ = Singleton
+
+        to your class definition. There's a bunch of Python black magic
+        (subclassing from type) which happens behind the scenes to make
+        sure that only one class instance is instantiated.
+    """
+
+    def __init__(cls, name, bases, dic):
+        super(Singleton, cls).__init__(name, bases, dic)
+        cls.instance = None
+
+    def __call__(cls, *args, **kwargs):
+        if cls.instance is None:
+            cls.instance = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls.instance
+
+
 def heaviside(values):
-    r""" Heaviside function
+    r""" Heaviside function.
 
         The Heaviside step function, or the unit step function, usually
         denoted by :math`H`, is a discontinuous function whose value is zero

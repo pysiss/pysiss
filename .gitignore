@@ -14,3 +14,4 @@ core
 .merge*
 .project
 .pydevproject
+.coverage

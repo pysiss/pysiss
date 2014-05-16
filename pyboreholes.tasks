@@ -1,11 +1,32 @@
+Library:
+
+	- Finish NVCLImporter class
+      - Do we want to think about caching stuff?
+        Might be messy if you have to start manually emptying caches...
+	
+  - Finish cleaning up
+    - Make includes of other libraries (cwavelets etc) optional
+  	- Clean out examples directory
+  	- Remove wavelets stuff from DARDA repo
+
+	- Implement interface for dealing with sematic vocabularies
+
+Testing:
+
+	- ask about mocking out URLs for testing NVCL importers
+
+Demos:
+
+	- Make NVCL demo with wavelets blocking for identifying lithologies.
+
 Other tasks:
 
     - Redo interpolation in regularize so that knots are only calculated once, use splpack wrappers in scipy.interpolate
    - Work out 2D interpolation for wavelet domains
-      - use bisplev again in scipy.interpolate to only calculate knots once,   evaluate over grid.
+      - use bisplev again in scipy.interpolate to only calculate knots once, evaluate over grid.
       - Is it better to calculate using this a matrix-vector multiply? Can use lookups because we'll always have a regular grid to do things off. Moving to irregular grids with wavelets might make things difficult though...
 
 JIRA issues:
 
-	- Issues with wavelet scale, see jira.csiro.au/browse/DETCRC-16
-		- This is possibly something to do with the way that the dummy wavelet is setting up scales - need to check that everything is being copied over properly.
+  - Issues with wavelet scale, see jira.csiro.au/browse/DETCRC-16
+    - This is possibly something to do with the way that the dummy wavelet is setting up scales - need to check that everything is being copied over properly.
