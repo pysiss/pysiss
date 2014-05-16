@@ -88,7 +88,7 @@ class SISSBoreholeGenerator:
             geo_ns = self.geo_ns_dict[ns_prefix]
             position = borehole_elt.find(
                 './/{{{0}}}location/{{{1}}}Point/{{{2}}}pos'.format(
-                    (geo_ns, self.gml_ns, self.gml_ns)))
+                    geo_ns, self.gml_ns, self.gml_ns))
             if position is not None:
                 latlon_str = position.text
                 (lat, lon) = latlon_str.split(' ')
