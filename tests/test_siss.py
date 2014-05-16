@@ -40,8 +40,10 @@ class SissTest(unittest.TestCase):
 
         expected_positions = {u'WTB5': u'latitude -28.4139, longitude 121.142'}
 
-        expected_details = {u'WTB5': u"BoreholeDetail(name='drilling method', "
-                            + "values='diamond core', property_type=None)"}
+        expected_details = {u'WTB5': u"{'drilling method': "
+                                     u"BoreholeDetail(name='drilling method', "
+                                     u"values='diamond core', "
+                                     u"property_type=None)}"}
 
         for borehole in boreholes:
             self.assertEquals(expected_positions[borehole.name],

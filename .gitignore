@@ -7,7 +7,11 @@ docs/build/
 *.sublime-workspace
 logs
 tests/*.pdf
+dist
+core
 *.egg-info
 .ipynb_checkpoints
 .merge*
+.project
+.pydevproject
 .coverage

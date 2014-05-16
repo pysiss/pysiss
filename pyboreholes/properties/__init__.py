@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """ file: __init__.py (pyboreholes.properties)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
@@ -8,4 +7,4 @@
 """
 
 from .property import Property
-from .property_type import PropertyType 
+from .property_type import PropertyType

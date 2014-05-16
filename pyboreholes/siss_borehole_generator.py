@@ -88,8 +88,8 @@ class SISSBoreholeGenerator:
         for ns_prefix in self.geo_ns_dict:
             geo_ns = self.geo_ns_dict[ns_prefix]
             position = borehole_elt.find(
-                './/{%s}location/{%s}Point/{%s}pos' %
-                (geo_ns, self.gml_ns, self.gml_ns))
+                './/{{{0}}}location/{{{1}}}Point/{{{2}}}pos'.format(
+                    geo_ns, self.gml_ns, self.gml_ns))
             if position is not None:
                 latlon_str = position.text
                 (lat, lon) = latlon_str.split(' ')
@@ -109,7 +109,8 @@ class SISSBoreholeGenerator:
         """
         for ns_prefix in self.geo_ns_dict:
             geo_ns = self.geo_ns_dict[ns_prefix]
-            details = borehole_elt.find('.//{%s}BoreholeDetails' % geo_ns)
+            details = borehole_elt.find(
+                './/{{{0}}}BoreholeDetails'.format(geo_ns))
             # TODO: make this and callee code polymorphic wrt geo_ns
             if details is not None:
                 if ns_prefix == 'gsml':
@@ -125,7 +126,7 @@ class SISSBoreholeGenerator:
             :type details_elt: Element
         """
         drilling_method = details_elt.find(
-            './/{%s}drillingMethod' % self.geo_ns_dict['gsml'])
+            './/{{{0}}}drillingMethod'.format(self.geo_ns_dict['gsml']))
         drilling_method_text = drilling_method.text
         self.boreholes[-1].add_detail('drilling method', drilling_method_text)
 

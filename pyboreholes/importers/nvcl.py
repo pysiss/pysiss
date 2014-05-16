@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-""" file:   nvcl.py
+""" file: nvcl.py (pyboreholes.importers)
     author: Josh Vote and Jess Robertson
             CSIRO Earth Science and Resource Engineering
     date:   23 December 2013
@@ -133,7 +132,7 @@ class NVCLImporter(object):
     def __repr__(self):
         """ String representation
         """
-        str = 'NVCLImporter(endpoint={0})'.format(self.endpoint)
+        str = 'NVCLImporter(endpoint="{0}")'.format(self.endpoint)
         return str
 
     def get_borehole_idents_and_urls(self, maxids=None):
@@ -235,9 +234,15 @@ class NVCLImporter(object):
             :type name: string
             :returns: a `pyboreholes.Borehole` object
         """
+        # Generate pyboreholes.Borehole instance to hold the data
         if name is None:
             name = hole_ident
+        siss_bhl_generator = SISSBoreholeGenerator()
+        bh_url = self.get_borehole_idents_and_urls()[hole_ident]
+        bhl = siss_bhl_generator.geosciml_to_borehole(
+            name, urllib.urlopen(bh_url))
 
+        # For each dataset in the NVCL we want to add a domain
         for dataset_guid in self.get_borehole_datasets(hole_ident).values():
             # Get all scalarids
             analyte_guids = self.get_logged_analytes(hole_ident, dataset_guid)
@@ -247,43 +252,45 @@ class NVCLImporter(object):
             for ident in analyte_guids:
                 url += '&logid={0}'.format(ident)
 
-            siss_bhl_generator = SISSBoreholeGenerator()
-            bh_url = self.get_borehole_idents_and_urls()[hole_ident]
-            bhl = siss_bhl_generator.geosciml_to_borehole(
-                name, urllib.urlopen(bh_url))
-
-            fhandle = urllib.urlopen(url)
+            # Get analyte data
             try:
+                fhandle = urllib.urlopen(url)
                 analytedata = pandas.read_csv(fhandle)
-                startcol = 'STARTDEPTH'
-                endcol = 'ENDDEPTH'
-                analytecols = [k for k in analytedata.keys()
-                               if k not in (startcol, endcol)]
-
-                # NVCL data results in start depths == end depths.
-                # Ranges aren't really appropriate. Better to use sampling
-                # domain
-                analytedata = analytedata.drop_duplicates(startcol)
-                startdepths = numpy.asarray(analytedata[startcol])
-                domain = bhl.add_sampling_domain('nvcl', startdepths)
-
-                # Make a property for each analyte in the borehole
-                #
-                # TODO: What to do with this? Despite now having borehole
-                #       details, we still need to make a correspondence
-                #       between analyte data and the borehole. Is what
-                #       follows still valid?
-                #
-                for analyte in analytecols:
-                    property_type = PropertyType(
-                        name=analyte,
-                        long_name=analyte,
-                        units=None,
-                        description=None,
-                        isnumeric=False)
-                    domain.add_property(property_type,
-                                        numpy.asarray(analytedata[analyte]))
+            except Exception:
+                # Pandas seems to only throw an Exception when trying to read
+                # an empty filewhich isn't great for only capturing file errors
+                continue
             finally:
-                fhandle.close
+                fhandle.close()
+
+            startcol = 'STARTDEPTH'
+            endcol = 'ENDDEPTH'
+            analytecols = [k for k in analytedata.keys()
+                           if k not in (startcol, endcol)]
+
+            # NVCL data results in start depths == end depths.
+            # Ranges aren't really appropriate. Better to use sampling
+            # domain
+            analytedata = analytedata.drop_duplicates(startcol)
+            startdepths = numpy.asarray(analytedata[startcol])
+            domain = bhl.add_sampling_domain('nvcl', startdepths)
+
+            # Make a property for each analyte in the borehole
+            #
+            # TODO: What to do with this? Despite now having borehole
+            #       details, we still need to make a correspondence
+            #       between analyte data and the borehole. Is what
+            #       follows still valid?
+            #
+            for analyte in analytecols:
+                property_type = PropertyType(
+                    name=analyte,
+                    long_name=analyte,
+                    units=None,
+                    description=None,
+                    isnumeric=False)
+                domain.add_property(
+                    property_type=property_type,
+                    values=numpy.asarray(analytedata[analyte]))
 
         return bhl

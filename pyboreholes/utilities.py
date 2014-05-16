@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """ file:   utilities.py (pyboreholes)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
@@ -41,9 +40,9 @@ class Singleton(type):
 def heaviside(values):
     r""" Heaviside function.
 
-        The Heaviside step function, or the unit step function, usually denoted
-        by :math`H`, is a discontinuous function whose value is zero for
-        negative argument and one for positive argument. We also take
+        The Heaviside step function, or the unit step function, usually
+        denoted by :math`H`, is a discontinuous function whose value is zero
+        for negative argument and one for positive argument. We also take
         :math:`H(0) = 0`, although this rarely matters in practise.
 
         :param values: the argument values
@@ -53,6 +52,22 @@ def heaviside(values):
     result = numpy.ones_like(values)
     result[values <= 0] = 0.
     return result
+
+
+def same_sign(value1, value2):
+    """ Determine whether two values have the same sign
+
+    """
+    return numpy.sign(value1, dtype=int) == numpy.sign(value2, dtype=int)
+
+
+def integrate(times, values):
+    """ Return the definite integral of the given data at the given
+        times
+    """
+    times = numpy.asarray(times)
+    values = numpy.asarray(values)
+    return numpy.cumsum(numpy.gradient(times) * values)
 
 
 def mask_all_nans(*arrays):
@@ -83,8 +98,8 @@ def mask_all_nans(*arrays):
                          "size (arrays have shapes {0})".format(shapes))
 
     # Return the non-nan indices
-    return numpy.logical_not(
-        functools.reduce(numpy.logical_or, [numpy.isnan(a) for a in arrays]))
+    return numpy.logical_not(functools.reduce(numpy.logical_or,
+                             [numpy.isnan(a) for a in arrays]))
 
 
 def try_float(value_str):
