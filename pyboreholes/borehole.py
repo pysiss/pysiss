@@ -42,12 +42,10 @@ class Borehole(object):
 
         Some useful properties include:
             features - dict mapping feature name to Feature
-            interval_dataset - dict mapping interval dataset name to
+            interval_datasets - dict mapping interval dataset name to
                 IntervalDataSet
-            point_dataset - dict mapping sampling dataset name to
+            point_datasets - dict mapping sampling dataset name to
                 PointDataSet
-            wavelet_datasets - dict mapping wavelet dataset names to
-                WaveletDataSet instances
 
         :param name: An identifier for the borehole
         :type name: `string`
@@ -60,8 +58,8 @@ class Borehole(object):
     # Mapping dataset types to class attributes
     _type_to_attr = {
         DataSet: 'datasets',
-        PointDataSet: 'point_dataset',
-        IntervalDataSet: 'interval_dataset',
+        PointDataSet: 'point_datasets',
+        IntervalDataSet: 'interval_datasets',
     }
 
     def __init__(self, name, origin_position=None):
@@ -86,15 +84,12 @@ class Borehole(object):
         summary_str = '{0} datasets'.format(n_datasets)
         summary_str += ' & {0} features'.format(len(self.features))
         dataset_list = ''
-        if len(self.interval_dataset) > 0:
+        if len(self.interval_datasets) > 0:
             dataset_list += ('\nIDs: ' + '\n     '.join(
                              map(str, self.interval_dataset.values())))
-        if len(self.point_dataset) > 0:
+        if len(self.point_datasets) > 0:
             dataset_list += ('\nSDs: ' + '\n     '.join(
                              map(str, self.point_dataset.values())))
-        if len(self.wavelet_datasets) > 0:
-            dataset_list += ('\nWDs: ' + '\n     '.join(
-                             map(str, self.wavelet_datasets.values())))
         if len(self.details.values()) > 0:
             borehole_details_str = \
                 '\nBorehole details: {0}'.format(self.details)
@@ -141,9 +136,9 @@ class Borehole(object):
 
             :returns: the new `pyboreholes.IntervalDataSet` instance.
         """
-        self.interval_dataset[name] = \
+        self.interval_datasets[name] = \
             IntervalDataSet(name, from_depths, to_depths)
-        return self.interval_dataset[name]
+        return self.interval_datasets[name]
 
     def add_point_dataset(self, name, depths):
         """ Add and return a new PointDataSet.
@@ -155,8 +150,8 @@ class Borehole(object):
             :type depths: iterable of numeric values
             :returns: the new `pyboreholes.PointDataSet` instance.
         """
-        self.point_dataset[name] = PointDataSet(name, depths)
-        return self.point_dataset[name]
+        self.point_datasets[name] = PointDataSet(name, depths)
+        return self.point_datasets[name]
 
     def desurvey(self, depths, crs):
         """ Return the depths as three-dimensional points in the given
