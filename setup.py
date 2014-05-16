@@ -27,15 +27,9 @@ setup(
     long_description=open('README.md').read(),
     author='Jess Robertson',
     author_email='jesse.robertson@csiro.au',
-    url='http://bitbucket.org/jessrobertson/pyboreholes',
+    url='https://stash.csiro.au/projects/DARDA/repos/python_boreholes/',
     packages=find_packages(),
-    requires=['numpy', 'matplotlib'],
-    extras_require={
-        "continuous_wavelets": ['cwavelets'],
-        "discrete_wavelets": ['pywavelets'],
-        "machine_learning": ['sklearn'],
-        "nvcl_import": ['owslib']
-    },
+    requires=['numpy', 'matplotlib', 'owslib'],
     ext_modules=[],
     classifiers=[
         'Development Status :: 1 - Planning',
