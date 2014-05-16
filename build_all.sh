@@ -4,7 +4,7 @@
 #         jesse.robertson@csiro.au
 # date:   Thursday 2 May 2013
 #
-# description: Build python package and documentation
+# description: Build a python package and documentation
 
 # Generate stamps for logs
 datestamp=`date +%F_%T`
@@ -41,14 +41,14 @@ echo " --> Running unit tests..." | tee -a ${build_log} ${test_log}
 echo "     Output in ${test_log}" | tee -a ${build_log}
 if [[ -x "$path_to_coverage" ]] ; then
 	# Run unittests
-	coverage run --source=pyboreholes tests/__main__.py >> ${test_log} 2>&1
+	coverage run --source=pyboreholes -m unittest tests >> ${test_log} 2>&1
 else
 	echo "" | tee -a ${test_log}
 	echo " --> Couldn't find coverage.py on the current path" | tee -a ${test_log}
 	echo "     Skipping code coverage tests" | tee -a ${test_log}
 	echo "     To check test coverage, install coverage.py " | tee -a ${test_log}
 	echo "         with 'pip install coverage'" | tee -a ${test_log}
-	python tests >> ${test_log} 2>&1
+	python -m unittest tests >> ${test_log} 2>&1
 fi
 
 # Check whether unittests passed
@@ -69,7 +69,7 @@ if [[ -x "$path_to_coverage" ]] ; then
 fi
 
 # Uncomment to make Sublime Text open the file
-sublime_text ${test_log}
+sublime_text ${test_log} &
 
 # # Uncomment to make documentation
 # echo " --> Making documentation..." | tee -a ${build_log}
