@@ -3,15 +3,18 @@ Library:
    ☐ Finish NVCLImporter class @started(14-05-16 07:06)
        ☐ Do we want to think about caching stuff?
          Might be messy if you have to start manually emptying caches...
-       ☐ Add option to import borehole images and mosaic @today
+       ☐ Add option to import borehole images and mosaic @today @started(14-05-17 07:42)
+         Need to use information from NVCL imports from GovHack stuff
 	
-   ☐ Finish cleaning up @started(14-05-16 07:06)
-     ☐ Make includes of other libraries (cwavelets etc) optional
+   ✔ Finish cleaning up @started(14-05-16 07:06) @done (14-05-17 07:42) @lasted(1 day, 0:36:00)
+     ✔ Make includes of other libraries (cwavelets etc) optional @done (14-05-17 07:42)
      ✔ Clean out examples directory @done (14-05-16 07:06)
      ✔ Remove wavelets stuff from DARDA repo @done (14-05-16 07:06)
 
    ☐ Implement interface for dealing with semantic vocabularies
      ☐ Think about writing another proposal for IM&T data support
+
+   ☐ Add HDF5 backend for saving and loading boreholes @started(14-05-19 06:27) @today
 
 Testing:
 
@@ -22,6 +25,7 @@ Demos:
 
    ☐ Hacky image processing for pyboreholes demo next week @today @SISS4QGIS @started(14-05-16 07:06)
      ☐ Check out NVCL documentation, check REST calls
+     ☐ Show boreholes on folium map using OriginPositon
    ☐ Make NVCL demo with wavelets blocking for identifying lithologies. @AuscopeRoadshow
 
 Other tasks:
