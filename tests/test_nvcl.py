@@ -94,4 +94,4 @@ class TestNVCLImporter(unittest.TestCase):
     def test_usage_3(self):
         """ Test some sample usage using the GSWA endpoint
         """
-        self.importers['GSWA'].get_borehole('PDP2C')
+        self.importers['GSWA'].get_borehole('PDP2C', get_analytes=True)

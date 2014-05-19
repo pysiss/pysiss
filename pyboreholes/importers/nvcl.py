@@ -6,9 +6,11 @@
     description: Importer for NVCL data services
 """
 
-from owslib.wfs import WebFeatureService
 from .. import PropertyType, SISSBoreholeGenerator
+from ..datasets import PointDataSet  # , IntervalDataSet
 from ..utilities import Singleton
+
+from owslib.wfs import WebFeatureService
 import numpy
 import pandas
 import urllib
@@ -167,7 +169,7 @@ class NVCLImporter(object):
         """
         return self.get_borehole_idents_and_urls(maxids).keys()
 
-    def get_borehole_datasets(self, hole_ident):
+    def get_dataset_idents(self, hole_ident):
         """ Generates a dictionary of tuples representing all the NVCL datasets
             associated with this particular borehole
 
@@ -177,21 +179,22 @@ class NVCLImporter(object):
                 value is the GUID of the dataset.
         """
         xmltree = None
-        holeurl = \
-            'getDatasetCollection.html?holeidentifier={0}'.format(hole_ident)
-        url_handle = urllib.urlopen(self.urls['dataurl'] + holeurl)
+        holeurl = (self.urls['dataurl'] + 'getDatasetCollection.html?'
+                   'holeidentifier={0}').format(hole_ident)
+        url_handle = urllib.urlopen(holeurl)
         try:
             xmltree = xml.etree.ElementTree.parse(url_handle)
+
+            datasets = {}
+            for dset in xmltree.findall(".//Dataset"):
+                datasets[dset.find('DatasetName').text] = \
+                    dset.find('DatasetID').text
+            return datasets
+
         finally:
             url_handle.close()
 
-        datasets = {}
-        for dset in xmltree.findall(".//Dataset"):
-            datasets[dset.find('DatasetName').text] = \
-                dset.find('DatasetID').text
-        return datasets
-
-    def get_logged_analytes(self, hole_ident, dataset_ident):
+    def get_analyte_idents(self, hole_ident, dataset_ident):
         """ Generates a dictionary mapping all NVCL analytes for a given
             borehole dataset to their GUIDs.
 
@@ -204,7 +207,7 @@ class NVCLImporter(object):
             :returns: a dictionary keyed by analyte name, where each value is
                 the GUID for a given analyte.
         """
-        analytes = None
+        analyte_idents = None
         dseturl = 'getLogCollection.html?mosaicsvc=no&datasetid={0}'
         url_handle = urllib.urlopen(self.urls['dataurl']
                                     + dseturl.format(dataset_ident))
@@ -212,18 +215,87 @@ class NVCLImporter(object):
         # Parse XML tree to return analytes
         try:
             xmltree = xml.etree.ElementTree.parse(url_handle)
-            analytes = {}
-            for anlyte in xmltree.findall(".//Log"):
-                log_ident = anlyte.find("LogID").text
-                name = anlyte.find("logName").text
-                analytes[name] = log_ident
+            analyte_idents = {}
+            for analyte in xmltree.findall(".//Log"):
+                log_ident = analyte.find("LogID").text
+                name = analyte.find("logName").text
+                # sample_count = analyte.find('SampleCount').text
+                analyte_idents[name] = log_ident
 
         finally:
             url_handle.close()
 
-        return analytes
+        return analyte_idents
 
-    def get_mosaic(self, hole_ident, from_depth, to_depth):
+    def get_analytes(self, hole_ident, dataset_name, dataset_ident,
+                     analyte_idents=None,
+                     from_depth=None, to_depth=None,):
+        """ Get the analytes from the given borehole and dataset
+
+            :param hole_ident: The identifier for a borehole
+            :type hole_ident: string
+            :param dataset_name: An identifier for the generated dataset
+            :type dataset_name: string
+            :param dataset_ident: The identifier for the dataset
+            :type dataset_ident: string
+            :param analyte_idents: The identifers of the analytes to download.
+                Optional, if None then all analytes in the given dataset are
+                downloaded.
+            :type analyte_idents: list of str
+            :param from_depth/to_depth: The depth range included in the
+                dataset. Optional, defaults to the entire depths defined in
+                the NVCL.
+            :type from_depth/to_depth: float
+        """
+        # Get analyte data
+        analyte_ident_dict = self.get_analyte_idents(hole_ident, dataset_ident)
+        if len(analyte_ident_dict) == 0:
+            # This dataset has no analytes
+            print 'Warning, dataset {0} has no analytes'.format(dataset_ident)
+            return None
+
+        # Generate request URL
+        if analyte_idents is None:
+            analyte_idents = analyte_ident_dict.values()
+        url = self.urls['dataurl'] + 'downloadscalars.html?'
+        for ident in analyte_idents:
+            url += '&logid={0}'.format(ident)
+
+        # We'll use pandas to slurp the csv direct from the web service
+        analytedata = pandas.read_csv(url)
+        startcol = 'StartDepth'
+        endcol = 'EndDepth'
+        analytecols = [k for k in analytedata.keys()
+                       if k not in (startcol, endcol)]
+
+        # NVCL data results in start depths == end depths.
+        # Ranges aren't really appropriate. Better to use sampling
+        # dataset
+        analytedata = analytedata.drop_duplicates(startcol)
+        startdepths = numpy.asarray(analytedata[startcol])
+        dataset = PointDataSet(dataset_name, startdepths)
+
+        # Make a property for each analyte in the borehole
+        #
+        # TODO: What to do with this? Despite now having borehole
+        #       details, we still need to make a correspondence
+        #       between analyte data and the borehole. Is what
+        #       follows still valid?
+        #
+        for analyte in analytecols:
+            property_type = PropertyType(
+                name=analyte,
+                long_name=analyte,
+                units=None,
+                description=None,
+                isnumeric=False)
+            dataset.add_property(
+                property_type=property_type,
+                values=numpy.asarray(analytedata[analyte]))
+
+        return dataset
+
+    def get_mosaic(self, hole_ident, from_depth=None, to_depth=None):
         """ Requests a mosaic from the NVCL data portal
 
             The mosaic is a low-resolution composite of the image data
@@ -232,7 +304,7 @@ class NVCLImporter(object):
         """
         raise NotImplemented
 
-    def get_images(self, hole_ident, from_depth, to_depth):
+    def get_images(self, hole_ident, from_depth=None, to_depth=None):
         """ Requests high-resolution images from the NVCL data portal
 
             These images are high-resolution and represent slices of the
@@ -240,15 +312,20 @@ class NVCLImporter(object):
         """
         raise NotImplemented
 
-    def get_borehole(self, hole_ident, name=None):
-        """ Requests a CSV in the form of (startDepth, endDepth, analyteValue1,
-            ..., analyteValueN) before parsing the analyte data into a
-            pyboreholes.Borehole with a set of a sampling domains representing
-            each of the analytes.
+    def get_borehole(self, hole_ident, name=None, get_analytes=True):
+        """ Generates a pyboreholes.Borehole instance containing the data from
+            the given borehole.
 
+            Each dataset defined on the borehole is downloaded down into a
+            seperate Dataset instance
+
+            :param hole_ident: The hole identifier
+            :type hole_ident: string
             :param name: Descriptive name for this borehole. Optional, if not
                 specified this will default to the NVCL borehole id.
             :type name: string
+            :param get_analytes: If True, the analytes will also be downloaded
+            :type get_analytes: bool
             :returns: a `pyboreholes.Borehole` object
         """
         # Generate pyboreholes.Borehole instance to hold the data
@@ -259,55 +336,15 @@ class NVCLImporter(object):
         bhl = siss_bhl_generator.geosciml_to_borehole(
             name, urllib.urlopen(bh_url))
 
-        # For each dataset in the NVCL we want to add a domain
-        for dataset_guid in self.get_borehole_datasets(hole_ident).values():
-            # Get all scalarids
-            analyte_guids = self.get_logged_analytes(hole_ident, dataset_guid)
-
-            # Generate request URL
-            url = self.urls['dataurl'] + 'downloadscalars.html?'
-            for ident in analyte_guids:
-                url += '&logid={0}'.format(ident)
-
-            # Get analyte data
-            try:
-                fhandle = urllib.urlopen(url)
-                analytedata = pandas.read_csv(fhandle)
-            except Exception:
-                # Pandas seems to only throw an Exception when trying to read
-                # an empty filewhich isn't great for only capturing file errors
-                continue
-            finally:
-                fhandle.close()
-
-            startcol = 'STARTDEPTH'
-            endcol = 'ENDDEPTH'
-            analytecols = [k for k in analytedata.keys()
-                           if k not in (startcol, endcol)]
-
-            # NVCL data results in start depths == end depths.
-            # Ranges aren't really appropriate. Better to use sampling
-            # domain
-            analytedata = analytedata.drop_duplicates(startcol)
-            startdepths = numpy.asarray(analytedata[startcol])
-            domain = bhl.add_sampling_domain('nvcl', startdepths)
-
-            # Make a property for each analyte in the borehole
-            #
-            # TODO: What to do with this? Despite now having borehole
-            #       details, we still need to make a correspondence
-            #       between analyte data and the borehole. Is what
-            #       follows still valid?
-            #
-            for analyte in analytecols:
-                property_type = PropertyType(
-                    name=analyte,
-                    long_name=analyte,
-                    units=None,
-                    description=None,
-                    isnumeric=False)
-                domain.add_property(
-                    property_type=property_type,
-                    values=numpy.asarray(analytedata[analyte]))
+        # For each dataset in the NVCL we want to add a dataset and store the
+        # dataset information in the DatasetDetails
+        if get_analytes:
+            datasets = self.get_dataset_idents(hole_ident)
+            for dataset_name, dataset_guid in datasets.items():
+                dataset = self.get_analytes(hole_ident=hole_ident,
+                                            dataset_name=dataset_name,
+                                            dataset_ident=dataset_guid)
+                if dataset is not None:
+                    bhl.add_dataset(dataset)
 
         return bhl
