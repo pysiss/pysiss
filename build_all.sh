@@ -56,6 +56,9 @@ fi
 if [[ `cat ${test_log} | grep -c "FAILED"` -ne 0 ]]; then
     echo " --> WARNING: some tests failed! " \
         | tee -a ${build_log} ${test_log}
+        
+    # Uncomment to make Sublime Text open the file on test failure
+	sublime_text ${test_log} &
 else
     echo " --> All tests passed." | tee -a ${build_log} ${test_log}
 fi
@@ -68,9 +71,6 @@ if [[ -x "$path_to_coverage" ]] ; then
 	coverage report >> ${test_log}
 	echo "" >> ${test_log}
 fi
-
-# Uncomment to make Sublime Text open the file
-sublime_text ${test_log} &
 
 # # Uncomment to make documentation
 # echo " --> Making documentation..." | tee -a ${build_log}

@@ -29,16 +29,17 @@ class TestBoreholeCollection(unittest.TestCase):
         """ Test initialization with a list of boreholes
         """
         coll = pybh.BoreholeCollection(self.boreholes)
-        self.assertEqual(coll.values, self.boreholes)
-        self.assertEqual(coll.keys, self.bh_names)
+        for idx, (name, bh) in enumerate(coll.items()):
+            self.assertEqual(bh, self.boreholes[idx])
+            self.assertEqual(name, self.boreholes[idx].name)
 
     def test_addition(self):
         coll = pybh.BoreholeCollection()
         for bh in self.boreholes:
             coll.append(bh)
 
-        self.assertEqual(coll.values, self.boreholes)
-        self.assertEqual(coll.keys, self.bh_names)
+        for idx, bh in enumerate(coll):
+            self.assertEqual(bh, self.boreholes[idx])
 
     def test_iteration(self):
         coll = pybh.BoreholeCollection(self.boreholes)

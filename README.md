@@ -1,7 +1,7 @@
 Introduction to pyboreholes
 ===========================
 
-author: Jess Robertson & Ben Caradoc-Davies, CSIRO Earth Science and Resource Engineering
+author: Jess Robertson, David Benn & Ben Caradoc-Davies, CSIRO Minerals Down Under
 
 email: jesse.robertson with CSIRO's domain (google it)
 
