@@ -89,10 +89,9 @@ class TestNVCLImporter(unittest.TestCase):
         datasets = {}
         for ident in bh_idents:
             datasets[ident] = \
-                self.importers['GSWA'].get_borehole_datasets(ident)
+                self.importers['GSWA'].get_dataset_idents(ident)
 
     def test_usage_3(self):
         """ Test some sample usage using the GSWA endpoint
         """
-        bhl = self.importers['GSWA'].get_borehole('PDP2C')
-        print bhl
+        self.importers['GSWA'].get_borehole('PDP2C')
