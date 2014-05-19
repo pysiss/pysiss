@@ -223,6 +223,23 @@ class NVCLImporter(object):
 
         return analytes
 
+    def get_mosaic(self, hole_ident, from_depth, to_depth):
+        """ Requests a mosaic from the NVCL data portal
+
+            The mosaic is a low-resolution composite of the image data
+            associated with a given borehole, so is suitable for large
+            borehole ranges
+        """
+        raise NotImplemented
+
+    def get_images(self, hole_ident, from_depth, to_depth):
+        """ Requests high-resolution images from the NVCL data portal
+
+            These images are high-resolution and represent slices of the
+            core sitting in the core tray.
+        """
+        raise NotImplemented
+
     def get_borehole(self, hole_ident, name=None):
         """ Requests a CSV in the form of (startDepth, endDepth, analyteValue1,
             ..., analyteValueN) before parsing the analyte data into a
