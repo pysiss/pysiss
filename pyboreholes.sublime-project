@@ -46,7 +46,7 @@
 	[
 		{
 			"name": "Production build",
-			"cmd": ["python", "setup.py", "build"],
+			"cmd": ["./build_all.sh"],
 			"working_dir": "$project_path"
 		},
 		{
