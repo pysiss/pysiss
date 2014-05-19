@@ -6,7 +6,7 @@
     description: Borehole class implementation
 """
 
-from .borehole_details import BoreholeDetails
+from .details import Details, detail_type
 from .datasets import DataSet, PointDataSet, IntervalDataSet
 from .properties import Property
 from .utilities import id_object
@@ -88,10 +88,10 @@ class Borehole(id_object):
         dataset_list = ''
         if len(self.interval_datasets) > 0:
             dataset_list += ('\nIDs: ' + '\n     '.join(
-                             map(str, self.interval_dataset.values())))
+                             map(str, self.interval_datasets.values())))
         if len(self.point_datasets) > 0:
             dataset_list += ('\nSDs: ' + '\n     '.join(
-                             map(str, self.point_dataset.values())))
+                             map(str, self.point_datasets.values())))
         if len(self.details.values()) > 0:
             borehole_details_str = \
                 '\nBorehole details: {0}'.format(self.details)
@@ -258,3 +258,11 @@ class OriginPosition(id_object):
         """
         info = "latitude {0}, longitude {1}"
         return info.format(self.latitude, self.longitude)
+
+
+class BoreholeDetails(Details):
+
+    """ Class to store details about drilling a Borehole
+    """
+
+    detail_type = detail_type('BoreholeDetail', 'name values property_type')

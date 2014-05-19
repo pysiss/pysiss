@@ -24,27 +24,36 @@ import numpy
 
 class IntervalDataSet(DataSet):
 
-    """ IntervalDataSet contains data which is defined over some depth interval.
+    """ IntervalDataSet contains data which is defined over some depth
+        interval.
 
         An IntervalDataSet is is a sequence of borehole segments each having a
         single value for each property; this value is taken to be the same
-        across the entire length of the interval. IntervalSampling can be merged
-        to form a new IntervalDataSet that has the intervals whose boundaries
-        are the union of the boundaries of the source IntervalSampling. An
-        IntervalDataSet can be interpolated onto a PointDataSet.
+        across the entire length of the interval. IntervalSampling can be
+        merged to form a new IntervalDataSet that has the intervals whose
+        boundaries are the union of the boundaries of the source
+        IntervalSampling. An IntervalDataSet can be interpolated onto a
+        PointDataSet.
 
         Intervals must be in depth order and not overlap, but there might
         be gaps between intervals.
 
-        name -- identifier (string)
-        from_depths -- interval start point down-hole depths in metres
-            from collar (any sequence, could be a list or numpy array)
-        to_depths -- interval end point down-hole depths in metres from
-            collar (any sequence, could be a list or numpy array)
+        :param name: identifier for the dataSet
+        :type name: string
+        :param from_depths: interval start point down-hole depths in metres
+            from collar
+        :type from_depths: iterable
+        :param to_depths: interval end point down-hole depths in metres from
+            collar
+        :type to_depths: iterable
+        :param details: The metadata associated with the dataset. Optional,
+            defaults to None.
+        :type details: pyboreholes.dataset.DatasetDetails
     """
 
-    def __init__(self, name, from_depths, to_depths):
-        super(IntervalDataSet, self).__init__(name, len(from_depths))
+    def __init__(self, name, from_depths, to_depths, details=None):
+        super(IntervalDataSet, self).__init__(
+            name, len(from_depths), details=details)
         from_depths = numpy.asarray(from_depths)
         to_depths = numpy.asarray(to_depths)
         assert len(from_depths) == len(to_depths), \
@@ -84,8 +93,8 @@ class IntervalDataSet(DataSet):
 
         # Generate a new IntervalDataSet
         newdom = IntervalDataSet(dataset_name,
-                                self.from_depths[indices],
-                                self.to_depths[indices])
+                                 self.from_depths[indices],
+                                 self.to_depths[indices])
         for prop in self.properties.values():
             newdom.add_property(
                 property_type=prop.property_type,

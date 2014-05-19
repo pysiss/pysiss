@@ -23,13 +23,18 @@ class PointDataSet(DataSet):
 
         Depths must be in monotonically increasing order.
 
-        name -- identifier (string)
-        depths -- sample down-hole depths in metres from collar (any sequence,
-            could be a list or numpy array)
+        :param name: identifier for the dataSet
+        :type name: string
+        :param depths: sample down-hole depths in metres from collar
+        :type depths: iterable
+        :param details: The metadata associated with the dataset. Optional,
+            defaults to None.
+        :type details: pyboreholes.dataset.DatasetDetails
     """
 
-    def __init__(self, name, depths):
-        super(PointDataSet, self).__init__(name, len(depths))
+    def __init__(self, name, depths, details=None):
+        super(PointDataSet, self).__init__(
+            name, len(depths), details=details)
         depths = numpy.asarray(depths)
         assert all(numpy.gradient(depths) > 0), \
             "depths must be monotonically increasing"
@@ -136,8 +141,9 @@ class PointDataSet(DataSet):
         """
         # We need to identify gaps first
         if self.gaps is None:
-            print "Warning - your dataset hasn't been analysed for gaps yet. " \
-                + "I'm going to assume you just want to use the default values"
+            print ("Warning - your dataset hasn't been analysed for gaps yet. "
+                   "I'm going to assume you just want to use the default "
+                   "values")
             self.split_at_gaps()
 
        # Specify name & number of points if not already passed
@@ -253,8 +259,9 @@ class PointDataSet(DataSet):
         """
         # We need to identify gaps first
         if self.gaps is None:
-            print "Warning - your dataset hasn't been analysed for gaps yet. " \
-                + "I'm going to assume you just want to use the default values"
+            print ("Warning - your dataset hasn't been analysed for gaps yet. "
+                   "I'm going to assume you just want to use the default "
+                   "values")
             self.split_at_gaps()
 
        # Specify name & number of points if not already passed

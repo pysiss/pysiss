@@ -10,9 +10,11 @@
 """
 
 from ..properties import Property
+from ..details import Details, detail_type
+from ..utilities import id_object
 
 
-class DataSet(object):
+class DataSet(id_object):
 
     """ Spatial extent over which properties are defined.
 
@@ -24,15 +26,24 @@ class DataSet(object):
             name - an identifier
             subdatasets - a list of subdataset locations
             gaps - a list of gap locations
+            details - the metadata associated with this dataset
+
+        :param name: an identifier for the dataset
+        :type name: string
+        :param size: The number of items in the dataset
+        :type size: int
+        :param details: Metadata for a given dataset.
+        :type details: pyboreholes.datasets.DatasetDetails
     """
 
-    def __init__(self, name, size):
+    def __init__(self, name, size, details=None):
         assert size > 0, "dataset must have at least one element"
         self.properties = dict()
         self.size = size  # size of all values sequences
         self.name = name
         self.subdatasets = None
         self.gaps = None
+        self.details = details
 
     def add_property(self, property_type, values):
         """ Add and return a new property
@@ -46,3 +57,11 @@ class DataSet(object):
         """ Return the properties defined over this dataset
         """
         return self.properties.keys()
+
+
+class DatasetDetails(Details):
+
+    """ Class to store metadata about a dataset
+    """
+
+    detail_type = detail_type('BoreholeDetail', 'name values property_type')
