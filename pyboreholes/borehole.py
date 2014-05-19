@@ -9,9 +9,10 @@
 from .borehole_details import BoreholeDetails
 from .datasets import DataSet, PointDataSet, IntervalDataSet
 from .properties import Property
+from .utilities import id_object
 
 
-class Borehole(object):
+class Borehole(id_object):
 
     """ Class to represent a borehole.
 
@@ -63,6 +64,7 @@ class Borehole(object):
     }
 
     def __init__(self, name, origin_position=None):
+        super(Borehole, self).__init__(name=name)
         self.name = name
         self.origin_position = origin_position
         self.details = BoreholeDetails()
@@ -178,7 +180,7 @@ class Borehole(object):
         self.details.add_detail(name, values, property_type)
 
 
-class Feature(object):
+class Feature(id_object):
 
     """A point feature with properties but no spatial extent.
 
@@ -194,6 +196,7 @@ class Feature(object):
     """
 
     def __init__(self, name, depth):
+        super(Feature, self).__init__(name=name)
         self.name = name
         self.depth = depth
         self.properties = dict()
@@ -239,13 +242,14 @@ class Survey(object):
         raise NotImplementedError
 
 
-class OriginPosition(object):
+class OriginPosition(id_object):
 
     """Representation of borehole origin position in terms of latitude
        and longitude.
     """
 
     def __init__(self, latitude, longitude):
+        super(OriginPosition, self).__init__(name=str((latitude, longitude)))
         self.latitude = latitude
         self.longitude = longitude
 
