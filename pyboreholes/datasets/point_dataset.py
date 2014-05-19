@@ -11,6 +11,7 @@ from .dataset import DataSet
 
 import numpy
 from scipy.interpolate import InterpolatedUnivariateSpline as Spline
+import pandas
 
 
 class PointDataSet(DataSet):
@@ -352,3 +353,11 @@ class PointDataSet(DataSet):
         newdom.gaps = self.gaps
         newdom.subdatasets = self.subdatasets
         return newdom
+
+    def to_dataframe(self):
+        """ Tranform the data in the dataset into a Pandas dataframe.
+        """
+        return pandas.DataFrame(
+            data=dict(((k, self.properties[k].values)
+                       for k in self.properties.keys())),
+            index=self.depths)

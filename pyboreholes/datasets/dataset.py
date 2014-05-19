@@ -58,6 +58,11 @@ class DataSet(id_object):
         """
         return self.properties.keys()
 
+    def to_dataframe(self):
+        """ Tranform the data in the dataset into a Pandas dataframe.
+        """
+        raise NotImplemented
+
 
 class DatasetDetails(Details):
 

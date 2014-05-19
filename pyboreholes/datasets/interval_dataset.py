@@ -19,7 +19,9 @@
 
 from .dataset import DataSet
 from .point_dataset import PointDataSet
+
 import numpy
+import pandas
 
 
 class IntervalDataSet(DataSet):
@@ -171,3 +173,11 @@ class IntervalDataSet(DataSet):
         sdom = PointDataSet(name=name, depths=depths)
         sdom.properties = self.properties.copy()
         return sdom
+
+    def to_dataframe(self):
+        """ Tranform the data in the dataset into a Pandas dataframe.
+        """
+        return pandas.DataFrame(
+            data=dict(((k, self.properties[k].values)
+                       for k in self.properties.keys())),
+            index=zip(self.from_depths, self.to_depths))
