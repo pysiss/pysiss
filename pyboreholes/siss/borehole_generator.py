@@ -87,7 +87,7 @@ class SISSBoreholeGenerator:
         for ns_prefix in NS_DICT:
             latlon_xpath = './/{{{0}}}location/{{{1}}}Point/{{{2}}}pos'
             latlon = self._element_text(borehole_elt,
-                                        latlon_xpath.format(NS_DICT[ns_prefix], 
+                                        latlon_xpath.format(NS_DICT[ns_prefix],
                                                             NS_DICT['gml'], NS_DICT['gml']))
             if latlon is not None:
                 (lat, lon) = latlon.split(' ')
@@ -99,7 +99,7 @@ class SISSBoreholeGenerator:
                     elevation = float(elevation_elt.text)
                     elevation_units = elevation_elt.attrib['uomLabels']
                     # TODO: add units to elevation
-                    origin_position = OriginPosition(latitude=float(lat), 
+                    origin_position = OriginPosition(latitude=float(lat),
                                                      longitude=float(lon),
                                                      elevation=elevation)
                     break
@@ -140,7 +140,7 @@ class SISSBoreholeGenerator:
         self.boreholes[-1].add_detail('driller', driller)
 
         # Drilling method
-        drilling_method = self._element_text(details_elt, 
+        drilling_method = self._element_text(details_elt,
                                             './/{{{0}}}drillingMethod'.format(NS_DICT['gsml']))
         self.boreholes[-1].add_detail('drilling method', drilling_method)
         
@@ -172,18 +172,22 @@ class SISSBoreholeGenerator:
         self.boreholes[-1].add_detail('shape', shape_list)
         
         # Borehole cored interval
-        # TODO: add property type with units!
         cored_interval_xpath = './/{{{0}}}coredInterval/{{{1}}}Envelope[@uomLabels]'
-        cored_interval_elt = details_elt.find(cored_interval_xpath.format(NS_DICT['gsml'], 
+        cored_interval_elt = details_elt.find(cored_interval_xpath.format(NS_DICT['gsml'],
                                                                           NS_DICT['gml']))
         cored_interval_units = cored_interval_elt.attrib['uomLabels']
-        cored_interval_lower_corner = self._element_text(details_elt, 
+        cored_interval_lower_corner = self._element_text(details_elt,
                                                          './/{{{0}}}lowerCorner'.format(NS_DICT['gml']))
-        cored_interval_upper_corner = self._element_text(details_elt, 
+        cored_interval_upper_corner = self._element_text(details_elt,
                                                          './/{{{0}}}upperCorner'.format(NS_DICT['gml']))
-        envelope_dict = {'lower corner': float(cored_interval_lower_corner), 
+        envelope_dict = {'lower corner': float(cored_interval_lower_corner),
                          'upper corner': float(cored_interval_upper_corner)}
-        self.boreholes[-1].add_detail('cored interval', envelope_dict)
+        self.boreholes[-1].add_detail('cored interval', envelope_dict,
+                                      PropertyType(name='envelope', 
+                                                   long_name='cored interval  envelope', 
+                                                   description='cored interval envelope '
+                                                               'lower and upper corner',
+                                                   units=cored_interval_units))
                        
     def _add_gsmlbh_borehole_details(self, borehole_elt, details_elt):
         """Add borehole details from a GeoSciML 3.0 Borehole or BoreholeDetails element.
