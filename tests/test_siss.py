@@ -1,23 +1,17 @@
 """ file: test_siss.py
 
     author: David Benn
-            CSIRO IM&T Science Data Services
+            CSIRO IM&T Scientific Computing Data Processing Services
     date: 18 February 2014
 
-    description: Test of siss module for creating PropertyType objects from
-                 GeoSciML.
+    description: Test of siss module for creating Borehole objects populated
+                 with GeoSciML metadata as borehole details.
 """
 
-from owslib.wfs import WebFeatureService
-import pyboreholes.importers.nvcl as nvcl
 import urllib
-import xml.etree.ElementTree
 
 import pyboreholes as pybh
 import unittest
-
-from pprint import pprint
-
 
 class SissTest(unittest.TestCase):
 
@@ -25,10 +19,10 @@ class SissTest(unittest.TestCase):
         self.siss = pybh.SISSBoreholeGenerator()
 
     def test_geosciml_nvcl_scanned_borehole(self):
-        """ A test using one of the scanned borehole GeoSciML URLs returned by
-            nvcl.get_borehole_ids()
+        """ A test using an XML document corresponding to a scanned 
+            borehole GeoSciML URL.
         """
-        bh_urls = ['http://nvclwebservices.vm.csiro.au/resource/feature/' +
+        bh_urls = ['http://nvclwebservices.vm.csiro.au/resource/feature/' + 
                    'CSIRO/borehole/WTB5']
         boreholes = []
 
@@ -40,30 +34,41 @@ class SissTest(unittest.TestCase):
 
         expected_positions = {u'WTB5': u'latitude -28.4139, longitude 121.142'}
 
-        expected_details = {u'WTB5': u"{'drilling method': "
-                                     u"BoreholeDetail(name='drilling method', "
-                                     u"values='diamond core', "
-                                     u"property_type=None)}"}
+
+        expected_details = {u'WTB5': u"{'driller': "
+                                     u"BoreholeDetail(name='driller', "
+                                            u"values='GSWA', "
+                                            u"property_type=None), " 
+                                    u"'inclination type': "
+                                    u"BoreholeDetail(name='inclination type', "
+                                            u"values='vertical', "
+                                            u"property_type=None), "
+                                    u"'drilling method': "
+                                    u"BoreholeDetail(name='drilling method', "
+                                            u"values='diamond core', "
+                                            u"property_type=None), "
+                                    u"'cored interval': "
+                                    u"BoreholeDetail(name='cored interval', "
+                                            u"values={'lower corner': 106.0, "
+                                            u"'upper corner': 249.0}, "
+                                            u"property_type=None), "
+                                    u"'shape': "
+                                    u"BoreholeDetail(name='shape', "
+                                            u"values=[-28.4139, 121.142, " 
+                                            u"-28.4139, 121.142], "
+                                            u"property_type=None), "
+                                    u"'start point': "
+                                    u"BoreholeDetail(name='start point', "
+                                            u"values='natural ground surface', "
+                                            u"property_type=None), "
+                                    u"'date of drilling': "
+                                    u"BoreholeDetail(name='date of drilling', "
+                                            u"values=datetime.datetime(2004, " 
+                                            u"9, 17, 0, 0), "
+                                            u"property_type=None)}"}
 
         for borehole in boreholes:
             self.assertEquals(expected_positions[borehole.name],
                               str(borehole.origin_position))
             self.assertEquals(expected_details[borehole.name],
                               str(borehole.details))
-
-    def _test_wfs(self):
-        """ WFS test (exploratory)
-        """
-        providerkey = 'CSIRO'
-        endpoint = nvcl.NVCL_ENDPOINTS[providerkey]
-        wfs = WebFeatureService(endpoint['wfsurl'], version='1.1.0')
-        wfsresponse = wfs.getfeature(typename='gsml:Borehole', maxfeatures=5)
-        xmltree = xml.etree.ElementTree.parse(wfsresponse)
-        pprint(xmltree)
-        matches = xmltree.findall('.//{http://www.opengis.net/gml}id')
-        print matches
-        matches = xmltree.findall('.//{http://www.opengis.net/gml}Point')
-        print matches
-        matches = xmltree.findall(
-            './/{urn:cgi:xmlns:CGI:GeoSciML:2.0}Borehole')
-        print matches
