@@ -35,9 +35,9 @@ class SissTest(unittest.TestCase):
             bh_name = bh_url[bh_url.rfind('/')+1:]
             boreholes.append(self.siss.geosciml_to_borehole(bh_name, urllib.urlopen(bh_url)))
             
-        expected_positions = {u'WTB5': u'Origin position: latitude -28.4139, longitude 121.142'}
+        expected_positions = {u'WTB5': u'latitude -28.4139, longitude 121.142'}
 
-        expected_details = {u'WTB5': u"Borehole detail: BoreholeDetail(name='drilling method', values='diamond core', property_type=None)"}
+        expected_details = {u'WTB5': u"BoreholeDetail(name='drilling method', values='diamond core', property_type=None)"}
         
         for borehole in boreholes:
             self.assertEquals(expected_positions[borehole.name], str(borehole.origin_position))
@@ -59,4 +59,4 @@ class SissTest(unittest.TestCase):
         print matches
         matches = xmltree.findall('.//{urn:cgi:xmlns:CGI:GeoSciML:2.0}Borehole')
         print matches
-        
+                
