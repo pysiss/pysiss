@@ -1,6 +1,7 @@
 import matplotlib
 matplotlib.use('Agg')
 #import pyboreholes as pybh
+
 import pyboreholes.importers.nvcl as nvcl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -15,7 +16,8 @@ print 'First borehole from {0} has id "{1}"'.format(providerkey, title)
 
 # Query the datasets available
 ident, name, om_url = nvcl.get_borehole_datasets(endpoint['dataurl'], title)[0]
-print '\nBorehole {0}\'s first dataset has ident "{1}" and name "{2}"'.format(title, ident, name)
+print '\nBorehole {0}\'s first dataset has ident "{1}" and name "{2}"'.format(
+    title, ident, name)
 
 # Query the analytes available
 analytes = nvcl.get_logged_analytes(endpoint['dataurl'], ident)
@@ -24,7 +26,7 @@ an_idents = [i for i, n in analytes]
 an_names = [n for i, n in analytes]
 print 'The first few analytes read {0}'.format(an_names[0:4])
 
-# Make a request for the data in CSV format, parse and generate a Borehole instance
+# Make a request for the data in CSV format, parse and generate a Borehole
 print '\nThe formatted pyborehole.Borehole object:'
 bh = nvcl.get_analytes_as_borehole(nvcl.NVCL_ENDPOINTS['CSIRO']['dataurl'], scanned_bh_url, 
                                    name, *an_idents[0:4])
@@ -32,7 +34,7 @@ print bh
 
 # Generate counts for the mineral groups in the borehole
 groups = {}
-for name in bh.sampling_domains['nvcl'].properties['GRP1UTSAS'].values:
+for name in bh.point_dataset['nvcl'].properties['GRP1UTSAS'].values:
     try:
         groups[name] += 1
     except KeyError:
@@ -51,9 +53,9 @@ fig = plt.figure(figsize=(6, 4))
 cmap = plt.get_cmap('RdYlBu')
 colors = [cmap(f) for f in np.linspace(0, 1, len(groups))]
 plt.pie(groups.values(),
-    labels=groups.keys(),
-    explode=0.03 * np.ones(len(groups)),
-    autopct=lambda x: '{0:1.0f}'.format(x),
-    colors=colors)
+        labels=groups.keys(),
+        explode=0.03 * np.ones(len(groups)),
+        autopct=lambda x: '{0:1.0f}'.format(x),
+        colors=colors)
 plt.axis('equal')
 fig.savefig('group_fractions.png')

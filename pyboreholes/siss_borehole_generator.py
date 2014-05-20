@@ -1,7 +1,7 @@
-""" file: siss.py
+""" file:   siss_borehole_generator.py (pyboreholes)
     author: David Benn
-            CSIRO IM&T Science Data Services 
-    date: 18 February 2014
+            CSIRO IM&T Science Data Services
+    date:   18 February 2014
 
     description: Borehole object creation from SISS GeoSciML metadata.
 """
@@ -18,6 +18,7 @@ NS_DICT = {'gml': 'http://www.opengis.net/gml',
            'xlink': 'http://www.w3.org/1999/xlink'}
               
 class SISSBoreholeGenerator:
+
     """ Spatial Information Services Stack class: creates borehole
         property type objects given GeoSciML input.
 
@@ -31,17 +32,20 @@ class SISSBoreholeGenerator:
         """ Construct a SISS instance.
         """
         self.boreholes = []
-    
+
     def geosciml_to_borehole(self, name, geo_source):
         """ Given a GeoSciML scanned borehole URL, return a Borehole object
             initialised with origin position and borehole details. In the case
-            where there is more than one Borehole element, the first will be returned. 
-        
-        :param name: The name to assign to the Borehole object
-        :type name: string
-        :param geo_source: A file-like object opened from a GeoSciML scanned borehole URL
-        :type geo_source: file-like object
-        :returns: a Borehole object initialised with origin position and borehole details
+            where there is more than one Borehole element, the first will be
+            returned.
+
+            :param name: The name to assign to the Borehole object
+            :type name: string
+            :param geo_source: A file-like object opened from a GeoSciML
+                scanned borehole URL
+            :type geo_source: file-like object
+            :returns: a Borehole object initialised with origin position and
+                borehole details
         """
         if geo_source is not None:
             geo_tree = xml.etree.ElementTree.parse(geo_source)
@@ -49,27 +53,26 @@ class SISSBoreholeGenerator:
 
             borehole = Borehole(name=name,
                                 origin_position=self._location(borehole_elt))
-                
             self.boreholes.append(borehole)
 
             self._add_borehole_details(borehole_elt)
-                
+
         return self.boreholes[0]
 
     def _get_borehole_elts(self, geo_tree):
         """ Return a list of GeoSciML Borehole elements taking into account
             tag namespace variations.
-        
-        :param geo_tree: a GeoSciML element tree
-        :type geo_tree: xml.etree.ElementTree
-        :returns: a list of Borehole elements  
+
+            :param geo_tree: a GeoSciML element tree
+            :type geo_tree: xml.etree.ElementTree
+            :returns: a list of Borehole elements
         """
         boreholes = []
         for ns_prefix in NS_DICT:
             boreholes = geo_tree.findall('.//{' + NS_DICT[ns_prefix] + '}Borehole')
             if len(boreholes) != 0:
                 break
-            
+
         return boreholes
 
     def _location(self, borehole_elt):
@@ -98,17 +101,16 @@ class SISSBoreholeGenerator:
                     # TODO: add elevation after merge
                     origin_position = OriginPosition(latitude=float(lat), longitude=float(lon))
                     break
-                
         return origin_position
-    
+
     def _add_borehole_details(self, borehole_elt):
-        """Add borehole details.
-        
-           This top-level method calls more specific methods to add
-           borehole details.
-           
-        :param borehole_elt: A GeoSciML Borehole element
-        :type borehole_elt: Element
+        """ Add borehole details.
+
+            This top-level method calls more specific methods to add
+            borehole details.
+
+            :param borehole_elt: A GeoSciML Borehole element
+            :type borehole_elt: Element
         """
         for ns_prefix in NS_DICT:
             details_elt = borehole_elt.find('.//{{{0}}}BoreholeDetails'.format(NS_DICT[ns_prefix]))
