@@ -1,6 +1,6 @@
 """ file:   siss_borehole_generator.py (pyboreholes)
     author: David Benn
-            CSIRO IM&T Science Data Services
+            CSIRO IM&T Scientific Computing Data Processing Services
     date:   18 February 2014
 
     description: Borehole object creation from SISS GeoSciML metadata.
@@ -8,8 +8,8 @@
 
 import xml.etree.ElementTree
 from datetime import datetime
-from properties import PropertyType
-from borehole import Borehole, OriginPosition
+from ..properties import PropertyType
+from ..borehole import Borehole, OriginPosition
 
 NS_DICT = {'gml': 'http://www.opengis.net/gml',
            'gsml': 'urn:cgi:xmlns:CGI:GeoSciML:2.0',
@@ -98,8 +98,10 @@ class SISSBoreholeGenerator:
                 if elevation_elt is not None:
                     elevation = float(elevation_elt.text)
                     elevation_units = elevation_elt.attrib['uomLabels']
-                    # TODO: add elevation after merge
-                    origin_position = OriginPosition(latitude=float(lat), longitude=float(lon))
+                    # TODO: add units to elevation
+                    origin_position = OriginPosition(latitude=float(lat), 
+                                                     longitude=float(lon),
+                                                     elevation=elevation)
                     break
         return origin_position
 

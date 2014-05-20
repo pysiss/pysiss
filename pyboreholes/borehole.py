@@ -244,20 +244,21 @@ class Survey(object):
 
 class OriginPosition(id_object):
 
-    """Representation of borehole origin position in terms of latitude
-       and longitude.
+    """Representation of borehole origin position in terms of latitude,
+       longitude, and elevation.
     """
 
-    def __init__(self, latitude, longitude):
-        super(OriginPosition, self).__init__(name=str((latitude, longitude)))
+    def __init__(self, latitude, longitude, elevation):
+        super(OriginPosition, self).__init__(name=str((latitude, longitude, elevation)))
         self.latitude = latitude
         self.longitude = longitude
+        self.elevation = elevation
 
     def __repr__(self):
         """ String representation
         """
-        info = "latitude {0}, longitude {1}"
-        return info.format(self.latitude, self.longitude)
+        info = "latitude {0}, longitude {1}, elevation {2}"
+        return info.format(self.latitude, self.longitude, self.elevation)
 
 
 class BoreholeDetails(Details):
