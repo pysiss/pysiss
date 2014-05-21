@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """ file:   __init__.py (pyboreholes)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
@@ -8,9 +7,9 @@
     description: Initialisation of the pyboreholes module.
 """
 
-from .borehole import Borehole, Feature, \
-    CoordinateReferenceSystem, Survey
-from .domains import Domain, \
-    SamplingDomain, IntervalDomain, WaveletDomain
+from .borehole import Borehole, Feature
+from .borehole_collection import BoreholeCollection
+from .datasets import DataSet, PointDataSet, IntervalDataSet 
 from .properties import Property, PropertyType
-from . import importers, plotting, analysis
+from pyboreholes.siss.borehole_generator import SISSBoreholeGenerator
+from . import importers, plotting, analysis, utilities

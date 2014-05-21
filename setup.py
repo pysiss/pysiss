@@ -22,19 +22,14 @@ if version < '2.2.3':
 ## PACKAGE INFORMATION
 setup(
     name='pyboreholes',
-    version='0.1.4',
+    version='0.2',
     description='Python functions for analysing borehole data',
     long_description=open('README.md').read(),
     author='Jess Robertson',
     author_email='jesse.robertson@csiro.au',
-    url='http://bitbucket.org/jessrobertson/pyboreholes',
+    url='https://stash.csiro.au/projects/DARDA/repos/python_boreholes/',
     packages=find_packages(),
-    requires=['numpy', 'matplotlib'],
-    extras_require={
-        "continuous_wavelets": ['cwavelets'],
-        "discrete_wavelets": ['pywavelets'],
-        "machine_learning": ['sklearn']
-    },
+    requires=['numpy', 'matplotlib', 'owslib'],
     ext_modules=[],
     classifiers=[
         'Development Status :: 1 - Planning',

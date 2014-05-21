@@ -5,7 +5,7 @@
 			"path": ".",
 			"name": "Project files",
 			"folder_exclude_patterns": ["pyboreholes", "tests", "logs", "build", "docs", "examples", "dist", "*.egg-info"],
-			"file_exclude_patterns": ["*.sublime-workspace"]
+			"file_exclude_patterns": ["*.sublime-workspace", ".coverage"]
 		},
 		{
 			"path": "pyboreholes",
@@ -16,7 +16,7 @@
 		{
 			"path": "examples",
 			"name": "Examples",
-			"folder_exclude_patterns": [],
+			"folder_exclude_patterns": [".ipynb_checkpoints"],
 			"file_exclude_patterns": []
 		},
 		{
@@ -46,11 +46,13 @@
 	[
 		{
 			"name": "Production build",
-			"cmd": ["python", "setup.py", "build"]
+			"cmd": ["./build_all.sh"],
+			"working_dir": "$project_path"
 		},
 		{
 			"name": "Install",
-			"cmd": ["python", "setup.py", "install"]
+			"cmd": ["python", "setup.py", "install", "--user"],
+			"working_dir": "$project_path"
 		}
 	]
 }
