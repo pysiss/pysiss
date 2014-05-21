@@ -129,6 +129,7 @@ class NVCLImporter(object):
                            'Registered endpoints: {0}'.format(registry.keys()))
 
         # Set up SISSBoreholeGenerator instance
+        # TODO: use this in get_borehole() instead of creating another instance?
         self.generator = SISSBoreholeGenerator()
 
     def __repr__(self):
