@@ -1,4 +1,4 @@
-""" file:   siss_borehole_generator.py (pyboreholes)
+""" file:   borehole_generator.py (pyboreholes)
     author: David Benn
             CSIRO IM&T Scientific Computing Data Processing Services
     date:   18 February 2014
@@ -19,18 +19,22 @@ NS_DICT = {'gml': 'http://www.opengis.net/gml',
               
 class SISSBoreholeGenerator:
 
-    """ Spatial Information Services Stack class: creates borehole
-        property type objects given GeoSciML input.
+    """ Spatial Information Services Stack borehole generator class.
+        Creates borehole objects from GeoSciML input.
 
-        The following GeoSciML version/namespace variations are handled:
+        The following GeoSciML namespace variations are handled:
 
             xmlns:gsml => urn:cgi:xmlns:CGI:GeoSciML:2.0
             xmlns:gsmlbh => http://xmlns.geosciml.org/Borehole/3.0
     """
 
     def __init__(self):
-        """ Construct a SISS instance.
+        """ Construct a SISS borehole generator instance.
         """
+        self.geosciml_handlers = {}
+        self.geosciml_handlers['gsml'] = self._add_gsml_borehole_details
+        self.geosciml_handlers['gsmlbh'] = self._add_gsmlbh_borehole_details
+
         self.boreholes = []
 
     def geosciml_to_borehole(self, name, geo_source):
@@ -47,15 +51,21 @@ class SISSBoreholeGenerator:
             :returns: a Borehole object initialised with origin position and
                 borehole details
         """
+        # TODO: If the expectation is that only one borehole element should be found,
+        #       should we raise an exception if there is more than one? Or, should we
+        #       check that the name is the same as the borehole's identifier? Since the
+        #       caller can currently pass whatever name he/she desires, that test may 
+        #       fail of course.
         if geo_source is not None:
             geo_tree = xml.etree.ElementTree.parse(geo_source)
-            borehole_elt = self._get_borehole_elts(geo_tree)[0]
+            borehole_elts = self._get_borehole_elts(geo_tree)
 
-            borehole = Borehole(name=name,
-                                origin_position=self._location(borehole_elt))
-            self.boreholes.append(borehole)
-
-            self._add_borehole_details(borehole_elt)
+            if len(borehole_elts) != 0:
+                borehole = Borehole(name=name,
+                                    origin_position=self._location(borehole_elts[0]))
+                self.boreholes.append(borehole)
+    
+                self._add_borehole_details(borehole_elts[0])
 
         return self.boreholes[0]
 
@@ -116,13 +126,9 @@ class SISSBoreholeGenerator:
         """
         for ns_prefix in NS_DICT:
             details_elt = borehole_elt.find('.//{{{0}}}BoreholeDetails'.format(NS_DICT[ns_prefix]))
-            # TODO: add another dict that maps ns_prefix to XPath string, avoiding conditional below;
-            #       this will only work given enough symmetry between GeoSciML 2.0 and 3.0 
             if details_elt is not None:
-                if ns_prefix == 'gsml':
-                    self._add_gsml_borehole_details(borehole_elt, details_elt)
-                else:
-                    self._add_gsmlbh_borehole_details(borehole_elt, details_elt)
+                if ns_prefix in ('gsml', 'gsmlbh'):
+                    return self.geosciml_handlers[ns_prefix](borehole_elt, details_elt)
                 break
 
     def _add_gsml_borehole_details(self, borehole_elt, details_elt):
