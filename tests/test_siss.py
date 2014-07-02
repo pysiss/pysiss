@@ -8,16 +8,45 @@
                  with GeoSciML metadata as borehole details.
 """
 
+from datetime import datetime
+import os
+import unittest
 import urllib
 
-import pyboreholes as pyph
-import unittest
+import pyboreholes as pybh
  
 class SissTest(unittest.TestCase):
 
     def setUp(self):
-        self.siss = pyph.SISSBoreholeGenerator()
+        self.siss = pybh.SISSBoreholeGenerator()
+        self.test_dir = os.path.dirname(os.path.realpath(__file__))
 
+    def test_geosciml_2_borehole(self):
+        """ A test of GeoSciML 2.0 handling in SISSBoreholeGenerator.
+            Here we read a test XML file.
+        """
+        xml_file = "{0}/geosciml/geo2test.xml".format(self.test_dir)
+        bh = self.siss.geosciml_to_borehole("geosciml2_test", xml_file)
+        
+        self.assertEquals('DMITRE', bh.details.get('driller').values)
+        self.assertEquals('Diamond', bh.details.get('drilling method').values)
+        self.assertEquals(datetime(year=2009, month=7, day=27),
+                          bh.details.get('date of drilling').values)
+        self.assertEquals('natural ground surface', bh.details.get('start point').values)
+        self.assertEquals('vertical', bh.details.get('inclination type').values)
+        self.assertEquals([90.0, 0.0, 90.0, 0.0], bh.details.get('shape').values)
+        self.assertEquals({'lower corner': 279.0, 'upper corner': 351.29},
+                          bh.details.get('cored interval').values)
+        self.assertEquals('m', bh.details.get('cored interval').property_type.units)
+        
+    def test_geosciml_3_borehole(self):
+        """ A test of GeoSciML 3.0 handling in SISSBoreholeGenerator.
+            Here we read a test XML file.
+        """
+        xml_file = "{0}/geosciml/geo3test.xml".format(self.test_dir)
+        bh = self.siss.geosciml_to_borehole("geosciml3_test", xml_file)
+        # TODO ...
+            
     def test_geosciml_nvcl_scanned_borehole(self):
         """ A test using an XML document corresponding to a scanned 
             borehole GeoSciML URL.

@@ -67,7 +67,6 @@ class Borehole(id_object):
         super(Borehole, self).__init__(name=name)
         self.name = name
         self.origin_position = origin_position
-        self.details = BoreholeDetails()
         self.survey = None
         self.features = dict()
         self.details = BoreholeDetails()

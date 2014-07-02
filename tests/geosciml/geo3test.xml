@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wfs:FeatureCollection
+    xsi:schemaLocation="http://www.opengis.net/wfs/2.0 http://schemas.opengis.net/wfs/2.0/wfs.xsd
+    http://www.opengis.net/gml/3.2 http://schemas.opengis.net/gml/3.2.1/gml.xsd
+    http://xmlns.geosciml.org/GeoSciML-Core/3.0 http://schemas.geosciml.org/geosciml-core/3.0/geosciml-core.xsd
+    http://xmlns.geosciml.org/Borehole/3.0 http://schemas.geosciml.org/borehole/3.0/borehole.xsd
+    http://xmlns.geosciml.org/GeologicUnit/3.0 http://schemas.geosciml.org/geologicunit/3.0/geologicUnit.xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:wfs="http://www.opengis.net/wfs/2.0"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:gsml="http://xmlns.geosciml.org/GeoSciML-Core/3.0"
+    xmlns:gsmlgu="http://xmlns.geosciml.org/GeologicUnit/3.0"
+    xmlns:gsmlu="http://xmlns.geosciml.org/Utilities/3.0"
+    xmlns:gsmlbh="http://xmlns.geosciml.org/Borehole/3.0" 
+    xmlns:swe="http://www.opengis.net/swe/2.0"
+    xmlns:gmd="http://www.isotc211.org/2005/gmd" 
+    xmlns:gco="http://www.isotc211.org/2005/gco"
+    xmlns:sams="http://www.opengis.net/samplingSpatial/2.0"
+    xmlns:sa="http://www.opengis.net/sampling/2.0" 
+    xmlns:xlink="http://www.w3.org/1999/xlink" timeStamp="2011-09-23T12:00:00" numberMatched="1" numberReturned="1">
+
+    <!-- ================================================================================================================       -->
+    <!--        Testbed4 - GeoSciML v3 Release Candidate 3                                                                                                                                  -->
+    <!--        Handcrafted Borehole Class instance document - GTK - metadata info for INSPIRE                                                                  -->
+    <!--            Document version: 1.0                                                                                                                                       -->
+    <!--        Author: Jouni Vuollo, GTK (jouni.vuollo@gtk.fi)                                                                                                                                                     -->
+    <!-- ================================================================================================================       -->
+    
+    <wfs:member>
+        <gsmlbh:Borehole gml:id="M371484R308">
+            <sa:sampledFeature/> 
+            <!-- Defines the SampledFeature of the the borehole, this can be inLine or byReference -->
+            <sams:shape>
+                <!-- The Real-world shape of the borehole. It has to be a gml:_Geometry such as gml:LineString, gml:Curve, ...-->
+                <!-- I'm using a gml:CompositeCurve to represent a curved hole recorded by 3 subsequent line segments -->
+                <gml:CompositeCurve gml:id="M371484R308_curve">
+                    <gml:description>The 'real-world' shape of the drill hole. This is calculated from the borehole survey data.</gml:description>
+                    <gml:curveMember>
+                        <gml:LineString gml:id="M371484R308_curve_segment_1">
+                            <gml:posList srsDimension="3"
+                                srsName="http://www.opengis.net/def/crs/EPSG/0/4939">-25.0 119.0 210
+                                -25.0 119.01 177</gml:posList>
+                        </gml:LineString>
+                    </gml:curveMember>
+                    <gml:curveMember>
+                        <gml:LineString gml:id="M371484R308_curve_segment_2">
+                            <gml:posList srsDimension="3"
+                                srsName="http://www.opengis.net/def/crs/EPSG/0/4939">-25.0 119.01
+                                177 -25.013 119.012 125</gml:posList>
+                        </gml:LineString>
+                    </gml:curveMember>
+                    <gml:curveMember>
+                        <gml:LineString gml:id="M371484R308_curve_segment_3">
+                            <gml:posList srsDimension="3"
+                                srsName="http://www.opengis.net/def/crs/EPSG/0/4939">-25.013 119.012
+                                125 -25.014 119.014 88</gml:posList>
+                        </gml:LineString>
+                    </gml:curveMember>
+                </gml:CompositeCurve>
+            </sams:shape>
+            <gsmlbh:referenceLocation>
+                <!-- the previsouly knwon 'collar' information -->
+                <gsmlbh:OriginPosition gml:id="M371484R308_pos">
+                    <gsmlbh:location>
+                        <gml:Point gml:id="M371484R308_collar_location"
+                            srsName="http://www.opengis.net/def/crs/EPSG/0/4283" srsDimension="2">
+                            <gml:description>Rotary Table Position</gml:description>
+                            <gml:pos>-25.0 119.0</gml:pos>
+                        </gml:Point>
+                    </gsmlbh:location>
+                    <gsmlbh:elevation srsName="http://www.opengis.net/def/crs/EPSG/0/5711"
+                        srsDimension="1" uomLabels="m">210.0</gsmlbh:elevation>
+                </gsmlbh:OriginPosition>
+            </gsmlbh:referenceLocation>
+            <gsmlbh:indexData>
+                <gsmlbh:BoreholeDetails>
+                    <gsmlbh:operator xlink:href="http://www.example.org/au/URI" xlink:title="Gelogical Survey of Finland"/>
+                    <gsmlbh:driller xlink:href="http://www.example.org/nz/URI" xlink:title="Gelogical Survey of Finland"/>
+                    <gsmlbh:dateOfDrilling>
+                        <gml:TimePeriod gml:id="cisor_borehole_1_drillingPeriod">
+                            <gml:begin>
+                                <gml:TimeInstant gml:id="M371484R308_drillingPeriod_begin">
+                                    <gml:timePosition>1984-05-15</gml:timePosition>
+                                </gml:TimeInstant>
+                            </gml:begin>
+                            <gml:end>
+                                <gml:TimeInstant gml:id="M371484R308_drillingPeriod_end">
+                                    <gml:timePosition>1984-05-16</gml:timePosition>
+                                </gml:TimeInstant>
+                            </gml:end>
+                        </gml:TimePeriod>
+                    </gsmlbh:dateOfDrilling>
+                    <gsmlbh:startPoint xlink:href="http://resource.geosciml.org/classifier/cgi/boreholestartpoint/0003"
+                            xlink:title="natural ground surface"/>
+                    <gsmlbh:inclinationType xlink:href="http://resource.geosciml.org/classifier/cgi/boreholeinclination/0002" 
+                            xlink:title="inclined down" />
+                    <gsmlbh:boreholeMaterialCustodian
+                        xlink:href="http://www.gtk.fi/geotieto/kaira/"
+                        xlink:title="Gelogical Survey of Finland"/>
+                    <gsmlbh:purpose/>
+                    <gsmlbh:dataCustodian
+                        xlink:href="http://www.gtk.fi/geotieto/viitetiedot/Loppi.html"
+                        xlink:title="Gelogical Survey of Finland"/>
+                    <gsmlbh:boreholeLength>
+                        <swe:Quantity>
+                            <swe:description>The total length of the core</swe:description>
+                            <swe:uom code="m"/>
+                            <swe:value>91.7</swe:value>
+                        </swe:Quantity>
+                    </gsmlbh:boreholeLength>
+                </gsmlbh:BoreholeDetails>
+            </gsmlbh:indexData>
+            <gsmlbh:downholeDrillingDetails>
+                <gsmlbh:DrillingDetails>
+                    <gsmlbh:drillingMethod xlink:href="http://resource.geosciml.org/classifier/cgi/boreholedrillingmethod/0004"
+                        xlink:title="diamond core"/>
+                    <gsmlbh:boreholeDiameter>
+                        <swe:Quantity>
+                            <swe:uom code="[mm]"/>
+                            <swe:value>42</swe:value>
+                        </swe:Quantity>
+                    </gsmlbh:boreholeDiameter>
+                    <gsmlbh:interval>
+                        <gml:LineString gml:id="M371484R308_drilling_interval"
+                            srsName="#M371484R308_curve" srsDimension="1">
+                            <gml:posList>0 125</gml:posList>
+                        </gml:LineString>
+                    </gsmlbh:interval>
+                    <!-- I believe the interval note should be amended, indeed a "Borehole" has no SRS, so a srsName must be defined and it should be the Shape of the Borehole -->
+                </gsmlbh:DrillingDetails>
+            </gsmlbh:downholeDrillingDetails>
+            <gsmlbh:logElement>
+                <gsmlbh:MappedInterval gml:id="Fake_id">
+                    <gsml:observationMethod/>
+                    <gsml:positionalAccuracy xsi:nil="true" nilReason="missing"/>
+                    <gsml:resolutionScale/>
+                    <gsml:samplingFrame/>
+                    <gsml:shape>
+                        <gml:LineString gml:id="logElementShape_1" srsName="#M371484R308_curve" srsDimension="1">
+                            <gml:posList>0 25</gml:posList>
+                        </gml:LineString>
+                    </gsml:shape>
+                    <gsml:specification xlink:href="#someGeologicUnitURI_alreadyDefinedInTheSampledFeatureList"/>
+                    <gsml:metadata> <!-- if you want to enrich the log with some metadata -->
+                        <gmd:MD_Metadata>
+                            <gmd:contact/>
+                            <gmd:dateStamp/>
+                            <gmd:identificationInfo>
+                                <gmd:MD_DataIdentification>
+                                    <gmd:citation/>
+                                    <gmd:abstract/>
+                                    <gmd:language/>
+                                </gmd:MD_DataIdentification>
+                            </gmd:identificationInfo>
+                        </gmd:MD_Metadata>
+                    </gsml:metadata>
+                </gsmlbh:MappedInterval>
+            </gsmlbh:logElement>
+        </gsmlbh:Borehole>
+    </wfs:member>
+</wfs:FeatureCollection>
