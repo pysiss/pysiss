@@ -25,8 +25,12 @@ class SissTest(unittest.TestCase):
         """ A test of GeoSciML 2.0 handling in SISSBoreholeGenerator.
             Here we read a test XML file.
         """
-        xml_file = "{0}/geosciml/geo2test.xml".format(self.test_dir)
-        bh = self.siss.geosciml_to_borehole("geosciml2_test", xml_file)
+        xml_file = '{0}/geosciml/geo2test.xml'.format(self.test_dir)
+        bh = self.siss.geosciml_to_borehole('geosciml2_test', xml_file)
+        
+        self.assertEquals(-29.804238, bh.origin_position.latitude)
+        self.assertEquals(139.007411, bh.origin_position.longitude)
+        self.assertEquals(0.0, bh.origin_position.elevation)
         
         self.assertEquals('DMITRE', bh.details.get('driller').values)
         self.assertEquals('Diamond', bh.details.get('drilling method').values)
