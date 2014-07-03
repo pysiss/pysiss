@@ -247,18 +247,22 @@ class OriginPosition(id_object):
        longitude, and elevation.
     """
 
-    def __init__(self, latitude, longitude, elevation):
-        super(OriginPosition, self).__init__(name=str((latitude, longitude, elevation)))
+    def __init__(self, latitude, longitude, elevation, property_type=None):
+        super(OriginPosition, self).__init__(name=str((latitude, longitude,
+                                                       elevation, property_type)))
         self.latitude = latitude
         self.longitude = longitude
         self.elevation = elevation
+        self.property_type = property_type
 
     def __repr__(self):
         """ String representation
         """
         info = "latitude {0}, longitude {1}, elevation {2}"
-        return info.format(self.latitude, self.longitude, self.elevation)
-
+        info = info.format(self.latitude, self.longitude, self.elevation)
+        if self.property_type is not None:
+            info = (info + ", {0}").format(self.property_type) 
+        return info
 
 class BoreholeDetails(Details):
 
