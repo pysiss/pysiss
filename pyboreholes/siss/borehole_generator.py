@@ -299,7 +299,12 @@ class SISSBoreholeGenerator:
         :param details_elt: A GeoSciML 3.0 BoreholeDetails element
         :type details_elt: Element
         """
-        pass
+
+        # Driller
+        driller_xpath = './/{{{0}}}driller'.format(NS['gsmlbh'])
+        driller_attrib_xpath = '{{{0}}}title'.format(NS['xlink'])
+        driller = self._element_attrib(details_elt, driller_xpath, driller_attrib_xpath)
+        self.boreholes[-1].add_detail('driller', driller)
     
     def _element_text(self, element, xpath_str):
         """Look for and return the detail corresponding to the text 

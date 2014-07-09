@@ -56,7 +56,7 @@ class SissTest(unittest.TestCase):
         self.assertEquals(210.0 * self.siss.unit_reg.meter, bh.origin_position.elevation)
         self.assertEquals('description: Rotary Table Position', bh.origin_position.property_type.description)
 
-        # TODO: borehole details assertions
+        self.assertEquals('Gelogical Survey of Finland', bh.details.get('driller').values)
 
     def test_geosciml_nvcl_scanned_borehole(self):
         """ A test using an XML document corresponding to a scanned 
