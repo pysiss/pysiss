@@ -365,7 +365,8 @@ class SISSBoreholeGenerator:
         # Notes: 
         # o This is a child of the Borehole element rather than BoreholeDetails.
         # o Currently chooses the first one (if more than one exists).
-        shape_xpath = './/{{{0}}}shape/{{{1}}}CompositeCurve/{{{2}}}curveMember/{{{3}}}LineString/{{{4}}}posList'
+        shape_xpath = './/{{{0}}}shape/{{{1}}}CompositeCurve/{{{2}}}curveMember' \
+                      '/{{{3}}}LineString/{{{4}}}posList'
         shape = \
             self._element_text(borehole_elt,
                                shape_xpath.format(SHAPE_NS['gsmlbh'],
