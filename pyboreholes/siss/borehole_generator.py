@@ -6,6 +6,7 @@
     description: Borehole object creation from SISS GeoSciML metadata.
 """
 
+import re
 import xml.etree.ElementTree
 from datetime import datetime
 from pint import UnitRegistry
@@ -35,6 +36,9 @@ class SISSBoreholeGenerator:
 
             xmlns:gsml => urn:cgi:xmlns:CGI:GeoSciML:2.0
             xmlns:gsmlbh => http://xmlns.geosciml.org/Borehole/3.0
+            
+        Borehole details that are in common across GeoSciML 2.0 and 3.0
+        are extracted.
     """
 
     def __init__(self):
@@ -46,14 +50,17 @@ class SISSBoreholeGenerator:
         self.geosciml_handlers['gsml'] = self._add_gsml_borehole_details
         self.geosciml_handlers['gsmlbh'] = self._add_gsmlbh_borehole_details
 
-        self.boreholes = []
+        self.whitespace_pattern = re.compile('\s+')
+        
+        self.geo_tree = None
+        self.borehole = None
 
     """
-    TODO: If the expectation is that only one borehole element should be 
-          found, should we raise an exception if there is more than one?
-          Or, should we check that the name is the same as the borehole's 
-          identifier? Since the caller can currently pass whatever name 
-          he/she desires, that test may fail of course.
+    Question: If the expectation is that only one borehole element should be 
+              found, should we raise an exception if there is more than one?
+              Or, should we check that the name is the same as the borehole's 
+              identifier? Since the caller can currently pass whatever name 
+              he/she desires, that test may fail of course.
     """
     
     def geosciml_to_borehole(self, name, geo_source):
@@ -71,17 +78,16 @@ class SISSBoreholeGenerator:
                 borehole details
         """
         if geo_source is not None:
-            geo_tree = xml.etree.ElementTree.parse(geo_source)
-            borehole_elts = self._get_borehole_elts(geo_tree)
+            self.geo_tree = xml.etree.ElementTree.parse(geo_source)
+            borehole_elts = self._get_borehole_elts(self.geo_tree)
 
             if len(borehole_elts) != 0:
-                borehole = Borehole(name=name,
+                self.borehole = Borehole(name=name,
                             origin_position=self._location(borehole_elts[0]))
-                self.boreholes.append(borehole)
     
                 self._add_borehole_details(borehole_elts[0])
 
-        return self.boreholes[0]
+        return self.borehole
 
     def _get_borehole_elts(self, geo_tree):
         """ Return a list of GeoSciML Borehole elements taking into account
@@ -224,13 +230,13 @@ class SISSBoreholeGenerator:
         driller_attrib_xpath = '{{{0}}}title'.format(NS['xlink'])
         driller = self._element_attrib(details_elt, driller_xpath, 
                                        driller_attrib_xpath)
-        self.boreholes[-1].add_detail('driller', driller)
+        self.borehole.add_detail('driller', driller)
 
         # Drilling method
         drilling_method = \
             self._element_text(details_elt,
                                './/{{{0}}}drillingMethod'.format(NS['gsml']))
-        self.boreholes[-1].add_detail('drilling method', drilling_method)
+        self.borehole.add_detail('drilling method', drilling_method)
         
         # Date of drilling
         date_of_drilling = \
@@ -238,36 +244,33 @@ class SISSBoreholeGenerator:
                                './/{{{0}}}dateOfDrilling'.format(NS['gsml']))
         year, month, day = date_of_drilling.split('-')
         date = datetime(year=int(year), month=int(month), day=int(day))
-        self.boreholes[-1].add_detail('date of drilling', date)
+        self.borehole.add_detail('date of drilling', date)
 
         # Borehole start point
         start_point = \
             self._element_text(details_elt,
                                './/{{{0}}}startPoint'.format(NS['gsml']))
-        self.boreholes[-1].add_detail('start point', start_point)
+        self.borehole.add_detail('start point', start_point)
         
         # Borehole inclination type
         inclination_type = \
             self._element_text(details_elt,
                                './/{{{0}}}inclinationType'.format(NS['gsml']))
-        self.boreholes[-1].add_detail('inclination type', inclination_type)
+        self.borehole.add_detail('inclination type', inclination_type)
         
         # Borehole shape
-        # TODO: units
         # Note: This is a child of the Borehole element rather than
-        #       BoreholeDetails. It seems reasonable to add it as a
-        #       borehole detail however. 
+        #       BoreholeDetails. 
         shape_xpath = './/{{{0}}}shape/{{{1}}}LineString/{{{2}}}posList'
         shape = \
             self._element_text(borehole_elt,
                                shape_xpath.format(SHAPE_NS['gsml'],
                                                   GML_NS['gsml'], 
                                                   GML_NS['gsml']))
-        shape_list = [float(x) for x in shape.split(' ')]
-        self.boreholes[-1].add_detail('shape', shape_list)
+        shape_list = [float(x) for x in self.whitespace_pattern.split(shape)]
+        self.borehole.add_detail('shape', shape_list)
         
         # Borehole cored interval
-        # TODO: units
         cored_interval_xpath = \
             './/{{{0}}}coredInterval/{{{1}}}Envelope[@uomLabels]'
         cored_interval_elt = \
@@ -275,20 +278,27 @@ class SISSBoreholeGenerator:
                                                          GML_NS['gsml']))
         cored_interval_units = \
             self.unit_reg[cored_interval_elt.attrib['uomLabels']]
+            
         cored_interval_lower_corner = \
-            self._element_text(details_elt,
+            self._element_text(cored_interval_elt,
                                './/{{{0}}}lowerCorner'.format(GML_NS['gsml']))
         cored_interval_upper_corner = \
-            self._element_text(details_elt, 
+            self._element_text(cored_interval_elt, 
                                './/{{{0}}}upperCorner'.format(GML_NS['gsml']))
-        envelope_dict = {'lower corner': float(cored_interval_lower_corner),
-                         'upper corner': float(cored_interval_upper_corner)}
-        self.boreholes[-1].add_detail('cored interval', envelope_dict,
+            
+        lower_corner = float(cored_interval_lower_corner)*cored_interval_units
+        upper_corner = float(cored_interval_upper_corner)*cored_interval_units
+        envelope_dict = {'lower corner': lower_corner,
+                         'upper corner': upper_corner}
+        
+        # Question: How useful is the property here in fact if we have units
+        #           for each value?
+        self.borehole.add_detail('cored interval', envelope_dict,
                             PropertyType(name='envelope',
                                          long_name='cored interval envelope',
                                          description='cored interval envelope '
                                                      'lower and upper corner',
-                                                   units=cored_interval_units))
+                                         units=cored_interval_units))
                        
     def _add_gsmlbh_borehole_details(self, borehole_elt, details_elt):
         """Add borehole details from a GeoSciML 3.0 Borehole or
@@ -303,9 +313,89 @@ class SISSBoreholeGenerator:
         # Driller
         driller_xpath = './/{{{0}}}driller'.format(NS['gsmlbh'])
         driller_attrib_xpath = '{{{0}}}title'.format(NS['xlink'])
-        driller = self._element_attrib(details_elt, driller_xpath, driller_attrib_xpath)
-        self.boreholes[-1].add_detail('driller', driller)
-    
+        driller = self._element_attrib(details_elt, driller_xpath, 
+                                       driller_attrib_xpath)
+        self.borehole.add_detail('driller', driller)
+
+        # Drilling method
+        # Note:  This is a child of the Borehole element rather than
+        #        BoreholeDetails. 
+        drilling_method_xpath = ('.//{{{0}}}downholeDrillingDetails'
+                                 '/{{{1}}}DrillingDetails'
+                                 '/{{{2}}}drillingMethod'). \
+                                 format(NS['gsmlbh'], 
+                                        NS['gsmlbh'], 
+                                        NS['gsmlbh'])                                 
+        drilling_method_attrib_xpath = '{{{0}}}title'.format(NS['xlink'])
+        drilling_method = self._element_attrib(borehole_elt, 
+                                               drilling_method_xpath, 
+                                               drilling_method_attrib_xpath)
+        self.borehole.add_detail('drilling method', drilling_method)
+
+        # Date of drilling
+        # Note: Both start and end time are available; currently extracting
+        #       only start time.
+        date_of_drilling_xpath = ('.//{{{0}}}dateOfDrilling/{{{1}}}TimePeriod'
+                                  '/{{{2}}}begin/{{{3}}}TimeInstant'
+                                  '/{{{4}}}timePosition').format(NS['gsmlbh'],
+                                                        GML_NS['gsmlbh'],
+                                                        GML_NS['gsmlbh'], 
+                                                        GML_NS['gsmlbh'], 
+                                                        GML_NS['gsmlbh'])
+        date_of_drilling = self._element_text(details_elt, date_of_drilling_xpath)
+        year, month, day = date_of_drilling.split('-')
+        date = datetime(year=int(year), month=int(month), day=int(day))
+        self.borehole.add_detail('date of drilling', date)
+
+        # Borehole start point
+        start_point_xpath = './/{{{0}}}startPoint'.format(NS['gsmlbh'])
+        start_point_attrib_xpath = '{{{0}}}title'.format(NS['xlink'])
+        start_point = self._element_attrib(details_elt, start_point_xpath, 
+                                           start_point_attrib_xpath)
+        self.borehole.add_detail('start point', start_point)
+
+        # Borehole inclination type
+        inclination_type_xpath = './/{{{0}}}inclinationType'.format(NS['gsmlbh'])
+        inclination_type_attrib_xpath = '{{{0}}}title'.format(NS['xlink'])
+        inclination_type = self._element_attrib(details_elt, inclination_type_xpath, 
+                                                inclination_type_attrib_xpath)
+        self.borehole.add_detail('inclination type', inclination_type)
+        
+        # Borehole shape
+        # Notes: 
+        # o This is a child of the Borehole element rather than BoreholeDetails.
+        # o Currently chooses the first one (if more than one exists).
+        shape_xpath = './/{{{0}}}shape/{{{1}}}CompositeCurve/{{{2}}}curveMember/{{{3}}}LineString/{{{4}}}posList'
+        shape = \
+            self._element_text(borehole_elt,
+                               shape_xpath.format(SHAPE_NS['gsmlbh'],
+                                                  GML_NS['gsmlbh'],
+                                                  GML_NS['gsmlbh'], 
+                                                  GML_NS['gsmlbh'],
+                                                  GML_NS['gsmlbh']))
+        shape_list = [float(x) for x in self.whitespace_pattern.split(shape)]
+        self.borehole.add_detail('shape', shape_list)
+        
+        # Borehole cored interval
+        # Note: No units; haven't used a PropertyType here.
+        cored_interval_xpath = ('.//{{{0}}}downholeDrillingDetails'
+                                 '/{{{1}}}DrillingDetails'
+                                 '/{{{2}}}interval/{{{3}}}LineString'
+                                 '/{{{4}}}posList'). \
+                                 format(NS['gsmlbh'], 
+                                        NS['gsmlbh'], 
+                                        NS['gsmlbh'],
+                                        GML_NS['gsmlbh'], GML_NS['gsmlbh'])
+        
+        cored_interval = self._element_text(borehole_elt, 
+                                            cored_interval_xpath)
+        cored_interval_list = self.whitespace_pattern.split(cored_interval)
+        lower_corner = float(cored_interval_list[0])
+        upper_corner = float(cored_interval_list[1])
+        envelope_dict = {'lower corner': lower_corner,
+                         'upper corner': upper_corner}
+        self.borehole.add_detail('cored interval', envelope_dict)
+        
     def _element_text(self, element, xpath_str):
         """Look for and return the detail corresponding to the text 
            of the child element found by the specified XPath search
