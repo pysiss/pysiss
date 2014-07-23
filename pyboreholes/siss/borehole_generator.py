@@ -4,6 +4,13 @@
     date:   18 February 2014
 
     description: Borehole object creation from SISS GeoSciML metadata.
+
+Notes: 
+o If the expectation is that only one borehole element should be 
+  found, should we raise an exception if there is more than one?
+  Or, should we check that the name is the same as the borehole's 
+  identifier? Since the caller can currently pass whatever name 
+  he/she desires, that test may fail.
 """
 
 import re
@@ -19,7 +26,7 @@ NS = {'gsml': 'urn:cgi:xmlns:CGI:GeoSciML:2.0',
       'gsmlbh': 'http://xmlns.geosciml.org/Borehole/3.0',
       'xlink': 'http://www.w3.org/1999/xlink'}
 
-# GeoSciML version dependent 'gml' namespace URIs
+# GeoSciML version dependent gml namespace URIs
 GML_NS = {'gsml': 'http://www.opengis.net/gml',
           'gsmlbh': 'http://www.opengis.net/gml/3.2'}
 
@@ -46,22 +53,15 @@ class SISSBoreholeGenerator:
         """
         self.unit_reg = UnitRegistry() 
 
+        self.ns_key = None
+
         self.geosciml_handlers = {}
         self.geosciml_handlers['gsml'] = self._add_gsml_borehole_details
         self.geosciml_handlers['gsmlbh'] = self._add_gsmlbh_borehole_details
 
-        self.whitespace_pattern = re.compile('\s+')
-        
-        self.geo_tree = None
+        self.whitespace_pattern = re.compile(r'\s+')
+                
         self.borehole = None
-
-    """
-    Question: If the expectation is that only one borehole element should be 
-              found, should we raise an exception if there is more than one?
-              Or, should we check that the name is the same as the borehole's 
-              identifier? Since the caller can currently pass whatever name 
-              he/she desires, that test may fail of course.
-    """
     
     def geosciml_to_borehole(self, name, geo_source):
         """ Given a GeoSciML scanned borehole URL, return a Borehole object
@@ -78,8 +78,8 @@ class SISSBoreholeGenerator:
                 borehole details
         """
         if geo_source is not None:
-            self.geo_tree = xml.etree.ElementTree.parse(geo_source)
-            borehole_elts = self._get_borehole_elts(self.geo_tree)
+            geo_tree = xml.etree.ElementTree.parse(geo_source)
+            borehole_elts = self._get_borehole_elts(geo_tree)
 
             if len(borehole_elts) != 0:
                 self.borehole = Borehole(name=name,
@@ -101,6 +101,7 @@ class SISSBoreholeGenerator:
         for ns_prefix in ['gsml', 'gsmlbh']:
             boreholes = geo_tree.findall('.//{' + NS[ns_prefix] + '}Borehole')
             if len(boreholes) != 0:
+                self.ns_key = ns_prefix
                 break
 
         return boreholes
@@ -114,39 +115,37 @@ class SISSBoreholeGenerator:
         :returns: an OriginPosition instance (or None, if not found)
         """
         origin_position = None
-        for ns_prefix in ['gsml', 'gsmlbh']:
+        
+        latlon_xpath = './/{{{0}}}location/{{{1}}}Point/{{{2}}}pos'
+        latlon = _element_text(borehole_elt,
+                               latlon_xpath.format(NS[self.ns_key],
+                                                   GML_NS[self.ns_key],
+                                                   GML_NS[self.ns_key]))
+        if latlon is not None:
+            (lat, lon) = latlon.split(' ')
+         
+            elevation_xpath = './/{{{0}}}elevation[@uomLabels]'
+            elevation_elt = \
+                borehole_elt.find(elevation_xpath.format(NS[self.ns_key]))
             
-            latlon_xpath = './/{{{0}}}location/{{{1}}}Point/{{{2}}}pos'
-            latlon = self._element_text(borehole_elt,
-                                    latlon_xpath.format(NS[ns_prefix],
-                                                        GML_NS[ns_prefix],
-                                                        GML_NS[ns_prefix]))
-            if latlon is not None:
-                (lat, lon) = latlon.split(' ')
-             
-                elevation_xpath = './/{{{0}}}elevation[@uomLabels]'
-                elevation_elt = \
-                    borehole_elt.find(elevation_xpath.format(NS[ns_prefix]))
+            if elevation_elt is not None:
+                elevation_units = \
+                    self.unit_reg[elevation_elt.attrib['uomLabels']]
+            else:
+                elevation_units = None
                 
-                if elevation_elt is not None:
-                    elevation_units = \
-                        self.unit_reg[elevation_elt.attrib['uomLabels']]
-                else:
-                    elevation_units = None
-                    
-                if ns_prefix == 'gsml':
-                    property_type = \
-                        self._gsml_location_property(borehole_elt,
-                                                     elevation_units)
-                else:
-                    property_type = self._gsmlbh_location_property(borehole_elt)
-                    
-                origin_position = \
-                    OriginPosition(latitude=float(lat) * self.unit_reg.degree,
-                        longitude=float(lon) * self.unit_reg.degree,
-                        elevation=float(elevation_elt.text) * elevation_units,
-                        property_type=property_type)
-                break
+            if self.ns_key == 'gsml':
+                property_type = \
+                    self._gsml_location_property(borehole_elt,
+                                                 elevation_units)
+            else:
+                property_type = self._gsmlbh_location_property(borehole_elt)
+                
+            origin_position = \
+                OriginPosition(latitude=float(lat) * self.unit_reg.degree,
+                    longitude=float(lon) * self.unit_reg.degree,
+                    elevation=float(elevation_elt.text) * elevation_units,
+                    property_type=property_type)
 
         return origin_position
 
@@ -159,12 +158,11 @@ class SISSBoreholeGenerator:
         :type units: A Pint elevation unit (e.g. meters)
         :returns: a location (elevation) property (or None, if not found)
         """
-        ns_prefix = 'gsml'
         property_type = None
         
         elevation_desc_xpath = './/{{{0}}}elevation[@axisLabels]'
         elevation_elt = \
-            borehole_elt.find(elevation_desc_xpath.format(NS[ns_prefix]))
+            borehole_elt.find(elevation_desc_xpath.format(NS[self.ns_key]))
         if elevation_elt is not None:
             elevation_axis_desc = \
                 'elevation: {0}'.format(elevation_elt.attrib['axisLabels'])
@@ -182,15 +180,13 @@ class SISSBoreholeGenerator:
         :type borehole_elt: Element
         :returns: a location (description) property (or None, if not found)
         """
-        ns_prefix = 'gsmlbh'
-
         description_xpath = \
             './/{{{0}}}location/{{{1}}}Point/{{{2}}}description'
             
-        description_text = self._element_text(borehole_elt,
-                                        description_xpath.format(NS[ns_prefix],
-                                                  GML_NS[ns_prefix], 
-                                                  GML_NS[ns_prefix]))
+        description_text = _element_text(borehole_elt,
+                         description_xpath.format(NS[self.ns_key],
+                                                  GML_NS[self.ns_key],
+                                                  GML_NS[self.ns_key]))
         
         description_text = 'description: {0}'.format(description_text)
         
@@ -207,14 +203,11 @@ class SISSBoreholeGenerator:
             :param borehole_elt: A GeoSciML Borehole element
             :type borehole_elt: Element
         """
-        for ns_prefix in ['gsml', 'gsmlbh']:
-            details_elt = \
-            borehole_elt.find('.//{{{0}}}BoreholeDetails'.format(NS[ns_prefix]))
-            if details_elt is not None:
-                if ns_prefix in ('gsml', 'gsmlbh'):
-                    return self.geosciml_handlers[ns_prefix](borehole_elt,
-                                                             details_elt)
-                break
+        details_elt = \
+        borehole_elt.find('.//{{{0}}}BoreholeDetails'.format(NS[self.ns_key]))
+        if details_elt is not None:
+            return self.geosciml_handlers[self.ns_key](borehole_elt,
+                                                       details_elt)
 
     def _add_gsml_borehole_details(self, borehole_elt, details_elt):
         """Add borehole details from a GeoSciML 2.0 Borehole or
@@ -226,36 +219,32 @@ class SISSBoreholeGenerator:
         :type details_elt: Element
         """
         # Driller
-        driller_xpath = './/{{{0}}}driller'.format(NS['gsml'])
-        driller_attrib_xpath = '{{{0}}}title'.format(NS['xlink'])
-        driller = self._element_attrib(details_elt, driller_xpath, 
-                                       driller_attrib_xpath)
-        self.borehole.add_detail('driller', driller)
+        self._add_driller(details_elt)
 
         # Drilling method
         drilling_method = \
-            self._element_text(details_elt,
-                               './/{{{0}}}drillingMethod'.format(NS['gsml']))
+            _element_text(details_elt,
+                          './/{{{0}}}drillingMethod'.format(NS[self.ns_key]))
         self.borehole.add_detail('drilling method', drilling_method)
         
         # Date of drilling
         date_of_drilling = \
-            self._element_text(details_elt,
-                               './/{{{0}}}dateOfDrilling'.format(NS['gsml']))
+            _element_text(details_elt,
+                          './/{{{0}}}dateOfDrilling'.format(NS[self.ns_key]))
         year, month, day = date_of_drilling.split('-')
         date = datetime(year=int(year), month=int(month), day=int(day))
         self.borehole.add_detail('date of drilling', date)
 
         # Borehole start point
         start_point = \
-            self._element_text(details_elt,
-                               './/{{{0}}}startPoint'.format(NS['gsml']))
+            _element_text(details_elt,
+                          './/{{{0}}}startPoint'.format(NS[self.ns_key]))
         self.borehole.add_detail('start point', start_point)
         
         # Borehole inclination type
         inclination_type = \
-            self._element_text(details_elt,
-                               './/{{{0}}}inclinationType'.format(NS['gsml']))
+            _element_text(details_elt,
+                          './/{{{0}}}inclinationType'.format(NS[self.ns_key]))
         self.borehole.add_detail('inclination type', inclination_type)
         
         # Borehole shape
@@ -263,10 +252,10 @@ class SISSBoreholeGenerator:
         #       BoreholeDetails. 
         shape_xpath = './/{{{0}}}shape/{{{1}}}LineString/{{{2}}}posList'
         shape = \
-            self._element_text(borehole_elt,
-                               shape_xpath.format(SHAPE_NS['gsml'],
-                                                  GML_NS['gsml'], 
-                                                  GML_NS['gsml']))
+            _element_text(borehole_elt,
+                          shape_xpath.format(SHAPE_NS[self.ns_key],
+                                             GML_NS[self.ns_key],
+                                             GML_NS[self.ns_key]))
         shape_list = [float(x) for x in self.whitespace_pattern.split(shape)]
         self.borehole.add_detail('shape', shape_list)
         
@@ -274,20 +263,20 @@ class SISSBoreholeGenerator:
         cored_interval_xpath = \
             './/{{{0}}}coredInterval/{{{1}}}Envelope[@uomLabels]'
         cored_interval_elt = \
-            details_elt.find(cored_interval_xpath.format(NS['gsml'],
-                                                         GML_NS['gsml']))
+            details_elt.find(cored_interval_xpath.format(NS[self.ns_key],
+                                                         GML_NS[self.ns_key]))
         cored_interval_units = \
             self.unit_reg[cored_interval_elt.attrib['uomLabels']]
             
         cored_interval_lower_corner = \
-            self._element_text(cored_interval_elt,
-                               './/{{{0}}}lowerCorner'.format(GML_NS['gsml']))
+            _element_text(cored_interval_elt,
+                          './/{{{0}}}lowerCorner'.format(GML_NS[self.ns_key]))
         cored_interval_upper_corner = \
-            self._element_text(cored_interval_elt, 
-                               './/{{{0}}}upperCorner'.format(GML_NS['gsml']))
+            _element_text(cored_interval_elt,
+                          './/{{{0}}}upperCorner'.format(GML_NS[self.ns_key]))
             
-        lower_corner = float(cored_interval_lower_corner)*cored_interval_units
-        upper_corner = float(cored_interval_upper_corner)*cored_interval_units
+        lower_corner = float(cored_interval_lower_corner) * cored_interval_units
+        upper_corner = float(cored_interval_upper_corner) * cored_interval_units
         envelope_dict = {'lower corner': lower_corner,
                          'upper corner': upper_corner}
         
@@ -311,69 +300,69 @@ class SISSBoreholeGenerator:
         """
 
         # Driller
-        driller_xpath = './/{{{0}}}driller'.format(NS['gsmlbh'])
-        driller_attrib_xpath = '{{{0}}}title'.format(NS['xlink'])
-        driller = self._element_attrib(details_elt, driller_xpath, 
-                                       driller_attrib_xpath)
-        self.borehole.add_detail('driller', driller)
-
+        self._add_driller(details_elt)
+        
         # Drilling method
         # Note:  This is a child of the Borehole element rather than
         #        BoreholeDetails. 
         drilling_method_xpath = ('.//{{{0}}}downholeDrillingDetails'
                                  '/{{{1}}}DrillingDetails'
                                  '/{{{2}}}drillingMethod'). \
-                                 format(NS['gsmlbh'], 
-                                        NS['gsmlbh'], 
-                                        NS['gsmlbh'])                                 
+                                 format(NS[self.ns_key],
+                                        NS[self.ns_key],
+                                        NS[self.ns_key])
+                                                        
         drilling_method_attrib_xpath = '{{{0}}}title'.format(NS['xlink'])
-        drilling_method = self._element_attrib(borehole_elt, 
-                                               drilling_method_xpath, 
-                                               drilling_method_attrib_xpath)
+        drilling_method = _element_attrib(borehole_elt,
+                                          drilling_method_xpath,
+                                          drilling_method_attrib_xpath)
         self.borehole.add_detail('drilling method', drilling_method)
 
         # Date of drilling
         # Note: Both start and end time are available; currently extracting
         #       only start time.
         date_of_drilling_xpath = ('.//{{{0}}}dateOfDrilling/{{{1}}}TimePeriod'
-                                  '/{{{2}}}begin/{{{3}}}TimeInstant'
-                                  '/{{{4}}}timePosition').format(NS['gsmlbh'],
-                                                        GML_NS['gsmlbh'],
-                                                        GML_NS['gsmlbh'], 
-                                                        GML_NS['gsmlbh'], 
-                                                        GML_NS['gsmlbh'])
-        date_of_drilling = self._element_text(details_elt, date_of_drilling_xpath)
+                            '/{{{2}}}begin/{{{3}}}TimeInstant'
+                            '/{{{4}}}timePosition').format(NS[self.ns_key],
+                                                           GML_NS[self.ns_key],
+                                                           GML_NS[self.ns_key],
+                                                           GML_NS[self.ns_key],
+                                                           GML_NS[self.ns_key])
+        date_of_drilling = _element_text(details_elt,
+                                         date_of_drilling_xpath)
         year, month, day = date_of_drilling.split('-')
         date = datetime(year=int(year), month=int(month), day=int(day))
         self.borehole.add_detail('date of drilling', date)
 
         # Borehole start point
-        start_point_xpath = './/{{{0}}}startPoint'.format(NS['gsmlbh'])
+        start_point_xpath = './/{{{0}}}startPoint'.format(NS[self.ns_key])
         start_point_attrib_xpath = '{{{0}}}title'.format(NS['xlink'])
-        start_point = self._element_attrib(details_elt, start_point_xpath, 
-                                           start_point_attrib_xpath)
+        start_point = _element_attrib(details_elt, start_point_xpath,
+                                      start_point_attrib_xpath)
         self.borehole.add_detail('start point', start_point)
 
         # Borehole inclination type
-        inclination_type_xpath = './/{{{0}}}inclinationType'.format(NS['gsmlbh'])
+        inclination_type_xpath = \
+            './/{{{0}}}inclinationType'.format(NS[self.ns_key])
         inclination_type_attrib_xpath = '{{{0}}}title'.format(NS['xlink'])
-        inclination_type = self._element_attrib(details_elt, inclination_type_xpath, 
-                                                inclination_type_attrib_xpath)
+        inclination_type = _element_attrib(details_elt,
+                                            inclination_type_xpath,
+                                            inclination_type_attrib_xpath)
         self.borehole.add_detail('inclination type', inclination_type)
         
         # Borehole shape
         # Notes: 
         # o This is a child of the Borehole element rather than BoreholeDetails.
         # o Currently chooses the first one (if more than one exists).
-        shape_xpath = './/{{{0}}}shape/{{{1}}}CompositeCurve/{{{2}}}curveMember' \
-                      '/{{{3}}}LineString/{{{4}}}posList'
+        shape_xpath = './/{{{0}}}shape/{{{1}}}CompositeCurve' \
+                      '/{{{2}}}curveMember/{{{3}}}LineString/{{{4}}}posList'
         shape = \
-            self._element_text(borehole_elt,
-                               shape_xpath.format(SHAPE_NS['gsmlbh'],
-                                                  GML_NS['gsmlbh'],
-                                                  GML_NS['gsmlbh'], 
-                                                  GML_NS['gsmlbh'],
-                                                  GML_NS['gsmlbh']))
+            _element_text(borehole_elt,
+                          shape_xpath.format(SHAPE_NS[self.ns_key],
+                                             GML_NS[self.ns_key],
+                                             GML_NS[self.ns_key],
+                                             GML_NS[self.ns_key],
+                                             GML_NS[self.ns_key]))
         shape_list = [float(x) for x in self.whitespace_pattern.split(shape)]
         self.borehole.add_detail('shape', shape_list)
         
@@ -383,58 +372,72 @@ class SISSBoreholeGenerator:
                                  '/{{{1}}}DrillingDetails'
                                  '/{{{2}}}interval/{{{3}}}LineString'
                                  '/{{{4}}}posList'). \
-                                 format(NS['gsmlbh'], 
-                                        NS['gsmlbh'], 
-                                        NS['gsmlbh'],
-                                        GML_NS['gsmlbh'], GML_NS['gsmlbh'])
+                                 format(NS[self.ns_key],
+                                        NS[self.ns_key],
+                                        NS[self.ns_key],
+                                        GML_NS[self.ns_key],
+                                        GML_NS[self.ns_key])
         
-        cored_interval = self._element_text(borehole_elt, 
-                                            cored_interval_xpath)
+        cored_interval = _element_text(borehole_elt,
+                                       cored_interval_xpath)
         cored_interval_list = self.whitespace_pattern.split(cored_interval)
         lower_corner = float(cored_interval_list[0])
         upper_corner = float(cored_interval_list[1])
         envelope_dict = {'lower corner': lower_corner,
                          'upper corner': upper_corner}
         self.borehole.add_detail('cored interval', envelope_dict)
+    
+    def _add_driller(self, details_elt):
+        """Add borehole driller detail from a GeoSciML 3.0
+           BoreholeDetails element.
         
-    def _element_text(self, element, xpath_str):
-        """Look for and return the detail corresponding to the text 
-           of the child element found by the specified XPath search
-           on the supplied element.
-           
-        :param element: An XML element
-        :type element: Element
-        :param xpath_str: An XPath string.
-        :type xpath_str: string
-        :returns: child text
+        :param details_elt: A GeoSciML 3.0 BoreholeDetails element
+        :type details_elt: Element
         """
-        result = element.find(xpath_str)
-       
-        if result is not None:
-            text = result.text
-        else:
-            text = None
-        
-        return text
+        driller_xpath = './/{{{0}}}driller'.format(NS[self.ns_key])
+        driller_attrib_xpath = '{{{0}}}title'.format(NS['xlink'])
+        driller = _element_attrib(details_elt, driller_xpath,
+                                  driller_attrib_xpath)
+        self.borehole.add_detail('driller', driller)
 
-    def _element_attrib(self, element, elt_xpath_str, attr_xpath_str):
-        """Look for and return the detail corresponding to the attribute 
-           text of the child element found by the specified XPath search
-           on the supplied element.
-           
-        :param element: An XML element
-        :type element: Element
-        :param elt_xpath_str: An XPath string to find an element.
-        :type elt_xpath_str: string
-        :param attr_xpath_str: An XPath string to find an attribute.
-        :type attr_xpath_str: string
-        :returns: attribute text
-        """
-        result = element.find(elt_xpath_str)
+def _element_text(element, xpath_str):
+    """Look for and return the detail corresponding to the text 
+       of the child element found by the specified XPath search
+       on the supplied element.
        
-        if result is not None:
-            text = result.attrib[attr_xpath_str]
-        else:
-            text = None
-        
-        return text
+    :param element: An XML element
+    :type element: Element
+    :param xpath_str: An XPath string.
+    :type xpath_str: string
+    :returns: child text
+    """
+    result = element.find(xpath_str)
+   
+    if result is not None:
+        text = result.text
+    else:
+        text = None
+    
+    return text
+
+def _element_attrib(element, elt_xpath_str, attr_xpath_str):
+    """Look for and return the detail corresponding to the attribute 
+       text of the child element found by the specified XPath search
+       on the supplied element.
+       
+    :param element: An XML element
+    :type element: Element
+    :param elt_xpath_str: An XPath string to find an element.
+    :type elt_xpath_str: string
+    :param attr_xpath_str: An XPath string to find an attribute.
+    :type attr_xpath_str: string
+    :returns: attribute text
+    """
+    result = element.find(elt_xpath_str)
+   
+    if result is not None:
+        text = result.attrib[attr_xpath_str]
+    else:
+        text = None
+    
+    return text
