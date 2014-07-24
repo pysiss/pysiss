@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs"
+	xmlns:it.geosolutions="http://www.geo-solutions.it" xmlns:topp="http://www.openplans.org/topp"
+	xmlns:nvcl="http://www.auscope.org/nvcl" xmlns:gsml="urn:cgi:xmlns:CGI:GeoSciML:2.0"
+	xmlns:ogc="http://www.opengis.net/ogc" xmlns:gsmlp="http://xmlns.geosciml.org/geosciml-portrayal/2.0"
+	xmlns:sa="http://www.opengis.net/sampling/1.0" xmlns:ows="http://www.opengis.net/ows"
+	xmlns:om="http://www.opengis.net/om/1.0" xmlns:xlink="http://www.w3.org/1999/xlink"
+	xmlns:gml="http://www.opengis.net/gml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	numberOfFeatures="5" timeStamp="2014-06-25T03:56:24.767Z"
+	xsi:schemaLocation="urn:cgi:xmlns:CGI:GeoSciML:2.0 http://www.geosciml.org/geosciml/2.0/xsd/geosciml.xsd http://www.opengis.net/wfs http://nvclwebservices.vm.csiro.au:80/geoserverBH/schemas/wfs/1.1.0/wfs.xsd">
+	<gml:featureMembers>
+		<gsml:Borehole gml:id="gsml.borehole.150390">
+			<gml:name codeSpace="http://www.ietf.org/rfc/rfc2616">http://nvclwebservices.vm.csiro.au/resource/feature/CSIRO/borehole/150390
+			</gml:name>
+			<gml:name codeSpace="http://www.csiro.au">150390</gml:name>
+			<sa:sampledFeature xlink:href="http://www.opengis.net/def/nil/OGC/0/unknown"
+				xlink:role="http://www.geosciml.org/geosciml/2.0/doc/GeoSciML/GeologicUnit/GeologicUnit.html"
+				xlink:title="unknown" />
+			<sa:shape>
+				<gml:LineString gml:id="gsml.borehole.150390.linestring"
+					srsDimension="2" srsName="urn:x-ogc:def:crs:EPSG:4326">
+					<gml:posList>90.0 0.0 90.0 0.0</gml:posList>
+				</gml:LineString>
+			</sa:shape>
+			<gsml:collarLocation>
+				<gsml:BoreholeCollar gml:id="gsml.borehole.collar.150390">
+					<gsml:location>
+						<gml:Point srsDimension="2" srsName="urn:x-ogc:def:crs:EPSG:4326">
+							<gml:pos>-29.804238 139.007411</gml:pos>
+						</gml:Point>
+					</gsml:location>
+					<gsml:elevation axisLabels="Gravity-related height"
+						srsDimension="1" srsName="http://www.opengis.net/gml/srs/epsg.xml#5711"
+						uomLabels="m">0.0</gsml:elevation>
+				</gsml:BoreholeCollar>
+			</gsml:collarLocation>
+			<gsml:indexData>
+				<gsml:BoreholeDetails>
+					<gsml:driller xlink:href="http://www.opengis.net/def/nil/OGC/0/unknown"
+						xlink:role="http://www.geosciml.org/geosciml/2.0/doc/GeoSciML/Borehole/BoreholeDetails.html#driller"
+						xlink:title="DMITRE" />
+					<gsml:dateOfDrilling>2009-07-27</gsml:dateOfDrilling>
+					<gsml:drillingMethod>Diamond</gsml:drillingMethod>
+					<gsml:startPoint>natural ground surface</gsml:startPoint>
+					<gsml:inclinationType>vertical</gsml:inclinationType>
+					<gsml:coredInterval>
+						<gml:Envelope axisLabels="core envelope"
+							srsDimension="1" srsName="#gsml.borehole.150390.linestring"
+							uomLabels="m">
+							<gml:lowerCorner>279.0</gml:lowerCorner>
+							<gml:upperCorner>351.29</gml:upperCorner>
+						</gml:Envelope>
+					</gsml:coredInterval>
+					<gsml:coreCustodian xlink:href="http://www.opengis.net/def/nil/OGC/0/unknown"
+						xlink:role="http://www.geosciml.org/geosciml/2.0/doc/GeoSciML/Borehole/BoreholeDetails.html#coreCustodian"
+						xlink:title="CSIRO" />
+				</gsml:BoreholeDetails>
+			</gsml:indexData>
+		</gsml:Borehole>
+		<gsml:Borehole gml:id="gsml.borehole.205822">
+			<gml:name codeSpace="http://www.ietf.org/rfc/rfc2616">http://nvclwebservices.vm.csiro.au/resource/feature/CSIRO/borehole/205822
+			</gml:name>
+			<gml:name codeSpace="http://www.csiro.au">Carapateena</gml:name>
+			<sa:sampledFeature xlink:href="http://www.opengis.net/def/nil/OGC/0/unknown"
+				xlink:role="http://www.geosciml.org/geosciml/2.0/doc/GeoSciML/GeologicUnit/GeologicUnit.html"
+				xlink:title="unknown" />
+			<sa:shape>
+				<gml:LineString gml:id="gsml.borehole.205822.linestring"
+					srsDimension="2" srsName="urn:x-ogc:def:crs:EPSG:4326">
+					<gml:posList>-29.804238 139.007411 -29.804238 139.007411
+					</gml:posList>
+				</gml:LineString>
+			</sa:shape>
+			<gsml:collarLocation>
+				<gsml:BoreholeCollar gml:id="gsml.borehole.collar.205822">
+					<gsml:location>
+						<gml:Point srsDimension="2" srsName="urn:x-ogc:def:crs:EPSG:4326">
+							<gml:pos>-29.804238 139.007411</gml:pos>
+						</gml:Point>
+					</gsml:location>
+					<gsml:elevation axisLabels="Gravity-related height"
+						srsDimension="1" srsName="http://www.opengis.net/gml/srs/epsg.xml#5711"
+						uomLabels="m">0.0</gsml:elevation>
+				</gsml:BoreholeCollar>
+			</gsml:collarLocation>
+			<gsml:indexData>
+				<gsml:BoreholeDetails>
+					<gsml:driller xlink:href="http://www.opengis.net/def/nil/OGC/0/unknown"
+						xlink:role="http://www.geosciml.org/geosciml/2.0/doc/GeoSciML/Borehole/BoreholeDetails.html#driller"
+						xlink:title="DITRE (PIRSA)" />
+					<gsml:dateOfDrilling>2009-07-27</gsml:dateOfDrilling>
+					<gsml:drillingMethod>Diamond</gsml:drillingMethod>
+					<gsml:startPoint>natural ground surface</gsml:startPoint>
+					<gsml:inclinationType>vertical</gsml:inclinationType>
+					<gsml:coredInterval>
+						<gml:Envelope axisLabels="core envelope"
+							srsDimension="1" srsName="#gsml.borehole.205822.linestring"
+							uomLabels="m">
+							<gml:lowerCorner>239.7</gml:lowerCorner>
+							<gml:upperCorner>654.19</gml:upperCorner>
+						</gml:Envelope>
+					</gsml:coredInterval>
+					<gsml:coreCustodian xlink:href="http://www.opengis.net/def/nil/OGC/0/unknown"
+						xlink:role="http://www.geosciml.org/geosciml/2.0/doc/GeoSciML/Borehole/BoreholeDetails.html#coreCustodian"
+						xlink:title="CSIRO" />
+				</gsml:BoreholeDetails>
+			</gsml:indexData>
+		</gsml:Borehole>
+		<gsml:Borehole gml:id="gsml.borehole.BUGD049">
+			<gml:name codeSpace="http://www.ietf.org/rfc/rfc2616">http://nvclwebservices.vm.csiro.au/resource/feature/CSIRO/borehole/BUGD049
+			</gml:name>
+			<gml:name codeSpace="http://www.csiro.au">BUGD049</gml:name>
+			<sa:sampledFeature xlink:href="http://www.opengis.net/def/nil/OGC/0/unknown"
+				xlink:role="http://www.geosciml.org/geosciml/2.0/doc/GeoSciML/GeologicUnit/GeologicUnit.html"
+				xlink:title="unknown" />
+			<sa:shape>
+				<gml:LineString gml:id="gsml.borehole.BUGD049.linestring"
+					srsDimension="2" srsName="urn:x-ogc:def:crs:EPSG:4326">
+					<gml:posList>-30.5278 121.058 -30.5278 121.058</gml:posList>
+				</gml:LineString>
+			</sa:shape>
+			<gsml:collarLocation>
+				<gsml:BoreholeCollar gml:id="gsml.borehole.collar.BUGD049">
+					<gsml:location>
+						<gml:Point srsDimension="2" srsName="urn:x-ogc:def:crs:EPSG:4326">
+							<gml:pos>-30.5278 121.058</gml:pos>
+						</gml:Point>
+					</gsml:location>
+					<gsml:elevation axisLabels="Gravity-related height"
+						srsDimension="1" srsName="http://www.opengis.net/gml/srs/epsg.xml#5711"
+						uomLabels="m">2.0</gsml:elevation>
+				</gsml:BoreholeCollar>
+			</gsml:collarLocation>
+			<gsml:indexData>
+				<gsml:BoreholeDetails>
+					<gsml:driller xlink:href="http://www.opengis.net/def/nil/OGC/0/unknown"
+						xlink:role="http://www.geosciml.org/geosciml/2.0/doc/GeoSciML/Borehole/BoreholeDetails.html#driller"
+						xlink:title="GSWA" />
+					<gsml:dateOfDrilling>2007-05-28</gsml:dateOfDrilling>
+					<gsml:drillingMethod>diamond core</gsml:drillingMethod>
+					<gsml:startPoint>natural ground surface</gsml:startPoint>
+					<gsml:inclinationType>vertical</gsml:inclinationType>
+					<gsml:coredInterval>
+						<gml:Envelope axisLabels="core envelope"
+							srsDimension="1" srsName="#gsml.borehole.BUGD049.linestring"
+							uomLabels="m">
+							<gml:lowerCorner>0.0</gml:lowerCorner>
+							<gml:upperCorner>200.0</gml:upperCorner>
+						</gml:Envelope>
+					</gsml:coredInterval>
+					<gsml:coreCustodian xlink:href="http://www.opengis.net/def/nil/OGC/0/unknown"
+						xlink:role="http://www.geosciml.org/geosciml/2.0/doc/GeoSciML/Borehole/BoreholeDetails.html#coreCustodian"
+						xlink:title="CSIRO" />
+				</gsml:BoreholeDetails>
+			</gsml:indexData>
+		</gsml:Borehole>
+		<gsml:Borehole gml:id="gsml.borehole.EBSAE6">
+			<gml:name codeSpace="http://www.ietf.org/rfc/rfc2616">http://nvclwebservices.vm.csiro.au/resource/feature/CSIRO/borehole/EBSAE6
+			</gml:name>
+			<gml:name codeSpace="http://www.csiro.au">EBSAE6</gml:name>
+			<sa:sampledFeature xlink:href="http://www.opengis.net/def/nil/OGC/0/unknown"
+				xlink:role="http://www.geosciml.org/geosciml/2.0/doc/GeoSciML/GeologicUnit/GeologicUnit.html"
+				xlink:title="unknown" />
+			<sa:shape>
+				<gml:LineString gml:id="gsml.borehole.EBSAE6.linestring"
+					srsDimension="2" srsName="urn:x-ogc:def:crs:EPSG:4326">
+					<gml:posList>-31.1104 137.149 -31.1104 137.149</gml:posList>
+				</gml:LineString>
+			</sa:shape>
+			<gsml:collarLocation>
+				<gsml:BoreholeCollar gml:id="gsml.borehole.collar.EBSAE6">
+					<gsml:location>
+						<gml:Point srsDimension="2" srsName="urn:x-ogc:def:crs:EPSG:4326">
+							<gml:pos>-31.1104 137.149</gml:pos>
+						</gml:Point>
+					</gsml:location>
+					<gsml:elevation axisLabels="Gravity-related height"
+						srsDimension="1" srsName="http://www.opengis.net/gml/srs/epsg.xml#5711"
+						uomLabels="m">505.0</gsml:elevation>
+				</gsml:BoreholeCollar>
+			</gsml:collarLocation>
+			<gsml:indexData>
+				<gsml:BoreholeDetails>
+					<gsml:driller xlink:href="http://www.opengis.net/def/nil/OGC/0/unknown"
+						xlink:role="http://www.geosciml.org/geosciml/2.0/doc/GeoSciML/Borehole/BoreholeDetails.html#driller"
+						xlink:title="PIRSA" />
+					<gsml:dateOfDrilling>2007-12-04</gsml:dateOfDrilling>
+					<gsml:drillingMethod>diamond core</gsml:drillingMethod>
+					<gsml:startPoint>natural ground surface</gsml:startPoint>
+					<gsml:inclinationType>vertical</gsml:inclinationType>
+					<gsml:coredInterval>
+						<gml:Envelope axisLabels="core envelope"
+							srsDimension="1" srsName="#gsml.borehole.EBSAE6.linestring"
+							uomLabels="m">
+							<gml:lowerCorner>309.0</gml:lowerCorner>
+							<gml:upperCorner>1200.0</gml:upperCorner>
+						</gml:Envelope>
+					</gsml:coredInterval>
+					<gsml:coreCustodian xlink:href="http://www.opengis.net/def/nil/OGC/0/unknown"
+						xlink:role="http://www.geosciml.org/geosciml/2.0/doc/GeoSciML/Borehole/BoreholeDetails.html#coreCustodian"
+						xlink:title="CSIRO" />
+				</gsml:BoreholeDetails>
+			</gsml:indexData>
+		</gsml:Borehole>
+		<gsml:Borehole gml:id="gsml.borehole.GSDD006">
+			<gml:name codeSpace="http://www.ietf.org/rfc/rfc2616">http://nvclwebservices.vm.csiro.au/resource/feature/CSIRO/borehole/GSDD006
+			</gml:name>
+			<gml:name codeSpace="http://www.csiro.au">GSDD006</gml:name>
+			<sa:sampledFeature xlink:href="http://www.opengis.net/def/nil/OGC/0/unknown"
+				xlink:role="http://www.geosciml.org/geosciml/2.0/doc/GeoSciML/GeologicUnit/GeologicUnit.html"
+				xlink:title="unknown" />
+			<sa:shape>
+				<gml:LineString gml:id="gsml.borehole.GSDD006.linestring"
+					srsDimension="2" srsName="urn:x-ogc:def:crs:EPSG:4326">
+					<gml:posList>-30.0897 121.02 -30.0897 121.02</gml:posList>
+				</gml:LineString>
+			</sa:shape>
+			<gsml:collarLocation>
+				<gsml:BoreholeCollar gml:id="gsml.borehole.collar.GSDD006">
+					<gsml:location>
+						<gml:Point srsDimension="2" srsName="urn:x-ogc:def:crs:EPSG:4326">
+							<gml:pos>-30.0897 121.02</gml:pos>
+						</gml:Point>
+					</gsml:location>
+					<gsml:elevation axisLabels="Gravity-related height"
+						srsDimension="1" srsName="http://www.opengis.net/gml/srs/epsg.xml#5711"
+						uomLabels="m">105.0</gsml:elevation>
+				</gsml:BoreholeCollar>
+			</gsml:collarLocation>
+			<gsml:indexData>
+				<gsml:BoreholeDetails>
+					<gsml:driller xlink:href="http://www.opengis.net/def/nil/OGC/0/unknown"
+						xlink:role="http://www.geosciml.org/geosciml/2.0/doc/GeoSciML/Borehole/BoreholeDetails.html#driller"
+						xlink:title="Heron" />
+					<gsml:dateOfDrilling>2004-09-10</gsml:dateOfDrilling>
+					<gsml:drillingMethod>diamond core</gsml:drillingMethod>
+					<gsml:startPoint>natural ground surface</gsml:startPoint>
+					<gsml:inclinationType>vertical</gsml:inclinationType>
+					<gsml:coredInterval>
+						<gml:Envelope axisLabels="core envelope"
+							srsDimension="1" srsName="#gsml.borehole.GSDD006.linestring"
+							uomLabels="m">
+							<gml:lowerCorner>0.0</gml:lowerCorner>
+							<gml:upperCorner>70.0</gml:upperCorner>
+						</gml:Envelope>
+					</gsml:coredInterval>
+					<gsml:coreCustodian xlink:href="http://www.opengis.net/def/nil/OGC/0/unknown"
+						xlink:role="http://www.geosciml.org/geosciml/2.0/doc/GeoSciML/Borehole/BoreholeDetails.html#coreCustodian"
+						xlink:title="CSIRO" />
+				</gsml:BoreholeDetails>
+			</gsml:indexData>
+		</gsml:Borehole>
+	</gml:featureMembers>
+</wfs:FeatureCollection>
