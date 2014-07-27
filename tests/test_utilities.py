@@ -1,14 +1,14 @@
-""" file: test_utilities.py
+""" file: test_borehole_utilities.py
     author: Jess Robertson & Ben Caradoc-Davies
             CSIRO Earth Science and Resource Engineering
     date: Tuesday May 14, 2013
 
-    description: unittests for utilities.py
+    description: unittests for pysiss/borehole/utilities.py
 """
 
 import unittest
 import numpy
-from pyboreholes.utilities import mask_all_nans
+from pysiss.borehole.utilities import mask_all_nans
 
 
 class TestMaskNans(unittest.TestCase):

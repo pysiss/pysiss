@@ -13,7 +13,8 @@ import os
 import unittest
 import urllib
 
-import pyboreholes as pybh
+import pysiss.borehole as pybh
+
  
 class SissTest(unittest.TestCase):
 

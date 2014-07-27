@@ -7,7 +7,7 @@
     description: Unit tests to demonstrate the borehole model.
 """
 
-import pyboreholes as pybh
+from pysiss import borehole as pybh
 import numpy
 import unittest
 

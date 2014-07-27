@@ -6,7 +6,7 @@
     description: Tests for BoreholeCollection class.
 """
 
-import pyboreholes as pybh
+from pysiss import borehole as pybh
 import unittest
 
 
