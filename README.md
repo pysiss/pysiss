@@ -5,18 +5,19 @@ This is a python module designed to make it easy to perform analysis based on SI
 
 **Warning** - this library is in a pre-pre-pre-alpha state and could change without warning.
 
-For a list of contributors, see `contributors.txt`.
+For a list of contributors, see `contributors.md`.
 
 Building and installing pysiss
 ------------------------------
 
-`pysiss` has quite a few dependencies, most of which come from the numpy/scipy/matplotlib ecosystem. You will have to have the standard [numpy][1]/[scipy][2] stack plus[pandas][3] at a minimum, while you will need [matplotlib][4] for the plotting modules, and [owslib][12] for calls to SISS services. You can install all of these (with the exception of the cwavelets library, see below) in a single line with the following command:
+`pysiss` has quite a few dependencies, most of which come from the numpy/scipy/matplotlib ecosystem. 
 
-    pip install numpy scipy matplotlib pandas owslib
+You will have to have the standard [numpy][1]/[scipy][2] stack at a minimum, while you will need [matplotlib][4] for the plotting modules. Installing the scientific Python stack can be a bit of a pain in the arse if you're not used to it, especially on non-Linux systems, so you might like to check out [Enthought Canopy][6], [Anaconda][7], [Python(x, y)][8] or [Pyzo][11] if you want an easy install experience.
 
-If your system complains that it can't find pip, then try `easy_install install ...` instead (or just install pip: `easy_install pip`).
+Once you've got the numpy/scipy/matplotlib stack installed, you need:
 
-If the command line is a bit scary than most of these libraries should come for free with a standard scientific Python stack these days, check out [Enthought Canopy][6], [Anaconda][7], [Python(x, y)][8] or [Pyzo][11] if you want an easy install experience.
+- [pandas][3] for data munging, 
+- [owslib][12] for calls to SISS services,
 
 If you've installed all the libraries above, all you should need to do is enter the python directory, and execute
 
@@ -43,15 +44,15 @@ Building documentation
 
 You're currently reading some version of the documentation generated from the pysiss library. If you want to build your own version then you will need to have a version of [sphinx][10] installed -- you can check by doing the following at a terminal prompt:
 
-  python -c 'import sphinx'
+    python -c 'import sphinx'
 
 If that fails grab the latest version of and install it with::
 
-  easy_install -U Sphinx
+    easy_install -U Sphinx
 
 Now you are ready to build your docs, using make (or run the batch script make.bst if you're on Windows):
 
-  cd docs && make html
+    cd docs && make html
 
 (or latexpdf if you want a LaTeX versionm, or epub for ePub format - type make to see all the options). The documentation will be dumped under build/<format>. For HTML, if you point a browser to docs/build/html/index.html, you should see a basic sphinx site with the documentation for pysiss. For LaTeX you can open docs/build/latex/pysiss.pdf in your favourite PDF viewer to browse the documentation.
 
