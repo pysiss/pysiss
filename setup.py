@@ -21,8 +21,8 @@ if version < '2.2.3':
 
 ## PACKAGE INFORMATION
 setup(
-    name='pyboreholes',
-    version='0.2.1',
+    name='pysiss',
+    version='0.0.1',
     description='Python functions for analysing borehole data',
     long_description=open('README.md').read(),
     author='Jess Robertson',
@@ -30,6 +30,7 @@ setup(
     url='https://stash.csiro.au/projects/DARDA/repos/python_boreholes/',
     packages=find_packages(),
     requires=['numpy', 'matplotlib', 'owslib'],
+    test_suite='tests',
     ext_modules=[],
     classifiers=[
         'Development Status :: 1 - Planning',
