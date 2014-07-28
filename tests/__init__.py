@@ -1,4 +1,4 @@
-""" file:   __init__.py (pyboreholes tests)
+""" file:   __init__.py (pysiss.borehole tests)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     email:  jesse.robertson@csiro.au

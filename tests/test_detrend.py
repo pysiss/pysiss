@@ -14,7 +14,7 @@ from pysiss.borehole.analysis import detrend
 
 class TestDetrend(unittest.TestCase):
 
-    """ Unit tests for pyboreholes.analysis.detrend
+    """ Unit tests for pysiss.borehole.analysis.detrend
     """
 
     def setUp(self):

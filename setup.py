@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-""" file: setup.pyb (pyboreholes)
+""" file: setup.pyb (pysiss.borehole)
     author: Jess Robertson, CSIRO Earth Science and Resource Engineering
     date: Wednesday 1 May, 2013
 
-    description: Distutils installer script for pyboreholes.
+    description: Distutils installer script for pysiss.borehole.
 """
 
 import distribute_setup
@@ -31,7 +31,7 @@ setup(
     url='https://stash.csiro.au/projects/DARDA/repos/pysiss/',
     packages=find_packages(),
     package_data={
-        'pyboreholes.resources': ['*']
+        'pysiss.borehole.resources': ['*']
     },
     install_requires=[
         'matplotlib>=1.0.0',
