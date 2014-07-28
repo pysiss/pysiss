@@ -1,4 +1,4 @@
-""" file: dataset.py (pyboreholes.datasets)
+""" file: dataset.py (pysiss.borehole.datasets)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     date: Sunday November 10, 2013
@@ -33,7 +33,7 @@ class DataSet(id_object):
         :param size: The number of items in the dataset
         :type size: int
         :param details: Metadata for a given dataset.
-        :type details: pyboreholes.datasets.DatasetDetails
+        :type details: pysiss.borehole.datasets.DatasetDetails
     """
 
     def __init__(self, name, size, details=None):

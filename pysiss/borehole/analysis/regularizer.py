@@ -1,4 +1,4 @@
-""" file: regularizer.py (pyboreholes.analysis)
+""" file: regularizer.py (pysiss.borehole.analysis)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     date: Sunday November 10, 2013

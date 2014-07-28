@@ -1,4 +1,4 @@
-""" file:   utilities.py (pyboreholes)
+""" file:   utilities.py (pysiss.borehole)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     email:  jesse.robertson@csiro.au

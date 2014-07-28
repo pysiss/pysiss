@@ -1,9 +1,9 @@
-""" file: __init__.py (pyboreholes.properties)
+""" file: __init__.py (pysiss.borehole.properties)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     date: Sunday November 10, 2013
 
-    description: Imports for pyboreholes.properties
+    description: Imports for pysiss.borehole.properties
 """
 
 from .property import Property

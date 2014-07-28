@@ -1,4 +1,4 @@
-""" file:   borehole.py (pyboreholes)
+""" file:   borehole.py (pysiss.borehole)
     author: Jess Robertson & Ben Caradoc-Davies
             CSIRO Earth Science and Resource Engineering
     date:   September 10, 2013
@@ -9,7 +9,7 @@
 from .details import Details, detail_type
 from .datasets import DataSet, PointDataSet, IntervalDataSet
 from .properties import Property
-from ...utilities import id_object
+from ..utilities import id_object
 
 
 class Borehole(id_object):
@@ -58,9 +58,9 @@ class Borehole(id_object):
 
     # Mapping dataset types to class attributes
     _type_to_attr = {
-        type(DataSet): 'datasets',
-        type(PointDataSet): 'point_datasets',
-        type(IntervalDataSet): 'interval_datasets',
+        DataSet: 'datasets',
+        PointDataSet: 'point_datasets',
+        IntervalDataSet: 'interval_datasets',
     }
 
     def __init__(self, name, origin_position=None):
@@ -106,7 +106,7 @@ class Borehole(id_object):
             :type name: `string`
             :param depth: Down-hole depth in metres from collar
             :type depth: `int` or `float`
-            :returns: the new `pyboreholes.Feature` instance
+            :returns: the new `pysiss.borehole.Feature` instance
         """
         self.features[name] = Feature(name, depth)
         return self.features[name]
@@ -115,7 +115,7 @@ class Borehole(id_object):
         """ Add an existing dataset instance to the borehole.
 
             :param dataset: A precooked dataset with data
-            :type dataset: subclassed from `pyboreholes.DataSet`
+            :type dataset: subclassed from `pysiss.borehole.DataSet`
         """
         # Work out which attribute we should add the dataset to
         add_to_attr = self._type_to_attr[type(dataset)]
@@ -135,7 +135,7 @@ class Borehole(id_object):
                 from collar
             :type to_depths: iterable of numeric values
 
-            :returns: the new `pyboreholes.IntervalDataSet` instance.
+            :returns: the new `pysiss.borehole.IntervalDataSet` instance.
         """
         self.interval_datasets[name] = \
             IntervalDataSet(name, from_depths, to_depths)
@@ -149,7 +149,7 @@ class Borehole(id_object):
             :param depths: Sample locations given as down-hole depths in metres
                     from collar
             :type depths: iterable of numeric values
-            :returns: the new `pyboreholes.PointDataSet` instance.
+            :returns: the new `pysiss.borehole.PointDataSet` instance.
         """
         self.point_datasets[name] = PointDataSet(name, depths)
         return self.point_datasets[name]
@@ -174,7 +174,7 @@ class Borehole(id_object):
             :type values: any Python object
             :param property_type: The property type of the detail, optional,
                    defaults to None
-            :type property_type: pyboreholes.PropertyType
+            :type property_type: pysiss.borehole.PropertyType
         """
         self.details.add_detail(name, values, property_type)
 

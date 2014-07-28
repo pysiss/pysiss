@@ -1,4 +1,4 @@
-""" file:   point_dataset.py (pyboreholes.datasets)
+""" file:   point_dataset.py (pysiss.borehole.datasets)
     author: Jess Robertson & Ben Caradoc-Davies
             CSIRO Earth Science and Resource Engineering
     date:   Sunday November 10, 2013
@@ -30,7 +30,7 @@ class PointDataSet(DataSet):
         :type depths: iterable
         :param details: The metadata associated with the dataset. Optional,
             defaults to None.
-        :type details: pyboreholes.dataset.DatasetDetails
+        :type details: pysiss.borehole.dataset.DatasetDetails
     """
 
     def __init__(self, name, depths, details=None):

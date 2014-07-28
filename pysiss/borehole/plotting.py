@@ -1,10 +1,10 @@
-""" file:   plotting.py (pyboreholes)
+""" file:   plotting.py (pysiss.borehole)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     email:  jesse.robertson@csiro.au
     date:   Wednesday May 1, 2013
 
-    description: Plotting for the pyboreholes module.
+    description: Plotting for the pysiss.borehole module.
 """
 
 import matplotlib.pyplot

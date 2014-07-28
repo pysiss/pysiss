@@ -1,4 +1,4 @@
-""" file: detrend.py (pyboreholes.analysis)
+""" file: detrend.py (pysiss.borehole.analysis)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     date: Sunday November 10, 2013

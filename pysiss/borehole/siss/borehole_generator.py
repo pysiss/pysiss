@@ -1,4 +1,4 @@
-""" file:   borehole_generator.py (pyboreholes)
+""" file:   borehole_generator.py (pysiss.borehole)
     author: David Benn
             CSIRO IM&T Scientific Computing Data Processing Services
     date:   18 February 2014

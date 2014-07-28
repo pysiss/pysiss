@@ -1,9 +1,9 @@
-""" file: property_type.py (pyboreholes.properties)
+""" file: property_type.py (pysiss.borehole.properties)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     date: Sunday November 10, 2013
 
-    description: Imports for pyboreholes.properties
+    description: Imports for pysiss.borehole.properties
 """
 
 class PropertyType(object):

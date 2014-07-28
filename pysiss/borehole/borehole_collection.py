@@ -1,4 +1,4 @@
-""" file:   borehole_collection.py (pyboreholes)
+""" file:   borehole_collection.py (pysiss.borehole)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     date:   September 10, 2013
@@ -12,7 +12,7 @@ class BoreholeCollection(list):
     """ A collection of boreholes, accessible as a list or dictionary
 
         :param boreholes: The boreholes to add on initialization
-        :type boreholes: list of `pyboreholes.Borehole` instances
+        :type boreholes: list of `pysiss.borehole.Borehole` instances
     """
 
     def __init__(self, boreholes=None):

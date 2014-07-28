@@ -1,4 +1,4 @@
-""" file:   details.py (pyboreholes)
+""" file:   details.py (pysiss.borehole)
     author: Jess Robertson & Ben Caradoc-Davies
             CSIRO Earth Science and Resource Engineering
     date:   September 10, 2013
@@ -43,7 +43,7 @@ class Details(dict):
             :type values: any Python object
             :param property_type: The property type of the detail, optional,
                 defaults to None
-            :type property_type: `pyboreholes.PropertyType`
+            :type property_type: `pysiss.borehole.PropertyType`
         """
         self[name] = self.detail_type(name=name,
                                       values=values,

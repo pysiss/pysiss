@@ -1,4 +1,4 @@
-""" file: nvcl.py (pyboreholes.importers)
+""" file: nvcl.py (pysiss.borehole.importers)
     author: Josh Vote and Jess Robertson
             CSIRO Earth Science and Resource Engineering
     date:   23 December 2013
@@ -315,7 +315,7 @@ class NVCLImporter(object):
         raise NotImplemented
 
     def get_borehole(self, hole_ident, name=None, get_analytes=True):
-        """ Generates a pyboreholes.Borehole instance containing the data from
+        """ Generates a pysiss.borehole.Borehole instance containing the data from
             the given borehole.
 
             Each dataset defined on the borehole is downloaded down into a
@@ -328,9 +328,9 @@ class NVCLImporter(object):
             :type name: string
             :param get_analytes: If True, the analytes will also be downloaded
             :type get_analytes: bool
-            :returns: a `pyboreholes.Borehole` object
+            :returns: a `pysiss.borehole.Borehole` object
         """
-        # Generate pyboreholes.Borehole instance to hold the data
+        # Generate pysiss.borehole.Borehole instance to hold the data
         if name is None:
             name = hole_ident
         siss_bhl_generator = SISSBoreholeGenerator()

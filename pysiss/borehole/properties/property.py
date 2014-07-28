@@ -1,9 +1,9 @@
-""" file: property.py (pyboreholes.properties)
+""" file: property.py (pysiss.borehole.properties)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     date: Sunday November 10, 2013
 
-    description: Imports for pyboreholes.properties
+    description: Imports for pysiss.borehole.properties
 """
 
 class Property(object):
@@ -15,7 +15,7 @@ class Property(object):
         feature is should be a single value unless it is a multivalued category
 
         :param property_type: The property metadata for the property
-        :type property_type: pyboreholes.properties.property_type
+        :type property_type: pysiss.borehole.properties.property_type
         :param values: A list of values to store
         :type values: iterable
     """
