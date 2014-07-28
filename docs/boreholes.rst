@@ -1,7 +1,7 @@
 .. _boreholes:
 
 .. _base_namespace:
-.. py:module:: pyboreholes
+.. py:module:: pysiss.borehole
 
 Borehole class
 ==============
@@ -13,6 +13,6 @@ In the future this class may include methods to desurvey a borehole and interpre
 Borehole class API
 ------------------
 
-.. autoclass:: pyboreholes.Borehole
+.. autoclass:: pysiss.borehole.Borehole
     :members:
     :undoc-members:

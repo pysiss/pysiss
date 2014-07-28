@@ -1,4 +1,4 @@
-Building and installing `pyboreholes`
+Building and installing `pysiss.borehole`
 =====================================
 
 .. _installation:
@@ -6,7 +6,7 @@ Building and installing `pyboreholes`
 Installing dependencies
 -----------------------
 
-`pyboreholes` has a few dependencies, most of which come from the numpy/scipy/matplotlib ecosystem. You will have to have `numpy <http://numpy.org>`_ at a minimum, while you will need `scipy <http://scipy.org>`_ and `cwavelets <https://stash.csiro.au/projects/DARDA/repos/cwavelets/browse>`_ to use the pyboreholes.analysis module, `matplotlib <http://matplotlib.org>`_ for the plotting module, and `pywavelets <http://www.pybytes.com/pywavelets/>`_ to have access to the SpectralDomain class. You can install all of these (with the exception of the `cwavelets` library, see below) in a single line with the following command:
+`pysiss.borehole` has a few dependencies, most of which come from the numpy/scipy/matplotlib ecosystem. You will have to have `numpy <http://numpy.org>`_ at a minimum, while you will need `scipy <http://scipy.org>`_ and `cwavelets <https://stash.csiro.au/projects/DARDA/repos/cwavelets/browse>`_ to use the pysiss.borehole.analysis module, `matplotlib <http://matplotlib.org>`_ for the plotting module, and `pywavelets <http://www.pybytes.com/pywavelets/>`_ to have access to the SpectralDomain class. You can install all of these (with the exception of the `cwavelets` library, see below) in a single line with the following command:
 
     pip install numpy scipy matplotlib pywavelets
 
@@ -37,7 +37,7 @@ for more details.
 Building documentation
 ----------------------
 
-You're currently reading some version of the documentation generated from the pyboreholes library. If you want to build your own version then you will need to have a version of `sphinx <http://sphinx.pocoo.org/>`_ installed -- you can check by doing the following at a terminal prompt:
+You're currently reading some version of the documentation generated from the pysiss.borehole library. If you want to build your own version then you will need to have a version of `sphinx <http://sphinx.pocoo.org/>`_ installed -- you can check by doing the following at a terminal prompt:
 
   python -c 'import sphinx'
 
@@ -49,4 +49,4 @@ Now you are ready to build your docs, using make (or run the batch script `make.
 
   cd docs && make html
 
-(or :file:`latexpdf` if you want a LaTeX versionm, or :file:`epub` for ePub format - type :file:`make` to see all the options). The documentation will be dumped under :file:`build/<format>`. For HTML, if you point a browser to :file:`build/html/index.html`, you should see a basic sphinx site with the documentation for pyboreholes. For LaTeX you can open :file:`build/latex/pyboreholes.pdf` in your favourite PDF viewer to browse the documentation.
+(or :file:`latexpdf` if you want a LaTeX versionm, or :file:`epub` for ePub format - type :file:`make` to see all the options). The documentation will be dumped under :file:`build/<format>`. For HTML, if you point a browser to :file:`build/html/index.html`, you should see a basic sphinx site with the documentation for pysiss.borehole. For LaTeX you can open :file:`build/latex/pysiss.borehole.pdf` in your favourite PDF viewer to browse the documentation.
