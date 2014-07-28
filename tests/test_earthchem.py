@@ -10,7 +10,7 @@ import unittest
 from pysiss.vocabulary.lithology.composition import EarthChemQuery
 
 
-class TestEarthChemQue(unittest.TestCase):
+class TestEarthChemQuery(unittest.TestCase):
 
     """ Unit tests for EarthChemQuery class
     """
@@ -22,8 +22,8 @@ class TestEarthChemQue(unittest.TestCase):
         expected = ('http://ecp.iedadata.org/restsearchservice?outputtype=json'
                     '&keyword=basalt&author=jess')
         self.assertTrue(query.url == expected)
-        self.assertTrue(set(query.keys) == set('keyword', 'author'))
-        self.assertTrue(set(query.values) == set('basalt', 'jess'))
+        self.assertTrue(set(query.keys()) == set(('keyword', 'author')))
+        self.assertTrue(set(query.values()) == set(('basalt', 'jess')))
 
     def test_changes(self):
         """ Check that changes to the query values are represented in the url
@@ -42,4 +42,4 @@ class TestEarthChemQue(unittest.TestCase):
         expected = ('http://ecp.iedadata.org/restsearchservice?outputtype=json'
                     '&keyword=basalt')
         self.assertTrue(query.url == expected)
-        self.assertTrue(set(query.keys) == set(['keyword']))
+        self.assertTrue(set(query.keys()) == set(['keyword']))
