@@ -112,7 +112,7 @@ class Borehole(id_object):
         return self.features[name]
 
     def add_dataset(self, dataset):
-        """ Add an existing dataset instance to the borehole.
+        """ Add and return an existing dataset instance to the borehole.
 
             :param dataset: A precooked dataset with data
             :type dataset: subclassed from `pysiss.borehole.DataSet`
@@ -122,6 +122,7 @@ class Borehole(id_object):
 
         # Add to the given attribute using the dataset name as a key
         getattr(self, add_to_attr)[dataset.name] = dataset
+        return dataset
 
     def add_interval_dataset(self, name, from_depths, to_depths):
         """ Add and return a new IntervalDataSet
@@ -137,9 +138,9 @@ class Borehole(id_object):
 
             :returns: the new `pysiss.borehole.IntervalDataSet` instance.
         """
-        self.interval_datasets[name] = \
-            IntervalDataSet(name, from_depths, to_depths)
-        return self.interval_datasets[name]
+        return self.add_dataset(IntervalDataSet(name=name,
+                                                from_depths=from_depths,
+                                                to_depths=to_depths))
 
     def add_point_dataset(self, name, depths):
         """ Add and return a new PointDataSet.
@@ -151,8 +152,8 @@ class Borehole(id_object):
             :type depths: iterable of numeric values
             :returns: the new `pysiss.borehole.PointDataSet` instance.
         """
-        self.point_datasets[name] = PointDataSet(name, depths)
-        return self.point_datasets[name]
+        return self.add_dataset(PointDataSet(name=name,
+                                             depths=depths))
 
     def desurvey(self, depths, crs):
         """ Return the depths as three-dimensional points in the given
