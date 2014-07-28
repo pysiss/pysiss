@@ -9,7 +9,7 @@
 from .details import Details, detail_type
 from .datasets import DataSet, PointDataSet, IntervalDataSet
 from .properties import Property
-from .utilities import id_object
+from ...utilities import id_object
 
 
 class Borehole(id_object):
@@ -58,9 +58,9 @@ class Borehole(id_object):
 
     # Mapping dataset types to class attributes
     _type_to_attr = {
-        DataSet: 'datasets',
-        PointDataSet: 'point_datasets',
-        IntervalDataSet: 'interval_datasets',
+        type(DataSet): 'datasets',
+        type(PointDataSet): 'point_datasets',
+        type(IntervalDataSet): 'interval_datasets',
     }
 
     def __init__(self, name, origin_position=None):
@@ -248,8 +248,10 @@ class OriginPosition(id_object):
     """
 
     def __init__(self, latitude, longitude, elevation, property_type=None):
-        super(OriginPosition, self).__init__(name=str((latitude, longitude,
-                                                       elevation, property_type)))
+        super(OriginPosition, self).__init__(name=str((latitude,
+                                                       longitude,
+                                                       elevation,
+                                                       property_type)))
         self.latitude = latitude
         self.longitude = longitude
         self.elevation = elevation
@@ -261,8 +263,9 @@ class OriginPosition(id_object):
         info = "latitude {0}, longitude {1}, elevation {2}"
         info = info.format(self.latitude, self.longitude, self.elevation)
         if self.property_type is not None:
-            info = (info + ", {0}").format(self.property_type) 
+            info = (info + ", {0}").format(self.property_type)
         return info
+
 
 class BoreholeDetails(Details):
 

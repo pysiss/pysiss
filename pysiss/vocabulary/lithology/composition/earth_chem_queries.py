@@ -27,7 +27,7 @@ def get_documentation():
     # Construct request from EarthChem rest documentation
     url, schema = None, None
     cached_doco_file = pkg_resources.resource_filename(
-        "lithologies.resources",
+        "pysiss.vocabulary.resources",
         "earthchem_rest_search_documentation.html")
     try:
         url = urllib.urlopen(rest_doco_url)
@@ -56,9 +56,6 @@ def get_documentation():
         itemdoc = strip_whitespace(item.contents[1].contents[0])
         docs[itemname] = itemdoc
 
-    # Clean up schema and return
-    if schema:
-        schema.close()
     return docs
 
 

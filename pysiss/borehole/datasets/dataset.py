@@ -11,7 +11,7 @@
 
 from ..properties import Property
 from ..details import Details, detail_type
-from ..utilities import id_object
+from ...utilities import id_object
 
 
 class DataSet(id_object):

@@ -23,13 +23,21 @@ if version < '2.2.3':
 setup(
     name='pysiss',
     version='0.0.1',
-    description='A pythonic interface to Spatial Information Services Stack (SISS) services',
+    description='A pythonic interface to Spatial Information Services Stack '
+                '(SISS) services',
     long_description=open('README.md').read(),
     author='Jess Robertson',
     author_email='jesse.robertson@csiro.au',
     url='https://stash.csiro.au/projects/DARDA/repos/pysiss/',
     packages=find_packages(),
-    requires=['numpy', 'matplotlib', 'owslib'],
+    package_data={
+        'pyboreholes.resources': ['*']
+    },
+    install_requires=[
+        'matplotlib>=1.0.0',
+        'numpy>=1.6.0',
+        'OWSLib>=0.8.0'
+    ],
     test_suite='tests',
     ext_modules=[],
     classifiers=[
