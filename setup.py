@@ -23,11 +23,11 @@ if version < '2.2.3':
 setup(
     name='pysiss',
     version='0.0.1',
-    description='Python functions for analysing borehole data',
+    description='A pythonic interface to Spatial Information Services Stack (SISS) services',
     long_description=open('README.md').read(),
     author='Jess Robertson',
     author_email='jesse.robertson@csiro.au',
-    url='https://stash.csiro.au/projects/DARDA/repos/python_boreholes/',
+    url='https://stash.csiro.au/projects/DARDA/repos/pysiss/',
     packages=find_packages(),
     requires=['numpy', 'matplotlib', 'owslib'],
     test_suite='tests',
