@@ -43,3 +43,11 @@ class TestEarthChemQuery(unittest.TestCase):
                     '&keyword=basalt')
         self.assertTrue(query.url == expected)
         self.assertTrue(set(query.keys()) == set(['keyword']))
+
+    def test_unknown_key(self):
+        """ Check that submitting an unknown key raises a KeyError
+        """
+        query = EarthChemQuery(
+            author='jess',
+            keyword='basalt')
+        self.assertRaises(KeyError, query.__setitem__, ('foo', 'bar'))

@@ -111,6 +111,10 @@ class EarthChemQuery(dict):
     @property
     def result(self):
         """ Query the webservice using the current query
+
+            Raises an IOError if the URL call fails.
         """
         # Make a call to the webservice
-        pass
+        results = simplejson.load(urllib.urlopen(self.url))
+
+        # Parse the data from that
