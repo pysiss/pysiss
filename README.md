@@ -18,6 +18,12 @@ Once you've got the numpy/scipy/matplotlib stack installed, you need:
 
 - [pandas][3] for data munging, 
 - [owslib][12] for calls to SISS services,
+- [simplejson](https://pypi.python.org/pypi/simplejson), [lxml](http://lxml.de) and [BeautifulSoup](http://www.crummy.com/software/BeautifulSoup/) for dealing with JSON, XML and text data for some of the queries.
+
+If you want to run the examples, you might also want to consider
+
+- [folium](http://folium.readthedocs.org/en/latest/) a python wrapper for leaflet.js maps
+
 
 If you've installed all the libraries above, all you should need to do is enter the python directory, and execute
 

@@ -4,6 +4,16 @@ import pkg_resources
 from bs4 import BeautifulSoup
 import textwrap
 from collections import OrderedDict
+from lxml import etree
+import pandas
+import simplejson
+
+CACHED_SCHEMA_FILE = pkg_resources.resource_filename(
+    "pysiss.vocabulary.resources",
+    "earthchem_soap_search_schema.xsd")
+
+with open(CACHED_SCHEMA_FILE, 'rb') as fhandle:
+    SCHEMA_TREE = etree.parse(fhandle)
 
 
 def strip_whitespace(string):
@@ -13,6 +23,18 @@ def strip_whitespace(string):
                   string.replace('\n', ' ').replace('\t', ' ').strip())
 
 
+def get_enumeration_values_from_schema(attribute_name):
+    """ Get the enumeration values associated with a given attribute name
+        from the EarthChem SOAP schema
+    """
+    # Query looks for nodes with the given name that have a restriction
+    # and then lists the enumerated values after that
+    return SCHEMA_TREE.xpath(
+        ('//xs:attribute[@name="{0}"]/xs:simpleType/xs:restriction/'
+         'xs:enumeration/@value').format(attribute_name),
+        namespaces={'xs': "http://www.w3.org/2001/XMLSchema"})
+
+
 def get_documentation():
     """ Get query items and documentaton by scraping the EarthChem rest
         documentation
@@ -20,7 +42,6 @@ def get_documentation():
     # Keys to ignore when constructing the query class
     ignore_values = (
         re.compile('Example.*'),
-        re.compile('level[0-9]')
     )
     rest_doco_url = 'http://ecp.iedadata.org/rest_search_documentation/'
 
@@ -44,7 +65,7 @@ def get_documentation():
             url.close()
 
     # Parse schema for proper values
-    soup, docs = BeautifulSoup(schema), OrderedDict()
+    soup, docs, restrictions = BeautifulSoup(schema), OrderedDict(), {}
     for item in soup.select('.itemtitle'):
         # Check that we actually want to keep this value
         itemname = strip_whitespace(item.contents[0])
@@ -56,7 +77,12 @@ def get_documentation():
         itemdoc = strip_whitespace(item.contents[1].contents[0])
         docs[itemname] = itemdoc
 
-    return docs
+        # Check whether the item is restricted in the values it can take
+        allowed_vals = get_enumeration_values_from_schema(itemname)
+        if allowed_vals:
+            restrictions[itemname] = set(allowed_vals)
+
+    return docs, restrictions
 
 
 def _make_query_docstring():
@@ -74,36 +100,57 @@ def _make_query_docstring():
 
         Allowed keywords are:
         """)
-    docdict = get_documentation()
+    docdict, restrictions = get_documentation()
     for item in docdict.items():
-        docstr += '\n' + wrapper.fill('{0} - {1}'.format(*item))
+        current_item_str = '{0} - {1}'.format(*item)
+        if current_item_str.endswith('EarthChem SOAP search'):
+            current_item_str = \
+                current_item_str[:-len('in the EarthChem SOAP search')]
+            current_item_str += (
+                'by calling '
+                'EarthChemQuery().restrictions["{0}"]'
+            ).format(item[0])
+        docstr += '\n' + wrapper.fill(current_item_str)
     return docstr
 
 
 class EarthChemQuery(dict):
 
     __doc__ = _make_query_docstring()
-    docdict = get_documentation()
+    docdict, restrictions = get_documentation()
+    _valid_keys = None
 
-    def __init__(self, **kwargs):
-        for key, value in kwargs.items():
-            # Check that items are ok to query
-            if key not in self.docdict.keys():
-                raise KeyError('Unknown key {0}'.format(key))
+    def __init__(self, max_results=None, *args, **kwargs):
+        self.max_results = max_results
+        super(EarthChemQuery, self).__init__(*args, **kwargs)
 
-            # Add to dictionary
-            self[key] = str(value)
+    def __getitem__(self, key):
+        self._check_key(key)
+        try:
+            return super(EarthChemQuery, self).__getitem__(key)
+        except KeyError:
+            return None
 
     def __setitem__(self, key, value):
-        if value is None:
+        self._check_key(key)
+        if key == 'outputtype':
+            raise KeyError("If you change the output type to something other"
+                           "than JSON I won't know how to parse the results "
+                           "of the query.")
+        if value is None and key in self.keys():
             del self[key]
+        elif key in self.restrictions.keys() and \
+                value not in self.restrictions[key].values:
+            raise KeyError('Unknown value {0} for key {1}. Allowed '
+                           'values are {2}'.format(value, key,
+                                                   self.restrictions[key]))
         else:
             super(EarthChemQuery, self).__setitem__(key, value)
 
     @property
     def url(self):
         query_string = ('http://ecp.iedadata.org/restsearchservice?'
-                        'outputtype=json')
+                        'outputtype=json&searchtype=rowdata&standarditems=yes')
         for item in self.items():
             query_string += '&{0}={1}'.format(*item)
         return query_string
@@ -111,6 +158,53 @@ class EarthChemQuery(dict):
     @property
     def result(self):
         """ Query the webservice using the current query
+
+            Raises an IOError if the URL call fails.
         """
+        # Function to make webservice call
+        def get_slab(start, end):
+            print 'Getting results {0} to {1}'.format(start, end - 1)
+            url = self.url + \
+                '&startrow={0}&endrow={1}'.format(index, end_index)
+            return simplejson.load(urllib.urlopen(url))
+
         # Make a call to the webservice
-        pass
+        max_rows_per_call = 50  # EarthChem imposes this limit
+        have_everything, index = False, 0
+        results = []
+        if self.max_results is not None:
+            while len(results) < self.max_results:
+                end_index = min(index + max_rows_per_call, self.max_results)
+                slab = get_slab(index, end_index)
+                results.extend(slab)
+                if len(slab) < max_rows_per_call:
+                    break
+                else:
+                    index += max_rows_per_call
+        else:
+            # We just loop til we run out of results from the server
+            while True:
+                end_index = index + max_rows_per_call
+                slab = get_slab(index, end_index)
+                results.extend(slab)
+                if len(slab) < max_rows_per_call:
+                    break
+                else:
+                    index += max_rows_per_call
+
+        # Convert data to DataFrame, munge in floats
+        results = pandas.DataFrame(results)
+        for key in results.keys():
+            if key not in ('sample_id', 'source'):
+                results[key] = \
+                    results[key].convert_objects(convert_numeric=True)
+        return results
+
+    def _check_key(self, key):
+        """ Check that a key is a valid search parameter
+        """
+        if not self._valid_keys:
+            self._valid_keys = set(self.docdict.keys())
+
+        if key not in self._valid_keys:
+            raise KeyError('Unknown key {0}'.format(key))
