@@ -37,7 +37,11 @@ setup(
     install_requires=[
         'matplotlib>=1.0.0',
         'numpy>=1.6.0',
-        'OWSLib>=0.8.0'
+        'OWSLib>=0.8.0',
+        'simplejson>=3',
+        'lxml',
+        'beautifulsoup4',
+        'pandas>=0.10'
     ],
     test_suite='tests',
     ext_modules=[],

@@ -46,12 +46,17 @@
 	[
 		{
 			"name": "Production build",
-			"cmd": ["./build_all.sh"],
+			"cmd": ["python", "setup.py", "build"],
 			"working_dir": "$project_path"
 		},
 		{
 			"name": "Install",
 			"cmd": ["python", "setup.py", "install", "--user"],
+			"working_dir": "$project_path"
+		},
+		{
+			"name": "Run test suite",
+			"cmd": ["python", "setup.py", "test"],
 			"working_dir": "$project_path"
 		}
 	]
