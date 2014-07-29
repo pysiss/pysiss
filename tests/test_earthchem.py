@@ -20,7 +20,7 @@ class TestEarthChemQuery(unittest.TestCase):
             author='jess',
             keyword='basalt')
         expected = ('http://ecp.iedadata.org/restsearchservice?outputtype=json'
-                    '&keyword=basalt&author=jess')
+                    '&searchtype=rowdata&keyword=basalt&author=jess')
         self.assertTrue(query.url == expected)
         self.assertTrue(set(query.keys()) == set(('keyword', 'author')))
         self.assertTrue(set(query.values()) == set(('basalt', 'jess')))
@@ -32,15 +32,15 @@ class TestEarthChemQuery(unittest.TestCase):
             author='jess',
             keyword='basalt')
         expected = ('http://ecp.iedadata.org/restsearchservice?outputtype=json'
-                    '&keyword=basalt&author=jess')
+                    '&searchtype=rowdata&keyword=basalt&author=jess')
         self.assertTrue(query.url == expected)
         query['author'] = 'ben'
         expected = ('http://ecp.iedadata.org/restsearchservice?outputtype=json'
-                    '&keyword=basalt&author=ben')
+                    '&searchtype=rowdata&keyword=basalt&author=ben')
         self.assertTrue(query.url == expected)
         query['author'] = None
         expected = ('http://ecp.iedadata.org/restsearchservice?outputtype=json'
-                    '&keyword=basalt')
+                    '&searchtype=rowdata&keyword=basalt')
         self.assertTrue(query.url == expected)
         self.assertTrue(set(query.keys()) == set(['keyword']))
 
@@ -50,4 +50,19 @@ class TestEarthChemQuery(unittest.TestCase):
         query = EarthChemQuery(
             author='jess',
             keyword='basalt')
-        self.assertRaises(KeyError, query.__setitem__, ('foo', 'bar'))
+        self.assertRaises(KeyError,
+                          lambda x, y: query.__setitem__(x, y),
+                          'foo', 'bar')
+        self.assertRaises(KeyError, EarthChemQuery, foo='bar')
+
+    def test_unknown_value(self):
+        """ Check that submitting an unknown value for the EarthChem
+            query raises a KeyError
+        """
+        query = EarthChemQuery(
+            author='jess',
+            keyword='basalt')
+        self.assertRaises(KeyError,
+                          lambda x, y: query.__setitem__(x, y),
+                          'level4', 'bar')
+        self.assertRaises(KeyError, EarthChemQuery, evel4='bar')
