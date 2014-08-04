@@ -5,7 +5,7 @@ This is a python module designed to make it easy to perform analysis based on SI
 
 **Warning** - this library is in a pre-pre-pre-alpha state and could change without warning.
 
-For a list of contributors, see `contributors.md`.
+This library is released under the CSIRO BSD/MIT license, whose terms are available in the `LICENSE.md` file. For a list of contributors, see `contributors.md`.
 
 Building and installing pysiss
 ------------------------------
