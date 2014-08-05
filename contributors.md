@@ -1,10 +1,9 @@
-Maintainer: 
------------
+### Maintainer: 
+
 Jess Robertson, CSIRO Mineral Resources Flagship
 jesse.robertson with CSIRO's domain (google it)
 
-Contributors (in no particular order):
---------------------------------------
+# Contributors (in no particular order):
 
 David Benn, CSIRO Information Management and Technology
 Ben Caradoc-Davies, CSIRO Mineral Resources Flagship
