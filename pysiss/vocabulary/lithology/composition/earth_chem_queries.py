@@ -1,12 +1,13 @@
-import urllib
+import urllib2 as urllib
 import re
 import pkg_resources
 from bs4 import BeautifulSoup
 import textwrap
 from collections import OrderedDict
-from lxml import etree
 import pandas
 import simplejson
+
+from lxml import etree
 
 CACHED_SCHEMA_FILE = pkg_resources.resource_filename(
     "pysiss.vocabulary.resources",

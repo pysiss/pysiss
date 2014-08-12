@@ -8,7 +8,7 @@
 
 import unittest
 import numpy
-from pysiss.borehole.utilities import mask_all_nans
+from pysiss.utilities import mask_all_nans
 
 
 class TestMaskNans(unittest.TestCase):
