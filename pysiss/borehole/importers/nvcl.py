@@ -13,7 +13,7 @@ from ...utilities import Singleton
 from owslib.wfs import WebFeatureService
 import numpy
 import pandas
-import urllib
+import urllib2 as urllib
 import xml.etree.ElementTree
 
 
@@ -314,9 +314,10 @@ class NVCLImporter(object):
         """
         raise NotImplemented
 
-    def get_borehole(self, hole_ident, name=None, get_analytes=True):
-        """ Generates a pysiss.borehole.Borehole instance containing the data from
-            the given borehole.
+    def get_borehole(self, hole_ident, name=None, get_analytes=True,
+                     raise_error=True):
+        """ Generates a pysiss.borehole.Borehole instance containing the data
+            from the given borehole.
 
             Each dataset defined on the borehole is downloaded down into a
             seperate Dataset instance
@@ -328,25 +329,34 @@ class NVCLImporter(object):
             :type name: string
             :param get_analytes: If True, the analytes will also be downloaded
             :type get_analytes: bool
+            :param raise_error: Whether to raise an exception on an HTTP error
+                (e.g. 404'd). If false, get_borehole returns None.
             :returns: a `pysiss.borehole.Borehole` object
         """
-        # Generate pysiss.borehole.Borehole instance to hold the data
-        if name is None:
-            name = hole_ident
-        siss_bhl_generator = SISSBoreholeGenerator()
-        bh_url = self.get_borehole_idents_and_urls()[hole_ident]
-        bhl = siss_bhl_generator.geosciml_to_borehole(
-            name, urllib.urlopen(bh_url))
+        try:
+            # Generate pysiss.borehole.Borehole instance to hold the data
+            if name is None:
+                name = hole_ident
+            siss_bhl_generator = SISSBoreholeGenerator()
+            bh_url = self.get_borehole_idents_and_urls()[hole_ident]
+            bhl = siss_bhl_generator.geosciml_to_borehole(
+                name, urllib.urlopen(bh_url))
 
-        # For each dataset in the NVCL we want to add a dataset and store the
-        # dataset information in the DatasetDetails
-        if get_analytes:
-            datasets = self.get_dataset_idents(hole_ident)
-            for dataset_name, dataset_guid in datasets.items():
-                dataset = self.get_analytes(hole_ident=hole_ident,
-                                            dataset_name=dataset_name,
-                                            dataset_ident=dataset_guid)
-                if dataset is not None:
-                    bhl.add_dataset(dataset)
+            # For each dataset in the NVCL we want to add a dataset and store
+            # the dataset information in the DatasetDetails
+            if get_analytes:
+                datasets = self.get_dataset_idents(hole_ident)
+                for dataset_name, dataset_guid in datasets.items():
+                    dataset = self.get_analytes(hole_ident=hole_ident,
+                                                dataset_name=dataset_name,
+                                                dataset_ident=dataset_guid)
+                    if dataset is not None:
+                        bhl.add_dataset(dataset)
 
-        return bhl
+            return bhl
+
+        except urllib.HTTPError, err:
+            if raise_error:
+                raise err
+            else:
+                return None

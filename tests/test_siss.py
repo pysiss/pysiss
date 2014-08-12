@@ -11,7 +11,7 @@
 from datetime import datetime
 import os
 import unittest
-import urllib
+import urllib2 as urllib
 
 import pysiss.borehole as pybh
 

@@ -1,4 +1,4 @@
-import urllib
+import urllib2 as urllib
 import re
 import pkg_resources
 from bs4 import BeautifulSoup
