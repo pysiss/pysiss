@@ -355,7 +355,7 @@ class NVCLImporter(object):
 
             return bhl
 
-        except urllib.HTTPError, err:
+        except Exception, err:
             if raise_error:
                 raise err
             else:
