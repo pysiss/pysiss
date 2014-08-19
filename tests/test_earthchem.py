@@ -20,7 +20,8 @@ class TestEarthChemQuery(unittest.TestCase):
             author='jess',
             keyword='basalt')
         expected = ('http://ecp.iedadata.org/restsearchservice?outputtype=json'
-                    '&searchtype=rowdata&keyword=basalt&author=jess')
+                    '&searchtype=rowdata&standarditems=yes&keyword=basalt'
+                    '&author=jess')
         self.assertTrue(query.url == expected)
         self.assertTrue(set(query.keys()) == set(('keyword', 'author')))
         self.assertTrue(set(query.values()) == set(('basalt', 'jess')))
@@ -32,15 +33,17 @@ class TestEarthChemQuery(unittest.TestCase):
             author='jess',
             keyword='basalt')
         expected = ('http://ecp.iedadata.org/restsearchservice?outputtype=json'
-                    '&searchtype=rowdata&keyword=basalt&author=jess')
+                    '&searchtype=rowdata&standarditems=yes&keyword=basalt'
+                    '&author=jess')
         self.assertTrue(query.url == expected)
         query['author'] = 'ben'
         expected = ('http://ecp.iedadata.org/restsearchservice?outputtype=json'
-                    '&searchtype=rowdata&keyword=basalt&author=ben')
+                    '&searchtype=rowdata&standarditems=yes&keyword=basalt'
+                    '&author=ben')
         self.assertTrue(query.url == expected)
         query['author'] = None
         expected = ('http://ecp.iedadata.org/restsearchservice?outputtype=json'
-                    '&searchtype=rowdata&keyword=basalt')
+                    '&searchtype=rowdata&standarditems=yes&keyword=basalt')
         self.assertTrue(query.url == expected)
         self.assertTrue(set(query.keys()) == set(['keyword']))
 
@@ -65,7 +68,7 @@ class TestEarthChemQuery(unittest.TestCase):
         self.assertRaises(KeyError,
                           lambda x, y: query.__setitem__(x, y),
                           'level4', 'bar')
-        self.assertRaises(KeyError, EarthChemQuery, evel4='bar')
+        self.assertRaises(KeyError, EarthChemQuery, level4='bar')
 
     def test_jsondecode_load_empty(self):
         """ Check that empty search results are handled properly.
