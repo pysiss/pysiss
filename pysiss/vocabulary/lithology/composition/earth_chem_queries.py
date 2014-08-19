@@ -198,6 +198,8 @@ class EarthChemQuery(dict):
                     index += max_rows_per_call
 
         # Convert data to DataFrame, munge in floats
+        if len(results) == 0:
+            print 'Warning: your search returned no results!'
         results = pandas.DataFrame(results)
         for key in results.keys():
             if key not in ('sample_id', 'source'):
