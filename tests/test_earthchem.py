@@ -72,4 +72,7 @@ class TestEarthChemQuery(unittest.TestCase):
         """
         query = EarthChemQuery(level3='exotic',
                                level4='basanite')
-        query.results
+        query.result
+
+if __name__ == '__main__':
+    unittest.main()
