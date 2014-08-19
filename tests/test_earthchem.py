@@ -56,7 +56,6 @@ class TestEarthChemQuery(unittest.TestCase):
         self.assertRaises(KeyError,
                           lambda x, y: query.__setitem__(x, y),
                           'foo', 'bar')
-        self.assertRaises(KeyError, EarthChemQuery, foo='bar')
 
     def test_unknown_value(self):
         """ Check that submitting an unknown value for the EarthChem
@@ -68,7 +67,6 @@ class TestEarthChemQuery(unittest.TestCase):
         self.assertRaises(KeyError,
                           lambda x, y: query.__setitem__(x, y),
                           'level4', 'bar')
-        self.assertRaises(KeyError, EarthChemQuery, level4='bar')
 
     def test_jsondecode_load_empty(self):
         """ Check that empty search results are handled properly.
