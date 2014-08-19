@@ -141,7 +141,7 @@ class EarthChemQuery(dict):
         if value is None and key in self.keys():
             del self[key]
         elif key in self.restrictions.keys() and \
-                value not in self.restrictions[key].values:
+                value not in self.restrictions[key]:
             raise KeyError('Unknown value {0} for key {1}. Allowed '
                            'values are {2}'.format(value, key,
                                                    self.restrictions[key]))
