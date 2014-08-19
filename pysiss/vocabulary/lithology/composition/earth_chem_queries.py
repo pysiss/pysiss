@@ -167,7 +167,11 @@ class EarthChemQuery(dict):
             print 'Getting results {0} to {1}'.format(start, end - 1)
             url = self.url + \
                 '&startrow={0}&endrow={1}'.format(index, end_index)
-            return simplejson.load(urllib.urlopen(url))
+            try:
+                return simplejson.load(urllib.urlopen(url))
+            except simplejson.JSONDecodeError:
+                # We have an empty result, so return None
+                return {}
 
         # Make a call to the webservice
         max_rows_per_call = 50  # EarthChem imposes this limit
