@@ -30,10 +30,11 @@ def get_enumeration_values_from_schema(attribute_name):
     """
     # Query looks for nodes with the given name that have a restriction
     # and then lists the enumerated values after that
-    return SCHEMA_TREE.xpath(
-        ('//xs:attribute[@name="{0}"]/xs:simpleType/xs:restriction/'
-         'xs:enumeration/@value').format(attribute_name),
-        namespaces={'xs': "http://www.w3.org/2001/XMLSchema"})
+    return [k for k in SCHEMA_TREE.xpath(
+            ('//xs:attribute[@name="{0}"]/xs:simpleType/xs:restriction/'
+             'xs:enumeration/@value').format(attribute_name),
+            namespaces={'xs': "http://www.w3.org/2001/XMLSchema"})
+            if k != '']
 
 
 def get_documentation():
