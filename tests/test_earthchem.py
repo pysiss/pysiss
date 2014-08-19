@@ -66,3 +66,10 @@ class TestEarthChemQuery(unittest.TestCase):
                           lambda x, y: query.__setitem__(x, y),
                           'level4', 'bar')
         self.assertRaises(KeyError, EarthChemQuery, evel4='bar')
+
+    def test_jsondecode_load_empty(self):
+        """ Check that empty search results are handled properly.
+        """
+        query = EarthChemQuery(level3='exotic',
+                               level4='basanite')
+        query.results
