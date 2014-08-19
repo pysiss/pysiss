@@ -30,10 +30,11 @@ def get_enumeration_values_from_schema(attribute_name):
     """
     # Query looks for nodes with the given name that have a restriction
     # and then lists the enumerated values after that
-    return SCHEMA_TREE.xpath(
-        ('//xs:attribute[@name="{0}"]/xs:simpleType/xs:restriction/'
-         'xs:enumeration/@value').format(attribute_name),
-        namespaces={'xs': "http://www.w3.org/2001/XMLSchema"})
+    return [k for k in SCHEMA_TREE.xpath(
+            ('//xs:attribute[@name="{0}"]/xs:simpleType/xs:restriction/'
+             'xs:enumeration/@value').format(attribute_name),
+            namespaces={'xs': "http://www.w3.org/2001/XMLSchema"})
+            if k != '']
 
 
 def get_documentation():
@@ -141,7 +142,7 @@ class EarthChemQuery(dict):
         if value is None and key in self.keys():
             del self[key]
         elif key in self.restrictions.keys() and \
-                value not in self.restrictions[key].values:
+                value not in self.restrictions[key]:
             raise KeyError('Unknown value {0} for key {1}. Allowed '
                            'values are {2}'.format(value, key,
                                                    self.restrictions[key]))
@@ -167,7 +168,11 @@ class EarthChemQuery(dict):
             print 'Getting results {0} to {1}'.format(start, end - 1)
             url = self.url + \
                 '&startrow={0}&endrow={1}'.format(index, end_index)
-            return simplejson.load(urllib.urlopen(url))
+            try:
+                return simplejson.load(urllib.urlopen(url))
+            except simplejson.JSONDecodeError:
+                # We have an empty result, so return None
+                return {}
 
         # Make a call to the webservice
         max_rows_per_call = 50  # EarthChem imposes this limit
@@ -194,6 +199,8 @@ class EarthChemQuery(dict):
                     index += max_rows_per_call
 
         # Convert data to DataFrame, munge in floats
+        if len(results) == 0:
+            print 'Warning: your search returned no results!'
         results = pandas.DataFrame(results)
         for key in results.keys():
             if key not in ('sample_id', 'source'):
