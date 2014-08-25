@@ -13,22 +13,20 @@ from ..gml.unmarshallers import UNMARSHALLERS as GML_UNMARSHALLERS
 NAMESPACES = xml_namespaces.NamespaceRegistry()
 
 
-def mappedfeature(elem):
+def mapped_feature(elem):
     """ Unmarshal a gsml:MappedFeature element
     """
-    # We need an ident, a shape, a projection and then all other metadata gets
-    # stored as an lxml.etree instance
     # Shape and projection data
-    shape_elem = elem.xpath('./gsml:shape')[0]
+    shape_elem = elem.xpath('./gsml:shape', namespaces=NAMESPACES)[0]
     shape_data = shape(shape_elem)
-    shape_elem.clear()
+    shape_elem.clear()  # Remove shape element from metadata
 
     # Identifier
     ident = elem.get(xml_namespaces.expand_namespace('gml:id')) or None
 
     return MappedFeature(ident=ident, shape=shape_data['shape'],
                          projection=shape_data['projection'],
-                         metadata=elem.children())
+                         metadata=elem)
 
 
 def shape(elem):
@@ -80,7 +78,8 @@ UNMARSHALLERS = {
     'gsml:preferredAge': get_value,
     'gsml:observationMethod': get_value,
     'gsml:positionalAccuracy': get_value,
-    'gsml:samplingFrame': sampling_frame
+    'gsml:samplingFrame': sampling_frame,
+    'gsml:MappedFeature': mapped_feature
 }
 
 __all__ = (UNMARSHALLERS,)
