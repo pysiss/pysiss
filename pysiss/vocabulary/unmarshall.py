@@ -10,13 +10,11 @@ from .utilities import xml_namespaces
 from .gml import unmarshallers as gml
 from .gsml import unmarshallers as gsml
 from .erml import unmarshallers as erml
-from .lithology.composition import unmarshallers as comp
 
 UNMARSHALLERS = {}
 UNMARSHALLERS.update(gml.UNMARSHALLERS)
 UNMARSHALLERS.update(gsml.UNMARSHALLERS)
 UNMARSHALLERS.update(erml.UNMARSHALLERS)
-UNMARSHALLERS.update(comp.UNMARSHALLERS)
 
 
 def unmarshall(elem):
@@ -42,29 +40,29 @@ def process_element(elem):
         just skip the element altogether
     """
     # If we can unmarshall this directly, then lets do so
-    data = unmarshall(elem.tag)
+    return unmarshall(elem)
 
-    # If we can't then unmarshall will return None, so lets just return the
-    # element
-    if data:
-        return data
+    # # If we can't then unmarshall will return None, so lets just return the
+    # # element
+    # if data:
+    #     return data
 
-    elif len(elem) == 1:
-        return process_element(elem.iterchildren().next())
+    # elif len(elem) == 1:
+    #     return process_element(elem.iterchildren().next())
 
-    else:
-        # If we have attributes, get them
-        data = {}
-        for attrib, value in elem.items():
-            if attrib.startswith('{'):
-                data[xml_namespaces.shorten_namespace(attrib)] = value
-            else:
-                data[attrib] = value
+    # else:
+    #     # If we have attributes, get them
+    #     data = {}
+    #     for attrib, value in elem.items():
+    #         if attrib.startswith('{'):
+    #             data[xml_namespaces.shorten_namespace(attrib)] = value
+    #         else:
+    #             data[attrib] = value
 
-        # If we have children, get their data
-        for child in elem.iterchildren():
-            child_data = process_element(child)
-            if child_data:
-                data[xml_namespaces.shorten_namespace(child.tag)] = child_data
+    #     # If we have children, get their data
+    #     for child in elem.iterchildren():
+    #         child_data = process_element(child)
+    #         if child_data:
+    #             data[xml_namespaces.shorten_namespace(child.tag)] = child_data
 
-        return data
+    #     return data

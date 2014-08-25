@@ -6,7 +6,7 @@
     description: Unmarshalling functions for lithology objects
 """
 
-from ..utilities import xml_namespaces
+from ...utilities import xml_namespaces
 
 NAMESPACES = xml_namespaces.NamespaceRegistry()
 
