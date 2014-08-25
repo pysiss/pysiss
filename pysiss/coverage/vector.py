@@ -6,7 +6,7 @@
     desription: Implementation of classes for vector coverage data
 """
 
-from .utilities import project, id_object
+from ..utilities import project, id_object
 
 
 class MappedFeature(id_object):
@@ -16,9 +16,9 @@ class MappedFeature(id_object):
         Corresponds roughly to gsml:MappedFeatures
     """
 
-    def __init__(self, ident, shape, projection, metadata):
+    def __init__(self, shape, projection, ident=None, metadata=None):
         super(MappedFeature, self).__init__()
-        self.ident = ident
+        self.ident = ident or self.uuid
 
         # Store some info on the shape
         self.shape = shape
