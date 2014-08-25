@@ -31,9 +31,10 @@ setup(
     url='https://stash.csiro.au/projects/DARDA/repos/pysiss/',
     packages=find_packages(),
     package_data={
-        'pysiss.borehole.resources': ['*'],
+        'pysiss.borehole.gml.resources': ['*'],
+        'pysiss.vocabulary.geosciml.resources': ['*'],
         'pysiss.vocabulary.lithology.resources': ['*'],
-		'pysiss.vocabulary.geosciml.resources': ['*']
+        'pysiss.vocabulary.utilities': ['*']
     },
     install_requires=[
         'matplotlib>=1.0.0',
@@ -42,7 +43,9 @@ setup(
         'lxml',
         'simplejson>=3',
         'beautifulsoup4',
-        'pandas>=0.10'
+        'pandas>=0.10',
+        'shapely',
+        'rasterio'
     ],
     test_suite='tests',
     ext_modules=[],
