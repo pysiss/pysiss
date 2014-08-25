@@ -6,7 +6,7 @@
     description: Wrapper functionality for unmarshalling XML elements
 """
 
-from .utilities import xml_namespaces, shorten_namespace
+from .utilities import xml_namespaces
 from .gml import unmarshallers as gml
 from .gsml import unmarshallers as gsml
 from .erml import unmarshallers as erml
@@ -30,7 +30,7 @@ def unmarshall(elem):
     if unmarshall:
         return unmarshall(elem)
     else:
-        return None
+        return elem
 
 
 def process_element(elem):
@@ -47,8 +47,7 @@ def process_element(elem):
     # If we can't then unmarshall will return None, so lets just return the
     # element
     if data:
-
-        return unmarshall(elem)
+        return data
 
     elif len(elem) == 1:
         return process_element(elem.iterchildren().next())
@@ -58,7 +57,7 @@ def process_element(elem):
         data = {}
         for attrib, value in elem.items():
             if attrib.startswith('{'):
-                data[shorten_namespace(attrib)] = value
+                data[xml_namespaces.shorten_namespace(attrib)] = value
             else:
                 data[attrib] = value
 
@@ -66,6 +65,6 @@ def process_element(elem):
         for child in elem.iterchildren():
             child_data = process_element(child)
             if child_data:
-                data[shorten_namespace(child.tag)] = child_data
+                data[xml_namespaces.shorten_namespace(child.tag)] = child_data
 
         return data
