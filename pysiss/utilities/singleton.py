@@ -1,9 +1,11 @@
-""" file: objects.py (pysiss.utilities)
+""" file:   singleton.py(pysiss.utilities)
+    author: Jess Robertson
+            CSIRO Minerals Resources Flagship
+    date:   25 August 2014
 
-    description: Some basic metaclasses etc for defining pysiss classes
+    description: A Singleton class instance, add __metaclass__ = Singleton to
+    your class to use it
 """
-
-import uuid
 
 
 class Singleton(type):
@@ -28,23 +30,3 @@ class Singleton(type):
         if cls.instance is None:
             cls.instance = super(Singleton, cls).__call__(*args, **kwargs)
         return cls.instance
-
-
-class id_object(object):
-
-    """ A mixin class to implement UUID comparisons for child classes
-
-        This metaclass generates a UUID for a class at initialization,
-        and defines the class __eq__ method to use this UUID.
-    """
-
-    def __init__(self, name, *args, **kwargs):
-        super(id_object, self).__init__(*args, **kwargs)
-        self.uuid = uuid.uuid5(uuid.NAMESPACE_DNS, name)
-
-    def __eq__(self, other):
-        """ Equality test
-
-            Class instances are equal if their UUIDs match
-        """
-        return self.uuid == other.uuid
