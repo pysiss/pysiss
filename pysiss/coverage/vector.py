@@ -16,23 +16,25 @@ class MappedFeature(id_object):
         Corresponds roughly to gsml:MappedFeatures
     """
 
-    def __init__(self, shape, projection, ident=None, metadata=None):
-        super(MappedFeature, self).__init__()
+    def __init__(self, shape, projection, ident=None, metadata=None, **kwargs):
+        super(MappedFeature, self).__init__(name='mapped_feature')
         self.ident = ident or self.uuid
 
         # Store some info on the shape
         self.shape = shape
+        self.projection = projection
         self.centroid = self.shape.representative_point()
 
-        # Store metadata
-        self.projection = projection
+        # Store other metadata
+        for attrib, value in kwargs.items():
+            setattr(self, attrib, value)
         self.metadata = metadata
 
     def __repr__(self):
         """ String representation
         """
         info = 'MappedFeature {0} somewhere near {1} contains '
-        info_str = info.format(self.name, self.centroid)
+        info_str = info.format(self.ident, self.centroid)
         return info_str
 
     def reproject(self, new_projection):
