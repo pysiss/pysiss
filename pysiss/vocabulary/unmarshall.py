@@ -1,4 +1,4 @@
-""" file:   unmarshall.py (pysiss.vocabulary)
+""" file:   unmarshal.py (pysiss.vocabulary)
     author: Jess Robertson
             CSIRO Minerals Resources Flagship
     date:   Monday 25 August, 2014
@@ -17,16 +17,16 @@ UNMARSHALLERS.update(gsml.UNMARSHALLERS)
 UNMARSHALLERS.update(erml.UNMARSHALLERS)
 
 
-def unmarshall(elem):
-    """ Unmarshall an lxml.etree.Element element
+def unmarshal(elem):
+    """ Unmarshal an lxml.etree.Element element
 
         If there is no unmarshalling function available, this just returns the
         lxml.etree element.
     """
     tag = xml_namespaces.shorten_namespace(elem.tag)
-    unmarshall = UNMARSHALLERS.get(tag)
-    if unmarshall:
-        return unmarshall(elem)
+    unmarshal = UNMARSHALLERS.get(tag)
+    if unmarshal:
+        return unmarshal(elem)
     else:
         return elem
 
@@ -39,10 +39,10 @@ def process_element(elem):
         we return a dictionary of that data. If neither of these is true, we
         just skip the element altogether
     """
-    # If we can unmarshall this directly, then lets do so
-    return unmarshall(elem)
+    # If we can unmarshal this directly, then lets do so
+    return unmarshal(elem)
 
-    # # If we can't then unmarshall will return None, so lets just return the
+    # # If we can't then unmarshal will return None, so lets just return the
     # # element
     # if data:
     #     return data
@@ -63,6 +63,7 @@ def process_element(elem):
     #     for child in elem.iterchildren():
     #         child_data = process_element(child)
     #         if child_data:
-    #             data[xml_namespaces.shorten_namespace(child.tag)] = child_data
+    #             tag = xml_namespaces.shorten_namespace(child.tag)
+    #             data[tag] = child_data
 
     #     return data

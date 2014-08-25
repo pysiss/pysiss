@@ -13,7 +13,7 @@ NAMESPACES = xml_namespaces.NamespaceRegistry()
 
 
 def position(elem):
-    """ Unmarshall a gml:posList, gml:pos or gml:coordinates element
+    """ Unmarshal a gml:posList, gml:pos or gml:coordinates element
     """
     if elem.text:
         token_pairs = elem.text.split('\n')[1:-1]
@@ -23,7 +23,7 @@ def position(elem):
 
 
 def polygon(elem):
-    """ Unmarshall a gml:Polygon element
+    """ Unmarshal a gml:Polygon element
     """
     # Get the projection
     projection = elem.xpath('./gml:Polygon/@srsName',
@@ -47,7 +47,7 @@ def polygon(elem):
 
 
 def linestring(elem):
-    """ Unmarshall a gml:LineString element
+    """ Unmarshal a gml:LineString element
     """
     # Get the projection
     projection = elem.xpath('./gml:Polygon/@srsName',
@@ -63,7 +63,7 @@ def linestring(elem):
 
 
 def description(elem):
-    """ Unmarshall a gml:description element
+    """ Unmarshal a gml:description element
     """
     return elem.text
 

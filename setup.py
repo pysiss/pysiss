@@ -45,7 +45,8 @@ setup(
         'beautifulsoup4',
         'pandas>=0.10',
         'shapely',
-        'rasterio'
+        'rasterio',
+        'requests'
     ],
     test_suite='tests',
     ext_modules=[],
