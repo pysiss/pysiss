@@ -8,7 +8,9 @@
     TODO: Pull unknown namespace definitions from XML file and add to registry
 """
 
-from pysiss.utilities import Singleton
+import simplejson
+import pkg_resources
+from ...utilities import Singleton
 
 
 class NamespaceRegistry(dict):
@@ -18,20 +20,14 @@ class NamespaceRegistry(dict):
 
     __metaclass__ = Singleton
 
+    # Load default namespaces list in namespaces.json
+    default_namespaces = simplejson.load(
+        pkg_resources.resource_stream(
+            "pysiss.vocabulary.utilities", "namespaces.json"))
+
     def __init__(self):
         super(NamespaceRegistry, self).__init__()
-        self.update({
-            'gsml': 'urn:cgi:xmlns:CGI:GeoSciML:2.0',
-            'gml': 'http://www.opengis.net/gml',
-            'wfs': 'http://www.opengis.net/wfs',
-            'sa': 'http://www.opengis.net/sampling/1.0',
-            'om': 'http://www.opengis.net/om/1.0',
-            'cgu': 'urn:cgi:xmlns:CGI:DbUtils:1.0',
-            'xlink': 'http://www.w3.org/1999/xlink',
-            'ns': 'http://www.w3.org/XML/1998/namespace',
-            'ucum': 'urn:ogc:def:uom:UCUM',
-            'crs': 'urn:ogc:def:crs'
-        })
+        self.update(self.default_namespaces)
         self.inverse = dict(reversed(item) for item in self.items())
 
     def __setitem__(self, key, value):
