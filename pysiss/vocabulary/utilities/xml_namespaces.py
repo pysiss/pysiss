@@ -23,12 +23,14 @@ class NamespaceRegistry(dict):
         self.update({
             'gsml': 'urn:cgi:xmlns:CGI:GeoSciML:2.0',
             'gml': 'http://www.opengis.net/gml',
-            'wfs': "http://www.opengis.net/wfs",
-            'sa': "http://www.opengis.net/sampling/1.0",
-            'om': "http://www.opengis.net/om/1.0",
-            'cgu': "urn:cgi:xmlns:CGI:DbUtils:1.0",
-            'xlink': "http://www.w3.org/1999/xlink",
-            'ns': "http://www.w3.org/XML/1998/namespace"
+            'wfs': 'http://www.opengis.net/wfs',
+            'sa': 'http://www.opengis.net/sampling/1.0',
+            'om': 'http://www.opengis.net/om/1.0',
+            'cgu': 'urn:cgi:xmlns:CGI:DbUtils:1.0',
+            'xlink': 'http://www.w3.org/1999/xlink',
+            'ns': 'http://www.w3.org/XML/1998/namespace',
+            'ucum': 'urn:ogc:def:uom:UCUM',
+            'crs': 'urn:ogc:def:crs'
         })
         self.inverse = dict(reversed(item) for item in self.items())
 

@@ -1,59 +1,8 @@
-""" file:   utilities.py (pysiss.borehole)
-    author: Jess Robertson
-            CSIRO Earth Science and Resource Engineering
-    email:  jesse.robertson@csiro.au
-    date:   Wednesday May 1, 2013
-
-    description: Utility functions for the cwavelet module.
+""" file: maths.py (pysiss.utilities)
 """
 
 import numpy
 import functools
-import uuid
-
-
-class Singleton(type):
-
-    """ A singleton metaclass for implementing registries.
-
-        This metaclass implements the Singleton pattern, so that only one
-        instance of a class is ever instantiated. Subsequent calls to
-        `__init__` will return a reference to this instantiation. To use
-        this in your classes, just add
-
-            __metaclass__ = Singleton
-
-        to your class definition.
-    """
-
-    def __init__(cls, name, bases, dictionary):
-        super(Singleton, cls).__init__(name, bases, dictionary)
-        cls.instance = None
-
-    def __call__(cls, *args, **kwargs):
-        if cls.instance is None:
-            cls.instance = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls.instance
-
-
-class id_object(object):
-
-    """ A mixin class to implement UUID comparisons for child classes
-
-        This metaclass generates a UUID for a class at initialization,
-        and defines the class __eq__ method to use this UUID.
-    """
-
-    def __init__(self, name, *args, **kwargs):
-        super(id_object, self).__init__(*args, **kwargs)
-        self.uuid = uuid.uuid5(uuid.NAMESPACE_DNS, name)
-
-    def __eq__(self, other):
-        """ Equality test
-
-            Class instances are equal if their UUIDs match
-        """
-        return self.uuid == other.uuid
 
 
 def heaviside(values):
