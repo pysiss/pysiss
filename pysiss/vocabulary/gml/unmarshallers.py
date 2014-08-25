@@ -26,8 +26,8 @@ def polygon(elem):
     """ Unmarshal a gml:Polygon element
     """
     # Get the projection
-    projection = elem.xpath('./gml:Polygon/@srsName',
-                            namespaces=NAMESPACES)
+    projection = elem.xpath('.//@srsName',
+                            namespaces=NAMESPACES)[0]
 
     # Get outer boundary first, we always have this
     outer = position(
@@ -50,8 +50,8 @@ def linestring(elem):
     """ Unmarshal a gml:LineString element
     """
     # Get the projection
-    projection = elem.xpath('./gml:LineString/@srsName',
-                            namespaces=NAMESPACES)
+    projection = elem.xpath('.//@srsName',
+                            namespaces=NAMESPACES)[0]
 
     # Get the LineString text
     string = position(
