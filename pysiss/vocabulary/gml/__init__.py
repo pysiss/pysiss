@@ -6,6 +6,6 @@
     description: Dealing with Geography ML stuff
 """
 
-import unmarshallers.UNMARSHALLERS as unmarshallers
+import unmarshallers
 
 __all__ = [unmarshallers]
