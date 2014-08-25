@@ -1,4 +1,7 @@
-""" file: xml_REGISTRY.expand.py
+""" file:   xml_namespaces.py
+    author: Jess Robertson
+            CSIRO Mineral Resources Flagship
+    date:   Monday 25 August, 2014
 
     description: namespace handling for XML and etree formats
 

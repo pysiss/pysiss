@@ -8,5 +8,8 @@
 
 import lithology
 import geosciml
+import gml
+import erml
+import utilities
 
-__all__ = [lithology, geosciml]
+__all__ = [lithology, geosciml, gml, erml, utilities]
