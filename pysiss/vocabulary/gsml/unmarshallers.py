@@ -6,10 +6,29 @@
     description: Unmarshalling functions for GeoSciML/GML objects
 """
 
+from ...coverage.vector import MappedFeature
 from ..utilities import xml_namespaces
 from ..gml.unmarshallers import UNMARSHALLERS as GML_UNMARSHALLERS
 
 NAMESPACES = xml_namespaces.NamespaceRegistry()
+
+
+def mappedfeature(elem):
+    """ Unmarshal a gsml:MappedFeature element
+    """
+    # We need an ident, a shape, a projection and then all other metadata gets
+    # stored as an lxml.etree instance
+    # Shape and projection data
+    shape_elem = elem.xpath('./gsml:shape')[0]
+    shape_data = shape(shape_elem)
+    shape_elem.clear()
+
+    # Identifier
+    ident = elem.get(xml_namespaces.expand_namespace('gml:id')) or None
+
+    return MappedFeature(ident=ident, shape=shape_data['shape'],
+                         projection=shape_data['projection'],
+                         metadata=elem.children())
 
 
 def shape(elem):
