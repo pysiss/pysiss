@@ -1,7 +1,7 @@
 """ file:   __init__.py (pysiss.vocabulary.geosciml)
     author: Jess Robertson
-            Mineral Resources Flagship, CSIRO
-    date:   something
+            CSIRO Mineral Resources Flagship
+    date:   Monday 25 August, 2014
 
     description: init file
 """
