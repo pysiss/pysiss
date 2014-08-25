@@ -11,6 +11,8 @@ from .gml import unmarshallers as gml
 from .gsml import unmarshallers as gsml
 from .erml import unmarshallers as erml
 
+from lxml import etree
+
 UNMARSHALLERS = {}
 UNMARSHALLERS.update(gml.UNMARSHALLERS)
 UNMARSHALLERS.update(gsml.UNMARSHALLERS)
@@ -29,3 +31,16 @@ def unmarshal(elem):
         return unmarshal(elem)
     else:
         return None
+
+
+def unmarshal_all(filename, tag='gsml:MappedFeature'):
+    """ Unmarshall all instances of a tag from an xml file
+        and return them as a list of objects
+    """
+    tag = xml_namespaces.expand_namespace(tag)
+    results = []
+    with open(filename, 'rb') as fhandle:
+        context = iter(etree.iterparse(fhandle, events=('end',), tag=tag))
+        for event, elem in context:
+            results.append(unmarshal(elem))
+    return results
