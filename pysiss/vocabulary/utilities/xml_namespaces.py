@@ -88,7 +88,3 @@ def split_namespace(tag):
         # Don't know what to do here? Just return None for namespace
         ns = None
     return ns, tag
-
-
-__all__ = [add_namespace, shorten_namespace,
-           expand_namespace, split_namespace]
