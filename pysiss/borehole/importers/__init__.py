@@ -7,5 +7,6 @@
     description: Initialisation of the pysiss.borehole.importers module.
 """
 
-import detcrc_xml
 import nvcl
+
+__all__ = [nvcl]
