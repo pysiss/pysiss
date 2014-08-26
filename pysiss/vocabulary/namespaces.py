@@ -10,7 +10,7 @@
 
 import simplejson
 import pkg_resources
-from ...utilities import Singleton
+from ..utilities import Singleton
 
 
 class NamespaceRegistry(dict):
