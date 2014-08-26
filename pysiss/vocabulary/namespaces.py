@@ -23,7 +23,7 @@ class NamespaceRegistry(dict):
     # Load default namespaces list in namespaces.json
     default_namespaces = simplejson.load(
         pkg_resources.resource_stream(
-            "pysiss.vocabulary.utilities", "namespaces.json"))
+            "pysiss.vocabulary.resources", "namespaces.json"))
 
     def __init__(self):
         super(NamespaceRegistry, self).__init__()

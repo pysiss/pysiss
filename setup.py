@@ -32,9 +32,9 @@ setup(
     packages=find_packages(),
     package_data={
         'pysiss.borehole.gml.resources': ['*'],
-        'pysiss.vocabulary.geosciml.resources': ['*'],
+        'pysiss.vocabulary.gsml.resources': ['*'],
         'pysiss.vocabulary.lithology.resources': ['*'],
-        'pysiss.vocabulary.utilities': ['*']
+        'pysiss.vocabulary.resources': ['*']
     },
     install_requires=[
         'matplotlib>=1.0.0',
