@@ -7,9 +7,9 @@
 """
 
 from shapely.geometry import Polygon, LineString
-from ..utilities import xml_namespaces
+from ..namespaces import NamespaceRegistry
 
-NAMESPACES = xml_namespaces.NamespaceRegistry()
+NAMESPACES = NamespaceRegistry()
 
 
 def position(elem):

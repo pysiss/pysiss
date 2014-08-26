@@ -7,10 +7,10 @@
 """
 
 from ...coverage.vector import MappedFeature
-from ..utilities import xml_namespaces
+from ..namespaces import NamespaceRegistry, expand_namespace, shorten_namespace
 from ..gml.unmarshallers import UNMARSHALLERS as GML_UNMARSHALLERS
 
-NAMESPACES = xml_namespaces.NamespaceRegistry()
+NAMESPACES = NamespaceRegistry()
 
 
 def mapped_feature(elem):
@@ -22,7 +22,7 @@ def mapped_feature(elem):
     shape_elem.clear()  # Remove shape element from metadata
 
     # Identifier
-    ident = elem.get(xml_namespaces.expand_namespace('gml:id')) or None
+    ident = elem.get(expand_namespace('gml:id')) or None
 
     return MappedFeature(ident=ident, shape=shape_data['shape'],
                          projection=shape_data['projection'],
@@ -35,7 +35,7 @@ def shape(elem):
         Here we just pass through to underlying gml shape data
     """
     child = elem[0]
-    unmarshal = GML_UNMARSHALLERS[xml_namespaces.shorten_namespace(child.tag)]
+    unmarshal = GML_UNMARSHALLERS[shorten_namespace(child.tag)]
     return unmarshal(child)
 
 
@@ -67,7 +67,7 @@ def cgi_termrange(elem):
 def sampling_frame(elem):
     """ Unmarshal a gsml:samplingFrame element
     """
-    return elem.get(xml_namespaces.expand_namespace('xlink:href'))
+    return elem.get(expand_namespace('xlink:href'))
 
 
 UNMARSHALLERS = {
