@@ -10,6 +10,6 @@ import lithology
 import geosciml
 import gml
 import erml
-import utilities
+import namespaces
 
-__all__ = [lithology, geosciml, gml, erml, utilities]
+__all__ = [lithology, geosciml, gml, erml, namespaces]
