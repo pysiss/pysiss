@@ -67,3 +67,7 @@ class Collection(list):
 
     def items(self):
         return zip(self.keys(), self.values())
+
+    @property
+    def shapes(self):
+        return (obj.shape for obj in self)
