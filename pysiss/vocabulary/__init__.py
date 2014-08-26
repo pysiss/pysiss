@@ -7,9 +7,9 @@
 """
 
 import lithology
-import geosciml
+import gsml
 import gml
 import erml
 import namespaces
 
-__all__ = [lithology, geosciml, gml, erml, namespaces]
+__all__ = [lithology, gsml, gml, erml, namespaces]
