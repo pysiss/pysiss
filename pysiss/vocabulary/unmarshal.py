@@ -44,7 +44,6 @@ def unmarshal_all(filename, tag='gsml:MappedFeature'):
             context = iter(etree.iterparse(fhandle, events=('end',), tag=tag))
             for event, elem in context:
                 results.append(unmarshal(elem))
-                elem.clear()
         except etree.XMLSyntaxError:
             pass
     return results
