@@ -10,7 +10,7 @@ import simplejson
 from lxml import etree
 
 CACHED_SCHEMA_FILE = pkg_resources.resource_filename(
-    "pysiss.vocabulary.resources",
+    "pysiss.vocabulary.lithology.resources",
     "earthchem_soap_search_schema.xsd")
 
 with open(CACHED_SCHEMA_FILE, 'rb') as fhandle:
@@ -50,7 +50,7 @@ def get_documentation():
     # Construct request from EarthChem rest documentation
     url, schema = None, None
     cached_doco_file = pkg_resources.resource_filename(
-        "pysiss.vocabulary.resources",
+        "pysiss.vocabulary.lithology.resources",
         "earthchem_rest_search_documentation.html")
     try:
         url = urllib.urlopen(rest_doco_url)
