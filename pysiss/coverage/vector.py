@@ -7,6 +7,7 @@
 """
 
 from ..utilities import project, id_object
+from ..metadata import MetadataRegistry
 
 
 class MappedFeature(id_object):
@@ -16,7 +17,9 @@ class MappedFeature(id_object):
         Corresponds roughly to gsml:MappedFeatures
     """
 
-    def __init__(self, shape, projection, ident=None, metadata=None, **kwargs):
+    md_registry = MetadataRegistry()
+
+    def __init__(self, shape, projection, specification, ident=None, **kwargs):
         super(MappedFeature, self).__init__(name='mapped_feature')
         self.ident = ident or self.uuid
 
@@ -28,7 +31,8 @@ class MappedFeature(id_object):
         # Store other metadata
         for attrib, value in kwargs.items():
             setattr(self, attrib, value)
-        self.metadata = metadata
+        self.specification = specification
+        self.type = self.md_registry[self.specification].type
 
     def __repr__(self):
         """ String representation
@@ -44,3 +48,9 @@ class MappedFeature(id_object):
             :type new_projection: int
         """
         self.shape = type(self.shape)(project(self.shape.positions))
+
+    @property
+    def metadata(self):
+        """ Return the metadata associated with the MappedFeature
+        """
+        return self.md_registry[self.specification]

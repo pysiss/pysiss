@@ -7,6 +7,7 @@
 """
 
 from ...coverage.vector import MappedFeature
+from ...metadata import Metadata
 from ..namespaces import NamespaceRegistry, expand_namespace, shorten_namespace
 from ..gml.unmarshallers import UNMARSHALLERS as GML_UNMARSHALLERS
 
@@ -17,16 +18,41 @@ def mapped_feature(elem):
     """ Unmarshal a gsml:MappedFeature element
     """
     # Shape and projection data
-    shape_elem = elem.xpath('./gsml:shape', namespaces=NAMESPACES)[0]
+    shape_elem = elem.find('./gsml:shape', namespaces=NAMESPACES)
     shape_data = shape(shape_elem)
     shape_elem.clear()  # Remove shape element from metadata
 
     # Identifier
     ident = elem.get(expand_namespace('gml:id')) or None
 
+    # Get specification metadata records
+    spec_elem = elem.find('./gsml:specification', namespaces=NAMESPACES)
+    spec = specification(spec_elem)
+
     return MappedFeature(ident=ident, shape=shape_data['shape'],
                          projection=shape_data['projection'],
-                         metadata=elem)
+                         specification=spec)
+
+
+def specification(elem):
+    """ Unmarshall a gsml:specification element
+    """
+    # If we only have an xlink, this is just a pointer to another record
+    xlink = elem.get(expand_namespace('xlink:href'))
+    if xlink:
+        # Just return the metadata key
+        # We need to strip out the # from the link
+        return xlink.lstrip('#')
+
+    # Otherwise we need to create a new metadata record, then return the
+    # relevant key
+    else:
+        spec_elem = elem.iterchildren().next()
+        ident = spec_elem.get(expand_namespace('gml:id'))
+        mdata = Metadata(ident=ident,
+                         type=shorten_namespace(spec_elem.tag),
+                         tree=spec_elem)
+        return mdata.ident
 
 
 def shape(elem):
@@ -46,12 +72,7 @@ def get_value(elem):
         Returns the text value for a given element, stripping out children of
         the given element
     """
-    result = elem.xpath('.//gsml:value/text()',
-                        namespaces=NAMESPACES)
-    if result:
-        return result[0]
-    else:
-        return None
+    return elem.find('.//gsml:value/text()', namespaces=NAMESPACES)
 
 
 def cgi_termrange(elem):
@@ -60,8 +81,7 @@ def cgi_termrange(elem):
         Return the value range for a given element
     """
     return map(get_value,
-               elem.xpath('.//gsml:CGI_TermValue',
-                          namespaces=NAMESPACES))
+               elem.xpath('.//gsml:CGI_TermValue', namespaces=NAMESPACES))
 
 
 def sampling_frame(elem):
@@ -79,7 +99,8 @@ UNMARSHALLERS = {
     'gsml:observationMethod': get_value,
     'gsml:positionalAccuracy': get_value,
     'gsml:samplingFrame': sampling_frame,
-    'gsml:MappedFeature': mapped_feature
+    'gsml:MappedFeature': mapped_feature,
+    'gsml:specification': specification
 }
 
 __all__ = (UNMARSHALLERS,)
