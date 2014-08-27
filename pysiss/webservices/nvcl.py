@@ -6,9 +6,9 @@
     description: Importer for NVCL data services
 """
 
-from .. import PropertyType, SISSBoreholeGenerator
-from ..datasets import PointDataSet  # , IntervalDataSet
-from ...utilities import Singleton
+from ..borehole import PropertyType, SISSBoreholeGenerator
+from ..borehole.datasets import PointDataSet  # , IntervalDataSet
+from ..utilities import Singleton
 
 from owslib.wfs import WebFeatureService
 import numpy

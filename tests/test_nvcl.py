@@ -7,7 +7,7 @@
 """
 
 import unittest
-import pysiss.borehole.importers.nvcl as nvcl
+import pysiss.webservices.nvcl as nvcl
 
 
 class TestNVCLEndpointRegistry(unittest.TestCase):
