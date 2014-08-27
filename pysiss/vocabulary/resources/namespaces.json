@@ -18,5 +18,7 @@
       "ns": "http://www.w3.org/XML/1998/namespace",
       "ucum": "urn:ogc:def:uom:UCUM",
       "crs": "urn:ogc:def:crs",
-      "slith": "urn:cgi:classifier:CGI:SimpleLithology:200811"
+      "cgi_slith": "urn:cgi:classifier:CGI:SimpleLithology:200811",
+      "ics_strat": "urn:cgi:classifier:ICS:StratChart:2008",
+      "cgi_unittype": "urn:cgi:classifier:CGI:GeologicUnitType:200811"
 }
