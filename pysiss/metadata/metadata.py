@@ -40,3 +40,8 @@ class Metadata(id_object):
         """ Pass XPath queries through to underlying tree
         """
         return self.tree.xpath(*args, **kwargs)
+
+    def find(self, *args, **kwargs):
+        """ Pass ElementPath queries through to underlying tree
+        """
+        return self.tree.xpath(*args, **kwargs)
