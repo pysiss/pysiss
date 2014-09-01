@@ -9,6 +9,7 @@
 from ..borehole import PropertyType, SISSBoreholeGenerator
 from ..borehole.datasets import PointDataSet  # , IntervalDataSet
 from ..utilities import Singleton
+from ..vocabulary.namespaces import expand_namespace, NamespaceRegistry
 
 from owslib.wfs import WebFeatureService
 import numpy
@@ -17,7 +18,8 @@ import urllib2 as urllib
 import xml.etree.ElementTree
 
 
-NVCL_DEFAULT_ENDPOINTS = {
+NAMESPACES = NamespaceRegistry()
+DEFAULT_ENDPOINTS = {
     'CSIRO': {
         'wfsurl': 'http://nvclwebservices.vm.csiro.au/geoserverBH/wfs',
         'dataurl': 'http://nvclwebservices.vm.csiro.au/NVCLDataServices/',
@@ -70,7 +72,7 @@ class NVCLEndpointRegistry(dict):
     __metaclass__ = Singleton
 
     def __init__(self):
-        for endpoint, urls in NVCL_DEFAULT_ENDPOINTS.items():
+        for endpoint, urls in DEFAULT_ENDPOINTS.items():
             self.register(endpoint, **urls)
 
     def register(self, endpoint, wfsurl=None, dataurl=None, downloadurl=None,
@@ -155,10 +157,10 @@ class NVCLImporter(object):
         xmltree = xml.etree.ElementTree.parse(wfsresponse)
 
         idents = {}
-        bhstring = ".//{http://www.auscope.org/nvcl}scannedBorehole"
-        for match in xmltree.findall(bhstring):
-            idents[match.get('{http://www.w3.org/1999/xlink}title')] = \
-                match.get('{http://www.w3.org/1999/xlink}href')
+        for match in xmltree.findall(".//nvcl:scannedBorehole",
+                                     namespaces=NAMESPACES):
+            idents[match.get(expand_namespace('xlink:title'))] = \
+                match.get(expand_namespace('xlink:href'))
         return idents
 
     def get_borehole_idents(self, maxids=None):
