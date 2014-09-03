@@ -1,0 +1,183 @@
+{
+    "default": {
+        "facecolor": "#7A7A7A",
+        "edgecolor": "#7A7A7A"
+    },
+    "ics_strat:Precambrian": {
+        "facecolor": "#F74370"
+    },
+    "ics_strat:Archean": {
+        "facecolor": "#F0027F"
+    },
+    "ics_strat:Eoarchean": {
+        "facecolor": "#DA027F"
+    },
+    "ics_strat:Paleoarchean": {
+        "facecolor": "#F4449F"
+    },
+    "ics_strat:Mesoarchean": {
+        "facecolor": "#EA66B1"
+    },
+    "ics_strat:Neoarchean": {
+        "facecolor": "#F99BC5"
+    },
+    "ics_strat:Proterozoic": {
+        "facecolor": "#FB9A94"
+    },
+    "ics_strat:Paleoproterozoic": {
+        "facecolor": "#F74373"
+    },
+    "ics_strat:Mesoproterozoic": {
+        "facecolor": "#FDB469"
+    },
+    "ics_strat:Neoproterozoic": {
+        "facecolor": "#FEB343"
+    },
+    "ics_strat:Phanerozoic": {
+        "facecolor": "#9AD9E5"
+    },
+    "ics_strat:Paleozoic": {
+        "facecolor": "#99C08D"
+    },
+    "ics_strat:Cambrian": {
+        "facecolor": "#408521"
+    },
+    "ics_strat:LowerCambrian": {
+        "facecolor": "#66A94B"
+    },
+    "ics_strat:MiddleCambrian": {
+        "facecolor": "#B6AE6D"
+    },
+    "ics_strat:UpperCambrian": {
+        "facecolor": "#D7D3AA"
+    },
+    "ics_strat:Ordovician": {
+        "facecolor": "#009270"
+    },
+    "ics_strat:LowerOrdovician": {
+        "facecolor": "#018055"
+    },
+    "ics_strat:MiddleOrdovician": {
+        "facecolor": "#419C68"
+    },
+    "ics_strat:UpperOrdovician": {
+        "facecolor": "#66C092"
+    },
+    "ics_strat:Silurian": {
+        "facecolor": "#B3E2D0"
+    },
+    "ics_strat:Pridoli": {
+        "facecolor": "#F5FBF0"
+    },
+    "ics_strat:Ludlow": {
+        "facecolor": "#E2F4E0"
+    },
+    "ics_strat:Wenlock": {
+        "facecolor": "#C5E8C3"
+    },
+    "ics_strat:Llandovery": {
+        "facecolor": "#99D7B3"
+    },
+    "ics_strat:Devonian": {
+        "facecolor": "#CB8C37"
+    },
+    "ics_strat:LowerDevonian": {
+        "facecolor": "#999449"
+    },
+    "ics_strat:MiddleDevonian": {
+        "facecolor": "#99A56D"
+    },
+    "ics_strat:UpperDevonian": {
+        "facecolor": "#CCCEA9"
+    },
+    "ics_strat:Carboniferous": {
+        "facecolor": "#67ABA0"
+    },
+    "ics_strat:Pennsylvanian": {
+        "facecolor": "#99C4B5"
+    },
+    "ics_strat:Mississippian": {
+        "facecolor": "#67946D"
+    },
+    "ics_strat:Permian": {
+        "facecolor": "#F04028"
+    },
+    "ics_strat:Lopingian": {
+        "facecolor": "#FA9AA3"
+    },
+    "ics_strat:Guadalupian": {
+        "facecolor": "#F09652"
+    },
+    "ics_strat:Cisuralian": {
+        "facecolor": "#CA3C40"
+    },
+    "ics_strat:Mesozoic": {
+        "facecolor": "#67C5CA"
+    },
+    "ics_strat:Triassic": {
+        "facecolor": "#6B017D"
+    },
+    "ics_strat:LowerTriassic": {
+        "facecolor": "#983999"
+    },
+    "ics_strat:MiddleTriassic": {
+        "facecolor": "#B189C1"
+    },
+    "ics_strat:UpperTriassic": {
+        "facecolor": "#E4C5E1"
+    },
+    "ics_strat:Jurassic": {
+        "facecolor": "#E2F4E0"
+    },
+    "ics_strat:LowerJurassic": {
+        "facecolor": "#00A0C6"
+    },
+    "ics_strat:MiddleJurassic": {
+        "facecolor": "#B3D7E8"
+    },
+    "ics_strat:UpperJurassic": {
+        "facecolor": "#B3E2E6"
+    },
+    "ics_strat:Cretaceous": {
+        "facecolor": "#C5E547"
+    },
+    "ics_strat:LowerCretaceous": {
+        "facecolor": "#41AA54"
+    },
+    "ics_strat:UpperCretaceous": {
+        "facecolor": "#E2F398"
+    },
+    "ics_strat:Cenozoic": {
+        "facecolor": "#FAFD01"
+    },
+    "ics_strat:Paleogene": {
+        "facecolor": "#FD9A52"
+    },
+    "ics_strat:Oligocene": {
+        "facecolor": "#FEE090"
+    },
+    "ics_strat:Eocene": {
+        "facecolor": "#FED13B"
+    },
+    "ics_strat:Paleocene": {
+        "facecolor": "#EBC06D"
+    },
+    "ics_strat:Neogene": {
+        "facecolor": "#FFE800"
+    },
+    "ics_strat:Miocene": {
+        "facecolor": "#FFFF00"
+    },
+    "ics_strat:Pliocene": {
+        "facecolor": "#FFFF99"
+    },
+    "ics_strat:Quaternary": {
+        "facecolor": "#FEE692"
+    },
+    "ics_strat:Pleistocene": {
+        "facecolor": "#FFF7B0"
+    },
+    "ics_strat:Holocene": {
+        "facecolor": "#FFFBF0"
+    }
+}
