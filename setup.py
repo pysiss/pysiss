@@ -19,6 +19,10 @@ if version < '2.2.3':
     DistributionMetadata.classifiers = None
     DistributionMetadata.download_url = None
 
+# Load requirements from requirements.txt
+with open('requirements.txt', 'rb') as fhandle:
+    INSTALL_REQUIREMENTS = fhandle.readlines()
+
 ## PACKAGE INFORMATION
 setup(
     name='pysiss',
@@ -36,18 +40,7 @@ setup(
         'pysiss.vocabulary.lithology.resources': ['*'],
         'pysiss.vocabulary.resources': ['*']
     },
-    install_requires=[
-        'matplotlib>=1.0.0',
-        'numpy>=1.6.0',
-        'OWSLib>=0.8.0',
-        'lxml',
-        'simplejson>=3',
-        'beautifulsoup4',
-        'pandas>=0.10',
-        'shapely',
-        'rasterio',
-        'requests'
-    ],
+    install_requires=INSTALL_REQUIREMENTS,
     test_suite='tests',
     ext_modules=[],
     classifiers=[
