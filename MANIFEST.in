@@ -1,0 +1,13 @@
+recursive-include pysiss *.py *.txt *.exe *.xml
+recursive-include tests *.py *.xml
+recursive-include examples *.ipynb *.py *.csv *.md *.json
+recursive-include setuptools/tests/svn_data *.zip
+recursive-include docs *.py *.txt *.conf Makefile
+include *.py
+include *.txt
+include MANIFEST.in
+include README.*
+include contributors.md
+include distribute_setup.py
+include setup.cfg
+include LICENSE.txt
