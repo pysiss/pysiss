@@ -1,0 +1,9 @@
+matplotlib>=1.0.0
+numpy>=1.6.0
+OWSLib>=0.8.0
+lxml
+simplejson>=3
+pandas>=0.10
+shapely
+rasterio
+requests
