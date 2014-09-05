@@ -26,13 +26,13 @@ with open('requirements.txt', 'rb') as fhandle:
 ## PACKAGE INFORMATION
 setup(
     name='pysiss',
-    version='0.0.1',
+    version='0.0.2',
     description='A pythonic interface to Spatial Information Services Stack '
                 '(SISS) services',
-    long_description=open('README.md').read(),
+    long_description=open('README.rst').read(),
     author='Jess Robertson',
     author_email='jesse.robertson@csiro.au',
-    url='https://stash.csiro.au/projects/DARDA/repos/pysiss/',
+    url='http://github.com/pysiss/pysiss',
     packages=find_packages(),
     package_data={
         'pysiss.borehole.gml.resources': ['*'],
@@ -44,18 +44,18 @@ setup(
     test_suite='tests',
     ext_modules=[],
     classifiers=[
-        'Development Status :: 1 - Planning',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
-        'Intended Audience :: Education',
         'Intended Audience :: Science/Research',
-        'License :: Other/Proprietary License',
+        'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python :: 2 :: Only',
+        'Topic :: Internet',
         'Topic :: Scientific/Engineering',
-        'Topic :: Scientific/Engineering :: Geology',
-        'Topic :: Scientific/Engineering :: Mathematics',
-        'Topic :: Scientific/Engineering :: Physics',
-        'Topic :: Software Development :: Libraries :: Python Modules'
+        'Topic :: Scientific/Engineering :: GIS',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Text Processing :: Markup :: XML'
     ]
 )
