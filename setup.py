@@ -31,9 +31,6 @@ setup(
     url='http://github.com/pysiss/pysiss',
     packages=find_packages(),
     package_data={
-        'pysiss.borehole.gml.resources': ['*'],
-        'pysiss.vocabulary.gsml.resources': ['*'],
-        'pysiss.vocabulary.lithology.resources': ['*'],
         'pysiss.vocabulary.resources': ['*']
     },
     install_requires=[
