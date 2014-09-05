@@ -20,6 +20,8 @@ Once you've got the numpy/scipy/matplotlib stack installed, you need:
 - [owslib][12] for calls to SISS services,
 - [simplejson](https://pypi.python.org/pypi/simplejson), [lxml](http://lxml.de) and [BeautifulSoup](http://www.crummy.com/software/BeautifulSoup/) for dealing with JSON, XML and text data for some of the queries.
 
+- [Python bindings to gdal/ogr] 
+
 If you want to run the examples, you might also want to consider
 
 - [folium](http://folium.readthedocs.org/en/latest/) a python wrapper for leaflet.js maps
@@ -41,7 +43,7 @@ for more details.
 
 To run the unit tests, just go to the base directory and execute
 
-	python setup.py test
+    python setup.py test
 
 They only take a couple of seconds to run and should all pass unless I've screwed something up... The unit tests use the vanilla unittest framework, so should play nicely with your favourite testing framework should you prefer to use something else.
 
@@ -65,7 +67,7 @@ Now you are ready to build your docs, using make (or run the batch script make.b
 Contributing
 ------------
 
-We'd love to have more people use the library and contribute to it. If you've pulled this from the public repository on CSIRO install of Stash ([stash.csiro.au][9]), then you might like to check out the [mirrored repository on Bitbucket][14] which should make it easier for non-CSIRO types to fork and hack away.
+We'd love to have more people use the library and contribute to it. If you've pulled this from the public repository on CSIRO install of Stash ([stash.csiro.au][9]), then you might like to check out the [mirrored repository on Bitbucket][14] or [Github][15] which should make it easier for non-CSIRO types to fork and hack away.
 
 We like unit tests and documentation - feel free to contribute your own.
 
@@ -83,3 +85,4 @@ For more details, feel free to contact Jess: his email is jesse.robertson with C
 [11]: http://www.pyzo.org/
 [12]: https://pypi.python.org/pypi/OWSLib/
 [14]: http://bitbucket.org/pysiss/pysiss
+[15]: https://github.com/pysiss/pysiss

@@ -22,13 +22,13 @@ if version < '2.2.3':
 ## PACKAGE INFORMATION
 setup(
     name='pysiss',
-    version='0.0.1',
+    version='0.0.test_2',
     description='A pythonic interface to Spatial Information Services Stack '
                 '(SISS) services',
-    long_description=open('README.md').read(),
+    long_description=open('README.rst').read(),
     author='Jess Robertson',
     author_email='jesse.robertson@csiro.au',
-    url='https://stash.csiro.au/projects/DARDA/repos/pysiss/',
+    url='http://github.com/pysiss/pysiss',
     packages=find_packages(),
     package_data={
         'pysiss.borehole.gml.resources': ['*'],
@@ -64,6 +64,6 @@ setup(
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: GIS',
         'Topic :: Software Development :: Libraries :: Python Modules',
-        'Topic :: Text Processing :: Markup :: XML',
+        'Topic :: Text Processing :: Markup :: XML'
     ]
 )
