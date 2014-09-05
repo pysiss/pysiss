@@ -10,5 +10,5 @@
 from maths import *
 from collection import Collection
 from id_object import id_object
-from projection import project
+# from projection import project
 from singleton import Singleton

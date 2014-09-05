@@ -18,3 +18,7 @@ core
 map.html
 pysiss-doc
 tmp
+examples/*/*.png
+examples/*/*.geotiff
+examples/*/*.pdf
+examples/*/*.jpg
