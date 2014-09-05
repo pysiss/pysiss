@@ -7,7 +7,7 @@
     description: Unit tests to demonstrate the borehole model.
 """
 
-import pyboreholes as pybh
+from pysiss import borehole as pybh
 import numpy
 import unittest
 
@@ -58,6 +58,8 @@ class BoreholeTest(unittest.TestCase):
         to_depths = numpy.asarray([x[1] for x in geology_intervals])
         # rock type is a multivalued category property
         rock_type = [x[2:] for x in geology_intervals]
+        self.assertTrue(all(numpy.diff(from_depths) > 0))
+        self.assertTrue(all(numpy.diff(to_depths) > 0))
         dataset = self.borehole.add_interval_dataset("geology",
                                                      from_depths,
                                                      to_depths)

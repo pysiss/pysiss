@@ -4,19 +4,25 @@
             CSIRO Earth Science and Resource Engineering
     date:   Wednesday November 20, 2013
 
-    description: Test running pyboreholes over a real dataset. This is bascially just a couple of scripts pulled from the example sets.
+    description: Test running pysiss.borehole over a real dataset. This is
+    bascially just a couple of scripts pulled from the example sets.
 """
 
-import pyboreholes as pybh
-import pandas, numpy
+import pysiss
+import pandas
+import numpy
 import cPickle as pickle
-import itertools, os, unittest
+import itertools
+import os
+import unittest
 
 # Location of data files
 PROP_TYPE_PKL = os.path.join('.', 'test_real_ptypes.pkl')
 TEST_DATA_PKL = os.path.join('.', 'test_real_data.pkl')
-DATA_FILE = os.path.join('..', 'examples',
+DATA_FILE = os.path.join(
+    '..', 'examples',
     'Vogue_Apr_2013_combined_pXR__ME_data_classified.csv')
+
 
 def make_property_types():
     """ Makes property type instances
@@ -69,6 +75,7 @@ def make_property_types():
             return 'metres'
         else:
             return None
+
     def is_numeric(key):
         """ Returns whether data is numeric or not
         """
@@ -78,12 +85,10 @@ def make_property_types():
     # Generate property_types
     property_types = dict()
     for key in vogue_data.keys():
-        isnumeric = key in numeric_keys
-        property_types[key] = pyboreholes.PropertyType(
-            name      = key,
-            long_name = long_names[key],
-            units     = units(key),
-            isnumeric = isnumeric)
+        isnumeric = is_numeric(key)
+        property_types[key] = pysiss.borehole.PropertyType(
+            name=key, long_name=long_names[key], units=units(key),
+            isnumeric=isnumeric)
 
     # Dump property types to pickle file and return
     with open(PROP_TYPE_PKL, 'wb') as pkl_file:
@@ -93,11 +98,12 @@ def make_property_types():
 
 class TestRealData(unittest.TestCase):
 
-    """ Test running pyboreholes over a real dataset
+    """ Test running pysiss.borehole over a real dataset
     """
 
     def setUp(self):
         # Reload prewarmed data if available, else load data & cache
+        property_types = make_property_types()
         try:
             pkl_file = open(self.test_data_pkl, 'rb')
             self.boreholes = pickle.load(pkl_file)
@@ -108,21 +114,25 @@ class TestRealData(unittest.TestCase):
         # If we're here, we need to generate the data from the datafile
         vogue_data = pandas.read_csv(DATA_FILE)
         vogue_data = vogue_data.sort(('Hole_ID', 'From', 'To'))
-        property_keys = ['As_ppm', 'CaO_pct', 'Co_ppm', 'Cr_ppm', 'Cu_ppm',
-            'Fe2O3_pct', 'K2O_pct',  'MnO_pct', 'Ni_ppm', 'Rb_ppm', 'SO3_pct',
+        property_keys = [
+            'As_ppm', 'CaO_pct', 'Co_ppm', 'Cr_ppm', 'Cu_ppm',
+            'Fe2O3_pct', 'K2O_pct', 'MnO_pct', 'Ni_ppm', 'Rb_ppm', 'SO3_pct',
             'Sr_ppm', 'TiO2_pct', 'V_ppm', 'Zn_ppm', 'Zr_ppm']
         boreholes = dict()
         for name, data in vogue_data.groupby("Hole_ID"):
             # Construct the borehole instance first
-            bh = boreholes[name] = pyboreholes.Borehole(name)
+            bh = boreholes[name] = pysiss.borehole.Borehole(name)
 
-            # Generate an IntervalDataSet corresponding to the values in the spreadsheet
+            # Generate an IntervalDataSet corresponding to the values in the
+            # spreadsheet
             data = data.dropna()
             from_depths = numpy.asarray(data['From'])
             to_depths = numpy.asarray(data['To'])
-            dataset = bh.add_interval_dataset('geochemistry', from_depths, to_depths)
+            dataset = bh.add_interval_dataset(
+                'geochemistry', from_depths, to_depths)
 
             # Add all the geochemistry values as Properties
             for key in property_keys:
-                datum = numpy.asarray(data[key].convert_objects(convert_numeric=True))
+                datum = numpy.asarray(
+                    data[key].convert_objects(convert_numeric=True))
                 dataset.add_property(property_types[key], datum)

@@ -6,7 +6,8 @@
     description: Tests for BoreholeCollection class.
 """
 
-import pyboreholes as pybh
+from pysiss import borehole as pybh
+from pysiss.utilities import Collection
 import unittest
 
 
@@ -21,20 +22,20 @@ class TestBoreholeCollection(unittest.TestCase):
         self.bh_names = [bh.name for bh in self.boreholes]
 
     def test_creation(self):
-        coll = pybh.BoreholeCollection()
+        coll = Collection()
         self.assertEqual(len(coll), 0)
         self.assertEqual(len(coll._index), 0)
 
     def test_creation_2(self):
         """ Test initialization with a list of boreholes
         """
-        coll = pybh.BoreholeCollection(self.boreholes)
+        coll = Collection(self.boreholes)
         for idx, (name, bh) in enumerate(coll.items()):
             self.assertEqual(bh, self.boreholes[idx])
             self.assertEqual(name, self.boreholes[idx].name)
 
     def test_addition(self):
-        coll = pybh.BoreholeCollection()
+        coll = Collection()
         for bh in self.boreholes:
             coll.append(bh)
 
@@ -42,12 +43,12 @@ class TestBoreholeCollection(unittest.TestCase):
             self.assertEqual(bh, self.boreholes[idx])
 
     def test_iteration(self):
-        coll = pybh.BoreholeCollection(self.boreholes)
+        coll = Collection(self.boreholes)
         for idx, bh in enumerate(coll):
             self.assertEqual(bh, self.boreholes[idx])
 
     def test_items(self):
-        coll = pybh.BoreholeCollection(self.boreholes)
+        coll = Collection(self.boreholes)
         for idx, (name, bh) in enumerate(coll.items()):
             self.assertEqual(bh, self.boreholes[idx])
             self.assertEqual(name, self.boreholes[idx].name)

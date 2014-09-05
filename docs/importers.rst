@@ -3,6 +3,6 @@
 Data importers
 ==============
 
-.. automodule:: pyboreholes.importers
+.. automodule:: pysiss.borehole.importers
     :members:
     :undoc-members:

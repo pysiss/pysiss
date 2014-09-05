@@ -1,19 +1,19 @@
 .. _domains:
 
 .. _base_namespace:
-.. py:module:: pyboreholes
+.. py:module:: pysiss.borehole
 
 Domain classes
 ==============
 
-.. autoclass:: pyboreholes.Domain
+.. autoclass:: pysiss.borehole.Domain
     :members:
 
-.. autoclass:: pyboreholes.IntervalDomain
+.. autoclass:: pysiss.borehole.IntervalDomain
     :members:
 
-.. autoclass:: pyboreholes.SamplingDomain
+.. autoclass:: pysiss.borehole.SamplingDomain
     :members:
 
-.. autoclass:: pyboreholes.WaveletDomain
+.. autoclass:: pysiss.borehole.WaveletDomain
     :members:

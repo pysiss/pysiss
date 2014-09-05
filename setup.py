@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-""" file: setup.pyb (pyboreholes)
+""" file: setup.pyb (pysiss.borehole)
     author: Jess Robertson, CSIRO Earth Science and Resource Engineering
     date: Wednesday 1 May, 2013
 
-    description: Distutils installer script for pyboreholes.
+    description: Distutils installer script for pysiss.borehole.
 """
 
 import distribute_setup
@@ -21,15 +21,34 @@ if version < '2.2.3':
 
 ## PACKAGE INFORMATION
 setup(
-    name='pyboreholes',
-    version='0.2.1',
-    description='Python functions for analysing borehole data',
+    name='pysiss',
+    version='0.0.1',
+    description='A pythonic interface to Spatial Information Services Stack '
+                '(SISS) services',
     long_description=open('README.md').read(),
     author='Jess Robertson',
     author_email='jesse.robertson@csiro.au',
-    url='https://stash.csiro.au/projects/DARDA/repos/python_boreholes/',
+    url='https://stash.csiro.au/projects/DARDA/repos/pysiss/',
     packages=find_packages(),
-    requires=['numpy', 'matplotlib', 'owslib'],
+    package_data={
+        'pysiss.borehole.gml.resources': ['*'],
+        'pysiss.vocabulary.gsml.resources': ['*'],
+        'pysiss.vocabulary.lithology.resources': ['*'],
+        'pysiss.vocabulary.resources': ['*']
+    },
+    install_requires=[
+        'matplotlib>=1.0.0',
+        'numpy>=1.6.0',
+        'OWSLib>=0.8.0',
+        'lxml',
+        'simplejson>=3',
+        'beautifulsoup4',
+        'pandas>=0.10',
+        'shapely',
+        'rasterio',
+        'requests'
+    ],
+    test_suite='tests',
     ext_modules=[],
     classifiers=[
         'Development Status :: 1 - Planning',

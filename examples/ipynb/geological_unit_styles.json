@@ -1,0 +1,120 @@
+{
+    "default": {
+        "facecolor": "#7A7A7A",
+        "edgecolor": "#7A7A7A"
+    },
+    "cgi_slith:acidic_igneous_rock": {
+        "facecolor": "#ED104D"
+    },
+    "cgi_slith:amphibolite": {
+        "facecolor": "#245761",
+        "hatch": "/"
+    },
+    "cgi_slith:andesitic_rock": {
+        "facecolor": "#F35C19"
+    },
+    "cgi_slith:basaltic_rock": {
+        "facecolor": "#D61F26"
+    },
+    "cgi_slith:calcareous_carbonate_sedimentary_rock": {
+        "facecolor": "#6C99B6",
+        "hatch": "-"
+    },
+    "cgi_slith:clastic_sediment": {
+        "facecolor": "#FCC961",
+        "hatch": "o"
+    },
+    "cgi_slith:conglomerate": {
+        "facecolor": "#E7AF9F",
+        "hatch": "Oo"
+    },
+    "cgi_slith:crystalline_carbonate": {
+        "facecolor": "#52A5E0",
+        "hatch": "+"
+    },
+    "cgi_slith:dacitic_rock": {
+        "facecolor": "#F35C19"
+    },
+    "cgi_slith:diorite": {
+        "facecolor": "#C8509C"
+    },
+    "cgi_slith:dioritic_rock": {
+        "facecolor": "#C8509C"
+    },
+    "cgi_slith:doleritic_rock": {
+        "facecolor": "#C64EA1"
+    },
+    "cgi_slith:duricrust": {
+        "facecolor": "#CA6F1E"
+    },
+    "cgi_slith:gabbro": {
+        "facecolor": "#ED0E58"
+    },
+    "cgi_slith:gneiss": {
+        "facecolor": "#682384",
+        "hatch": "//"
+    },
+    "cgi_slith:granite": {
+        "facecolor": "#E25183"
+    },
+    "cgi_slith:granitic_rock": {
+        "facecolor": "#E25183"
+    },
+    "cgi_slith:granodiorite": {
+        "facecolor": "#F467A5"
+    },
+    "cgi_slith:gravel": {
+        "facecolor": "#6F879E",
+        "hatch": "o.O"
+    },
+    "cgi_slith:iron_rich_sedimentary_rock": {
+        "facecolor": "#92292E"
+    },
+    "cgi_slith:metamorphic_rock": {
+        "facecolor": "#7B1F83",
+        "hatch": "-/"
+    },
+    "cgi_slith:migmatite": {
+        "facecolor": "#A21F53"
+    },
+    "cgi_slith:mudstone": {
+        "facecolor": "#9BB483",
+        "hatch": "--"
+    },
+    "cgi_slith:non_clastic_siliceous_sedimentary_rock": {
+        "facecolor": "#F68548"
+    },
+    "cgi_slith:pegmatite": {
+        "facecolor": "#F467AD"
+    },
+    "cgi_slith:peridotite": {
+        "facecolor": "#108449"
+    },
+    "cgi_slith:pyroclastic_rock": {
+        "facecolor": "#FAB3CC"
+    },
+    "cgi_slith:rhyolitic_rock": {
+        "facecolor": "#F680B7"
+    },
+    "cgi_slith:sand": {
+        "facecolor": "#FEE564",
+        "hatch": ".."
+    },
+    "cgi_slith:sandstone": {
+        "facecolor": "#FDD704",
+        "hatch": "."
+    },
+    "cgi_slith:schist": {
+        "facecolor": "#E14EA3"
+    },
+    "cgi_slith:serpentinite": {
+        "facecolor": "#1B6E44"
+    },
+    "cgi_slith:shale": {
+        "facecolor": "#00A650",
+        "hatch": "--"
+    },
+    "cgi_slith:tonalite": {
+        "facecolor": "#A21F53"
+    }
+}

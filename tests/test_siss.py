@@ -11,9 +11,10 @@
 from datetime import datetime
 import os
 import unittest
-import urllib
+import urllib2 as urllib
 
-import pyboreholes as pybh
+import pysiss.borehole as pybh
+
  
 class SissTest(unittest.TestCase):
 

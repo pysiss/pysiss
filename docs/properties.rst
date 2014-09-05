@@ -1,13 +1,13 @@
 .. _properties:
 
 .. _base_namespace:
-.. py:module:: pyboreholes
+.. py:module:: pysiss.borehole
 
 Property classes
 ================
 
-.. autoclass:: pyboreholes.PropertyType
+.. autoclass:: pysiss.borehole.PropertyType
     :members:
 
-.. autoclass:: pyboreholes.Property
+.. autoclass:: pysiss.borehole.Property
     :members:
