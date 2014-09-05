@@ -22,7 +22,7 @@ if version < '2.2.3':
 ## PACKAGE INFORMATION
 setup(
     name='pysiss',
-    version='0.0.test_2',
+    version='0.0.2',
     description='A pythonic interface to Spatial Information Services Stack '
                 '(SISS) services',
     long_description=open('README.rst').read(),
