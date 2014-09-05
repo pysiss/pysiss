@@ -22,7 +22,7 @@ if version < '2.2.3':
 ## PACKAGE INFORMATION
 setup(
     name='pysiss',
-    version='0.0.test_2',
+    version='0.0.2',
     description='A pythonic interface to Spatial Information Services Stack '
                 '(SISS) services',
     long_description=open('README.rst').read(),
@@ -37,17 +37,16 @@ setup(
         'pysiss.vocabulary.resources': ['*']
     },
     install_requires=[
-        'matplotlib>=1.0.0',
         'numpy>=1.6.0',
+        'matplotlib>=1.0.0',
         'OWSLib>=0.8.0',
+        'requests'
         'lxml',
-        'simplejson>=3',
         'beautifulsoup4',
+        'simplejson>=3',
         'pandas>=0.10',
         'shapely',
-        'gdal',
-        'rasterio',
-        'requests'
+        # 'rasterio',
     ],
     test_suite='tests',
     ext_modules=[],
