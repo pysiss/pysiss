@@ -6,7 +6,7 @@
     desription: Implementation of classes for vector coverage data
 """
 
-from ..utilities import project, id_object
+from ..utilities import id_object
 from ..metadata import MetadataRegistry
 
 
@@ -47,7 +47,8 @@ class MappedFeature(id_object):
             :param new_projection: The identifier for the new projection
             :type new_projection: int
         """
-        self.shape = type(self.shape)(project(self.shape.positions))
+        raise NotImplementedError
+        # self.shape = type(self.shape)(project(self.shape.positions))
 
     @property
     def metadata(self):
