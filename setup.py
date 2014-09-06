@@ -1,18 +1,19 @@
 #!/usr/bin/env python
-""" file: setup.py (pysiss.borehole)
+""" file: setup.py (pysiss)
     author: Jess Robertson, CSIRO Earth Science and Resource Engineering
     date: Wednesday 1 May, 2013
 
-    description: Setuptools installer script for pysiss.borehole.
+    description: Setuptools installer script for pysiss.
 """
 
-import distribute_setup
-distribute_setup.use_setuptools()
+import setuptools
 from setuptools import setup, find_packages
 
+print setuptools.__version__
+
 # Get requirements from requirements.txt file
-with open('requirements.txt', 'rb') as fhandle:
-    REQUIREMENTS = fhandle.read()
+with open('requirements.txt') as fhandle:
+    REQUIREMENTS = map(lambda l: l.strip('\n'), fhandle.readlines())
 
 ## PACKAGE INFORMATION
 setup(
@@ -20,7 +21,7 @@ setup(
     version='0.0.2',
     description='A pythonic interface to Spatial Information Services Stack '
                 '(SISS) services',
-    long_description=open('README.rst').read(),
+    long_description=open('README.rst').readlines(),
     author='Jess Robertson',
     author_email='jesse.robertson@csiro.au',
     url='http://github.com/pysiss/pysiss',
