@@ -10,14 +10,8 @@ import distribute_setup
 distribute_setup.use_setuptools()
 from setuptools import setup, find_packages
 
-## VERSION NUMBERS
-# Patch disutils if it can't cope with the 'classifiers' or 'download_url'
-# keywords (for Python < 2.2.3)
-from sys import version
-if version < '2.2.3':
-    from distutils.dist import DistributionMetadata
-    DistributionMetadata.classifiers = None
-    DistributionMetadata.download_url = None
+with open('requirements.txt', 'rb') as fhandle:
+	REQUIREMENTS = fhandle.read()
 
 ## PACKAGE INFORMATION
 setup(
@@ -33,18 +27,7 @@ setup(
     package_data={
         'pysiss.vocabulary.resources': ['*']
     },
-    install_requires=[
-        'numpy>=1.6.0',
-        'matplotlib>=1.0.0',
-        'OWSLib>=0.8.0',
-        'requests'
-        'lxml',
-        'beautifulsoup4',
-        'simplejson>=3',
-        'pandas>=0.10',
-        'shapely',
-        # 'rasterio',
-    ],
+    install_requires=REQUIREMENTS,
     test_suite='tests',
     ext_modules=[],
     classifiers=[
