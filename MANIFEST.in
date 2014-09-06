@@ -7,3 +7,4 @@ include MANIFEST.in
 include README.rst
 include LICENSE.txt
 include distribute_setup.py
+include requirements.txt

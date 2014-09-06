@@ -1,17 +1,18 @@
 #!/usr/bin/env python
-""" file: setup.pyb (pysiss.borehole)
+""" file: setup.py (pysiss.borehole)
     author: Jess Robertson, CSIRO Earth Science and Resource Engineering
     date: Wednesday 1 May, 2013
 
-    description: Distutils installer script for pysiss.borehole.
+    description: Setuptools installer script for pysiss.borehole.
 """
 
 import distribute_setup
 distribute_setup.use_setuptools()
 from setuptools import setup, find_packages
 
+# Get requirements from requirements.txt file
 with open('requirements.txt', 'rb') as fhandle:
-	REQUIREMENTS = fhandle.read()
+    REQUIREMENTS = fhandle.read()
 
 ## PACKAGE INFORMATION
 setup(
