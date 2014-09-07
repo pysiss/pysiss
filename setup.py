@@ -1,55 +1,31 @@
 #!/usr/bin/env python
-""" file: setup.pyb (pysiss.borehole)
+""" file: setup.py (pysiss)
     author: Jess Robertson, CSIRO Earth Science and Resource Engineering
     date: Wednesday 1 May, 2013
 
-    description: Distutils installer script for pysiss.borehole.
+    description: Setuptools installer script for pysiss.
 """
 
-import distribute_setup
-distribute_setup.use_setuptools()
+from ez_setup import use_setuptools
+use_setuptools()
+
 from setuptools import setup, find_packages
 
-## VERSION NUMBERS
-# Patch disutils if it can't cope with the 'classifiers' or 'download_url'
-# keywords (for Python < 2.2.3)
-from sys import version
-if version < '2.2.3':
-    from distutils.dist import DistributionMetadata
-    DistributionMetadata.classifiers = None
-    DistributionMetadata.download_url = None
+# Get requirements from requirements.txt file
+with open('requirements.txt') as fhandle:
+    REQUIREMENTS = map(lambda l: l.strip('\n'), fhandle.readlines())
 
 ## PACKAGE INFORMATION
 setup(
+    # Metadata
     name='pysiss',
-    version='0.0.2',
+    version='0.0.2a',
     description='A pythonic interface to Spatial Information Services Stack '
                 '(SISS) services',
-    long_description=open('README.rst').read(),
+    long_description=open('README.rst').readlines(),
     author='Jess Robertson',
     author_email='jesse.robertson@csiro.au',
     url='http://github.com/pysiss/pysiss',
-    packages=find_packages(),
-    package_data={
-        'pysiss.borehole.gml.resources': ['*'],
-        'pysiss.vocabulary.gsml.resources': ['*'],
-        'pysiss.vocabulary.lithology.resources': ['*'],
-        'pysiss.vocabulary.resources': ['*']
-    },
-    install_requires=[
-        'numpy>=1.6.0',
-        'matplotlib>=1.0.0',
-        'OWSLib>=0.8.0',
-        'requests'
-        'lxml',
-        'beautifulsoup4',
-        'simplejson>=3',
-        'pandas>=0.10',
-        'shapely',
-        # 'rasterio',
-    ],
-    test_suite='tests',
-    ext_modules=[],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
@@ -64,5 +40,25 @@ setup(
         'Topic :: Scientific/Engineering :: GIS',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Text Processing :: Markup :: XML'
-    ]
+    ],
+
+    # Dependencies
+    install_requires=[
+        'matplotlib>=1.0',
+        'numpy>=1.6',
+        'scipy>=0.9',
+        'OWSLib>=0.8',
+        'lxml',
+        'simplejson>=3.0',
+        'pandas>=0.10',
+        'shapely',
+        'requests',
+    ],
+
+    # Contents
+    packages=find_packages(exclude=['test*']),
+    package_data={
+        'pysiss.vocabulary.resources': ['*']
+    },
+    test_suite='tests'
 )
