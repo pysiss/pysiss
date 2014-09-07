@@ -10,19 +10,26 @@ from ez_setup import use_setuptools
 use_setuptools()
 
 from setuptools import setup, find_packages
+import os
 
 # Get requirements from requirements.txt file
 with open('requirements.txt') as fhandle:
     REQUIREMENTS = map(lambda l: l.strip('\n'), fhandle.readlines())
 
+
+def read(*paths):
+    """Build a file path from *paths* and return the contents."""
+    with open(os.path.join(*paths), 'r') as f:
+        return f.read()
+
 ## PACKAGE INFORMATION
 setup(
     # Metadata
     name='pysiss',
-    version='0.0.2a',
+    version='0.0.2',
     description='A pythonic interface to Spatial Information Services Stack '
                 '(SISS) services',
-    long_description=open('README.rst').readlines(),
+    long_description=read('README.rst'),
     author='Jess Robertson',
     author_email='jesse.robertson@csiro.au',
     url='http://github.com/pysiss/pysiss',
