@@ -6,10 +6,9 @@
     description: init file
 """
 
-import lithology
 import gsml
 import gml
 import erml
 import namespaces
 
-__all__ = [lithology, gsml, gml, erml, namespaces]
+__all__ = [gsml, gml, erml, namespaces]

@@ -1,61 +1,64 @@
 #!/usr/bin/env python
-""" file: setup.pyb (pysiss.borehole)
+""" file: setup.py (pysiss)
     author: Jess Robertson, CSIRO Earth Science and Resource Engineering
     date: Wednesday 1 May, 2013
 
-    description: Distutils installer script for pysiss.borehole.
+    description: Setuptools installer script for pysiss.
 """
 
-import distribute_setup
-distribute_setup.use_setuptools()
+from ez_setup import use_setuptools
+use_setuptools()
+
 from setuptools import setup, find_packages
 
-## VERSION NUMBERS
-# Patch disutils if it can't cope with the 'classifiers' or 'download_url'
-# keywords (for Python < 2.2.3)
-from sys import version
-if version < '2.2.3':
-    from distutils.dist import DistributionMetadata
-    DistributionMetadata.classifiers = None
-    DistributionMetadata.download_url = None
-
-# Load requirements from requirements.txt
-with open('requirements.txt', 'rb') as fhandle:
-    INSTALL_REQUIREMENTS = fhandle.readlines()
+# Get requirements from requirements.txt file
+with open('requirements.txt') as fhandle:
+    REQUIREMENTS = map(lambda l: l.strip('\n'), fhandle.readlines())
 
 ## PACKAGE INFORMATION
 setup(
+    # Metadata
     name='pysiss',
-    version='0.0.1',
+    version='0.0.2a',
     description='A pythonic interface to Spatial Information Services Stack '
                 '(SISS) services',
-    long_description=open('README.md').read(),
+    long_description=open('README.rst').readlines(),
     author='Jess Robertson',
     author_email='jesse.robertson@csiro.au',
-    url='https://stash.csiro.au/projects/DARDA/repos/pysiss/',
-    packages=find_packages(),
+    url='http://github.com/pysiss/pysiss',
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: MIT License',
+        'Natural Language :: English',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python :: 2 :: Only',
+        'Topic :: Internet',
+        'Topic :: Scientific/Engineering',
+        'Topic :: Scientific/Engineering :: GIS',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Text Processing :: Markup :: XML'
+    ],
+
+    # Dependencies
+    install_requires=[
+        'matplotlib>=1.0',
+        'numpy>=1.6',
+        'scipy>=0.9',
+        'OWSLib>=0.8',
+        'lxml',
+        'simplejson>=3.0',
+        'pandas>=0.10',
+        'shapely',
+        'requests',
+    ],
+
+    # Contents
+    packages=find_packages(exclude=['test*']),
     package_data={
-        'pysiss.borehole.gml.resources': ['*'],
-        'pysiss.vocabulary.gsml.resources': ['*'],
-        'pysiss.vocabulary.lithology.resources': ['*'],
         'pysiss.vocabulary.resources': ['*']
     },
-    install_requires=INSTALL_REQUIREMENTS,
-    test_suite='tests',
-    ext_modules=[],
-    classifiers=[
-        'Development Status :: 1 - Planning',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Education',
-        'Intended Audience :: Science/Research',
-        'License :: Other/Proprietary License',
-        'Natural Language :: English',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Topic :: Scientific/Engineering',
-        'Topic :: Scientific/Engineering :: Geology',
-        'Topic :: Scientific/Engineering :: Mathematics',
-        'Topic :: Scientific/Engineering :: Physics',
-        'Topic :: Software Development :: Libraries :: Python Modules'
-    ]
+    test_suite='tests'
 )
