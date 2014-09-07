@@ -6,10 +6,10 @@
     description: Setuptools installer script for pysiss.
 """
 
-import setuptools
-from setuptools import setup, find_packages
+from ez_setup import use_setuptools
+use_setuptools()
 
-print setuptools.__version__
+from setuptools import setup, find_packages
 
 # Get requirements from requirements.txt file
 with open('requirements.txt') as fhandle:
@@ -17,21 +17,15 @@ with open('requirements.txt') as fhandle:
 
 ## PACKAGE INFORMATION
 setup(
+    # Metadata
     name='pysiss',
-    version='0.0.2',
+    version='0.0.2a',
     description='A pythonic interface to Spatial Information Services Stack '
                 '(SISS) services',
     long_description=open('README.rst').readlines(),
     author='Jess Robertson',
     author_email='jesse.robertson@csiro.au',
     url='http://github.com/pysiss/pysiss',
-    packages=find_packages(),
-    package_data={
-        'pysiss.vocabulary.resources': ['*']
-    },
-    install_requires=REQUIREMENTS,
-    test_suite='tests',
-    ext_modules=[],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
@@ -46,5 +40,25 @@ setup(
         'Topic :: Scientific/Engineering :: GIS',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Text Processing :: Markup :: XML'
-    ]
+    ],
+
+    # Dependencies
+    install_requires=[
+        'matplotlib>=1.0',
+        'numpy>=1.6',
+        'scipy>=0.9',
+        'OWSLib>=0.8',
+        'lxml',
+        'simplejson>=3.0',
+        'pandas>=0.10',
+        'shapely',
+        'requests',
+    ],
+
+    # Contents
+    packages=find_packages(exclude=['test*']),
+    package_data={
+        'pysiss.vocabulary.resources': ['*']
+    },
+    test_suite='tests'
 )
