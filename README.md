@@ -1,7 +1,7 @@
 Introduction to pysiss
 ======================
 
-This is a python module designed to make it easy to perform analysis based on SISS services (including boreholes & geological measurements, raster and vector map data, and vocabularies) within Python using your favourite Python libraries. 
+We want to make it easy to perform geological data analysis based on SISS services (including boreholes & geological measurements, raster and vector map data, and vocabularies) within Python using your favourite Python libraries. 
 
 This library is released under the CSIRO BSD/MIT license, whose terms are available in the `LICENSE.md` file. 
 
