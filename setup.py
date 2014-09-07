@@ -26,7 +26,7 @@ def read(*paths):
 setup(
     # Metadata
     name='pysiss',
-    version='0.0.2a',
+    version='0.0.2',
     description='A pythonic interface to Spatial Information Services Stack '
                 '(SISS) services',
     long_description=read('README.rst'),
