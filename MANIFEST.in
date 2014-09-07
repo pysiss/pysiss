@@ -1,7 +1,7 @@
-recursive-include pysiss *.py *.xml
+recursive-include pysiss *.py
 recursive-include tests *.py *.xml
 recursive-include examples *.ipynb *.py *.csv *.md *.json
-recursive-include docs *.py *.rst *.conf Makefile *.bat
+recursive-include docs *.py *.rst Makefile *.bat
 include *.md
 include MANIFEST.in
 include README.rst
