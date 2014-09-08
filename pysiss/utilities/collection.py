@@ -21,29 +21,36 @@ class Collection(list):
 
         # Add the list of objects if required
         if objects:
-            for bh in objects:
-                self.append(bh)
+            for obj in objects:
+                self.append(obj)
+                self._index[obj.ident] = obj
 
     def __getitem__(self, ident_or_idx):
         """ Retrieve a object from the collection
 
             :param ident_or_idx: Either an integer index, or a object name.
         """
+        # Try to use as an index first
         try:
             return super(Collection, self).__getitem__(ident_or_idx)
         except IndexError:
-            try:
-                return super(Collection, self).__getitem__(self._index[ident_or_idx])
-            except KeyError:
-                str = ('Unknown key or index {0} passed '
-                       'to BoreholeCollection').format(ident_or_idx)
-                raise IndexError(str)
+            pass
+        except TypeError:
+            pass
 
-    def __setitem__(self, object):
-        """ Add a object to the collection
+        # If we're here, then it's not an index
+        try:
+            return super(Collection, self).__getitem__(
+                self._index[ident_or_idx])
+        except KeyError:
+            str = ('Unknown key or index {0} passed '
+                   'to BoreholeCollection').format(ident_or_idx)
+            raise IndexError(str)
+
+    def __setitem__(self, key, value):
+        """ Collection does not support __setitem__, use append instead
         """
-        self.append(object)
-        self._index[object.name] = len(self)
+        raise NotImplementedError
 
     def __delitem__(self, object_name):
         """ Remove a object from the collection
@@ -58,6 +65,12 @@ class Collection(list):
         # Delete object
         del self._index[object_name]
         del self[idx]
+
+    def append(self, object):
+        """ Add a object to the collection
+        """
+        self.append(object)
+        self._index[object.name] = len(self)
 
     def keys(self):
         return [obj.name for obj in self]
