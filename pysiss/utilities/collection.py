@@ -30,10 +30,10 @@ class Collection(list):
             :param ident_or_idx: Either an integer index, or a object name.
         """
         try:
-            return self[ident_or_idx]
+            return super(Collection, self).__getitem__(ident_or_idx)
         except IndexError:
             try:
-                return self[self._index[ident_or_idx]]
+                return super(Collection, self).__getitem__(self._index[ident_or_idx])
             except KeyError:
                 str = ('Unknown key or index {0} passed '
                        'to BoreholeCollection').format(ident_or_idx)
