@@ -16,3 +16,34 @@ Borehole class API
 .. autoclass:: pysiss.borehole.Borehole
     :members:
     :undoc-members:
+
+.. autoclass:: pysiss.borehole.Details
+    :members:
+    :undoc-members:
+
+.. autoclass:: pysiss.borehole.Property
+    :members:
+    :undoc-members:
+
+.. autoclass:: pysiss.borehole.Dataset
+    :members:
+    :undoc-members:
+
+.. autoclass:: pysiss.borehole.PointDataset
+    :members:
+    :undoc-members:
+
+.. autoclass:: pysiss.borehole.IntervalDataset
+    :members:
+    :undoc-members:
+
+.. automodule:: pysiss.borehole.analysis
+    :members:
+    :undoc-members:
+
+SISS Borehole generators
+------------------------
+
+.. automodule:: pysiss.borehole.siss
+    :members:
+    :undoc-members:

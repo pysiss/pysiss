@@ -1,38 +1,65 @@
-Building and installing `pysiss.borehole`
-=====================================
+Building and installing `pysiss`
+================================
 
 .. _installation:
 
-Installing dependencies
------------------------
+Installing via pip
+------------------
 
-`pysiss.borehole` has a few dependencies, most of which come from the numpy/scipy/matplotlib ecosystem. You will have to have `numpy <http://numpy.org>`_ at a minimum, while you will need `scipy <http://scipy.org>`_ and `cwavelets <https://stash.csiro.au/projects/DARDA/repos/cwavelets/browse>`_ to use the pysiss.borehole.analysis module, `matplotlib <http://matplotlib.org>`_ for the plotting module, and `pywavelets <http://www.pybytes.com/pywavelets/>`_ to have access to the SpectralDomain class. You can install all of these (with the exception of the `cwavelets` library, see below) in a single line with the following command:
+The easiest way to get pysiss is to install the `version hosted on PyPI <https://pypi.python.org/pypi/pysiss/0.0.2>`_ via pip.
 
-    pip install numpy scipy matplotlib pywavelets
+You will have to have the standard `numpy <http://numpy.org>`_/`scipy <http://scipy.org>`_/`matplotlib <http://matplotlib.org>`_ stack. 
 
-If your system complains that it can't find `pip`, then try `easy_install install ...` instead. If you're running some version of Linux then there are probably packages for all of these - see your package manager for more info.
+Installing the scientific Python stack can be a bit of a pain in the arse if you're not used to it, especially on non-Linux systems, so you might like to check out `Anaconda <https://store.continuum.io/cshop/anaconda/>`_, `Python(x, y) <https://code.google.com/p/pythonxy/>`_ or `Pyzo <http://www.pyzo.org/>`_ if you want an easy install experience. If you're on Linux then usually the package manager version is worth a try first.
 
-If the command line is a bit scary than most of these libraries should come for free with a standard scientific Python stack these days, check out `Enthought Canopy <https://www.enthought.com/products/canopy/>`_, `Anaconda <https://store.continuum.io/cshop/anaconda/>`_, `Python(x, y) <https://code.google.com/p/pythonxy/> or `Pyzo <http://www.pyzo.org/>`_ if you want an easy install experience.
+Then pysiss should be installable using pip
 
-Build and install `cwavelets`
------------------------------
+    pip install pysiss
 
-The `cwavelets` library is currently being developed internally in CSIRO - if you have access to this repository through the `DARDA Stash site <https://stash.csiro.au/projects/DARDA>`_ then you've probably got access to this library as well. You'll have to download and install the code following the instructions on that page (many of the dependencies are the same as for here). This is an optional install but you won't have access to the `WaveletDomain` class if you don't have this available on your system.
+This should pull all the dependencies for pysiss automatically. Depending on where you're trying to install the library, you may need administrator priviledges to install the library. If you don't have adminstrator rights for your system, then you can install it locally using
 
-Build and install the library
------------------------------
+    pip install pysiss --user
+
+which will install it under your home directory (usually somewhere like :file:`~/.local/lib/`).
+
+Building and installing pysiss from source
+------------------------------------------
+
+`pysiss` has quite a few dependencies, most of which come from the numpy/scipy/matplotlib ecosystem. See the instructions above for getting access to this stack.
+
+Once you've got the numpy/scipy/matplotlib stack installed, you need:
+
+- `pandas <http://pandas.pydata.org>'_ for data munging, 
+- `shapely <http://toblerity.org/shapely/>'_, which lets you deal with vector GIS data nicely
+- `owslib <https://pypi.python.org/pypi/OWSLib/>'_ for calls to SISS services, and
+- `simplejson <https://pypi.python.org/pypi/simplejson>'_ and `lxml <http://lxml.de>'_ for dealing with JSON, XML and text data for some of the queries.
+
+If you want to run the examples, you might also want to consider
+
+- `ipython <http://ipython.org>'_ to run the iPython notebook examples
+- `folium <http://folium.readthedocs.org/en/latest/>'_ a wrapper for leaflet.js maps
+- `mpld3 <http://mpld3.github.io/>'_ a matplotlib to D3 wrapper
+
+These are optional but pretty kick-arse libraries which you should install and play with anyway.
 
 If you've installed all the libraries above, all you should need to do is enter the python directory, and execute
 
-    python setup.py install
+  python setup.py install
 
-which should build and install the Python bindings for your system. Depending on where you're trying to install the library, you may need administrator priviledges to install the library. You can install only part of the library if you wish (or if you're missing libraries), just run
+or
 
-    python setup.py --help
+  python setup.py install --user
 
-for more details.
+which should build and install pysiss for your system.
 
-.. _documentation:
+Unit tests
+----------
+
+To run the unit tests, just go to the base directory and execute
+
+  python setup.py test
+
+They only take a couple of seconds to run and should all pass unless I've screwed something up... The unit tests use the vanilla unittest framework, so should play nicely with your favourite testing framework should you prefer to use something else.
 
 Building documentation
 ----------------------
@@ -43,10 +70,22 @@ You're currently reading some version of the documentation generated from the py
 
 If that fails grab the latest version of and install it with::
 
-  easy_install -U Sphinx
+  pip install Sphinx --upgrade
 
-Now you are ready to build your docs, using make (or run the batch script `make.bst` if you're on Windows):
+Now you are ready to build your docs, using make (or run the batch script make.bst if you're on Windows):
 
   cd docs && make html
 
 (or :file:`latexpdf` if you want a LaTeX versionm, or :file:`epub` for ePub format - type :file:`make` to see all the options). The documentation will be dumped under :file:`build/<format>`. For HTML, if you point a browser to :file:`build/html/index.html`, you should see a basic sphinx site with the documentation for pysiss.borehole. For LaTeX you can open :file:`build/latex/pysiss.borehole.pdf` in your favourite PDF viewer to browse the documentation.
+
+Contributing
+------------
+
+For a list of contributors, see `AUTHORS.md`.
+
+We'd love to have more people use the library and contribute to it. If you've pulled this from the public repository on CSIRO install of Stash (`stash.csiro.au <https://stash.csiro.au/projects/DARDA/repos/pysiss/browse>`_), then you might like to check out the `mirrored repository on Github <https://github.com/pysiss/pysiss>`_ or `Bitbucket <https://bitbucket.org/pysiss/pysiss>` which should make it easier for non-CSIRO types to fork and hack away.
+
+We like unit tests and documentation - feel free to contribute your own.
+
+For more details, feel free to contact Jess: his email is jesse.robertson with CSIRO's domain (google it).
+

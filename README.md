@@ -10,13 +10,13 @@ This library is released under the CSIRO BSD/MIT license, whose terms are availa
 Installing via pip
 ------------------
 
-The easiest way to get pysiss is to install the [version hosted on PyPI](https://pypi.python.org/pypi/pysiss/0.0.2) via pip.
+The easiest way to get pysiss is to install the [version hosted on PyPI](https://pypi.python.org/pypi/pysiss/) via pip.
 
-You will have to have the standard [numpy](http://numpy.org)/[scipy](http://scipy.org)/[matplotlib](http://matplotlib.org) stack. 
+You will have to have the standard [numpy](http://numpy.org)/[scipy](http://scipy.org)/[matplotlib](http://matplotlib.org) stack. You also need to have the GDAL libraries and Python bindings installed.
 
-Installing the scientific Python stack can be a bit of a pain in the arse if you're not used to it, especially on non-Linux systems, so you might like to check out [Anaconda](https://store.continuum.io/cshop/anaconda/), [Python(x, y)](https://code.google.com/p/pythonxy/) or [Pyzo](http://www.pyzo.org/) if you want an easy install experience. If you're on Linux then usually the package manager version is worth a try first.
+_For more details on installing these libraries for Windows, Mac and Linux please see INSTALL.md_
 
-Then pysiss should be installable using pip
+Once the dependencies are installed pysiss and all its Python dependencies should be installable using pip
 
     pip install pysiss
 
@@ -29,9 +29,9 @@ which will install it under your home directory (usually somewhere like `~/.loca
 Building and installing pysiss from source
 ------------------------------------------
 
-`pysiss` has quite a few dependencies, most of which come from the numpy/scipy/matplotlib ecosystem. See the instructions above for getting access to this stack.
+`pysiss` has quite a few dependencies, most of which come from the numpy/scipy/matplotlib ecosystem. You also need to have the GDAL libraries and Python bindings installed. See the instructions in INSTALL.md for getting access to this stack.
 
-Once you've got the numpy/scipy/matplotlib stack installed, you need:
+Once you've got the numpy/scipy/matplotlib stack plus the GDAL libraries installed, you need:
 
 - [pandas](http://pandas.pydata.org) for data munging, 
 - [shapely](http://toblerity.org/shapely/), which lets you deal with vector GIS data nicely
