@@ -120,11 +120,11 @@ def post_block_requests(wfsurl, filename,
                                  timeout=timeout)
 
         # Make a temporary directory to hold the results of the requests
-        if not os.path.exists('./tmp'):
-            os.mkdir('tmp')
+        if not os.path.exists('./xml_tmp'):
+            os.mkdir('xml_tmp')
 
         # Stream body to file
-        subfilename = 'tmp/{0}_{1}.xml'.format(filename, block_idx)
+        subfilename = 'xml_tmp/{0}_{1}.xml'.format(filename, block_idx)
         if response.status_code == 200:
             with open(subfilename, 'wb') as fhandle:
                 for chunk in response.iter_content(chunk_size=int(1e5)):
@@ -132,8 +132,3 @@ def post_block_requests(wfsurl, filename,
         else:
             print 'Request failed for file {1} - {0}'.format(
                 response.status_code, subfilename)
-
-    # Get successful files (given some files haven't been written b/c errors)
-    #     successful
-
-    # Combine data into a single xml file
