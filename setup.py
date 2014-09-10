@@ -57,6 +57,7 @@ setup(
         'pandas>=0.10',
         'shapely',
         'requests',
+        'pint'
     ],
 
     # Contents
