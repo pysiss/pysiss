@@ -13,7 +13,7 @@ from ..utilities import Singleton
 from owslib.wfs import WebFeatureService
 import numpy
 import pandas
-import urllib2 as urllib
+import requests
 import xml.etree.ElementTree
 
 
@@ -183,18 +183,14 @@ class NVCLImporter(object):
         xmltree = None
         holeurl = (self.urls['dataurl'] + 'getDatasetCollection.html?'
                    'holeidentifier={0}').format(hole_ident)
-        url_handle = urllib.urlopen(holeurl)
-        try:
-            xmltree = xml.etree.ElementTree.parse(url_handle)
+        response = requests.get(holeurl)
+        xmltree = xml.etree.ElementTree.parse(response.content)
 
-            datasets = {}
-            for dset in xmltree.findall(".//Dataset"):
-                datasets[dset.find('DatasetName').text] = \
-                    dset.find('DatasetID').text
-            return datasets
-
-        finally:
-            url_handle.close()
+        datasets = {}
+        for dset in xmltree.findall(".//Dataset"):
+            datasets[dset.find('DatasetName').text] = \
+                dset.find('DatasetID').text
+        return datasets
 
     def get_analyte_idents(self, hole_ident, dataset_ident):
         """ Generates a dictionary mapping all NVCL analytes for a given
@@ -211,21 +207,17 @@ class NVCLImporter(object):
         """
         analyte_idents = None
         dseturl = 'getLogCollection.html?mosaicsvc=no&datasetid={0}'
-        url_handle = urllib.urlopen(self.urls['dataurl']
-                                    + dseturl.format(dataset_ident))
+        response = requests.get(self.urls['dataurl']
+                                + dseturl.format(dataset_ident))
 
         # Parse XML tree to return analytes
-        try:
-            xmltree = xml.etree.ElementTree.parse(url_handle)
-            analyte_idents = {}
-            for analyte in xmltree.findall(".//Log"):
-                log_ident = analyte.find("LogID").text
-                name = analyte.find("logName").text
-                # sample_count = analyte.find('SampleCount').text
-                analyte_idents[name] = log_ident
-
-        finally:
-            url_handle.close()
+        xmltree = xml.etree.ElementTree.parse(response.content)
+        analyte_idents = {}
+        for analyte in xmltree.findall(".//Log"):
+            log_ident = analyte.find("LogID").text
+            name = analyte.find("logName").text
+            # sample_count = analyte.find('SampleCount').text
+            analyte_idents[name] = log_ident
 
         return analyte_idents
 
@@ -340,7 +332,7 @@ class NVCLImporter(object):
             siss_bhl_generator = SISSBoreholeGenerator()
             bh_url = self.get_borehole_idents_and_urls()[hole_ident]
             bhl = siss_bhl_generator.geosciml_to_borehole(
-                name, urllib.urlopen(bh_url))
+                name, requests.get(bh_url).content)
 
             # For each dataset in the NVCL we want to add a dataset and store
             # the dataset information in the DatasetDetails
