@@ -10,8 +10,8 @@ python:
 
 # Command to install dependencies
 install: 
-  - "sudo apt-get install python-numpy python-scipy python-matplotlib libgdal1"
-  - "pip install -r requirements.txt --use-mirrors"
+  - "sudo apt-get install python-numpy python-scipy libgdal1"
+  - "pip install pandas shapely owslib simplejson lxml --user"
   - "pip install ."
 
 # Command to run tests
