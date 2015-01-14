@@ -11,7 +11,7 @@ python:
 # Command to install dependencies
 install: 
   - "sudo apt-get install python-numpy python-scipy libgdal1"
-  - "pip install pandas shapely owslib simplejson lxml"
+  - "pip install cython pandas shapely owslib simplejson lxml"
   - "pip install ."
 
 # Command to run tests
