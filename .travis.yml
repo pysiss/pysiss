@@ -26,7 +26,9 @@ before_install:
 install:
   - pip install --install-option="--no-cython-compile" Cython
   - pip install $NUMPYSPEC
-  - pip install scipy matplotlib pandas shapely owslib simplejson lxml
+  - pip install scipy matplotlib 
+  - pip install pandas 
+  - pip install shapely owslib simplejson lxml
   - python setup.py install
 
 # Command to run tests
