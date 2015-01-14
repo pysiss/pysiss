@@ -1,0 +1,18 @@
+# file:   .travis.yml
+# author: Jess Robertson
+#         Minerals Resources National Research Flagship
+# date:   Wednesday January 14, 2015
+
+language: python
+python:
+  - "2.7"
+  - "2.6"
+
+# Command to install dependencies
+install: 
+  - "sudo apt-get install python-numpy python-scipy python-matplotlib libgdal1"
+  - "pip install -r requirements.txt --use-mirrors"
+  - "pip install ."
+
+# Command to run tests
+script: python setup.py test
