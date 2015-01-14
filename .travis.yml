@@ -12,9 +12,9 @@ matrix:
     - python: 2.7
       env:
         - NUMPYSPEC=numpy
-    - python: 2.6
-      env:
-        - NUMPYSPEC="numpy==1.6.2"
+    # - python: 2.6
+    #   env:
+    #     - NUMPYSPEC="numpy==1.6.2"
 
 # Command to install dependencies
 before_install: 
@@ -24,11 +24,12 @@ before_install:
   - sudo apt-get install libgdal1-dev
 
 install:
+  - pip install unittest2
   - pip install --install-option="--no-cython-compile" Cython
   - pip install $NUMPYSPEC
   - pip install scipy matplotlib 
   - pip install pandas 
-  - pip install shapely owslib simplejson lxml
+  - pip install shapely owslib simplejson lxml pint
   - python setup.py install
 
 # Command to run tests
