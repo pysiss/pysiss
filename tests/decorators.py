@@ -9,7 +9,7 @@
 import unittest
 
 # Set the flag below to False to run the slow tests
-SKIP_SLOW = True
+SKIP_SLOW = False
 
 
 # Define a custom unittest decorator to tag slow tests which should be skipped
