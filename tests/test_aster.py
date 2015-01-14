@@ -14,6 +14,8 @@ import os
 import unittest
 from decorators import slow
 
+from pysiss.coverage import raster
+
 ASTER_PRODUCTS = [
     'AlOH_group_composition',
     'Ferric_oxide_composition',
@@ -57,4 +59,17 @@ class ASTERTest(unittest.TestCase):
     def test_get_aster_images(self):
         """ Test that we can get ASTER images from the webservice
         """
-        url = 
+        url = WCSURL.format(ASTER_PRODUCTS[0])
+
+        # Generate a coverage object from a coverage reader
+        requester = raster.WCSRequester(url)
+        src = requester.request(bounds=BOUNDS)
+        self.assertEqual(
+            src.crs_wkt,
+            'GEOGCS["WGS 84",DATUM["WGS_1984",'
+            'SPHEROID["WGS 84",6378137,298.257223563,'
+            'AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],'
+            'PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433],'
+            'AUTHORITY["EPSG","4326"]]')
+        for sbound, bound in zip(src.bounds, BOUNDS):
+            self.assertTrue((sbound - bound) ** 2 < 0.01)
