@@ -14,7 +14,8 @@ from owslib.wfs import WebFeatureService
 import numpy
 import pandas
 import requests
-import xml.etree.ElementTree
+from lxml import etree
+from StringIO import StringIO
 
 
 NVCL_DEFAULT_ENDPOINTS = {
@@ -152,7 +153,7 @@ class NVCLImporter(object):
         wfsresponse = wfs.getfeature(
             typename="nvcl:ScannedBoreholeCollection",
             maxfeatures=maxids)
-        xmltree = xml.etree.ElementTree.parse(wfsresponse)
+        xmltree = etree.parse(wfsresponse)
 
         idents = {}
         bhstring = ".//{http://www.auscope.org/nvcl}scannedBorehole"
@@ -185,7 +186,7 @@ class NVCLImporter(object):
                    'holeidentifier={0}').format(hole_ident)
         response = requests.get(holeurl)
         if response:
-            xmltree = xml.etree.ElementTree.parse(response.content)
+            xmltree = etree.fromstring(response.content)
 
             datasets = {}
             for dset in xmltree.findall(".//Dataset"):
@@ -208,12 +209,12 @@ class NVCLImporter(object):
         """
         analyte_idents = None
         dseturl = 'getLogCollection.html?mosaicsvc=no&datasetid={0}'
-        response = requests.get(self.urls['dataurl'] 
+        response = requests.get(self.urls['dataurl']
                                 + dseturl.format(dataset_ident))
 
         # Parse XML tree to return analytes
         if response:
-            xmltree = xml.etree.ElementTree.parse(response.content)
+            xmltree = etree.fromstring(response.content)
             analyte_idents = {}
             for analyte in xmltree.findall(".//Log"):
                 log_ident = analyte.find("LogID").text
@@ -222,7 +223,8 @@ class NVCLImporter(object):
                 analyte_idents[name] = log_ident
             return analyte_idents
         else:
-            raise Exception('Request for data returned {0}'.format(response.code))
+            raise Exception(
+                'Request for data returned {0}'.format(response.code))
 
     def get_analytes(self, hole_ident, dataset_name, dataset_ident,
                      analyte_idents=None,
@@ -340,7 +342,7 @@ class NVCLImporter(object):
             if not response:
                 return None
             bhl = siss_bhl_generator.geosciml_to_borehole(
-                name, response.content)
+                name, StringIO(response.content))
 
             # For each dataset in the NVCL we want to add a dataset and store
             # the dataset information in the DatasetDetails
