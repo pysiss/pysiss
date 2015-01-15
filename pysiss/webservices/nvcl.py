@@ -193,9 +193,6 @@ class NVCLImporter(object):
                     dset.find('DatasetID').text
             return datasets
 
-        finally:
-            url_handle.close()
-
     def get_analyte_idents(self, hole_ident, dataset_ident):
         """ Generates a dictionary mapping all NVCL analytes for a given
             borehole dataset to their GUIDs.
