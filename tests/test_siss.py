@@ -11,7 +11,7 @@
 from datetime import datetime
 import os
 import unittest
-import urllib2 as urllib
+import requests
 
 import pysiss.borehole as pybh
 
@@ -77,7 +77,9 @@ class SissTest(unittest.TestCase):
         """
         bh_name = 'WTB5'
         bh_url = 'http://nvclwebservices.vm.csiro.au/resource/feature/CSIRO/borehole/WTB5'
-        bh = self.siss.geosciml_to_borehole(bh_name, urllib.urlopen(bh_url))
+        response = requests.get(bh_url)
+        self.assertTrue(response.ok)
+        bh = self.siss.geosciml_to_borehole(bh_name, response.content)
 
         self.assertEquals(-28.4139 * self.siss.unit_reg.degree, bh.origin_position.latitude)
         self.assertEquals(121.142 * self.siss.unit_reg.degree, bh.origin_position.longitude)
