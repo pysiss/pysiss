@@ -34,7 +34,8 @@ class Metadata(id_object):
         self.registry.register(self)
 
     def __str__(self):
-        return 'Metadata record {0}, of type {1}'.format(self.ident, self.type)
+        template = 'Metadata record {0}, of type {1}\n{2}'
+        return template.format(self.ident, self.type, self.ttree)
 
     def xpath(self, *args, **kwargs):
         """ Pass XPath queries through to underlying tree
@@ -45,3 +46,9 @@ class Metadata(id_object):
         """ Pass ElementPath queries through to underlying tree
         """
         return self.tree.find(*args, **kwargs)
+
+    @property
+    def tag_tree(self):
+        """ Return a YAML-like representation of the tags
+        """
+        pass

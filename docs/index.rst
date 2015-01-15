@@ -5,12 +5,16 @@
 
 .. _intro:
 
-Welcome to pysiss.borehole!
-****************************
+welcome to PySISS!
+******************
 
-This is a python module to do a bunch of data stuff with borehole data. Things are pretty bare-bones at the moment - hopefully this will change as we decide how we want to use this library.
+We want to make it easy to perform geological data analysis based on SISS services (including boreholes & geological measurements, raster and vector map data, and vocabularies) within Python using your favourite Python libraries. 
 
-Probably the easiest way to get a feel for the behavior of the library is to have a look at the use cases supplied in this documentation.
+This library is released under the CSIRO BSD/MIT license, whose terms are available in the `LICENSE.md` file. 
+
+**Warning** - this library is in a pre-alpha state and could change without warning.
+
+Probably the easiest way to get a feel for the behavior of the library is to have a look at the use cases supplied in pysiss-cookbook, available on Github at http://github.com/pysiss/pysiss-cookbook.
 
 Getting started
 ---------------
@@ -27,12 +31,12 @@ API reference
 .. toctree::
    :maxdepth: 2
 
-   boreholes
-   domains
-   properties
-   analysis
-   importers
+   borehole
+   coverage
+   metadata
    utilities
+   vocabulary
+   webservices
 
 
 Indices and tables

@@ -7,3 +7,4 @@ simplejson>=3.0
 pandas>=0.10
 shapely
 requests
+pint
