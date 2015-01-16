@@ -40,8 +40,8 @@ class IntervalDataSet(DataSet):
         Intervals must be in depth order and not overlap, but there might
         be gaps between intervals.
 
-        :param name: identifier for the dataSet
-        :type name: string
+        :param ident: identifier for the dataSet
+        :type ident: string
         :param from_depths: interval start point down-hole depths in metres
             from collar
         :type from_depths: iterable
@@ -53,9 +53,9 @@ class IntervalDataSet(DataSet):
         :type details: pysiss.borehole.dataset.DatasetDetails
     """
 
-    def __init__(self, name, from_depths, to_depths, details=None):
+    def __init__(self, ident, from_depths, to_depths, details=None):
         super(IntervalDataSet, self).__init__(
-            name, len(from_depths), details=details)
+            ident, len(from_depths), details=details)
         from_depths = numpy.asarray(from_depths)
         to_depths = numpy.asarray(to_depths)
         assert len(from_depths) == len(to_depths), \
@@ -74,19 +74,19 @@ class IntervalDataSet(DataSet):
     def __repr__(self):
         info = 'IntervalDataSet {0}: with {1} depth intervals and {2} '\
                'properties'
-        return info.format(self.name, len(self.from_depths),
+        return info.format(self.ident, len(self.from_depths),
                            len(self.properties))
 
-    def get_interval(self, from_depth, to_depth, dataset_name=None):
+    def get_interval(self, from_depth, to_depth, dataset_ident=None):
         """ Return the data between the given depths as as new IntervalDataSet
 
             Only intervals completely contained by the from_depth/to_depth
             interval are returned.
         """
-        # Specify a name if not already passed
-        if dataset_name is None:
-            dataset_name = '{0}: subdataset {1} to {2}'.format(
-                self.name, from_depth, to_depth)
+        # Specify a ident if not already passed
+        if dataset_ident is None:
+            dataset_ident = '{0}: subdataset {1} to {2}'.format(
+                self.ident, from_depth, to_depth)
 
         # Select a data mask
         indices = numpy.where(
@@ -94,7 +94,7 @@ class IntervalDataSet(DataSet):
                               self.to_depths <= to_depth))
 
         # Generate a new IntervalDataSet
-        newdom = IntervalDataSet(dataset_name,
+        newdom = IntervalDataSet(dataset_ident,
                                  self.from_depths[indices],
                                  self.to_depths[indices])
         for prop in self.properties.values():
@@ -136,7 +136,7 @@ class IntervalDataSet(DataSet):
                 self.to_depths[gap_indices[idx + 1]]))
         return self.subdatasets, self.gaps
 
-    def to_point_dataset(self, name=None, depths='midpoint'):
+    def to_point_dataset(self, ident=None, depths='midpoint'):
         """ Convert an IntervalDataSet to a PointDataSet
 
             Uses the specified method to recalculate the depths of the
@@ -148,15 +148,15 @@ class IntervalDataSet(DataSet):
                 'from': Uses the upper depth of the sampled interval
                 'to': Uses the lower depths of the sampled interval
 
-            :param name: The identifier for the new dataset. Optional, defaults
-                to the same name as the interval dataset.
-            :type name: string
+            :param ident: The identifier for the new dataset. Optional,
+                defaults to the same ident as the interval dataset.
+            :type ident: string
             :param depths: the depth converter to use
             :returns: the new PointDataSet instance
         """
-        # Generate name
-        if name is None:
-            name = self.name
+        # Generate ident
+        if ident is None:
+            ident = self.ident
 
         # Generate new depths
         if depths == 'midpoint':
@@ -170,7 +170,7 @@ class IntervalDataSet(DataSet):
                 'Unknown depth conversion method {0}'.format(depths))
 
         # Generate new dataset
-        sdom = PointDataSet(name=name, depths=depths)
+        sdom = PointDataSet(ident=ident, depths=depths)
         sdom.properties = self.properties.copy()
         return sdom
 

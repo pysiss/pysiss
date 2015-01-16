@@ -24,8 +24,8 @@ class PointDataSet(DataSet):
 
         Depths must be in monotonically increasing order.
 
-        :param name: identifier for the dataSet
-        :type name: string
+        :param ident: identifier for the dataSet
+        :type ident: string
         :param depths: sample down-hole depths in metres from collar
         :type depths: iterable
         :param details: The metadata associated with the dataset. Optional,
@@ -33,9 +33,9 @@ class PointDataSet(DataSet):
         :type details: pysiss.borehole.dataset.DatasetDetails
     """
 
-    def __init__(self, name, depths, details=None):
+    def __init__(self, ident, depths, details=None):
         super(PointDataSet, self).__init__(
-            name, len(depths), details=details)
+            ident, len(depths), details=details)
         depths = numpy.asarray(depths)
         assert all(numpy.diff(depths) > 0), \
             "depths must be monotonically increasing"
@@ -44,20 +44,20 @@ class PointDataSet(DataSet):
     def __repr__(self):
         info = 'PointDataSet {0}: with {1} depths and {2} '\
                'properties'
-        return info.format(self.name, len(self.depths),
+        return info.format(self.ident, len(self.depths),
                            len(self.properties))
 
-    def get_interval(self, from_depth, to_depth, dataset_name=None):
+    def get_interval(self, from_depth, to_depth, dataset_ident=None):
         """ Return the data between the given depths as as new PointDataSet
         """
-        # Specify a name if not already passed
-        if dataset_name is None:
-            dataset_name = '{0}: subdataset {1} to {2}'.format(
-                self.name, from_depth, to_depth)
+        # Specify a ident if not already passed
+        if dataset_ident is None:
+            dataset_ident = '{0}: subdataset {1} to {2}'.format(
+                self.ident, from_depth, to_depth)
 
         # Generate a new PointDataSet
         indices = self.get_interval_indices(from_depth, to_depth)
-        newdom = PointDataSet(dataset_name, self.depths[indices])
+        newdom = PointDataSet(dataset_ident, self.depths[indices])
         for prop in self.properties.values():
             newdom.add_property(prop.property_type, prop.values[indices])
         return newdom
@@ -118,8 +118,8 @@ class PointDataSet(DataSet):
             self.subdatasets.append((from_depth, to_depth))
         return self.subdatasets, self.gaps
 
-    def regularize(self, npoints=None, dataset_name=None, fill_method='median',
-                   degree=0):
+    def regularize(self, npoints=None, dataset_ident=None,
+                   fill_method='median', degree=0):
         """ Resample dataset onto regular grid.
 
             This regularizes the data so that all sample spacings are equal to
@@ -130,8 +130,8 @@ class PointDataSet(DataSet):
                 npoints - the number of new points. Optional, if not specified
                     then the reinterpolated data will have the median spacing
                     of the raw data.
-                dataset_name - the name for the returned PointDataSet.
-                    Optional, defaults to "<current_name> resampled".
+                dataset_ident - the ident for the returned PointDataSet.
+                    Optional, defaults to "<current_ident> resampled".
                 fill_method - the method for filling the gaps. 'interpolate'
                     uses the interpolated spline, 'mean' fills gaps with the
                     mean value for the borehole.
@@ -147,16 +147,16 @@ class PointDataSet(DataSet):
                    "values")
             self.split_at_gaps()
 
-       # Specify name & number of points if not already passed
-        if dataset_name is None:
-            dataset_name = '{0} resampled'.format(self.name)
+       # Specify ident & number of points if not already passed
+        if dataset_ident is None:
+            dataset_ident = '{0} resampled'.format(self.ident)
         if npoints is None:
             spacing = float(numpy.median(numpy.diff(self.depths)))
             npoints = abs(self.depths[-1] - self.depths[0]) / spacing
 
         # Generate a new DataSet with the resampled data
         new_depths = numpy.linspace(self.depths[0], self.depths[-1], npoints)
-        newdom = PointDataSet(dataset_name, new_depths)
+        newdom = PointDataSet(dataset_ident, new_depths)
 
         # If we're doing nearest neighbours then we only need to work out the
         # interpolation once
@@ -187,7 +187,7 @@ class PointDataSet(DataSet):
                        "should check whether you've correctly set the "
                        "is_numeric flag in the PropertyType class for this "
                        "property."
-                       ).format(prop.property_type.name, self.name)
+                       ).format(prop.property_type.ident, self.ident)
                 continue
 
             # Generate spline fit if required, else use nearest-neighbours
@@ -240,7 +240,7 @@ class PointDataSet(DataSet):
         newdom.subdatasets = self.subdatasets
         return newdom
 
-    def resample(self, new_depths, dataset_name=None, fill_method='median',
+    def resample(self, new_depths, dataset_ident=None, fill_method='median',
                  degree=0):
         """ Resample dataset onto regular grid.
 
@@ -248,8 +248,8 @@ class PointDataSet(DataSet):
 
             Arguments:
                 new_depths - The new depths to resample at.
-                dataset_name - the name for the returned PointDataSet.
-                    Optional, defaults to "<current_name> resampled".
+                dataset_ident - the ident for the returned PointDataSet.
+                    Optional, defaults to "<current_ident> resampled".
                 fill_method - the method for filling the gaps. 'interpolate'
                     uses the interpolated spline, 'mean' fills gaps with the
                     mean value for the borehole.
@@ -265,12 +265,12 @@ class PointDataSet(DataSet):
                    "values")
             self.split_at_gaps()
 
-       # Specify name & number of points if not already passed
-        if dataset_name is None:
-            dataset_name = '{0} resampled'.format(self.name)
+       # Specify ident & number of points if not already passed
+        if dataset_ident is None:
+            dataset_ident = '{0} resampled'.format(self.ident)
 
         # Generate a new DataSet with the resampled data
-        newdom = PointDataSet(dataset_name, new_depths)
+        newdom = PointDataSet(dataset_ident, new_depths)
 
         # If we're doing nearest neighbours then we only need to work out the
         # interpolation once
@@ -301,7 +301,7 @@ class PointDataSet(DataSet):
                        "should check whether you've correctly set the "
                        "is_numeric flag in the PropertyType class for this "
                        "property."
-                       ).format(prop.property_type.name, self.name)
+                       ).format(prop.property_type.ident, self.ident)
                 continue
 
             # Generate spline fit if required, else use nearest-neighbours

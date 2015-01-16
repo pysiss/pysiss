@@ -8,7 +8,7 @@
 Notes:
 o If the expectation is that only one borehole element should be
   found, should we raise an exception if there is more than one?
-  Or, should we check that the name is the same as the borehole's
+  Or, should we check that the ident is the same as the borehole's
   identifier? Since the caller can currently pass whatever name
   he/she desires, that test may fail.
 """
@@ -64,14 +64,14 @@ class SISSBoreholeGenerator:
 
         self.borehole = None
 
-    def geosciml_to_borehole(self, name, geo_source):
+    def geosciml_to_borehole(self, ident, geo_source):
         """ Given a GeoSciML scanned borehole URL, return a Borehole object
             initialised with origin position and borehole details. In the case
             where there is more than one Borehole element, the first will be
             returned.
 
-            :param name: The name to assign to the Borehole object
-            :type name: string
+            :param ident: The ident to assign to the Borehole object
+            :type ident: string
             :param geo_source: A file-like object opened from a GeoSciML
                 scanned borehole URL
             :type geo_source: file-like object
@@ -83,7 +83,7 @@ class SISSBoreholeGenerator:
             borehole_elts = self._get_borehole_elts(geo_tree)
 
             if len(borehole_elts) != 0:
-                self.borehole = Borehole(name=name,
+                self.borehole = Borehole(ident=ident,
                                          origin_position=self._location(
                                              borehole_elts[0]))
 
@@ -168,7 +168,7 @@ class SISSBoreholeGenerator:
         if elevation_elt is not None:
             elevation_axis_desc = \
                 'elevation: {0}'.format(elevation_elt.attrib['axisLabels'])
-            property_type = PropertyType(name='origin position elevation',
+            property_type = PropertyType(ident='origin position elevation',
                                          long_name='origin position elevation',
                                          description=elevation_axis_desc,
                                          units=units)
@@ -192,7 +192,7 @@ class SISSBoreholeGenerator:
         
         description_text = 'description: {0}'.format(description_text)
         
-        return PropertyType(name='origin position',
+        return PropertyType(ident='origin position',
                             long_name='origin position',
                             description=description_text)
     
@@ -285,7 +285,7 @@ class SISSBoreholeGenerator:
         # Question: How useful is the property here in fact if we have units
         #           for each value?
         self.borehole.add_detail('cored interval', envelope_dict,
-                            PropertyType(name='envelope',
+                            PropertyType(ident='envelope',
                                          long_name='cored interval envelope',
                                          description='cored interval envelope '
                                                      'lower and upper corner',
