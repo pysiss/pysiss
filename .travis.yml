@@ -1,0 +1,36 @@
+# file:   .travis.yml
+# author: Jess Robertson
+#         Minerals Resources National Research Flagship
+# date:   Wednesday January 14, 2015
+
+language: python
+matrix:
+  include:
+    # - python: 3.4
+    #   env:
+    #     - NUMPYSPEC=numpy
+    - python: 2.7
+      env:
+        - NUMPYSPEC=numpy
+    # - python: 2.6
+    #   env:
+    #     - NUMPYSPEC="numpy==1.6.2"
+
+# Command to install dependencies
+before_install: 
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libatlas-dev libatlas-base-dev liblapack-dev gfortran
+  - sudo apt-get install -qq libgmp-dev libmpfr-dev
+  - sudo apt-get install libgdal1-dev
+
+install:
+  - pip install unittest2
+  - pip install --install-option="--no-cython-compile" Cython
+  - pip install $NUMPYSPEC
+  - pip install scipy matplotlib 
+  - pip install pandas 
+  - pip install shapely owslib simplejson lxml pint
+  - python setup.py install
+
+# Command to run tests
+script: python setup.py test

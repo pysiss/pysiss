@@ -60,9 +60,9 @@ class IntervalDataSet(DataSet):
         to_depths = numpy.asarray(to_depths)
         assert len(from_depths) == len(to_depths), \
             "from_ and to_depths must be same length"
-        assert all(numpy.gradient(from_depths) > 0), \
+        assert all(numpy.diff(from_depths) > 0), \
             "from_depths must be monotonically increasing"
-        assert all(numpy.gradient(to_depths) > 0), \
+        assert all(numpy.diff(to_depths) > 0), \
             "to_depths must be monotonically increasing"
         assert all(to_depths - from_depths > 0), \
             "intervals must have positive length"
