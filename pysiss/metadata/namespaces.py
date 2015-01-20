@@ -53,7 +53,18 @@ def shorten_namespace(tag):
         version
     """
     ns, tag = split_namespace(tag)
-    return _NAMESPACE_REGISTRY.inverse[ns] + ':' + tag
+    print 'before try', ns, tag
+    try:
+        return _NAMESPACE_REGISTRY.inverse[ns] + ':' + tag
+    except KeyError:
+        if ns is not None:
+            # We need to check whether we have some of the namespace already
+            # So we re-run on the namespace recursively
+            return shorten_namespace(ns) + ':' + tag
+        
+        else:
+            # We can't do anything with this one, just return the tag
+            return tag
 
 
 def expand_namespace(tag, form='xml'):
