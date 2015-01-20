@@ -7,7 +7,7 @@
 """
 
 from shapely.geometry import Polygon, LineString
-from ..namespaces import NamespaceRegistry
+from ...metadata.namespaces import NamespaceRegistry
 
 NAMESPACES = NamespaceRegistry()
 

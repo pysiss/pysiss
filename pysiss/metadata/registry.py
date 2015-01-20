@@ -24,16 +24,16 @@ class MetadataRegistry(dict):
     __metaclass__ = Singleton
     registered_ids = set()
 
-    def register(self, metadata_item, replace_existing=False):
+    def register(self, metadata_item, replace_existing=False, verbose=False):
         """ Register a metadata item in the registry
         """
         # Check to see whether the item already exists
         if not replace_existing:
-            if metadata_item.ident in self.registered_ids:
+            if metadata_item.ident in self.registered_ids and verbose:
                 print Warning(('Metadata ID {0} already exists, skipping'
                                ' registration').format(metadata_item.ident))
-                return
-            
+            return
+
         # If it doesn't already exist
         self[metadata_item.ident] = metadata_item
 

@@ -11,6 +11,7 @@
       "gsml": "urn:cgi:xmlns:CGI:GeoSciML:2.0",
       "gml": "http://www.opengis.net/gml",
       "wfs": "http://www.opengis.net/wfs",
+      "wcs": "http://www.opengis.net/wcs",
       "sa": "http://www.opengis.net/sampling/1.0",
       "om": "http://www.opengis.net/om/1.0",
       "cgu": "urn:cgi:xmlns:CGI:DbUtils:1.0",
