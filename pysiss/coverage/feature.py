@@ -1,4 +1,4 @@
-""" file:   vector.py (pysiss.coverage)
+""" file:   feature.py (pysiss.coverage)
     author: Jess Robertson
             CSIRO Minerals Resources Flagship
     date:   Monday 25 August, 2014
@@ -19,8 +19,8 @@ class MappedFeature(id_object):
 
     md_registry = MetadataRegistry()
 
-    def __init__(self, shape, projection, specification, ident=None, **kwargs):
-        super(MappedFeature, self).__init__(name='mapped_feature')
+    def __init__(self, shape, projection, metadata_ident, ident=None, **kwargs):
+        super(MappedFeature, self).__init__(ident='mapped_feature')
         self.ident = ident or self.uuid
 
         # Store some info on the shape
@@ -29,10 +29,11 @@ class MappedFeature(id_object):
         self.centroid = self.shape.representative_point()
 
         # Store other metadata
-        for attrib, value in kwargs.items():
-            setattr(self, attrib, value)
-        self.specification = specification
-        self.type = self.md_registry[self.specification].type
+        if kwargs:
+            for attrib, value in kwargs.items():
+                setattr(self, attrib, value)
+        self.metadata_ident = metadata_ident
+        self.type = self.md_registry[self.metadata_ident].type
 
     def __repr__(self):
         """ String representation
@@ -54,4 +55,5 @@ class MappedFeature(id_object):
     def metadata(self):
         """ Return the metadata associated with the MappedFeature
         """
-        return self.md_registry[self.specification]
+        return self.md_registry[self.metadata_ident]
+
