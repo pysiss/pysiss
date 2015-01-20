@@ -30,13 +30,11 @@ def pprint(tree, indent_width=2, indent=0):
     elif tree.attrib:
         tree_attrs = dict(tree.attrib)
         for key, value in tree.attrib.items():
-            try:
-                old_key = key
-                key = shorten_namespace(key)
+            old_key = key
+            key = shorten_namespace(key)
+            if key != old_key:
                 tree_attrs[key] = value
                 del tree_attrs[old_key]
-            except KeyError:
-                pass
         result += '\n' + spaces + ' ' * indent_width
         result += '  {0}\n'.format(tree_attrs)
     else:
