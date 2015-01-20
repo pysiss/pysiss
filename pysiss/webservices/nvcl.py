@@ -9,6 +9,7 @@
 from ..borehole import PropertyType, SISSBoreholeGenerator
 from ..borehole.datasets import PointDataSet  # , IntervalDataSet
 from ..utilities import Singleton
+from ..vocabulary.namespaces import expand_namespace, NamespaceRegistry
 
 from owslib.wfs import WebFeatureService
 import numpy
@@ -18,7 +19,8 @@ from lxml import etree
 from StringIO import StringIO
 
 
-NVCL_DEFAULT_ENDPOINTS = {
+NAMESPACES = NamespaceRegistry()
+DEFAULT_ENDPOINTS = {
     'CSIRO': {
         'wfsurl': 'http://nvclwebservices.vm.csiro.au/geoserverBH/wfs',
         'dataurl': 'http://nvclwebservices.vm.csiro.au/NVCLDataServices/',
@@ -71,7 +73,7 @@ class NVCLEndpointRegistry(dict):
     __metaclass__ = Singleton
 
     def __init__(self):
-        for endpoint, urls in NVCL_DEFAULT_ENDPOINTS.items():
+        for endpoint, urls in DEFAULT_ENDPOINTS.items():
             self.register(endpoint, **urls)
 
     def register(self, endpoint, wfsurl=None, dataurl=None, downloadurl=None,
@@ -156,10 +158,10 @@ class NVCLImporter(object):
         xmltree = etree.parse(wfsresponse)
 
         idents = {}
-        bhstring = ".//{http://www.auscope.org/nvcl}scannedBorehole"
-        for match in xmltree.findall(bhstring):
-            idents[match.get('{http://www.w3.org/1999/xlink}title')] = \
-                match.get('{http://www.w3.org/1999/xlink}href')
+        for match in xmltree.findall(".//nvcl:scannedBorehole",
+                                     namespaces=NAMESPACES):
+            idents[match.get(expand_namespace('xlink:title'))] = \
+                match.get(expand_namespace('xlink:href'))
         return idents
 
     def get_borehole_idents(self, maxids=None):
@@ -283,7 +285,7 @@ class NVCLImporter(object):
         #
         for analyte in analytecols:
             property_type = PropertyType(
-                name=analyte,
+                ident=analyte,
                 long_name=analyte,
                 units=None,
                 description=None,
@@ -311,7 +313,7 @@ class NVCLImporter(object):
         """
         raise NotImplemented
 
-    def get_borehole(self, hole_ident, name=None, get_analytes=True,
+    def get_borehole(self, hole_ident, ident=None, get_analytes=True,
                      raise_error=True):
         """ Generates a pysiss.borehole.Borehole instance containing the data
             from the given borehole.
@@ -321,9 +323,9 @@ class NVCLImporter(object):
 
             :param hole_ident: The hole identifier
             :type hole_ident: string
-            :param name: Descriptive name for this borehole. Optional, if not
+            :param ident: Descriptive ident for this borehole. Optional, if not
                 specified this will default to the NVCL borehole id.
-            :type name: string
+            :type ident: string
             :param get_analytes: If True, the analytes will also be downloaded
             :type get_analytes: bool
             :param raise_error: Whether to raise an exception on an HTTP error
@@ -332,8 +334,8 @@ class NVCLImporter(object):
         """
         try:
             # Generate pysiss.borehole.Borehole instance to hold the data
-            if name is None:
-                name = hole_ident
+            if ident is None:
+                ident = hole_ident
             siss_bhl_generator = SISSBoreholeGenerator()
             bh_url = self.get_borehole_idents_and_urls()[hole_ident]
             response = requests.get(bh_url)
@@ -342,15 +344,15 @@ class NVCLImporter(object):
             if not response:
                 return None
             bhl = siss_bhl_generator.geosciml_to_borehole(
-                name, StringIO(response.content))
+                ident, StringIO(response.content))
 
             # For each dataset in the NVCL we want to add a dataset and store
             # the dataset information in the DatasetDetails
             if get_analytes:
                 datasets = self.get_dataset_idents(hole_ident)
-                for dataset_name, dataset_guid in datasets.items():
+                for dataset_ident, dataset_guid in datasets.items():
                     dataset = self.get_analytes(hole_ident=hole_ident,
-                                                dataset_name=dataset_name,
+                                                dataset_name=dataset_ident,
                                                 dataset_ident=dataset_guid)
                     if dataset is not None:
                         bhl.add_dataset(dataset)

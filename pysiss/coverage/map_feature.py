@@ -21,7 +21,7 @@ class MapFeature(id_object):
 
     def __init__(self, shape, projection, metadata_ident, ident=None,
                  **kwargs):
-        super(MapFeature, self).__init__(ident='mapped_feature')
+        super(MapFeature, self).__init__(ident='map_feature')
         self.ident = ident or self.uuid
 
         # Store some info on the shape

@@ -5,11 +5,11 @@
 
     description: Borehole object creation from SISS GeoSciML metadata.
 
-Notes: 
-o If the expectation is that only one borehole element should be 
+Notes:
+o If the expectation is that only one borehole element should be
   found, should we raise an exception if there is more than one?
-  Or, should we check that the name is the same as the borehole's 
-  identifier? Since the caller can currently pass whatever name 
+  Or, should we check that the ident is the same as the borehole's
+  identifier? Since the caller can currently pass whatever name
   he/she desires, that test may fail.
 """
 
@@ -33,7 +33,8 @@ GML_NS = {'gsml': 'http://www.opengis.net/gml',
 # GeoSciML version dependent shape namespace URIs
 SHAPE_NS = {'gsml': 'http://www.opengis.net/sampling/1.0',
             'gsmlbh': 'http://www.opengis.net/samplingSpatial/2.0'}
-              
+
+
 class SISSBoreholeGenerator:
 
     """ Spatial Information Services Stack borehole generator class.
@@ -43,7 +44,7 @@ class SISSBoreholeGenerator:
 
             xmlns:gsml => urn:cgi:xmlns:CGI:GeoSciML:2.0
             xmlns:gsmlbh => http://xmlns.geosciml.org/Borehole/3.0
-            
+
         Borehole details that are in common across GeoSciML 2.0 and 3.0
         are extracted.
     """
@@ -51,7 +52,7 @@ class SISSBoreholeGenerator:
     def __init__(self):
         """ Construct a SISS borehole generator instance.
         """
-        self.unit_reg = UnitRegistry() 
+        self.unit_reg = UnitRegistry()
 
         self.ns_key = None
 
@@ -60,17 +61,17 @@ class SISSBoreholeGenerator:
         self.geosciml_handlers['gsmlbh'] = self._add_gsmlbh_borehole_details
 
         self.whitespace_pattern = re.compile(r'\s+')
-                
+
         self.borehole = None
-    
-    def geosciml_to_borehole(self, name, geo_source):
+
+    def geosciml_to_borehole(self, ident, geo_source):
         """ Given a GeoSciML scanned borehole URL, return a Borehole object
             initialised with origin position and borehole details. In the case
             where there is more than one Borehole element, the first will be
             returned.
 
-            :param name: The name to assign to the Borehole object
-            :type name: string
+            :param ident: The ident to assign to the Borehole object
+            :type ident: string
             :param geo_source: A file-like object opened from a GeoSciML
                 scanned borehole URL
             :type geo_source: file-like object
@@ -82,9 +83,10 @@ class SISSBoreholeGenerator:
             borehole_elts = self._get_borehole_elts(geo_tree)
 
             if len(borehole_elts) != 0:
-                self.borehole = Borehole(name=name,
-                            origin_position=self._location(borehole_elts[0]))
-    
+                self.borehole = Borehole(ident=ident,
+                                         origin_position=self._location(
+                                             borehole_elts[0]))
+
                 self._add_borehole_details(borehole_elts[0])
 
         return self.borehole
@@ -107,15 +109,15 @@ class SISSBoreholeGenerator:
         return boreholes
 
     def _location(self, borehole_elt):
-        """Find the GeoSciML 2.0 or 3.0 borehole position (lat/lon) and 
+        """Find the GeoSciML 2.0 or 3.0 borehole position (lat/lon) and
            elevation and return an OriginPosition instance.
-           
+
         :param borehole_elt: A GeoSciML 2.0 or 3.0 Borehole element
         :type borehole_elt: Element
         :returns: an OriginPosition instance (or None, if not found)
         """
         origin_position = None
-        
+
         latlon_xpath = './/{{{0}}}location/{{{1}}}Point/{{{2}}}pos'
         latlon = _element_text(borehole_elt,
                                latlon_xpath.format(NS[self.ns_key],
@@ -123,29 +125,29 @@ class SISSBoreholeGenerator:
                                                    GML_NS[self.ns_key]))
         if latlon is not None:
             (lat, lon) = latlon.split(' ')
-         
+
             elevation_xpath = './/{{{0}}}elevation[@uomLabels]'
             elevation_elt = \
                 borehole_elt.find(elevation_xpath.format(NS[self.ns_key]))
-            
+
             if elevation_elt is not None:
                 elevation_units = \
-                    self.unit_reg[elevation_elt.attrib['uomLabels']]
+                    self.unit_reg(elevation_elt.attrib['uomLabels'])
             else:
                 elevation_units = None
-                
+
             if self.ns_key == 'gsml':
                 property_type = \
                     self._gsml_location_property(borehole_elt,
                                                  elevation_units)
             else:
                 property_type = self._gsmlbh_location_property(borehole_elt)
-                
+
             origin_position = \
                 OriginPosition(latitude=float(lat) * self.unit_reg.degree,
-                    longitude=float(lon) * self.unit_reg.degree,
-                    elevation=float(elevation_elt.text) * elevation_units,
-                    property_type=property_type)
+                               longitude=float(lon) * self.unit_reg.degree,
+                               elevation=float(elevation_elt.text) * elevation_units,
+                               property_type=property_type)
 
         return origin_position
 
@@ -166,7 +168,7 @@ class SISSBoreholeGenerator:
         if elevation_elt is not None:
             elevation_axis_desc = \
                 'elevation: {0}'.format(elevation_elt.attrib['axisLabels'])
-            property_type = PropertyType(name='origin position elevation',
+            property_type = PropertyType(ident='origin position elevation',
                                          long_name='origin position elevation',
                                          description=elevation_axis_desc,
                                          units=units)
@@ -190,7 +192,7 @@ class SISSBoreholeGenerator:
         
         description_text = 'description: {0}'.format(description_text)
         
-        return PropertyType(name='origin position',
+        return PropertyType(ident='origin position',
                             long_name='origin position',
                             description=description_text)
     
@@ -283,7 +285,7 @@ class SISSBoreholeGenerator:
         # Question: How useful is the property here in fact if we have units
         #           for each value?
         self.borehole.add_detail('cored interval', envelope_dict,
-                            PropertyType(name='envelope',
+                            PropertyType(ident='envelope',
                                          long_name='cored interval envelope',
                                          description='cored interval envelope '
                                                      'lower and upper corner',
