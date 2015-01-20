@@ -12,6 +12,7 @@ from ..metadata.namespaces import NamespaceRegistry
 
 import requests
 from lxml import etree
+from shapely.geometry import box
 
 
 class CoverageService(id_object):
@@ -27,7 +28,8 @@ class CoverageService(id_object):
     namespaces = NamespaceRegistry()
 
     def __init__(self, endpoint):
-        super(CoverageService, self).__init__(ident='coverage_service')
+        super(CoverageService, self).__init__(ident=endpoint)
+        self.ident = endpoint
         self.endpoint = endpoint.split('?')[0]
         self.get_capabilities()
 
@@ -53,8 +55,25 @@ class CoverageService(id_object):
             self.get_url = cs.xpath(
                 '//wcs:GetCoverage//wcs:OnlineResource/@*',
                 namespaces=NamespaceRegistry())[0]
+
+            # Get bounding box information
+            envelope = cs.xpath(
+                '//wcs:ContentMetadata//wcs:lonLatEnvelope',
+                namespaces=NamespaceRegistry())[0]
+            self.projection = envelope.attrib['srsName']
+            lower_left, upper_right = \
+                [map(float, e.text.split())
+                 for e in envelope.xpath('gml:pos',
+                                         namespaces=NamespaceRegistry())]
+            self.bounding_box = box(lower_left[0], lower_left[1],
+                                    upper_right[0], upper_right[1])
             return cs
 
         else:
             raise IOError("Can't access endpoint, "
                           "server returned {0}".format(response.code))
+
+    def get_coverage(self, bounds):
+        """ Get coverage data for the given bounding box
+        """
+        raise NotImplemented()
