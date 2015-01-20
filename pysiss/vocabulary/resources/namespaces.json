@@ -20,5 +20,6 @@
       "crs": "urn:ogc:def:crs",
       "cgi_slith": "urn:cgi:classifier:CGI:SimpleLithology:200811",
       "ics_strat": "urn:cgi:classifier:ICS:StratChart:2008",
-      "cgi_unittype": "urn:cgi:classifier:CGI:GeologicUnitType:200811"
+      "cgi_unittype": "urn:cgi:classifier:CGI:GeologicUnitType:200811",
+      "nvcl": "http://www.auscope.org/nvcl"
 }

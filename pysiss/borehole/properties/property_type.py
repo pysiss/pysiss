@@ -6,12 +6,13 @@
     description: Imports for pysiss.borehole.properties
 """
 
+
 class PropertyType(object):
 
     """ The metadata for a property.
 
-        :param name: Property name
-        :type name: string
+        :param ident: Property ident
+        :type ident: string
         :param long_name: Name for presentation to the user
         :type long: atring or `None`
         :param description: Descriptive phrase
@@ -22,9 +23,9 @@ class PropertyType(object):
         :type isnumeric: bool
     """
 
-    def __init__(self, name, long_name=None, description=None, units=None,
-        isnumeric=True, detection_limit=None):
-        self.name = name
+    def __init__(self, ident, long_name=None, description=None, units=None,
+                 isnumeric=True, detection_limit=None):
+        self.ident = ident
         self._long_name = long_name
         self.description = description
         self.units = units
@@ -33,17 +34,16 @@ class PropertyType(object):
 
     def __repr__(self):
         info = 'PropertyType {0}: long name is "{1}", units are {2}'
-        return info.format(self.name, self.long_name, self.units)
+        return info.format(self.ident, self.long_name, self.units)
 
     @property
     def long_name(self):
-        """ Return long name or name if no long name.
+        """ Return long name or ident if no long name.
         """
-        return self._long_name if self._long_name is not None else self.name
+        return self._long_name if self._long_name is not None else self.ident
 
     def copy(self):
         """ Return a copy of the PropertyType instance
         """
-        return PropertyType(self.name, self.long_name, self.description,
-            self.units)
-
+        return PropertyType(self.ident, self.long_name, self.description,
+                            self.units)

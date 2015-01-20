@@ -21,46 +21,66 @@ class Collection(list):
 
         # Add the list of objects if required
         if objects:
-            for bh in objects:
-                self.append(bh)
+            for obj in objects:
+                self.append(obj)
 
     def __getitem__(self, ident_or_idx):
         """ Retrieve a object from the collection
 
             :param ident_or_idx: Either an integer index, or a object name.
         """
+        # Try to use as an index first
         try:
             return super(Collection, self).__getitem__(ident_or_idx)
         except IndexError:
-            try:
-                return super(Collection, self).__getitem__(self._index[ident_or_idx])
-            except KeyError:
-                str = ('Unknown key or index {0} passed '
-                       'to BoreholeCollection').format(ident_or_idx)
-                raise IndexError(str)
+            pass
+        except TypeError:
+            pass
 
-    def __setitem__(self, object):
-        """ Add a object to the collection
+        # If we're here, then it's not an index
+        try:
+            return super(Collection, self).__getitem__(
+                self._index[ident_or_idx])
+        except KeyError:
+            str = ('Unknown key or index {0} passed '
+                   'to BoreholeCollection').format(ident_or_idx)
+            raise IndexError(str)
+
+    def __setitem__(self, index, object):
+        """ Collection does not support __setitem__, use append instead
         """
-        self.append(object)
-        self._index[object.name] = len(self)
+        raise NotImplementedError(
+            "Collection does not support __setitem__, use append instead")
 
-    def __delitem__(self, object_name):
+    def __delitem__(self, ident_or_idx):
         """ Remove a object from the collection
         """
-        # Find location of object in list
-        idx = self._index[object_name]
+        # Assume it's an ident first
+        try:
+            # Find location of object in list
+            idx = self._index[ident_or_idx]
+            ident = ident_or_idx
+        except KeyError:
+            # OK, we've got an index
+            idx = ident_or_idx
+            ident = self[idx].ident
 
         # Move subsequent object indices up
         for obj in self[idx:]:
-            self._index[obj.name] -= 1
+            self._index[obj.ident] -= 1
 
         # Delete object
-        del self._index[object_name]
+        del self._index[ident]
         del self[idx]
 
+    def append(self, object):
+        """ Add a object to the collection
+        """
+        super(Collection, self).append(object)
+        self._index[object.ident] = len(self)
+
     def keys(self):
-        return [obj.name for obj in self]
+        return [obj.ident for obj in self]
 
     def values(self):
         return self
