@@ -25,7 +25,9 @@ class WCSTest(unittest.TestCase):
         """ WebCoverageService should initialize without errors
         """
         wcs = webservices.CoverageService(WCSURL)
-        wcs.get_capabilities()
+        self.assertTrue(wcs.version is not None)
+        self.assertTrue(wcs.describe_url is not None)
+        self.assertTrue(wcs.get_url is not None)
 
 
 class RasterTest(unittest.TestCase):

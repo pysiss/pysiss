@@ -57,7 +57,7 @@ class Metadata(id_object):
 
     registry = MetadataRegistry()
 
-    def __init__(self, ident, tree, type, **kwargs):
+    def __init__(self, tree, type, ident=None, **kwargs):
         super(Metadata, self).__init__(ident=type)
         self.ident = ident or self.uuid
         self.tree = tree
