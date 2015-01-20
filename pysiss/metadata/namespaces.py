@@ -53,7 +53,6 @@ def shorten_namespace(tag):
         version
     """
     ns, tag = split_namespace(tag)
-    print 'before try', ns, tag
     try:
         return _NAMESPACE_REGISTRY.inverse[ns] + ':' + tag
     except KeyError:
@@ -70,11 +69,13 @@ def shorten_namespace(tag):
 def expand_namespace(tag, form='xml'):
     """ Expand a tag's namespace
     """
-    ns, tag = split_namespace(tag)
+    tokens = tag.split(':')
+    ns = _NAMESPACE_REGISTRY[tokens[0]]
+    tag = ':'.join(tokens[1:])
     if form == 'xml':
-        return '{' + _NAMESPACE_REGISTRY[ns] + '}' + tag
+        return '{' + ns + '}' + tag
     elif form == 'rdf':
-        return _NAMESPACE_REGISTRY[ns] + ':' + tag
+        return ns + ':' + tag
     else:
         raise ValueError(
             ('Unknown format type {0}. '
