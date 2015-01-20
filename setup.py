@@ -63,7 +63,7 @@ setup(
     # Contents
     packages=find_packages(exclude=['test*']),
     package_data={
-        'pysiss.vocabulary.resources': ['*']
+        'pysiss.metadata.resources': ['*']
     },
     test_suite='tests'
 )
