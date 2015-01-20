@@ -1,10 +1,8 @@
 recursive-include pysiss *.py
 recursive-include tests *.py *.xml
-recursive-include examples *.ipynb *.py *.csv *.md *.json
 recursive-include docs *.py *.rst Makefile *.bat
 include *.md
 include MANIFEST.in
 include README.rst
 include LICENSE.txt
 include requirements.txt
-include ez_setup.py
