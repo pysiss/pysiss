@@ -47,18 +47,7 @@ setup(
     ],
 
     # Dependencies
-    install_requires=[
-        'matplotlib>=1.0',
-        'numpy>=1.6',
-        'scipy>=0.9',
-        'OWSLib>=0.8',
-        'lxml',
-        'simplejson>=3.0',
-        'pandas>=0.10',
-        'shapely',
-        'requests',
-        'pint'
-    ],
+    install_requires=REQUIREMENTS,
 
     # Contents
     packages=find_packages(exclude=['test*']),

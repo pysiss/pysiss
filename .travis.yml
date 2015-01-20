@@ -29,7 +29,7 @@ install:
   - pip install $NUMPYSPEC
   - pip install scipy matplotlib 
   - pip install pandas 
-  - pip install shapely owslib simplejson lxml pint
+  - pip install shapely simplejson lxml pint
   - python setup.py install
 
 # Command to run tests
