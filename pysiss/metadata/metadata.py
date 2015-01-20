@@ -11,6 +11,43 @@
 
 from ..utilities import id_object
 from .registry import MetadataRegistry
+from .namespaces import shorten_namespace
+
+
+def pprint(tree, indent_width=2, indent=0):
+    """ Convert an etree into a YAML-esque representation
+
+        Parameters
+            tree - an etree instance (try lxml.etree.Etree)
+            indent_width - with of a single indent step in characters
+            indent - initial number of indentations
+    """
+    # Build line for current element
+    spaces = ' ' * indent_width * indent
+    result = spaces + '{0}:'.format(shorten_namespace(tree.tag))
+    if tree.text and tree.text.strip() != '':
+        result += ' {0}\n'.format(tree.text)
+    elif tree.attrib:
+        tree_attrs = dict(tree.attrib)
+        for key, value in tree.attrib.items():
+            try:
+                old_key = key
+                key = shorten_namespace(key)
+                tree_attrs[key] = value
+                del tree_attrs[old_key]
+            except KeyError:
+                pass
+        result += '\n' + spaces + ' ' * indent_width
+        result += '  {0}\n'.format(tree_attrs)
+    else:
+        result += '\n'
+
+    # Add lines for children
+    for child in tree.getchildren():
+        result += pprint(child,
+                         indent_width=indent_width,
+                         indent=indent + 1)
+    return result
 
 
 class Metadata(id_object):
@@ -21,7 +58,7 @@ class Metadata(id_object):
     registry = MetadataRegistry()
 
     def __init__(self, ident, tree, type, **kwargs):
-        super(Metadata, self).__init__(name=type)
+        super(Metadata, self).__init__(ident=type)
         self.ident = ident or self.uuid
         self.tree = tree
         self.type = type
@@ -47,8 +84,13 @@ class Metadata(id_object):
         """
         return self.tree.find(*args, **kwargs)
 
-    @property
-    def tag_tree(self):
+    def pprint(self, indent_width=2):
         """ Return a YAML-like representation of the tags
+
+            Parameters
+                indent_width - with of a single indent step in characters
+
+            Returns:
+                a string reprentation of the metadata tree
         """
-        pass
+        return pprint(self.tree, indent_width=indent_width)
