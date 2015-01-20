@@ -6,6 +6,6 @@
     description: init file
 """
 
-from . import gsml, gml, erml
+from . import erml, gsml, gml
 
-__all__ = [gsml, gml, erml]
+__all__ = [erml, gsml, gml]

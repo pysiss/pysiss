@@ -7,8 +7,9 @@
 """
 
 from ...coverage.vector import MappedFeature
-from ...metadata import Metadata, NamespaceRegistry, expand_namespace
-from ...metadata import shorten_namespace
+from ...metadata import Metadata
+from ...metadata.namespaces \
+    import NamespaceRegistry, expand_namespace, shorten_namespace
 from ..gml.unmarshallers import UNMARSHALLERS as GML_UNMARSHALLERS
 
 NAMESPACES = NamespaceRegistry()
