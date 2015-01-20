@@ -9,6 +9,8 @@
 from ..utilities import id_object
 from ..metadata import MetadataRegistry
 
+import rasterio
+
 
 class Raster(id_object):
 
@@ -18,25 +20,32 @@ class Raster(id_object):
     md_registry = MetadataRegistry()
 
     def __init__(self, filename, metadata=None, ident=None, **kwargs):
-        super(MappedFeature, self).__init__(ident='raster')
+        super(Raster, self).__init__(ident='raster')
+        self.ident = ident or self.uuid
+        self.filename = filename
 
-        # Some slots to store other data
-        self._data = None
-        self.projection = None
-        self.bounds = None
+        # Set up geotiff data
+        with rasterio.drivers():
+            self.data = rasterio.open(self.filename)
+        self.projection = self.data.crs
+        self.bounds = self.data.bounds
 
         # Store other metadata
         if kwargs:
             for attrib, value in kwargs.items():
                 setattr(self, attrib, value)
 
-        self.metadata_ident = metadata_ident
-        self.type = self.md_registry[self.metadata_ident].type
+        if metadata:
+            self._md_ident = metadata.ident
+            self.type = metadata.type
+            self.md_registry.register(metadata)
+        else:
+            self._md_ident = None
+            self.type = None
 
     @property
-    def data(self):
-        """ Return data as a rasterio file object
+    def metadata(self):
+        """ Return metadata associated with this Raster array
         """
-        if self._data is None:
-            
-        with 
+        if self._md_ident:
+            return self.md_registry[self._md_ident]
