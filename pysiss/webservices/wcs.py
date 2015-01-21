@@ -8,11 +8,29 @@
 
 from ..utilities import id_object
 from ..metadata import Metadata
-from ..metadata.namespaces import NamespaceRegistry
+from ..metadata.namespaces import NamespaceRegistry, shorten_namespace
 
 import requests
 from lxml import etree
 from shapely.geometry import box
+
+NAMESPACES = NamespaceRegistry()
+
+
+def url_info(tree, tag, namespaces=None):
+    """ Parse information about an OGC endpoint from getCapabilities request
+    """
+    if namespaces is None:
+        namespaces = NAMESPACES
+    return {
+        'url': tree.xpath(
+            '//{0}//wcs:OnlineResource/@*'.format(tag),
+            namespaces=namespaces)[0],
+        'method': shorten_namespace(tree.xpath(
+            '//{0}//wcs:HTTP/*'.format(tag),
+            namespaces=namespaces)[0].tag
+        ).split(':')[1].lower()
+    }
 
 
 class CoverageService(id_object):
@@ -29,51 +47,93 @@ class CoverageService(id_object):
 
     def __init__(self, endpoint):
         super(CoverageService, self).__init__(ident=endpoint)
-        self.ident = endpoint
-        self.endpoint = endpoint.split('?')[0]
-        self.get_capabilities()
+        self.ident = self.endpoint = endpoint.split('?')[0]
 
-    def get_capabilities(self):
+        # Update metadata
+        self.get_capabilities(update=True)
+        self.get_description(update=True)
+
+    def make_payload(self, ident, bbox,
+                     tbox=None, projection=None):
+        """ Generate a WCS payload for a request
+        """
+        pass
+
+    @property
+    def capabilities(self):
+        """ The capabilities of the WCS
+        """
+        if self.capabilities is None:
+            self.get_capabilities(update=True)
+        return self.capabilities
+
+    @property
+    def description(self):
+        if self.description is None:
+            self.get_description(update=True)
+        return self.description
+
+    def get_capabilities(self, update=False):
         """ Get the capabilities from the coverage service
         """
+        if self.capabilities is not None and not update:
+            return
+
+        # Update capabilities from server
         payload = dict(
-            service='WCS',
-            request='getCapabilities')
+            service='wcs',
+            request='getcapabilities')
         response = requests.get(self.endpoint, params=payload)
 
+        # Parse metadata
         if response.ok:
-            # Parse metadata
-            metadata = etree.fromstring(response.content)
-            cs = self.capabilities = Metadata(tree=metadata,
-                                              type='coverage')
-
-            # Pull out some useful information
-            self.version = cs.xpath('@version')[0]
-            self.describe_url = cs.xpath(
-                '//wcs:DescribeCoverage//wcs:OnlineResource/@*',
-                namespaces=self.namespaces)[0]
-            self.get_url = cs.xpath(
-                '//wcs:GetCoverage//wcs:OnlineResource/@*',
-                namespaces=NamespaceRegistry())[0]
-
-            # Get bounding box information
-            envelope = cs.xpath(
-                '//wcs:ContentMetadata//wcs:lonLatEnvelope',
-                namespaces=NamespaceRegistry())[0]
-            self.projection = envelope.attrib['srsName']
-            lower_left, upper_right = \
-                [map(float, e.text.split())
-                 for e in envelope.xpath('gml:pos',
-                                         namespaces=NamespaceRegistry())]
-            self.bounding_box = box(lower_left[0], lower_left[1],
-                                    upper_right[0], upper_right[1])
-            return cs
+            cap = self.capabilities = Metadata(
+                tree=etree.fromstring(response.content),
+                type='wcs:WCS_Capabilities')
+            self.version = cap.xpath('@version')[0]
+            self.describe_endpoint = url_info(cap, 'wcs:DescribeCoverage')
+            self.coverage_endpoint = url_info(cap, 'wcs:GetCoverage')
 
         else:
             raise IOError("Can't access endpoint, "
                           "server returned {0}".format(response.code))
 
+    def get_description(self, update=False):
+        """ Get a description of the coverage from the service
+        """
+        if self.description is not None and not update:
+            return
+
+        # Update description from server
+        self.get_capabilities()
+        payload = dict(
+            service='wcs',
+            request='describecoverage')
+        response = requests.request(params=payload,
+                                    **self.describe_endpoint)
+        if response.ok:
+            desc = self.description = Metadata(
+                tree=etree.fromstring(response.content),
+                type='wcs:CoverageDescription')
+
+            # Get bounding box and grid information
+            envelope = desc.xpath(
+                '//wcs:spatialDomain//wcs:Envelope',
+                namespaces=self.namespaces)[0]
+            self.projection = envelope.attrib['srsName']
+            lower_left, upper_right = \
+                [map(float, e.text.split())
+                 for e in envelope.xpath('gml:pos',
+                                         namespaces=self.namespaces)]
+            self.bounding_box = box(lower_left[0], lower_left[1],
+                                    upper_right[0], upper_right[1])
+            self.origin
+            self.offset_vectors = \
+                [map(float, e.text.split())
+                 for e in envelope.xpath('gml:pos',
+                                         namespaces=self.namespaces)]
+
     def get_coverage(self, bounds):
         """ Get coverage data for the given bounding box
         """
-        raise NotImplemented()
+        raise NotImplementedError()

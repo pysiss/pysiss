@@ -26,8 +26,9 @@ class WCSTest(unittest.TestCase):
         """
         wcs = webservices.CoverageService(WCSURL)
         self.assertTrue(wcs.version is not None)
-        self.assertTrue(wcs.describe_url is not None)
         self.assertTrue(wcs.get_url is not None)
+        self.assertTrue(wcs.bounding_box is not None)
+        self.fail('Finish this test')
 
 
 class RasterTest(unittest.TestCase):
