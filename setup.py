@@ -9,15 +9,16 @@
 from setuptools import setup, find_packages
 import os
 
-# Get requirements from requirements.txt file
-with open('requirements.txt') as fhandle:
-    REQUIREMENTS = map(lambda l: l.strip('\n'), fhandle.readlines())
-
-
 def read(*paths):
-    """Build a file path from *paths* and return the contents."""
+    """ Build a file path from *paths and return the contents.
+    """
     with open(os.path.join(*paths), 'r') as f:
         return f.read()
+
+
+# Get requirements from requirements.txt file
+with open('requirements.txt') as fhandle:
+    REQUIREMENTS = [l.strip('\n') for l in fhandle]
 
 ## PACKAGE INFORMATION
 setup(
@@ -52,7 +53,8 @@ setup(
     # Contents
     packages=find_packages(exclude=['test*']),
     package_data={
-        'pysiss.metadata': ['*.json']
+        'pysiss.metadata': ['*.json'],
+        'pysiss.webservices': ['*.json']
     },
     test_suite='tests'
 )
