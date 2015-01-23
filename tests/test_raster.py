@@ -29,7 +29,6 @@ class WCSTest(unittest.TestCase):
         self.assertTrue(wcs.endpoint == WCSURL.split('?')[0])
         self.assertTrue(wcs.capabilities is not None)
         self.assertTrue(wcs.descriptions is not None)
-        self.fail('Finish this test')
 
 
 class RasterTest(unittest.TestCase):

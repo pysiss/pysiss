@@ -50,9 +50,9 @@ class CoverageService(id_object):
         self.ident = self.endpoint = endpoint.split('?')[0]
 
         # Update metadata
-        self._capabilities, self._description = None, None
+        self._capabilities, self._descriptions = None, None
         self.get_capabilities(update=True)
-        self.get_description(update=True)
+        self.get_descriptions(update=True)
 
     def make_payload(self, ident, bbox,
                      tbox=None, projection=None):
@@ -69,10 +69,10 @@ class CoverageService(id_object):
         return self._capabilities
 
     @property
-    def description(self):
-        if self._description is None:
-            self.get_description(update=True)
-        return self._description
+    def descriptions(self):
+        if self._descriptions is None:
+            self.get_descriptions(update=True)
+        return self._descriptions
 
     def get_capabilities(self, update=False):
         """ Get the capabilities from the coverage service
@@ -104,15 +104,15 @@ class CoverageService(id_object):
             raise IOError("Can't access endpoint {0}, "
                           "server returned {1}".format(response.url, response.status_code))
 
-    def get_description(self, update=False):
+    def get_descriptions(self, update=False):
         """ Get a description of the coverage from the service
         """
-        if self._description is not None and not update:
+        if self._descriptions is not None and not update:
             return
 
         # Update description from server
         self.get_capabilities()
-        self._description = dict()
+        self._descriptions = dict()
         for layer in self.layers:
             payload = dict(
                 service='wcs',
@@ -122,7 +122,7 @@ class CoverageService(id_object):
             response = requests.request(params=payload,
                                         **self.describe_endpoint)
             if response.ok:
-                desc = self._description[layer] = Metadata(
+                desc = self._descriptions[layer] = Metadata(
                     tree=etree.fromstring(response.content),
                     type='wcs:CoverageDescription')
 
