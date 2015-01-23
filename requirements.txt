@@ -6,5 +6,6 @@ lxml
 simplejson>=3.0
 pandas>=0.10
 shapely
+rasterio
 requests
 pint

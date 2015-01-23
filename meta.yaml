@@ -1,0 +1,61 @@
+package:
+  name: pysiss
+  version: !!str 0.0.4
+
+source:
+  fn: pysiss-0.0.4.tar.gz
+  url: https://pypi.python.org/packages/source/p/pysiss/pysiss-0.0.4.tar.gz
+  md5: 29210198bab16a18f1e41c15fd14208b
+#  patches:
+   # List any patch files here
+   # - fix.patch
+
+build:
+  # If this is a new build for the same version, increment the build
+  # number. If you do not include this key, it defaults to 0.
+  number: 1
+
+requirements:
+  - python
+  - matplotlib >=1.0
+  - numpy >=1.6
+  - scipy >=0.9
+  - lxml
+  - simplejson >=3.0
+  - pandas >=0.10
+  - shapely
+  - rasterio
+  - requests
+  - owslib
+  - pint
+
+test:
+  # Python imports
+  imports:
+    - pysiss
+    - pysiss.borehole
+    - pysiss.borehole.analysis
+    - pysiss.borehole.datasets
+    - pysiss.borehole.properties
+    - pysiss.borehole.siss
+    - pysiss.coverage
+    - pysiss.metadata
+    - pysiss.utilities
+    - pysiss.vocabulary
+    - pysiss.vocabulary.erml
+    - pysiss.vocabulary.gml
+    - pysiss.vocabulary.gsml
+    - pysiss.vocabulary.resources
+    - pysiss.webservices
+
+  commands:
+    python setup.py test
+
+about:
+  home: http://github.com/pysiss/pysiss
+  license: BSD License or MIT License
+  summary: 'A pythonic interface to Spatial Information Services Stack (SISS) services'
+
+# See
+# http://docs.continuum.io/conda/build.html for
+# more information about meta.yaml
