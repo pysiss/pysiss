@@ -14,7 +14,7 @@ from .registry import MetadataRegistry
 from .namespaces import shorten_namespace
 
 
-def pprint(tree, indent_width=2, indent=0):
+def yamlify(tree, indent_width=2, indent=0):
     """ Convert an etree into a YAML-esque representation
 
         Parameters
@@ -42,7 +42,7 @@ def pprint(tree, indent_width=2, indent=0):
 
     # Add lines for children
     for child in tree.getchildren():
-        result += pprint(child,
+        result += yamlify(child,
                          indent_width=indent_width,
                          indent=indent + 1)
     return result
@@ -56,10 +56,10 @@ class Metadata(id_object):
     registry = MetadataRegistry()
 
     def __init__(self, tree, type, ident=None, **kwargs):
-        super(Metadata, self).__init__(ident=type)
+        self.type = type.lower()
+        super(Metadata, self).__init__(ident=self.type)
         self.ident = ident or self.uuid
         self.tree = tree
-        self.type = type
 
         # Store other metadata
         for attrib, value in kwargs.items():
@@ -70,7 +70,7 @@ class Metadata(id_object):
 
     def __str__(self):
         template = 'Metadata record {0}, of type {1}\n{2}'
-        return template.format(self.ident, self.type, self.ttree)
+        return template.format(self.ident, self.type, self.tree)
 
     def xpath(self, *args, **kwargs):
         """ Pass XPath queries through to underlying tree
@@ -82,7 +82,7 @@ class Metadata(id_object):
         """
         return self.tree.find(*args, **kwargs)
 
-    def pprint(self, indent_width=2):
+    def pretty(self, indent_width=2):
         """ Return a YAML-like representation of the tags
 
             Parameters
@@ -91,4 +91,4 @@ class Metadata(id_object):
             Returns:
                 a string reprentation of the metadata tree
         """
-        return pprint(self.tree, indent_width=indent_width)
+        return yamlify(self.tree, indent_width=indent_width)
