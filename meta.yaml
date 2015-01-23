@@ -26,6 +26,7 @@ requirements:
   - shapely
   - rasterio
   - requests
+  - owslib
   - pint
 
 test:
