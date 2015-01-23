@@ -5,7 +5,7 @@
 
 language: python
 python:
-    # - "3.4"
+    - "3.4"
     - "2.7"
 
 # Command to install miniconda to build test environment
@@ -32,4 +32,8 @@ install:
   - python setup.py install
 
 # Command to run tests
-script: python setup.py test
+script: 
+  - python setup.py test
+
+after_success:
+  - coveralls

@@ -16,17 +16,21 @@ build:
   number: 1
 
 requirements:
-  - python
-  - matplotlib >=1.0
-  - numpy >=1.6
-  - scipy >=0.9
-  - lxml
-  - simplejson >=3.0
-  - pandas >=0.10
-  - shapely
-  - rasterio
-  - requests
-  - pint
+  build:
+    - python
+    - matplotlib >=1.0
+    - numpy >=1.6
+    - scipy >=0.9
+    - lxml
+    - simplejson >=3.0
+    - pandas >=0.10
+    - shapely
+    - rasterio
+    - requests
+    - pint
+
+  test:
+    - coveralls
 
 test:
   # Python imports
