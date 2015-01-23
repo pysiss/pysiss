@@ -37,7 +37,7 @@ class PointDataSet(DataSet):
         super(PointDataSet, self).__init__(
             name, len(depths), details=details)
         depths = numpy.asarray(depths)
-        assert all(numpy.gradient(depths) > 0), \
+        assert all(numpy.diff(depths) > 0), \
             "depths must be monotonically increasing"
         self.depths = depths
 
