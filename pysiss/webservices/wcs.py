@@ -50,6 +50,7 @@ class CoverageService(id_object):
         self.ident = self.endpoint = endpoint.split('?')[0]
 
         # Update metadata
+        self._capabilities, self._description = None, None
         self.get_capabilities(update=True)
         self.get_description(update=True)
 
@@ -63,20 +64,20 @@ class CoverageService(id_object):
     def capabilities(self):
         """ The capabilities of the WCS
         """
-        if self.capabilities is None:
+        if self._capabilities is None:
             self.get_capabilities(update=True)
-        return self.capabilities
+        return self._capabilities
 
     @property
     def description(self):
-        if self.description is None:
+        if self._description is None:
             self.get_description(update=True)
-        return self.description
+        return self._description
 
     def get_capabilities(self, update=False):
         """ Get the capabilities from the coverage service
         """
-        if self.capabilities is not None and not update:
+        if self._capabilities is not None and not update:
             return
 
         # Update capabilities from server
@@ -87,51 +88,64 @@ class CoverageService(id_object):
 
         # Parse metadata
         if response.ok:
-            cap = self.capabilities = Metadata(
+            cap = self._capabilities = Metadata(
                 tree=etree.fromstring(response.content),
                 type='wcs:WCS_Capabilities')
             self.version = cap.xpath('@version')[0]
             self.describe_endpoint = url_info(cap, 'wcs:DescribeCoverage')
             self.coverage_endpoint = url_info(cap, 'wcs:GetCoverage')
 
+            # Get available datasets
+            self.layers = cap.xpath(
+                'wcs:ContentMetadata/wcs:CoverageOfferingBrief/wcs:name/text()',
+                namespaces=self.namespaces)
+
         else:
-            raise IOError("Can't access endpoint, "
-                          "server returned {0}".format(response.code))
+            raise IOError("Can't access endpoint {0}, "
+                          "server returned {1}".format(response.url, response.status_code))
 
     def get_description(self, update=False):
         """ Get a description of the coverage from the service
         """
-        if self.description is not None and not update:
+        if self._description is not None and not update:
             return
 
         # Update description from server
         self.get_capabilities()
-        payload = dict(
-            service='wcs',
-            request='describecoverage')
-        response = requests.request(params=payload,
-                                    **self.describe_endpoint)
-        if response.ok:
-            desc = self.description = Metadata(
-                tree=etree.fromstring(response.content),
-                type='wcs:CoverageDescription')
+        self._description = dict()
+        for layer in self.layers:
+            payload = dict(
+                service='wcs',
+                request='describecoverage',
+                version=self.version,
+                ident=layer)
+            response = requests.request(params=payload,
+                                        **self.describe_endpoint)
+            if response.ok:
+                desc = self._description[layer] = Metadata(
+                    tree=etree.fromstring(response.content),
+                    type='wcs:CoverageDescription')
 
-            # Get bounding box and grid information
-            envelope = desc.xpath(
-                '//wcs:spatialDomain//wcs:Envelope',
-                namespaces=self.namespaces)[0]
-            self.projection = envelope.attrib['srsName']
-            lower_left, upper_right = \
-                [map(float, e.text.split())
-                 for e in envelope.xpath('gml:pos',
-                                         namespaces=self.namespaces)]
-            self.bounding_box = box(lower_left[0], lower_left[1],
-                                    upper_right[0], upper_right[1])
-            self.origin
-            self.offset_vectors = \
-                [map(float, e.text.split())
-                 for e in envelope.xpath('gml:pos',
-                                         namespaces=self.namespaces)]
+                # Get bounding box and grid information
+                envelope = desc.xpath(
+                    '//wcs:spatialDomain//wcs:Envelope',
+                    namespaces=self.namespaces)[0]
+                self.projection = envelope.attrib['srsName']
+                lower_left, upper_right = \
+                    [map(float, e.text.split())
+                     for e in envelope.xpath('gml:pos',
+                                             namespaces=self.namespaces)]
+                self.bounding_box = box(lower_left[0], lower_left[1],
+                                        upper_right[0], upper_right[1])
+                self.offset_vectors = \
+                    [map(float, e.text.split())
+                     for e in envelope.xpath('gml:pos',
+                                             namespaces=self.namespaces)]
+
+            else:
+                raise IOError("Can't access endpoint {0}, "
+                              "server returned {1}".format(response.url, 
+                                                           response.status_code))
 
     def get_coverage(self, bounds):
         """ Get coverage data for the given bounding box

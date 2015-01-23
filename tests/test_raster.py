@@ -26,8 +26,9 @@ class WCSTest(unittest.TestCase):
         """
         wcs = webservices.CoverageService(WCSURL)
         self.assertTrue(wcs.version is not None)
-        self.assertTrue(wcs.get_url is not None)
-        self.assertTrue(wcs.bounding_box is not None)
+        self.assertTrue(wcs.endpoint == WCSURL.split('?')[0])
+        self.assertTrue(wcs.capabilities is not None)
+        self.assertTrue(wcs.descriptions is not None)
         self.fail('Finish this test')
 
 
@@ -50,4 +51,3 @@ class RasterTest(unittest.TestCase):
         self.assertTrue(self.raster.projection is not None)
         self.assertTrue(numpy.allclose(self.raster.bounds,
                                        BOUNDS))
-        self.fail('Finish this test')

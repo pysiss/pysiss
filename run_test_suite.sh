@@ -2,12 +2,12 @@
 # Build and run tests using an isolated conda environment
 #
 # To set up, do
-#    conda create -n pysiss-test python=2.7 pysiss pytest
+#    conda create -n pysiss-test python=2.7 pysiss gdal pytest
 
-source ~/.anaconda/envs/pysiss-test/bin/activate
+source activate pysiss-test
 mkdir -p logs
 NOW=`date +%d_%m_%Y_%H:%M:%S`
 LOGFILE=logs/test_$NOW.log
 echo Testing, output in $LOGFILE
-(python setup.py test) > $LOGFILE
+(py.test tests) > $LOGFILE
 source deactivate
