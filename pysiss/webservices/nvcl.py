@@ -11,7 +11,6 @@ from ..borehole.datasets import PointDataSet  # , IntervalDataSet
 from ..utilities import Singleton
 from ..metadata.namespaces import expand_namespace, NamespaceRegistry
 
-from owslib.wfs import WebFeatureService
 import numpy
 import pandas
 import requests
@@ -146,23 +145,37 @@ class NVCLImporter(object):
         """ Generates a dictionary containing identifiers and urls for
             boreholes with NVCL scanned data at this endpoint
 
+            # Todo: Use pysiss.webservices.FeatureService rather than 
+            #       raw requests call
+
             :param maxids: The maximum number of boreholes to request or
                 None for no limit
             :type maxids: integer
             :returns: an dictionary of urls keyed by borehole identifiers
         """
-        wfs = WebFeatureService(self.urls['wfsurl'], version="1.1.0")
-        wfsresponse = wfs.getfeature(
-            typename="nvcl:ScannedBoreholeCollection",
-            maxfeatures=maxids)
-        xmltree = etree.parse(wfsresponse)
+        # Make a request to the wfs
+        payload = {
+            'version': '1.1.0',
+            'service': 'wfs',
+            'request': 'getfeature',
+            'typename': 'nvcl:ScannedBoreholeCollection'
+        }
+        if maxids:
+            payload['maxids'] = str(maxids)
+        response = requests.get(self.urls['wfsurl'], params=payload)
 
-        idents = {}
-        for match in xmltree.findall(".//nvcl:scannedBorehole",
-                                     namespaces=NAMESPACES):
-            idents[match.get(expand_namespace('xlink:title'))] = \
-                match.get(expand_namespace('xlink:href'))
-        return idents
+        # Parse response
+        if response.ok:
+            xmltree = etree.fromstring(response.content)
+            idents = {}
+            for match in xmltree.findall(".//nvcl:scannedBorehole",
+                                         namespaces=NAMESPACES):
+                idents[match.get(expand_namespace('xlink:title'))] = \
+                    match.get(expand_namespace('xlink:href'))
+            return idents
+
+        else:
+            raise IOError('Server at {0} returned error: {1}'.format(response.url, response.code))
 
     def get_borehole_idents(self, maxids=None):
         """ Returns the identifiers of boreholes with NVCL scanned data
