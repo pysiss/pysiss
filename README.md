@@ -7,10 +7,28 @@ This library is released under the CSIRO BSD/MIT license, whose terms are availa
 
 **Warning** - this library is in a pre-alpha state and could change without warning.
 
+[![Build Status](https://travis-ci.org/pysiss/pysiss.svg?branch=feature%2FPYSISS-27-create-binstar-installer-for-use)](https://travis-ci.org/pysiss/pysiss)
+
+Installing via conda
+--------------------
+
+The easiset way to get pysiss is to install ContinuumIO's [Anaconda](http://continuum.io/downloads), and install from our prebuild binaries. Once Anaconda is installed, just run
+
+	conda install binstar
+	conda config --add channels jesserobertson
+	conda install pysiss
+
+and everything should just happen like magic. Optionally, you can create a seperate conda environment for pysiss by doing the following
+
+	conda create -n pysiss python=2.7 pysiss
+	source activate pysiss
+
+which keeps everything isolated from other conda packages you might have.
+
 Installing via pip
 ------------------
 
-The easiest way to get pysiss is to install the [version hosted on PyPI](https://pypi.python.org/pypi/pysiss/) via pip.
+An alternative way to get pysiss is to install the [version hosted on PyPI](https://pypi.python.org/pypi/pysiss/) via pip. This isn't quite as nice as installing via conda as you have to handle the non-Python library dependencies yourself.
 
 You will have to have the standard [numpy](http://numpy.org)/[scipy](http://scipy.org)/[matplotlib](http://matplotlib.org) stack. You also need to have the GDAL libraries and Python bindings installed.
 
@@ -35,7 +53,6 @@ Once you've got the numpy/scipy/matplotlib stack plus the GDAL libraries install
 
 - [pandas](http://pandas.pydata.org) for data munging, 
 - [shapely](http://toblerity.org/shapely/), which lets you deal with vector GIS data nicely
-- [owslib](https://pypi.python.org/pypi/OWSLib/) for calls to SISS services, and
 - [simplejson](https://pypi.python.org/pypi/simplejson) and [lxml](http://lxml.de) for dealing with JSON, XML and text data for some of the queries.
 
 If you want to run the examples, you might also want to consider

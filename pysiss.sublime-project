@@ -50,7 +50,6 @@
 		},
 		{
 			"name": "Run test suite",
-			// "cmd": ["{", "python", "setup.py", "test;", "}", ">", "logs/test_`date +\"%D:%H:%S\"`.log"],
 			"cmd": ["bash", "test_suite.sh"],
 			"working_dir": "$project_path"
 		}
