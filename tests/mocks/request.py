@@ -5,3 +5,8 @@
 
 	description: Update the mock files
 """
+
+from httmock import urlmatch, HTTmock
+import simplejson
+
+# Load in mock requests
