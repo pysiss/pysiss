@@ -1,1 +1,24 @@
-// Sources of mock data for unit tests
+{
+	"csiro_nvcl_wfs_endpoint": {
+		"url": "http://nvclwebservices.vm.csiro.au/geoserverBH/wfs",
+		"method": "get",
+		"params": {
+            "version": "1.1.0",
+            "service": "wfs",
+            "request": "getfeature",
+            "typename": "nvcl:ScannedBoreholeCollection"
+		},
+		"data": ""
+	},
+	"gswa_nvcl_wfs_endpoint": {
+		"url": "http://geossdi.dmp.wa.gov.au/services/wfs",
+		"method": "get",
+		"params": {
+            "version": "1.1.0",
+            "service": "wfs",
+            "request": "getfeature",
+            "typename": "nvcl:ScannedBoreholeCollection"
+		},
+		"data": ""
+	}
+}
