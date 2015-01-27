@@ -9,7 +9,7 @@ This library is released under the CSIRO BSD/MIT license, whose terms are availa
 
 [![Build Status](https://travis-ci.org/pysiss/pysiss.svg?branch=develop)](https://travis-ci.org/pysiss/pysiss)
 [![Coverage Status](https://coveralls.io/repos/pysiss/pysiss/badge.svg?branch=develop)](https://coveralls.io/r/pysiss/pysiss?branch=develop)
-[![Code Health](https://landscape.io/github/pysiss/pysiss/develop.svg)](https://landscape.io/github/pysiss/pysiss/develop)
+[![Code Health](https://landscape.io/github/pysiss/pysiss/develop/landscape.svg)](https://landscape.io/github/pysiss/pysiss/develop)
 
 Installing via conda
 --------------------
