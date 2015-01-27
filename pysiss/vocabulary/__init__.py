@@ -10,5 +10,3 @@ import gsml
 import gml
 import erml
 import namespaces
-
-__all__ = [gsml, gml, erml, namespaces]
