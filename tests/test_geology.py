@@ -10,7 +10,7 @@ import unittest
 from decorators import slow
 
 from pysiss.coverage import vector
-from pysiss.vocabulary.namespace import shorten_namespace
+from pysiss.metadata.namespaces import shorten_namespace
 
 BOUNDS = (119.52, -21.6, 120.90, -20.5)
 WFSURL = "http://www.ga.gov.au/geows/{0}/oneg_wa_1m/wfs"
@@ -25,7 +25,7 @@ class GeologyTest(unittest.TestCase):
     def setUp(self):
         pass
 
-    @slow
+    @unittest.skip("Skipping feature request for now")
     def test_getting_geology(self):
         """ Test recovery of geology data from GA's WFS
         """
