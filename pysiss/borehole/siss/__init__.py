@@ -8,3 +8,5 @@
 """
 
 import borehole_generator
+
+__all__ = ['borehole_generator']

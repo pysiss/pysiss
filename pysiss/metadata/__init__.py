@@ -9,3 +9,5 @@
 from .registry import MetadataRegistry
 from .metadata import Metadata
 from . import namespaces
+
+__all__ = ['MetadataRegistry', 'Metadata', 'namespaces']

@@ -9,3 +9,5 @@
 from .dataset import DataSet
 from .point_dataset import PointDataSet
 from .interval_dataset import IntervalDataSet
+
+__all__ = ['DataSet', 'PointDataSet', 'IntervalDataSet']
