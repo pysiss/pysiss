@@ -55,9 +55,9 @@ class Metadata(id_object):
 
     registry = MetadataRegistry()
 
-    def __init__(self, tree, type, ident=None, **kwargs):
-        self.type = type.lower()
-        super(Metadata, self).__init__(ident=self.type)
+    def __init__(self, tree, mdatatype, ident=None, **kwargs):
+        self.mdatatype = mdatatype.lower()
+        super(Metadata, self).__init__(ident=self.mdatatype)
         self.ident = ident or self.uuid
         self.tree = tree
 
@@ -69,8 +69,8 @@ class Metadata(id_object):
         self.registry.register(self)
 
     def __str__(self):
-        template = 'Metadata record {0}, of type {1}\n{2}'
-        return template.format(self.ident, self.type, self.tree)
+        template = 'Metadata record {0}, of datatype {1}\n{2}'
+        return template.format(self.ident, self.mdatatype, self.tree)
 
     def xpath(self, *args, **kwargs):
         """ Pass XPath queries through to underlying tree

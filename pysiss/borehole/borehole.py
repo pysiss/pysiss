@@ -6,7 +6,7 @@
     description: Borehole class implementation
 """
 
-from .details import Details, detail_type
+from .details import Details
 from .datasets import DataSet, PointDataSet, IntervalDataSet
 from .properties import Property
 from ..utilities import id_object

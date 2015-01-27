@@ -323,7 +323,7 @@ class NVCLImporter(object):
             associated with a given borehole, so is suitable for large
             borehole ranges
         """
-        raise NotImplemented
+        raise NotImplementedError
 
     def get_images(self, hole_ident, from_depth=None, to_depth=None):
         """ Requests high-resolution images from the NVCL data portal
@@ -331,7 +331,7 @@ class NVCLImporter(object):
             These images are high-resolution and represent slices of the
             core sitting in the core tray.
         """
-        raise NotImplemented
+        raise NotImplementedError
 
     def get_borehole(self, hole_ident, ident=None, get_analytes=True,
                      raise_error=True):

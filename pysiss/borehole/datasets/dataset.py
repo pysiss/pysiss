@@ -10,7 +10,7 @@
 """
 
 from ..properties import Property
-from ..details import Details, detail_type
+from ..details import Details
 from ...utilities import id_object
 
 
@@ -61,7 +61,7 @@ class DataSet(id_object):
     def to_dataframe(self):
         """ Tranform the data in the dataset into a Pandas dataframe.
         """
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class DatasetDetails(Details):
