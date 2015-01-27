@@ -34,7 +34,7 @@ install:
 # Command to run tests
 script:
   - python tests/mocks/update.py
-  - coverage run --source tests --omit='tests/mock' -m py.test
+  - coverage run --source pysiss --omit='tests/mock' -m py.test
 
 after_success:
   - coveralls
