@@ -10,7 +10,7 @@
 """
 
 from ..properties import Property
-from ..details import Details
+from ..details import Details, detail_type
 from ...utilities import id_object
 
 

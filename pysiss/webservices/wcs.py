@@ -90,7 +90,7 @@ class CoverageService(id_object):
         if response.ok:
             cap = self._capabilities = Metadata(
                 tree=etree.fromstring(response.content),
-                type='wcs:WCS_Capabilities')
+                mdatatype='wcs:WCS_Capabilities')
             self.version = cap.xpath('@version')[0]
             self.describe_endpoint = url_info(cap, 'wcs:DescribeCoverage')
             self.coverage_endpoint = url_info(cap, 'wcs:GetCoverage')
@@ -126,7 +126,7 @@ class CoverageService(id_object):
             if response.ok:
                 desc = self._descriptions[layer] = Metadata(
                     tree=etree.fromstring(response.content),
-                    type='wcs:CoverageDescription')
+                    mdatatype='wcs:CoverageDescription')
 
                 # Get bounding box and grid information
                 envelope = desc.xpath(

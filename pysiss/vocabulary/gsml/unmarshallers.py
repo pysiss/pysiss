@@ -51,7 +51,7 @@ def specification(elem):
         spec_elem = elem.iterchildren().next()
         ident = spec_elem.get(expand_namespace('gml:id'))
         mdata = Metadata(ident=ident,
-                         type=shorten_namespace(spec_elem.tag),
+                         mdatatype=shorten_namespace(spec_elem.tag),
                          tree=spec_elem)
         return mdata.ident
 
