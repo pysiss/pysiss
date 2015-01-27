@@ -6,10 +6,11 @@
     description: Tests for mock Resource class.
 """
 
-from .mocks.request import Resource
+from .mocks.resource import Resource
 
 import unittest
 import simplejson
+import httmock
 
 
 class TestResource(unittest.TestSuite):
