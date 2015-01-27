@@ -25,7 +25,9 @@ class Resource(object):
         self.url = url
 
         # Make a file path to stash the cached response
-        self.folder = os.path.join(os.getcwd(), url.lstrip('https://'))
+        self.folder = os.path.join(
+            os.path.dirname(os.path.realpath(__file__))
+            'cache', url.lstrip('https://'))
         self.file_path = os.path.join(
             self.folder,
             '?' + '&'.join(
