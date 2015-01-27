@@ -26,7 +26,7 @@ class Resource(object):
 
         # Make a file path to stash the cached response
         self.folder = os.path.join(
-            os.path.dirname(os.path.realpath(__file__))
+            os.path.dirname(os.path.realpath(__file__)),
             'cache', url.lstrip('https://'))
         self.file_path = os.path.join(
             self.folder,
@@ -65,7 +65,7 @@ class Resource(object):
             fhandle.write(response.content)
 
 
-@all_requests
+@httmock.all_requests
 def mock_resource(url, request):
     """ Redirect requests calls to the relevant mock'd Resource object
     """

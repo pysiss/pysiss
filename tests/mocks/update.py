@@ -7,17 +7,19 @@
 	description: Update the mock files
 """
 
-from .resource import Resource
-
-
-class NetworkException(Exception): pass
+from resource import Resource
+import simplejson
 
 def main():
-	# Load in mock requests
-	try:
-		pass
-	except NetworkException:
-		pass
+	# Load endpoint data from config file
+    with open('mocks.json', 'rb') as fhandle:
+        mocks = simplejson.load(fhandle)
+
+    # Make Resource objects, and update them
+    for mock in mocks.values():
+        print 'Updating {0}'.format(mock['url'])
+        res = Resource(**mock)
+        res.update()
 
 if __name__ == '__main__':
 	main()
