@@ -11,7 +11,6 @@ from .gml import unmarshallers as gml
 from .gsml import unmarshallers as gsml
 from .erml import unmarshallers as erml
 
-from lxml import etree
 from lxml.etree import iterparse, XMLSyntaxError
 
 UNMARSHALLERS = {}

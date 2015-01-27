@@ -256,7 +256,7 @@ class NVCLImporter(object):
             :type analyte_idents: list of str
         """
         # Get analyte data
-        analyte_ident_dict = self.get_analyte_idents(hole_ident, dataset_ident)
+        analyte_ident_dict = self.get_analyte_idents(dataset_ident)
         if len(analyte_ident_dict) == 0:
             # This dataset has no analytes
             print 'Warning, dataset {0} has no analytes'.format(dataset_ident)
