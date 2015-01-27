@@ -8,5 +8,3 @@
 """
 
 import nvcl
-
-__all__ = [nvcl]

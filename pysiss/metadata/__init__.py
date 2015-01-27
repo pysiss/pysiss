@@ -8,5 +8,3 @@
 
 from .registry import MetadataRegistry
 from .metadata import Metadata
-
-__all__ = [MetadataRegistry, Metadata]

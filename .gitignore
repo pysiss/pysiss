@@ -18,3 +18,4 @@ core
 map.html
 pysiss-doc
 tmp
+.coveralls.yml

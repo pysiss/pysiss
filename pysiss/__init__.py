@@ -10,5 +10,3 @@ import borehole
 import coverage
 import vocabulary
 import utilities
-
-__all__ = [borehole, coverage, vocabulary, utilities]
