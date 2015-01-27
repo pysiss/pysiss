@@ -25,8 +25,8 @@ def make_blocks(lower_corner, upper_corner, nx_blocks, ny_blocks=None):
     dy = (uy - ly) / float(ny_blocks)
 
     # Make an index for x and y
-    x_idx, y_idx = numpy.meshgrid(numpy.arange(nx_blocks),
-                                  numpy.arange(ny_blocks))
+    x_idx, y_idx = \
+        numpy.meshgrid(numpy.arange(nx_blocks), numpy.arange(ny_blocks))
 
     # Return blocks as lower and upper corners
     lower_x, upper_x = map(lambda x: lx + x * dx, (x_idx, x_idx + 1))
