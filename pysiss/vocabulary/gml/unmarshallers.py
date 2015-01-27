@@ -77,4 +77,4 @@ UNMARSHALLERS = {
     'gml:description': description,
 }
 
-__all__ = (position, polygon, linestring, UNMARSHALLERS)
+__all__ = ['position', 'polygon', 'linestring', 'UNMARSHALLERS']

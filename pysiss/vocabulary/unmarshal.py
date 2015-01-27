@@ -12,6 +12,7 @@ from .gsml import unmarshallers as gsml
 from .erml import unmarshallers as erml
 
 from lxml import etree
+from lxml.etree import iterparse, XMLSyntaxError
 
 UNMARSHALLERS = {}
 UNMARSHALLERS.update(gml.UNMARSHALLERS)
@@ -41,9 +42,9 @@ def unmarshal_all(filename, tag='gsml:MappedFeature'):
     results = []
     with open(filename, 'rb') as fhandle:
         try:
-            context = iter(etree.iterparse(fhandle, events=('end',), tag=tag))
+            context = iter(iterparse(fhandle, events=('end',), tag=tag))
             for _, elem in context:
                 results.append(unmarshal(elem))
-        except etree.XMLSyntaxError:
+        except XMLSyntaxError:
             pass
     return results

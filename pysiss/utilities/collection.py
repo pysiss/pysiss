@@ -42,9 +42,9 @@ class Collection(list):
             return super(Collection, self).__getitem__(
                 self._index[ident_or_idx])
         except KeyError:
-            str = ('Unknown key or index {0} passed '
+            string = ('Unknown key or index {0} passed '
                    'to BoreholeCollection').format(ident_or_idx)
-            raise IndexError(str)
+            raise IndexError(string)
 
     def __setitem__(self, index, thing):
         """ Collection does not support __setitem__, use append instead

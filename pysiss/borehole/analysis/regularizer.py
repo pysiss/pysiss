@@ -57,7 +57,7 @@ def unique(array, return_index=True, sort_method='heapsort', eqtest=None):
     # Check for inequality (i.e. we want to mask values with False in the mask
     # array for which eqtest is true)
     neqflag = numpy.concatenate(([True],
-        numpy.logical_not(eqtest(aux[1:], aux[:-1]))))
+                                 numpy.logical_not(eqtest(aux[1:], aux[:-1]))))
     if return_index:
         return aux[neqflag], perm[neqflag]
     else:
@@ -95,7 +95,7 @@ class ReSampler(scipy.interpolate.InterpolatedUnivariateSpline):
         # Check inputs
         if dataset is None or signal is None:
             raise ValueError("You must specify both signal and locations to"
-                " resample signal.")
+                             " resample signal.")
         elif len(dataset) != len(signal):
             raise ValueError("DataSet and value arrays are different lengths.")
         self.dataset, self.signal = dataset, signal
@@ -104,7 +104,7 @@ class ReSampler(scipy.interpolate.InterpolatedUnivariateSpline):
         # Data points must be increasing, perform a sort if not
         sorted_signal, sorted_index = \
             unique(self.dataset, sort_method='heapsort',
-                eqtest=lambda a, b: (a - b) ** 2 / numpy.abs(a) <= 1e-12)
+                   eqtest=lambda a, b: (a - b) ** 2 / numpy.abs(a) <= 1e-12)
         sorted_dataset = self.dataset[sorted_index]
         sorted_signal = self.signal[sorted_index]
 
@@ -139,7 +139,7 @@ class ReSampler(scipy.interpolate.InterpolatedUnivariateSpline):
         if dataset_bounds is None:
             dataset_bounds = self.dataset_bounds
         resampled_dataset = numpy.linspace(dataset_bounds[0],
-            dataset_bounds[1], nsamples)
+                                           dataset_bounds[1], nsamples)
         resampled_data = \
             scipy.interpolate.InterpolatedUnivariateSpline.__call__(
                 x=resampled_dataset, nu=derivative)

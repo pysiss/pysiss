@@ -185,10 +185,11 @@ class SISSBoreholeGenerator(object):
         description_xpath = \
             './/{{{0}}}location/{{{1}}}Point/{{{2}}}description'
 
-        description_text = _element_text(borehole_elt,
-                         description_xpath.format(NS[self.ns_key],
-                                                  GML_NS[self.ns_key],
-                                                  GML_NS[self.ns_key]))
+        description_text = \
+            _element_text(borehole_elt,
+                          description_xpath.format(
+                              NS[self.ns_key], GML_NS[self.ns_key],
+                              GML_NS[self.ns_key]))
 
         description_text = 'description: {0}'.format(description_text)
 
@@ -284,12 +285,13 @@ class SISSBoreholeGenerator(object):
 
         # Question: How useful is the property here in fact if we have units
         #           for each value?
-        self.borehole.add_detail('cored interval', envelope_dict,
-                            PropertyType(ident='envelope',
-                                         long_name='cored interval envelope',
-                                         description='cored interval envelope '
-                                                     'lower and upper corner',
-                                         units=cored_interval_units))
+        self.borehole.add_detail(
+            'cored interval', envelope_dict,
+            PropertyType(ident='envelope',
+                         long_name='cored interval envelope',
+                         description='cored interval envelope '
+                                     'lower and upper corner',
+                         units=cored_interval_units))
 
     def _add_gsmlbh_borehole_details(self, borehole_elt, details_elt):
         """Add borehole details from a GeoSciML 3.0 Borehole or
@@ -323,13 +325,11 @@ class SISSBoreholeGenerator(object):
         # Date of drilling
         # Note: Both start and end time are available; currently extracting
         #       only start time.
-        date_of_drilling_xpath = ('.//{{{0}}}dateOfDrilling/{{{1}}}TimePeriod'
-                            '/{{{2}}}begin/{{{3}}}TimeInstant'
-                            '/{{{4}}}timePosition').format(NS[self.ns_key],
-                                                           GML_NS[self.ns_key],
-                                                           GML_NS[self.ns_key],
-                                                           GML_NS[self.ns_key],
-                                                           GML_NS[self.ns_key])
+        date_of_drilling_xpath = (
+            './/{{{0}}}dateOfDrilling/{{{1}}}TimePeriod'
+            '/{{{2}}}begin/{{{3}}}TimeInstant/{{{4}}}timePosition'
+        ).format(NS[self.ns_key], GML_NS[self.ns_key], GML_NS[self.ns_key],
+                 GML_NS[self.ns_key], GML_NS[self.ns_key])
         date_of_drilling = _element_text(details_elt,
                                          date_of_drilling_xpath)
         year, month, day = date_of_drilling.split('-')
@@ -348,8 +348,8 @@ class SISSBoreholeGenerator(object):
             './/{{{0}}}inclinationType'.format(NS[self.ns_key])
         inclination_type_attrib_xpath = '{{{0}}}title'.format(NS['xlink'])
         inclination_type = _element_attrib(details_elt,
-                                            inclination_type_xpath,
-                                            inclination_type_attrib_xpath)
+                                           inclination_type_xpath,
+                                           inclination_type_attrib_xpath)
         self.borehole.add_detail('inclination type', inclination_type)
 
         # Borehole shape
@@ -371,14 +371,14 @@ class SISSBoreholeGenerator(object):
         # Borehole cored interval
         # Note: No units; haven't used a PropertyType here.
         cored_interval_xpath = ('.//{{{0}}}downholeDrillingDetails'
-                                 '/{{{1}}}DrillingDetails'
-                                 '/{{{2}}}interval/{{{3}}}LineString'
-                                 '/{{{4}}}posList'). \
-                                 format(NS[self.ns_key],
-                                        NS[self.ns_key],
-                                        NS[self.ns_key],
-                                        GML_NS[self.ns_key],
-                                        GML_NS[self.ns_key])
+                                '/{{{1}}}DrillingDetails'
+                                '/{{{2}}}interval/{{{3}}}LineString'
+                                '/{{{4}}}posList'). \
+                                format(NS[self.ns_key],
+                                       NS[self.ns_key],
+                                       NS[self.ns_key],
+                                       GML_NS[self.ns_key],
+                                       GML_NS[self.ns_key])
 
         cored_interval = _element_text(borehole_elt,
                                        cored_interval_xpath)

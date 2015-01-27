@@ -138,8 +138,8 @@ class NVCLImporter(object):
     def __repr__(self):
         """ String representation
         """
-        str = 'NVCLImporter(endpoint="{0}")'.format(self.endpoint)
-        return str
+        string = 'NVCLImporter(endpoint="{0}")'.format(self.endpoint)
+        return string
 
     def get_borehole_idents_and_urls(self, maxids=None):
         """ Generates a dictionary containing identifiers and urls for
@@ -210,14 +210,12 @@ class NVCLImporter(object):
                     dset.find('DatasetID').text
             return datasets
 
-    def get_analyte_idents(self, hole_ident, dataset_ident):
+    def get_analyte_idents(self, dataset_ident):
         """ Generates a dictionary mapping all NVCL analytes for a given
             borehole dataset to their GUIDs.
 
             Returns None if the XML fails to parse.
 
-            :param hole_ident: The GUID for a borehole available at dataurl
-            :type hole_ident: string
             :param dataset_ident: The GUID for a dataset available at dataurl
             :type dataset_ident: string
             :returns: a dictionary keyed by analyte name, where each value is
@@ -243,8 +241,7 @@ class NVCLImporter(object):
                 'Request for data returned {0}'.format(response.status_code))
 
     def get_analytes(self, hole_ident, dataset_name, dataset_ident,
-                     analyte_idents=None,
-                     from_depth=None, to_depth=None,):
+                     analyte_idents=None):
         """ Get the analytes from the given borehole and dataset
 
             :param hole_ident: The identifier for a borehole
@@ -257,10 +254,6 @@ class NVCLImporter(object):
                 Optional, if None then all analytes in the given dataset are
                 downloaded.
             :type analyte_idents: list of str
-            :param from_depth/to_depth: The depth range included in the
-                dataset. Optional, defaults to the entire depths defined in
-                the NVCL.
-            :type from_depth/to_depth: float
         """
         # Get analyte data
         analyte_ident_dict = self.get_analyte_idents(hole_ident, dataset_ident)
@@ -352,36 +345,35 @@ class NVCLImporter(object):
                 (e.g. 404'd). If false, get_borehole returns None.
             :returns: a `pysiss.borehole.Borehole` object
         """
-        # try:
-        # Generate pysiss.borehole.Borehole instance to hold the data
-        if ident is None:
-            ident = hole_ident
-        siss_bhl_generator = SISSBoreholeGenerator()
-        print '\n\n====\nhere\n====\\n\n'
-        bh_url = self.get_borehole_idents_and_urls()[hole_ident]
-        response = requests.get(bh_url)
+        try:
+            # Generate pysiss.borehole.Borehole instance to hold the data
+            if ident is None:
+                ident = hole_ident
+            siss_bhl_generator = SISSBoreholeGenerator()
+            bh_url = self.get_borehole_idents_and_urls()[hole_ident]
+            response = requests.get(bh_url)
 
-        # Break out now if the request fails
-        if not response:
-            return None
-        bhl = siss_bhl_generator.geosciml_to_borehole(
-            ident, StringIO(response.content))
+            # Break out now if the request fails
+            if not response:
+                return None
+            bhl = siss_bhl_generator.geosciml_to_borehole(
+                ident, StringIO(response.content))
 
-        # For each dataset in the NVCL we want to add a dataset and store
-        # the dataset information in the DatasetDetails
-        if get_analytes:
-            datasets = self.get_dataset_idents(hole_ident)
-            for dataset_ident, dataset_guid in datasets.items():
-                dataset = self.get_analytes(hole_ident=hole_ident,
-                                            dataset_name=dataset_ident,
-                                            dataset_ident=dataset_guid)
-                if dataset is not None:
-                    bhl.add_dataset(dataset)
+            # For each dataset in the NVCL we want to add a dataset and store
+            # the dataset information in the DatasetDetails
+            if get_analytes:
+                datasets = self.get_dataset_idents(hole_ident)
+                for dataset_ident, dataset_guid in datasets.items():
+                    dataset = self.get_analytes(hole_ident=hole_ident,
+                                                dataset_name=dataset_ident,
+                                                dataset_ident=dataset_guid)
+                    if dataset is not None:
+                        bhl.add_dataset(dataset)
 
-        return bhl
+            return bhl
 
-        # except Exception, err:
-        #     if raise_error:
-        #         raise err
-        #     else:
-        #         return None
+        except Exception, err:
+            if raise_error:
+                raise err
+            else:
+                return None

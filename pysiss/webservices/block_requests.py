@@ -66,8 +66,7 @@ BBOX_FILTER_REQUEST = textwrap.dedent("""\
 
 def post_block_requests(wfsurl, filename,
                         lower_corner, upper_corner, nx_blocks, ny_blocks=None,
-                        max_features=500, timeout=2000,
-                        delete_temp_files=True):
+                        max_features=500, timeout=2000):
     """ Make several POST requests to a WFS URL and stash the data in seperate
         XML files
 
@@ -98,9 +97,6 @@ def post_block_requests(wfsurl, filename,
         :type max_features: int
         :param timeout: The timeout for each request, in seconds.
         :type timeout: int
-        :param delete_temp_files: Whether to delete the temporary subfiles
-            after the call. Optional, defaults to true.
-        :type delete_temp_files: bool
     """
     # Split bounding box into blocks to make requests more manageable
     blocks = make_blocks(lower_corner, upper_corner, nx_blocks, ny_blocks)

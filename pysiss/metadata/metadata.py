@@ -43,8 +43,8 @@ def yamlify(tree, indent_width=2, indent=0):
     # Add lines for children
     for child in tree.getchildren():
         result += yamlify(child,
-                         indent_width=indent_width,
-                         indent=indent + 1)
+                          indent_width=indent_width,
+                          indent=indent + 1)
     return result
 
 

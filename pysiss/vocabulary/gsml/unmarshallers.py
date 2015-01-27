@@ -104,4 +104,4 @@ UNMARSHALLERS = {
     'gsml:specification': specification
 }
 
-__all__ = (UNMARSHALLERS,)
+__all__ = ['UNMARSHALLERS']
