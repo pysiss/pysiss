@@ -26,7 +26,7 @@ class TestResource(unittest.TestSuite):
         resource = Resource(**self.test_endpoint)
         expected_attrs = ['data', 'method', 'params', 'url']
         for attr in expected_attrs:
-            assert(getattr(resource, attr) is not None)
+            self.assertTrue(getattr(resource, attr) is not None)
 
     def test_wrong_url(self):
         """ Resource should return a 404 on error
@@ -36,4 +36,4 @@ class TestResource(unittest.TestSuite):
         resource = Resource(**self.test_endpoint)
         resource.params.update({'quux': 'foobar'})
         response = resource.response()
-        assert(response.status_code == 404)
+        self.assertTrue(response.status_code == 404)

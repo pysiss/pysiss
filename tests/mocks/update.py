@@ -9,17 +9,26 @@
 
 from resource import Resource
 import simplejson
+import os
+
+MOCK_CONFIG_FILE = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    'mocks.json')
+
 
 def main():
 	# Load endpoint data from config file
-    with open('mocks.json', 'rb') as fhandle:
+    with open(MOCK_CONFIG_FILE, 'rb') as fhandle:
         mocks = simplejson.load(fhandle)
 
     # Make Resource objects, and update them
-    for mock in mocks.values():
-        print 'Updating {0}'.format(mock['url'])
+    for idx, (name, mock) in enumerate(mocks.items()):
+        print '{1}: Updating {0}'.format(name, idx + 1)
+        print '   Hitting {0}...'.format(mock['url']),
         res = Resource(**mock)
         res.update()
+        print 'done\n'
+
 
 if __name__ == '__main__':
 	main()

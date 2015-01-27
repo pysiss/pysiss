@@ -5,9 +5,8 @@
 		"params": {
             "version": "1.1.0",
             "service": "wfs",
-            "request": "getfeature",
-            "typename": "nvcl:ScannedBoreholeCollection"
-		},
+            "request": "getcapabilities"
+        },
 		"data": ""
 	},
 	"gswa_nvcl_wfs_endpoint": {
@@ -16,9 +15,27 @@
 		"params": {
             "version": "1.1.0",
             "service": "wfs",
-            "request": "getfeature",
-            "typename": "nvcl:ScannedBoreholeCollection"
+            "request": "getcapabilities"
 		},
 		"data": ""
-	}
+	},
+    "tests.test_nvcl.test_usage_1": {
+        "url": "http://geossdi.dmp.wa.gov.au/services/wfs",
+        "method": "get",
+        "params": {
+            "version": "1.1.0",
+            "service": "wfs",
+            "request": "getfeature",
+            "typename": "nvcl:ScannedBoreholeCollection"
+        },
+        "data": ""
+    },
+    "tests.test_nvcl.test_usage_2": {
+        "url": "http://geossdi.dmp.wa.gov.au/NVCLDataServices/getDatasetCollection.html",
+        "method": "get",
+        "params": {
+            "holeidentifier": "PDP2C"
+        },
+        "data": ""
+    }
 }

@@ -55,7 +55,7 @@ class Resource(object):
         """
         # Check that we have a folder available
         if not os.path.exists(self.folder):
-            os.mkdir(self.folder)
+            os.makedirs(self.folder)
 
         # Get response from server
         if self.session is None:
@@ -69,12 +69,18 @@ class Resource(object):
 def mock_resource(url, request):
     """ Redirect requests calls to the relevant mock'd Resource object
     """
+    print "intercepted {0}".format(url)
+
     # Pick out a few things to pass to the Resource class
     try:
-        baseurl, params = request.url.split('?')
-        params = dict([st.split('=') for st in params.split('&')])
-    except IndexError:
-        baseurl, params = url, None
+        baseurl = url.netloc + url.path
+        if url.query != '':
+            params = url.query.replace('%3A', ':')
+            params = dict([st.split('=') for st in params.split('&')])
+        else:
+            params = {}
+    except IndexError, ValueError:
+        baseurl, params = url.netloc + url.path, {}
     try:
         data = request.data
     except AttributeError:
