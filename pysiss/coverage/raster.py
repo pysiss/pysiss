@@ -1,4 +1,4 @@
-""" file:   vector.py (pysiss.coverage)
+""" file:   raster.py (pysiss.coverage)
     author: Jess Robertson
             CSIRO Minerals Resources Flagship
     date:   Monday 25 August, 2014

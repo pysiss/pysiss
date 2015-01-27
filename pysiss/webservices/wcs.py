@@ -97,12 +97,14 @@ class CoverageService(id_object):
 
             # Get available datasets
             self.layers = cap.xpath(
-                'wcs:ContentMetadata/wcs:CoverageOfferingBrief/wcs:name/text()',
+                'wcs:ContentMetadata/wcs:CoverageOfferingBrief'
+                '/wcs:name/text()',
                 namespaces=self.namespaces)
 
         else:
             raise IOError("Can't access endpoint {0}, "
-                          "server returned {1}".format(response.url, response.status_code))
+                          "server returned {1}".format(response.url,
+                                                       response.status_code))
 
     def get_descriptions(self, update=False):
         """ Get a description of the coverage from the service
@@ -144,7 +146,7 @@ class CoverageService(id_object):
 
             else:
                 raise IOError("Can't access endpoint {0}, "
-                              "server returned {1}".format(response.url, 
+                              "server returned {1}".format(response.url,
                                                            response.status_code))
 
     def get_coverage(self, bounds):
