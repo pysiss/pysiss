@@ -1,0 +1,46 @@
+// WCS parameter mapping to CoverageService object
+// Defines a mapping for each request to attributes defined for
+// a particular CoverageService. Strings beginning with @ are
+// mapped to attribute values, while those beginning with ! are mapped
+// to arguments
+{
+    "1.0": {
+        "describecoverage": {
+            "service": "wcs",
+            "request": "describecoverage",
+            "version": "1.0",
+            "coverage": "@ident"
+        },
+        "getcoverage": {
+            "service": "wcs",
+            "request": "getcoverage",
+            "version": "1.0",
+            "coverage": "@ident",
+            "crs": "@projection",
+            "bbox": ["@minx", "@maxx", "@miny", "@maxy"],
+            "time": ["@mint", "@maxt"],
+            "format": "@format"
+        }
+    },
+    "1.1.0": {
+        "describecoverage": {
+            "service": "wcs",
+            "request": "describecoverage",
+            "version": "1.1.0",
+            "identifier": "@ident"
+        },
+        "getcoverage": {
+            "service": "wcs",
+            "request": "getcoverage",
+            "version": "1.1.0",
+            "identifier": "@ident",
+            "bbox": ["@minx", "@maxx", "@miny", "@maxy", "@projection"],
+            "time": ["@mint", "@maxt"],
+            "format": "@format"
+        }
+    },
+    "2.0": {
+        "describecoverage": {},
+        "getcoverage": {}
+    }
+}

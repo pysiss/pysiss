@@ -8,7 +8,8 @@
 
 from ...coverage.vector import MappedFeature
 from ...metadata import Metadata
-from ..namespaces import NamespaceRegistry, expand_namespace, shorten_namespace
+from ...metadata.namespaces \
+    import NamespaceRegistry, expand_namespace, shorten_namespace
 from ..gml.unmarshallers import UNMARSHALLERS as GML_UNMARSHALLERS
 
 NAMESPACES = NamespaceRegistry()
@@ -50,7 +51,7 @@ def specification(elem):
         spec_elem = elem.iterchildren().next()
         ident = spec_elem.get(expand_namespace('gml:id'))
         mdata = Metadata(ident=ident,
-                         type=shorten_namespace(spec_elem.tag),
+                         mdatatype=shorten_namespace(spec_elem.tag),
                          tree=spec_elem)
         return mdata.ident
 
@@ -103,4 +104,4 @@ UNMARSHALLERS = {
     'gsml:specification': specification
 }
 
-__all__ = (UNMARSHALLERS,)
+__all__ = ['UNMARSHALLERS']

@@ -7,7 +7,7 @@
 """
 
 from shapely.geometry import Polygon, LineString
-from ..namespaces import NamespaceRegistry
+from ...metadata.namespaces import NamespaceRegistry
 
 NAMESPACES = NamespaceRegistry()
 
@@ -77,4 +77,4 @@ UNMARSHALLERS = {
     'gml:description': description,
 }
 
-__all__ = (position, polygon, linestring, UNMARSHALLERS)
+__all__ = ['position', 'polygon', 'linestring', 'UNMARSHALLERS']

@@ -18,4 +18,5 @@ core
 map.html
 pysiss-doc
 tmp
+tests/mocks/cache
 .coveralls.yml

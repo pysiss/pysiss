@@ -6,7 +6,6 @@
     description: init file
 """
 
-import gsml
-import gml
-import erml
-import namespaces
+from . import erml, gsml, gml
+
+__all__ = ['erml', 'gsml', 'gml']

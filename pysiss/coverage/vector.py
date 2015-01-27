@@ -20,7 +20,7 @@ class MappedFeature(id_object):
     md_registry = MetadataRegistry()
 
     def __init__(self, shape, projection, specification, ident=None, **kwargs):
-        super(MappedFeature, self).__init__(name='mapped_feature')
+        super(MappedFeature, self).__init__(ident='mapped_feature')
         self.ident = ident or self.uuid
 
         # Store some info on the shape

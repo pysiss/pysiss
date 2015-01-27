@@ -6,8 +6,11 @@
     description: Tests for NVCL importer
 """
 
+from pysiss.webservices import nvcl
+
 import unittest
-import pysiss.webservices.nvcl as nvcl
+import httmock
+from .mocks.resource import mock_resource
 
 
 class TestNVCLEndpointRegistry(unittest.TestCase):
@@ -74,24 +77,23 @@ class TestNVCLImporter(unittest.TestCase):
     def test_usage_1(self):
         """ Test some sample usage using the GSWA endpoint
         """
-        bh_info = self.importers['GSWA'].get_borehole_idents_and_urls()
+        with httmock.HTTMock(mock_resource):
+            bh_info = self.importers['GSWA'].get_borehole_idents_and_urls()
 
-        for ident, url in dict(bh_info).items():
-            self.assertTrue(ident != '')
-            self.assertTrue(url != '')
+            for ident, url in dict(bh_info).items():
+                self.assertTrue(ident != '')
+                self.assertTrue(url != '')
 
     def test_usage_2(self):
         """ Test some sample usage using the GSWA endpoint
         """
-        bh_idents = self.importers['GSWA'].get_borehole_idents()
-
-        # Get the datasets assocated with the borehole ident
-        datasets = {}
-        for ident in bh_idents:
-            datasets[ident] = \
-                self.importers['GSWA'].get_dataset_idents(ident)
+        borehole_ident = 'PDP2C'
+        with httmock.HTTMock(mock_resource):
+            # Get the datasets assocated with the borehole ident
+            self.importers['GSWA'].get_dataset_idents(borehole_ident)
 
     def test_usage_3(self):
         """ Test some sample usage using the GSWA endpoint
         """
-        self.importers['GSWA'].get_borehole('PDP2C', get_analytes=True)
+        with httmock.HTTMock(mock_resource):
+            self.importers['GSWA'].get_borehole('PDP2C', get_analytes=True)

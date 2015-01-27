@@ -4,6 +4,7 @@
 
 - [ ] Use git-flow to generate release `git flow release start <version_number>`
 - [ ] Update version number in `setup.py`
+- [ ] Change badge branch references in `README.md` 
 - [ ] Run the tests: `python setup.py test`
 - [ ] Commit the changes: `git commit -am "Bump version number, run tests"`
 
