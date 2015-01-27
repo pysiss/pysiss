@@ -13,4 +13,4 @@ NAMESPACES = NamespaceRegistry()
 
 UNMARSHALLERS = {}
 
-__all__ = (UNMARSHALLERS,)
+__all__ = ['UNMARSHALLERS']
