@@ -7,7 +7,9 @@ This library is released under the CSIRO BSD/MIT license, whose terms are availa
 
 **Warning** - this library is in a pre-alpha state and could change without warning.
 
-[![Build Status](https://travis-ci.org/pysiss/pysiss.svg?branch=feature%2FPYSISS-27-create-binstar-installer-for-use)](https://travis-ci.org/pysiss/pysiss)
+[![Build Status](https://travis-ci.org/pysiss/pysiss.svg?branch=develop)](https://travis-ci.org/pysiss/pysiss)
+[![Coverage Status](https://coveralls.io/repos/pysiss/pysiss/badge.svg?branch=develop)](https://coveralls.io/r/pysiss/pysiss?branch=develop)
+[![Code Health](https://landscape.io/github/pysiss/pysiss/develop/landscape.svg)](https://landscape.io/github/pysiss/pysiss/develop)
 
 Installing via conda
 --------------------
