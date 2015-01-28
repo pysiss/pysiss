@@ -6,10 +6,11 @@
     description: Wrapper functionality for unmarshalling XML elements
 """
 
-from .namespaces import shorten_namespace, expand_namespace
+from ..metadata.namespaces import shorten_namespace, expand_namespace
 from .gml import unmarshallers as gml
 from .gsml import unmarshallers as gsml
 from .erml import unmarshallers as erml
+from .wcs import unmarshallers as wcs
 
 from lxml.etree import iterparse, XMLSyntaxError
 
@@ -17,6 +18,7 @@ UNMARSHALLERS = {}
 UNMARSHALLERS.update(gml.UNMARSHALLERS)
 UNMARSHALLERS.update(gsml.UNMARSHALLERS)
 UNMARSHALLERS.update(erml.UNMARSHALLERS)
+UNMARSHALLERS.update(wcs.UNMARSHALLERS)
 
 
 def unmarshal(elem):

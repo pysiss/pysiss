@@ -9,28 +9,13 @@
 from ..utilities import id_object
 from ..metadata import Metadata
 from ..metadata.namespaces import NamespaceRegistry, shorten_namespace
+from ..vocabulary.unmarshal import unmarshal
 
 import requests
 from lxml import etree
 from shapely.geometry import box
 
 NAMESPACES = NamespaceRegistry()
-
-
-def url_info(tree, tag, namespaces=None):
-    """ Parse information about an OGC endpoint from getCapabilities request
-    """
-    if namespaces is None:
-        namespaces = NAMESPACES
-    return {
-        'url': tree.xpath(
-            '//{0}//wcs:OnlineResource/@*'.format(tag),
-            namespaces=namespaces)[0],
-        'method': shorten_namespace(tree.xpath(
-            '//{0}//wcs:HTTP/*'.format(tag),
-            namespaces=namespaces)[0].tag
-        ).split(':')[1].lower()
-    }
 
 
 class CoverageService(id_object):
@@ -90,14 +75,15 @@ class CoverageService(id_object):
         if response.ok:
             cap = self._capabilities = Metadata(
                 tree=etree.fromstring(response.content),
-                mdatatype='wcs:WCS_Capabilities')
+                mdatatype='wcs:wcs_capabilities')
             self.version = cap.xpath('@version')[0]
-            self.describe_endpoint = url_info(cap, 'wcs:DescribeCoverage')
-            self.coverage_endpoint = url_info(cap, 'wcs:GetCoverage')
+            self.describe_endpoint = \
+                unmarshall_all(cap, 'wcs:describecoverage')[0]
+            self.coverage_endpoint = unmarshall_all(cap, 'wcs:getcoverage')[0]
 
             # Get available datasets
             self.layers = cap.xpath(
-                'wcs:ContentMetadata/wcs:CoverageOfferingBrief'
+                'wcs:contentmetadata/wcs:coverageofferingbrief'
                 '/wcs:name/text()',
                 namespaces=self.namespaces)
 
@@ -126,28 +112,15 @@ class CoverageService(id_object):
             if response.ok:
                 desc = self._descriptions[layer] = Metadata(
                     tree=etree.fromstring(response.content),
-                    mdatatype='wcs:CoverageDescription')
+                    mdatatype='wcs:coveragedescription')
 
                 # Get bounding box and grid information
-                envelope = desc.xpath(
-                    '//wcs:spatialDomain//wcs:Envelope',
-                    namespaces=self.namespaces)[0]
-                self.projection = envelope.attrib['srsName']
-                lower_left, upper_right = \
-                    [map(float, e.text.split())
-                     for e in envelope.xpath('gml:pos',
-                                             namespaces=self.namespaces)]
-                self.bounding_box = box(lower_left[0], lower_left[1],
-                                        upper_right[0], upper_right[1])
-                self.offset_vectors = \
-                    [map(float, e.text.split())
-                     for e in envelope.xpath('gml:pos',
-                                             namespaces=self.namespaces)]
+                envelope = unmarshall_all('//wcs:spatialDomain//wcs:Envelope')
 
             else:
                 raise IOError("Can't access endpoint {0}, "
-                              "server returned {1}".format(response.url,
-                                                           response.status_code))
+                              "server returned {1}".format(
+                                  response.url, response.status_code))
 
     def get_coverage(self, bounds):
         """ Get coverage data for the given bounding box

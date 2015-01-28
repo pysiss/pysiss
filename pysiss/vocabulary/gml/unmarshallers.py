@@ -6,8 +6,9 @@
     description: Unmarshalling functions for GeoSciML/GML objects
 """
 
-from shapely.geometry import Polygon, LineString
 from ...metadata.namespaces import NamespaceRegistry
+
+from shapely.geometry import Polygon, LineString
 
 NAMESPACES = NamespaceRegistry()
 

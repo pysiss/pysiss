@@ -9,6 +9,12 @@
         },
 		"data": ""
 	},
+    "csiro_nvcl_image_endpoint": {
+        "url": "http://nvclwebservices.vm.csiro.au/resource/feature/CSIRO/borehole/WTB5",
+        "method": "get",
+        "params": {},
+        "data": ""
+    },
 	"gswa_nvcl_wfs_endpoint": {
 		"url": "http://geossdi.dmp.wa.gov.au/services/wfs",
 		"method": "get",

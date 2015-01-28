@@ -7,7 +7,7 @@
     description: Initialisation of the pysiss.borehole.importers module.
 """
 
-from . import nvcl
+import nvcl
 from .wcs import CoverageService
 from .block_requests import make_blocks, post_block_requests
 
