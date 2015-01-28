@@ -7,10 +7,12 @@
 """
 
 from pysiss import coverage, webservices
+from .mocks.resource import mock_resource
 
 import unittest
 import numpy
 import os
+import httmock
 
 # ASTER products for tests
 BOUNDS = (119.52, -21.6, 120.90, -20.5)
@@ -24,7 +26,9 @@ class WCSTest(unittest.TestCase):
     def test_wcs_init(self):
         """ WebCoverageService should initialize without errors
         """
-        wcs = webservices.CoverageService(WCSURL)
+        with httmock.HTTMock(mock_resource):
+            wcs = webservices.CoverageService(WCSURL)
+
         self.assertTrue(wcs.version is not None)
         self.assertTrue(wcs.endpoint == WCSURL.split('?')[0])
         self.assertTrue(wcs.capabilities is not None)

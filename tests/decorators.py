@@ -7,6 +7,7 @@
 """
 
 import unittest
+import requests
 
 # Set the flag below to False to run the slow tests
 SKIP_SLOW = False
@@ -18,5 +19,21 @@ def slow(obj):
     """
     if SKIP_SLOW:
         return unittest.skip('Skipping slow tests')(obj)
+    else:
+        return obj
+
+
+## Check for network connectivity
+try:
+    requests.get('http://www.google.com')
+    SKIP_NETWORK = False
+except requests.ConnectionError:
+    SKIP_NETWORK = True
+
+def skip_if_no_network(obj):
+    """ Decorator to skip tests which require network connectivity
+    """
+    if SKIP_NETWORK:
+        return unittest.skip('No network available')(obj)
     else:
         return obj

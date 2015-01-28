@@ -43,5 +43,26 @@
             "holeidentifier": "PDP2C"
         },
         "data": ""
+    },
+    "tests.test_raster.capabilities": {
+        "url": "http://aster.nci.org.au/thredds/wcs/aster/vnir/Aus_Mainland/Aus_Mainland_AlOH_group_composition_reprojected.nc4",
+        "method": "get",
+        "params": {
+            "version": "1.1.0",
+            "request": "getcapabilities",
+            "service": "wcs"
+        },
+        "data": ""
+    },
+    "tests.test_raster.descriptions": {
+        "url": "http://aster.nci.org.au/thredds/wcs/aster/vnir/Aus_Mainland/Aus_Mainland_AlOH_group_composition_reprojected.nc4",
+        "method": "get",
+        "params": {
+            "version": "1.1.0",
+            "request": "getdescription",
+            "ident": "MgOH_group_composition",
+            "service": "wcs"
+        },
+        "data": ""
     }
 }
