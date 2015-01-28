@@ -58,8 +58,8 @@
         "url": "http://aster.nci.org.au/thredds/wcs/aster/vnir/Aus_Mainland/Aus_Mainland_AlOH_group_composition_reprojected.nc4",
         "method": "get",
         "params": {
-            "version": "1.1.0",
-            "request": "getdescription",
+            "version": "1.0.0",
+            "request": "describecoverage",
             "ident": "MgOH_group_composition",
             "service": "wcs"
         },
