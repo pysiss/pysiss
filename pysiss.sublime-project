@@ -40,12 +40,12 @@
 	[
 		{
 			"name": "Production build",
-			"cmd": ["python", "setup.py", "build"],
+			"cmd": ["python", "setup.py", "develop"],
 			"working_dir": "$project_path"
 		},
 		{
 			"name": "Install",
-			"cmd": ["python", "setup.py", "install", "--user"],
+			"cmd": ["python", "setup.py", "develop"],
 			"working_dir": "$project_path"
 		},
 		{

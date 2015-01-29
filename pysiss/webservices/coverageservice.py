@@ -19,8 +19,14 @@ class CoverageService(id_object):
 
         Parameters:
             endpoint - a URL pointing to the WCS endpoint
-            version - an OGC WCS version string (optional, defaults to '1.1.0')
 
+        Relevant attributes:
+            version - the OGC version number for the endpoint
+            capabilities - a Metadata instance containing the capabilities of
+                the endpoint
+            layers - a list of layer names served by the endpoint
+            descriptions - a dictionary keyed by layer name describing each
+                coverage
     """
 
     namespaces = NamespaceRegistry()
