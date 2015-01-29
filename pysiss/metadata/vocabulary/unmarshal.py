@@ -7,7 +7,7 @@
 """
 
 from ..namespaces import shorten_namespace, expand_namespace
-from . import gml, gsml, erml, wcs, csw
+from . import gml, gsml, erml, wcs, wfs, csw
 
 from lxml.etree import iterparse, XMLSyntaxError
 
@@ -16,6 +16,8 @@ UNMARSHALLERS.update(gml.UNMARSHALLERS)
 UNMARSHALLERS.update(gsml.UNMARSHALLERS)
 UNMARSHALLERS.update(erml.UNMARSHALLERS)
 UNMARSHALLERS.update(wcs.UNMARSHALLERS)
+UNMARSHALLERS.update(wfs.UNMARSHALLERS)
+UNMARSHALLERS.update(csw.UNMARSHALLERS)
 
 
 def unmarshal(elem):
@@ -42,7 +44,7 @@ def unmarshal_all(tree, tag):
             results.append(unmarshal(elem))
     return results
 
-def unmarshal_all_from_file(file, tag='gsml:MappedFeature'):
+def unmarshal_all_from_file(filename, tag='gsml:MappedFeature'):
     """ Unmarshal all instances of a tag from an xml file
         and return them as a list of objects
     """

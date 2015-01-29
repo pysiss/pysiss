@@ -1,4 +1,4 @@
-""" file:   unmarshallers.py (pysiss.vocabulary.gml)
+""" file:   erml.py (pysiss.metadata.vocabulary)
     author: Jess Robertson
             CSIRO Mineral Resources Flagship
     date:   Monday 25 August, 2014
