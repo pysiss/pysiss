@@ -6,7 +6,7 @@
     description: Wrapper functionality for unmarshalling XML elements
 """
 
-from .namespaces import shorten_namespace, expand_namespace
+from ..namespaces import shorten_namespace, expand_namespace
 from . import gml, gsml, erml, wcs, csw
 
 from lxml.etree import iterparse, XMLSyntaxError

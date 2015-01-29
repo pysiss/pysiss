@@ -7,8 +7,5 @@
 """
 
 from .unmarshal import unmarshal, unmarshal_all
-from .namespaces import NamespaceRegistry, add_namespace, shorten_namespace, \
-    expand_namespace, split_namespace
 
-__all__ = ['unmarshal', 'unmarshal_all', 'NamespaceRegistry', 'add_namespace',
-           'shorten_namespace', 'expand_namespace', 'split_namespace']
+__all__ = ['unmarshal', 'unmarshal_all']

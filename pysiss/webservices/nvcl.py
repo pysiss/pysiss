@@ -9,7 +9,7 @@
 from ..borehole import PropertyType, SISSBoreholeGenerator
 from ..borehole.datasets import PointDataSet  # , IntervalDataSet
 from ..utilities import Singleton
-from ..metadata.namespaces import expand_namespace, NamespaceRegistry
+from ..metadata import expand_namespace, NamespaceRegistry
 
 import numpy
 import pandas
