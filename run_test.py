@@ -4,25 +4,21 @@
             CSIRO Minerals Resources Flagship
     date: January 2015
 
-    description: Build and run tests using an isolated conda environment.
-        To set up, do
-        `conda create -n pysiss-test python=2.7 pysiss gdal pytest`
+    description: Run tests
 """
 
-import subprocess
-import textwrap
+import sys
+import unittest
 
 def main():
-    script = textwrap.dedent("""\
-        source activate pysiss-test && \
-        mkdir -p logs && \
-        NOW=`date +%d_%m_%Y_%H:%M:%S` && \
-        LOGFILE=logs/test_$NOW.log && \
-        echo Testing, output in $LOGFILE && \
-        (py.test tests) > $LOGFILE && \
-        source deactivate
-    """)
-    subprocess.call(script, shell=True, executable='/bin/bash')
+    # Glom tests together and run them
+    suite = unittest.defaultTestLoader.discover('tests')
+    result = unittest.TextTestRunner(verbosity=2).run(suite)
+
+    # Check for errors and failures, conda expects script to return 1
+    # on failure and 0 otherwise
+    nerrors, nfailures = len(result.errors), len(result.failures)
+    sys.exit(int(nerrors + nfailures > 0))
 
 if __name__ == '__main__':
     main()
