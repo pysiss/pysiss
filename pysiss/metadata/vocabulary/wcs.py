@@ -6,7 +6,7 @@
     description: Unmarshalling functions for WCS metadata
 """
 
-from ..namespaces import NamespaceRegistry
+from ..namespaces import NamespaceRegistry, shorten_namespace
 from .gml import position
 
 from shapely.geometry import box
