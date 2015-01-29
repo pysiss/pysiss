@@ -25,13 +25,15 @@ def update_version():
         print "This does not appear to be a Git repository."
         return
     try:
-        p = subprocess.Popen(["git", "describe", "--dirty", "--always"],
+        p = subprocess.Popen(["git", "describe", "--always"],
                              stdout=subprocess.PIPE)
         stdout = p.communicate()[0]
         if p.returncode != 0:
             raise EnvironmentError
         else:
-            ver = stdout.strip()
+            ver = stdout.strip().split('-')
+            if len(ver) > 1:
+                ver = ver[0] + '.dev' + ver[1]
     except EnvironmentError:
         print "Unable to run git, leaving pysiss/_version.py alone"
         return
