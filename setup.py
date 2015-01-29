@@ -53,7 +53,7 @@ setup(
     # Contents
     packages=find_packages(exclude=['test*']),
     package_data={
-        'pysiss.metadata': ['*.json'],
+        'pysiss.metadata.vocabulary': ['*.json'],
         'pysiss.webservices': ['*.json']
     },
     test_suite='tests'

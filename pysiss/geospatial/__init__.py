@@ -6,6 +6,6 @@
     description: Imports for coverage file
 """
 
-from .raster import Raster
+from .coverage import Coverage
 
-__all__ = ['Raster']
+__all__ = ['Coverage']

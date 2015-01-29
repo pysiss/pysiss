@@ -1,5 +1,5 @@
 import unittest
-from pysiss.metadata.namespaces import split_namespace, \
+from pysiss.metadata.vocabulary.namespaces import split_namespace, \
     shorten_namespace, expand_namespace
 
 

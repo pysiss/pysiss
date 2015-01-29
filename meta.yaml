@@ -29,11 +29,25 @@ requirements:
     - requests
     - pint
 
-  test:
-    - coveralls
-    - httmock
+  run:
+    - python
+    - matplotlib >=1.0
+    - numpy >=1.6
+    - scipy >=0.9
+    - lxml
+    - simplejson >=3.0
+    - pandas >=0.10
+    - shapely
+    - rasterio
+    - requests
+    - pint
 
 test:
+  requires:
+    - coveralls
+    - httmock
+    - py.test
+
   # Python imports
   imports:
     - pysiss

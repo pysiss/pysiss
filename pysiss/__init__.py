@@ -7,11 +7,10 @@
 """
 
 import borehole
-import coverage
-import vocabulary
+import geospatial
 import utilities
 import webservices
 import metadata
 
-__all__ = ['borehole', 'coverage', 'vocabulary', 'utilities', 'webservices',
+__all__ = ['borehole', 'geospatial', 'vocabulary', 'utilities', 'webservices',
            'metadata']

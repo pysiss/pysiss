@@ -7,10 +7,7 @@
 """
 
 from ..metadata.namespaces import shorten_namespace, expand_namespace
-from .gml import unmarshallers as gml
-from .gsml import unmarshallers as gsml
-from .erml import unmarshallers as erml
-from .wcs import unmarshallers as wcs
+from . import gml, gsml, erml, wcs, wfs, csw
 
 from lxml.etree import iterparse, XMLSyntaxError
 

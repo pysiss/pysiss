@@ -6,6 +6,7 @@
     description: init file
 """
 
-from . import erml, gsml, gml
+from .unmarshal import unmarshal, unmarshal_all
+import .namespaces
 
-__all__ = ['erml', 'gsml', 'gml']
+__all__ = ['unmarshal', 'unmarshal_all', 'namespaces']

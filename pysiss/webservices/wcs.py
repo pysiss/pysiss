@@ -8,8 +8,9 @@
 
 from ..utilities import id_object
 from ..metadata import Metadata
-from ..metadata.namespaces import NamespaceRegistry, shorten_namespace
-from ..vocabulary.unmarshal import unmarshal
+from ..metadata.vocabulary.namespaces import \
+    NamespaceRegistry, shorten_namespace
+from ..metadata.vocabulary.unmarshal import unmarshal
 
 import requests
 from lxml import etree

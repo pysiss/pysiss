@@ -12,15 +12,15 @@ from ..metadata import MetadataRegistry
 import rasterio
 
 
-class Raster(id_object):
+class Coverage(id_object):
 
-    """ Class containing raster GIS data.
+    """ Class containing raster GIS coverage data.
     """
 
     md_registry = MetadataRegistry()
 
     def __init__(self, filename, metadata=None, ident=None, **kwargs):
-        super(Raster, self).__init__(ident='raster')
+        super(Coverage, self).__init__(ident='raster')
         self.ident = ident or self.uuid
         self.filename = filename
 
@@ -45,7 +45,7 @@ class Raster(id_object):
 
     @property
     def metadata(self):
-        """ Return metadata associated with this Raster array
+        """ Return metadata associated with this Coverage array
         """
         if self._md_ident:
             return self.md_registry[self._md_ident]

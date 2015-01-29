@@ -6,8 +6,8 @@
     description: Unmarshalling functions for WCS metadata
 """
 
-from ...metadata.namespaces import NamespaceRegistry
-from ..gml.unmarshallers import position
+from .namespaces import NamespaceRegistry
+from .gml.unmarshallers import position
 
 from shapely.geometry import box
 

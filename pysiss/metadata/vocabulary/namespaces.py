@@ -10,7 +10,7 @@
 
 import simplejson
 import pkg_resources
-from ..utilities import Singleton
+from ...utilities import Singleton
 
 
 class NamespaceRegistry(dict):
@@ -23,7 +23,7 @@ class NamespaceRegistry(dict):
     # Load default namespaces list in namespaces.json
     default_namespaces = simplejson.load(
         pkg_resources.resource_stream(
-            "pysiss.metadata", "namespaces.json"))
+            "pysiss.metadata.vocabulary", "namespaces.json"))
 
     def __init__(self):
         super(NamespaceRegistry, self).__init__()

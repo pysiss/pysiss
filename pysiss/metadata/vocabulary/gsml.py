@@ -6,9 +6,9 @@
     description: Unmarshalling functions for GeoSciML/GML objects
 """
 
-from ...coverage.vector import MappedFeature
-from ...metadata import Metadata
-from ...metadata.namespaces \
+from ...geospatial.feature import MappedFeature
+from ..metadata import Metadata
+from .namespaces \
     import NamespaceRegistry, expand_namespace, shorten_namespace
 from ..gml.unmarshallers import UNMARSHALLERS as GML_UNMARSHALLERS
 
