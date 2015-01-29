@@ -15,16 +15,19 @@ def read(*paths):
     with open(os.path.join(*paths), 'r') as f:
         return f.read()
 
-
 # Get requirements from requirements.txt file
 with open('requirements.txt') as fhandle:
     REQUIREMENTS = [l.strip('\n') for l in fhandle]
+
+# Get version number from _version.py
+# Can be updated using python setup.py update_version
+from update_version import update_version, Version, get_version
 
 ## PACKAGE INFORMATION
 setup(
     # Metadata
     name='pysiss',
-    version='0.0.4',
+    version=get_version(),
     description='A pythonic interface to Spatial Information Services Stack '
                 '(SISS) services',
     long_description=read('README.rst'),
@@ -56,5 +59,6 @@ setup(
         'pysiss.metadata': ['*.json'],
         'pysiss.webservices': ['*.json']
     },
-    test_suite='tests'
+    test_suite='tests',
+    cmdclass={'update_version': Version}
 )

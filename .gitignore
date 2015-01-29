@@ -20,3 +20,4 @@ pysiss-doc
 tmp
 tests/mocks/cache
 .coveralls.yml
+pysiss/_version.py
