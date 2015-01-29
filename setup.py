@@ -9,21 +9,24 @@
 from setuptools import setup, find_packages
 import os
 
-# Get requirements from requirements.txt file
-with open('requirements.txt') as fhandle:
-    REQUIREMENTS = map(lambda l: l.strip('\n'), fhandle.readlines())
-
-
 def read(*paths):
     """Build a file path from *paths* and return the contents."""
     with open(os.path.join(*paths), 'r') as f:
         return f.read()
 
+# Get requirements from requirements.txt file
+with open('requirements.txt') as fhandle:
+    REQUIREMENTS = [l.strip('\n') for l in fhandle]
+
+# Get version number from _version.py
+# Can be updated using python setup.py update_version
+from update_version import update_version, Version, get_version
+
 ## PACKAGE INFORMATION
 setup(
     # Metadata
     name='pysiss',
-    version='0.0.4',
+    version=get_version(),
     description='A pythonic interface to Spatial Information Services Stack '
                 '(SISS) services',
     long_description=read('README.rst'),
@@ -65,5 +68,6 @@ setup(
     package_data={
         'pysiss.vocabulary.resources': ['*']
     },
-    test_suite='tests'
+    test_suite='tests',
+    cmdclass={'update_version': Version}
 )
