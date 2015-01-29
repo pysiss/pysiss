@@ -1,9 +1,9 @@
-matplotlib>=1.0
-numpy>=1.6
-scipy>=0.9
-pandas>=0.10
+matplotlib
+numpy
+scipy
+pandas
 lxml
-simplejson>=3.0
+simplejson
 shapely
 rasterio
 requests

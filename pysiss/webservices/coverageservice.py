@@ -12,8 +12,6 @@ from ..metadata import Metadata, NamespaceRegistry, unmarshal_all, unmarshal
 import requests
 from lxml import etree
 
-NAMESPACES = NamespaceRegistry()
-
 
 class CoverageService(id_object):
 
