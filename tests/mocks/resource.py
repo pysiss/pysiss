@@ -47,6 +47,8 @@ class Resource(object):
             return httmock.response(200, content, self.HEADERS, None,
                                     5, self.request)
         except IOError:
+            print "Warning: Missing a mock file - have you updated the mock "\
+                  "resource by running tests/mocks/update.py recently?"
             return httmock.response(404, {}, self.HEADERS, None,
                                     5, self.request)
 

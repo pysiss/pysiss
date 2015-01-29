@@ -32,8 +32,18 @@ def unmarshal(elem):
         return None
 
 
-def unmarshal_all(filename, tag='gsml:MappedFeature'):
-    """ Unmarshall all instances of a tag from an xml file
+def unmarshal_all(tree, tag):
+    """ Unmarshal all instances of <tag> in a tree
+    """
+    tag = expand_namespace(tag).lower()
+    results = []
+    for elem in tree.iter():
+        if elem.tag.lower() == tag:
+            results.append(unmarshal(elem))
+    return results
+
+def unmarshal_all_from_file(file, tag='gsml:MappedFeature'):
+    """ Unmarshal all instances of a tag from an xml file
         and return them as a list of objects
     """
     tag = expand_namespace(tag)

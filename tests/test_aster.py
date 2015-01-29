@@ -14,7 +14,8 @@ import os
 import unittest
 from decorators import slow
 
-from pysiss.coverage import raster
+from pysiss.geospatial import coverage
+from pysiss.webservices import CoverageService
 
 ASTER_PRODUCTS = [
     'AlOH_group_composition',
@@ -63,7 +64,7 @@ class ASTERTest(unittest.TestCase):
         url = WCSURL.format(ASTER_PRODUCTS[0])
 
         # Generate a coverage object from a coverage reader
-        requester = raster.WCSRequester(url)
+        requester = CoverageService(url)
         src = requester.request(bounds=BOUNDS)
         self.assertEqual(
             src.crs_wkt,

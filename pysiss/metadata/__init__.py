@@ -10,6 +10,7 @@ from .registry import MetadataRegistry
 from .metadata import Metadata
 from .namespaces import NamespaceRegistry, add_namespace, shorten_namespace, \
     expand_namespace, split_namespace
+from .vocabulary import unmarshal, unmarshal_all
 
 __all__ = ['MetadataRegistry', 'Metadata',
            'unmarshal', 'unmarshal_all', 'NamespaceRegistry', 'add_namespace',

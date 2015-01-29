@@ -90,7 +90,7 @@ class SissTest(unittest.TestCase):
                            'upper corner': 125.0},
                           bh.details.get('cored interval').values)
 
-    @skip_if_no_network()
+    @skip_if_no_network
     def test_geosciml_nvcl_scanned_borehole(self):
         """ A test using an XML document corresponding to a scanned
             borehole GeoSciML URL.

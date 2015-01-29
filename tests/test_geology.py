@@ -9,8 +9,8 @@
 import unittest
 from decorators import slow
 
-from pysiss.coverage import vector
-from pysiss.metadata.namespaces import shorten_namespace
+from pysiss.geospatial import feature
+from pysiss.metadata import shorten_namespace
 
 BOUNDS = (119.52, -21.6, 120.90, -20.5)
 WFSURL = "http://www.ga.gov.au/geows/{0}/oneg_wa_1m/wfs"

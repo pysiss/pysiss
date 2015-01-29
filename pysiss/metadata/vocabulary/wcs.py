@@ -6,7 +6,7 @@
     description: Unmarshalling functions for WCS metadata
 """
 
-from .namespaces import NamespaceRegistry
+from ..namespaces import NamespaceRegistry
 from .gml import position
 
 from shapely.geometry import box
@@ -43,9 +43,9 @@ def url_info(tag):
         'url': elem.xpath(
             '//{0}//wcs:OnlineResource/@*'.format(tag),
             namespaces=NAMESPACES)[0],
-        'method': shorten_namespace(elem.xpath(
-            '//{0}//wcs:HTTP/*'.format(tag),
-            namespaces=NAMESPACES)[0].tag
+        'method': shorten_namespace(
+            elem.xpath('//{0}//wcs:HTTP/*'.format(tag),
+                       namespaces=NAMESPACES)[0].tag
         ).split(':')[1].lower()
     }
 
@@ -56,9 +56,9 @@ UNMARSHALLERS = {
     'wcs:description': text,
     'wcs:label': text,
     'wcs:supportedformats': formats,
-    'wcs:getcapabilities': url_info('wcs:getcapabilities'),
-    'wcs:describecoverage': url_info('wcs:describecoverage'),
-    'wcs:getcoverage': url_info('wcs:getcoverage'),
+    'wcs:getcapabilities': url_info('wcs:getCapabilities'),
+    'wcs:describecoverage': url_info('wcs:describeCoverage'),
+    'wcs:getcoverage': url_info('wcs:getCoverage'),
 }
 
 __all__ = ['UNMARSHALLERS']

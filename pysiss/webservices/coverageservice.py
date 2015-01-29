@@ -1,4 +1,4 @@
-""" file: wcs.py
+""" file: coverageservice.py
     author: Jess Robertson
             CSIRO Minerals Resources Flagship
     date:   January 2015
@@ -7,7 +7,7 @@
 """
 
 from ..utilities import id_object
-from ..metadata import Metadata, NamespaceRegistry, unmarshall_all
+from ..metadata import Metadata, NamespaceRegistry, unmarshal_all, unmarshal
 
 import requests
 from lxml import etree
@@ -75,8 +75,9 @@ class CoverageService(id_object):
                 mdatatype='wcs:wcs_capabilities')
             self.version = cap.xpath('@version')[0]
             self.describe_endpoint = \
-                unmarshall_all(cap, 'wcs:describecoverage')[0]
-            self.coverage_endpoint = unmarshall_all(cap, 'wcs:getcoverage')[0]
+                unmarshal_all(cap.tree, 'wcs:describecoverage')[0]
+            self.coverage_endpoint = \
+                unmarshal_all(cap.tree, 'wcs:getcoverage')[0]
 
             # Get available datasets
             self.layers = cap.xpath(
@@ -108,13 +109,13 @@ class CoverageService(id_object):
             response = requests.request(params=payload,
                                         **self.describe_endpoint)
             if response.ok:
-                self._descriptions[layer] = Metadata(
+                desc = self._descriptions[layer] = Metadata(
                     tree=etree.fromstring(response.content),
-                    mdatatype='wcs:coveragedescription')
+                    mdatatype='wcs:coverageDescription')
 
                 # Get bounding box and grid information
                 self.envelopes[layer] = \
-                    unmarshall_all('//wcs:spatialDomain//wcs:Envelope')
+                    unmarshal_all(desc.tree, '//wcs:spatialDomain//wcs:Envelope')
 
             else:
                 raise IOError("Can't access endpoint {0}, "

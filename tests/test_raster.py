@@ -6,7 +6,7 @@
     description: Tests of classes for raster coverage data
 """
 
-from pysiss import coverage, webservices
+from pysiss import geospatial, webservices
 from .mocks.resource import mock_resource
 
 import unittest
@@ -39,7 +39,7 @@ class RasterTest(unittest.TestCase):
 
     def setUp(self):
         test_dir = os.path.dirname(os.path.realpath(__file__))
-        self.raster = coverage.Raster(
+        self.raster = geospatial.Coverage(
             filename=TEST_FILE.format(test_dir))
 
     def tearDown(self):
