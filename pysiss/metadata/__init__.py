@@ -8,7 +8,7 @@
 
 from .registry import MetadataRegistry
 from .metadata import Metadata
-from .vocabulary import namespaces, unmarshal, unmarshal_all
+from .vocabulary import NamespaceRegistry, unmarshal, unmarshal_all
 
 __all__ = ['MetadataRegistry', 'Metadata', 'namespaces',
            'unmarshal', 'unmarshal_all']

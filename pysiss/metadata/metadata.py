@@ -11,7 +11,7 @@
 
 from ..utilities import id_object
 from .registry import MetadataRegistry
-from .vocabulary.namespaces import shorten_namespace
+from .vocabulary import shorten_namespace
 
 
 def yamlify(tree, indent_width=2, indent=0):

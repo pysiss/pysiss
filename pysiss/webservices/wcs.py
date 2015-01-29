@@ -7,14 +7,10 @@
 """
 
 from ..utilities import id_object
-from ..metadata import Metadata
-from ..metadata.vocabulary.namespaces import \
-    NamespaceRegistry, shorten_namespace
-from ..metadata.vocabulary.unmarshal import unmarshal
+from ..metadata import Metadata, NamespaceRegistry, unmarshall_all
 
 import requests
 from lxml import etree
-from shapely.geometry import box
 
 NAMESPACES = NamespaceRegistry()
 
@@ -102,6 +98,7 @@ class CoverageService(id_object):
         # Update description from server
         self.get_capabilities()
         self._descriptions = dict()
+        self.envelopes = dict()
         for layer in self.layers:
             payload = dict(
                 service='wcs',
@@ -111,12 +108,13 @@ class CoverageService(id_object):
             response = requests.request(params=payload,
                                         **self.describe_endpoint)
             if response.ok:
-                desc = self._descriptions[layer] = Metadata(
+                self._descriptions[layer] = Metadata(
                     tree=etree.fromstring(response.content),
                     mdatatype='wcs:coveragedescription')
 
                 # Get bounding box and grid information
-                envelope = unmarshall_all('//wcs:spatialDomain//wcs:Envelope')
+                self.envelopes[layer] = \
+                    unmarshall_all('//wcs:spatialDomain//wcs:Envelope')
 
             else:
                 raise IOError("Can't access endpoint {0}, "
@@ -126,4 +124,4 @@ class CoverageService(id_object):
     def get_coverage(self, bounds):
         """ Get coverage data for the given bounding box
         """
-        raise NotImplementedError()
+        pass

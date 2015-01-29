@@ -1,4 +1,4 @@
-""" file:   unmarshallers.py (pysiss.vocabulary.wcs)
+""" file:   wcs.py (pysiss.metadata)
     author: Jess Robertson
             CSIRO Mineral Resources Flagship
     date:   Monday 25 August, 2014
@@ -7,7 +7,7 @@
 """
 
 from .namespaces import NamespaceRegistry
-from .gml.unmarshallers import position
+from .gml import position
 
 from shapely.geometry import box
 

@@ -12,5 +12,4 @@ import utilities
 import webservices
 import metadata
 
-__all__ = ['borehole', 'geospatial', 'vocabulary', 'utilities', 'webservices',
-           'metadata']
+__all__ = ['borehole', 'geospatial', 'utilities', 'webservices', 'metadata']
