@@ -22,6 +22,7 @@ with open('requirements.txt') as fhandle:
 # Get version number from _version.py
 # Can be updated using python setup.py update_version
 from update_version import update_version, Version, get_version
+update_version()
 
 ## PACKAGE INFORMATION
 setup(

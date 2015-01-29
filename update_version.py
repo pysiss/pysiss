@@ -39,8 +39,12 @@ def update_version():
         return
 
     # Write to file
-    with open('pysiss/_version.py', 'wb') as fhandle:
-        fhandle.write(VERSION_PY_TEMPLATE.format(ver))
+    current_ver = get_version()
+    if current_ver != ver:
+        print "Version {0} out of date, updating to {1}".format(
+            current_ver, ver)
+        with open('pysiss/_version.py', 'wb') as fhandle:
+            fhandle.write(VERSION_PY_TEMPLATE.format(ver))
 
 
 def get_version():
