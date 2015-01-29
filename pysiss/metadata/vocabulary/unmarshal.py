@@ -7,6 +7,7 @@
 """
 
 from ..namespaces import shorten_namespace, expand_namespace
+from ..regularize import regularize
 from . import gml, gsml, erml, wcs, wfs, csw
 
 from lxml.etree import iterparse, XMLSyntaxError
@@ -26,7 +27,7 @@ def unmarshal(elem):
         If there is no unmarshalling function available, this just returns the
         lxml.etree element.
     """
-    tag = shorten_namespace(elem.tag)
+    tag = regularize(elem.tag)
     unmarshal = UNMARSHALLERS.get(tag)
     if unmarshal:
         return unmarshal(elem)
@@ -37,10 +38,10 @@ def unmarshal(elem):
 def unmarshal_all(tree, tag):
     """ Unmarshal all instances of <tag> in a tree
     """
-    tag = expand_namespace(tag).lower()
+    rtag = regularize(tag)
     results = []
     for elem in tree.iter():
-        if elem.tag.lower() == tag:
+        if regularize(elem.tag) == rtag:
             results.append(unmarshal(elem))
     return results
 

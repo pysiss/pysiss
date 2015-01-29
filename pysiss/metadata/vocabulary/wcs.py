@@ -41,10 +41,10 @@ def url_info(tag):
     """
     return lambda elem: {
         'url': elem.xpath(
-            '//{0}//wcs:OnlineResource/@*'.format(tag),
+            '//{0}//wcs:onlineresource/@*'.format(tag),
             namespaces=NAMESPACES)[0],
         'method': shorten_namespace(
-            elem.xpath('//{0}//wcs:HTTP/*'.format(tag),
+            elem.xpath('//{0}//wcs:http/*'.format(tag),
                        namespaces=NAMESPACES)[0].tag
         ).split(':')[1].lower()
     }

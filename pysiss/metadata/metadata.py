@@ -24,14 +24,14 @@ def yamlify(tree, indent_width=2, indent=0):
     """
     # Build line for current element
     spaces = ' ' * indent_width * indent
-    result = spaces + '{0}:'.format(shorten_namespace(tree.tag))
+    result = spaces + '{0}:'.format(regularize(tree.tag))
     if tree.text and tree.text.strip() != '':
         result += ' {0}\n'.format(tree.text)
     elif tree.attrib:
         tree_attrs = dict(tree.attrib)
         for key, value in tree.attrib.items():
             old_key = key
-            key = shorten_namespace(key)
+            key = regularize(key)
             if key != old_key:
                 tree_attrs[key] = value
                 del tree_attrs[old_key]
