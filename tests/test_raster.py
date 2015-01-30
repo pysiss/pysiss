@@ -23,6 +23,9 @@ TEST_FILE = '{0}/resources/AlOH_group_composition.geotiff'
 
 class WCSTest(unittest.TestCase):
 
+    # testversions = ('1.0.0', '1.1.0', '2.0.0')
+    testversions = ('1.0.0', '1.1.0')
+
     def setUp(self):
         with httmock.HTTMock(mock_resource):
             self.wcs = webservices.CoverageService(WCSURL)
@@ -50,6 +53,38 @@ class WCSTest(unittest.TestCase):
         """ Check that layers are decoded
         """
         self.assertTrue('AlOH_group_composition' in self.wcs.layers)
+
+    def test_getcapabilties_payload_creation(self):
+        """ Check that payloads get created ok
+        """
+        # Modify for other versions
+        for version in self.testversions:
+            self.wcs._version = version
+            self.wcs._make_payload('getcapabilities')
+
+    def test_borked_describecoverage_payload_creation(self):
+        """ Check that describecoverage payloads get created ok
+        """
+        layer = self.wcs.layers[0]
+
+        # Modify for other versions
+        for version in self.testversions:
+            self.wcs._version = version
+            self.wcs._make_payload('describecoverage',
+                                   ident=layer)
+
+    def test_borked_describecoverage_payload_creation(self):
+        """ Borked arguments should raise a KeyError
+        """
+        # Modify for other versions
+        for version in self.testversions:
+            self.wcs._version = version
+            self.assertRaises(KeyError,
+                              self.wcs._make_payload,
+                              request='describecoverage')
+            self.assertRaises(KeyError,
+                              self.wcs._make_payload,
+                              'describecoverage')
 
 
 class CoverageTest(unittest.TestCase):

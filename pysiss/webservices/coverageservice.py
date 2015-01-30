@@ -11,6 +11,8 @@ from ..metadata import Metadata, NamespaceRegistry, unmarshal_all, unmarshal
 
 import requests
 from lxml import etree
+import simplejson
+import pkg_resources
 
 
 class CoverageService(id_object):
@@ -31,18 +33,18 @@ class CoverageService(id_object):
 
     namespaces = NamespaceRegistry()
 
+    # Load request mappings from .json
+    request_mappings = simplejson.load(
+        pkg_resources.resource_stream(
+            "pysiss.webservices", "coverageservice_mapping.json"))
+
     def __init__(self, endpoint):
         super(CoverageService, self).__init__(ident=endpoint)
         self.ident = self.endpoint = endpoint.split('?')[0]
 
         # Update metadata
         self._capabilities, self._descriptions = None, None
-
-    def make_payload(self, ident, bbox,
-                     tbox=None, projection=None):
-        """ Generate a WCS payload for a request
-        """
-        pass
+        self._version = '1.0.0' # Dummy for now, will get replaced
 
     @property
     def capabilities(self):
@@ -63,7 +65,8 @@ class CoverageService(id_object):
     def version(self):
         """ The version of the WCS endpoint
         """
-        self.get_capabilities()
+        if self._version is None:
+            self.get_capabilities()
         return self._version
 
     @property
@@ -79,10 +82,8 @@ class CoverageService(id_object):
             return
 
         # Update capabilities from server
-        payload = dict(
-            service='wcs',
-            request='getcapabilities')
-        response = requests.get(self.endpoint, params=payload)
+        params = self._make_payload(request='getcapabilities')
+        response = requests.get(self.endpoint, params=params)
 
         # Parse metadata
         if response.ok:
@@ -117,22 +118,19 @@ class CoverageService(id_object):
         self._descriptions = dict()
         self.envelopes = dict()
         for layer in self.layers:
-            payload = dict(
-                service='wcs',
-                request='describecoverage',
-                version=self.version,
-                ident=layer)
-            response = requests.request(params=payload,
+            params = self._make_payload(request='describecoverage',
+                                        ident=layer)
+            response = requests.request(params=params,
                                         **self._describe_endpoint)
             if response.ok:
                 desc = self._descriptions[layer] = Metadata(
                     tree=etree.fromstring(response.content),
                     mdatatype='wcs:describecoverage')
 
-                # # Get bounding box and grid information
-                # self.envelopes[layer] = \
-                #     unmarshal_all(desc.tree,
-                #                   '//wcs:spatialdomain//wcs:envelope')
+                # Get bounding box and grid information
+                self.envelopes[layer] = \
+                    unmarshal_all(desc.tree,
+                                  '//wcs:spatialdomain//wcs:envelope')
 
             else:
                 raise IOError("Can't access endpoint {0}, "
@@ -143,3 +141,34 @@ class CoverageService(id_object):
         """ Get coverage data for the given bounding box
         """
         pass
+
+    def _make_payload(self, request, **kwargs):
+        """ Generate a WCS payload for a request
+
+            Params:
+                request - the request type to make. One of
+                    'getcapabilities', 'describecoverage',
+                    'getcoverage'
+
+            Other parameters get passed in as keyword arguments
+        """
+        # Get the payload from the mappings
+        payload = self.request_mappings[self.version][request]
+
+        # Check that we have all the required keyword arguments
+        # for this mapping
+        required_keywords = [v.lstrip('@') for v in payload.values()
+                             if v.startswith('@')]
+        missing = [k for k in required_keywords
+                   if k not in kwargs.keys()]
+        if missing:
+            print 'Bailing on {0} request'.format(request)
+            raise KeyError(("Missing keyword(s) {0} required to construct "
+                            "payload for WCS request").format(
+                                map(lambda s: s.lstrip('@'), missing)))
+
+        # Generate the parameter dictionary for the call
+        for key, value in payload.items():
+            if value.startswith('@'):
+                payload[key] = kwargs[value.lstrip('@')]
+        return payload

@@ -1,12 +1,8 @@
-// WCS parameter mapping to CoverageService object
-// Defines a mapping for each request to attributes defined for
-// a particular CoverageService. Strings beginning with @ are
-// mapped to attribute values, while those beginning with ! are mapped
-// to arguments
 {
-    "1.0": {
+    "1.0.0": {
         "getcapabilities": {
-
+            "service": "wcs",
+            "request": "getcapabilities"
         },
         "describecoverage": {
             "service": "wcs",
@@ -26,6 +22,10 @@
         }
     },
     "1.1.0": {
+        "getcapabilities": {
+            "service": "wcs",
+            "request": "getcapabilities"
+        },
         "describecoverage": {
             "service": "wcs",
             "request": "describecoverage",
@@ -42,7 +42,11 @@
             "format": "@format"
         }
     },
-    "2.0": {
+    "2.0.0": {
+        "getcapabilities": {
+            "service": "wcs",
+            "request": "getcapabilities"
+        },
         "describecoverage": {},
         "getcoverage": {}
     }
