@@ -70,8 +70,13 @@ def expand_namespace(tag, form='xml'):
     """ Expand a tag's namespace
     """
     tokens = tag.split(':')
-    nspace = _NAMESPACE_REGISTRY[tokens[0]]
-    tag = ':'.join(tokens[1:])
+    try:
+        nspace = _NAMESPACE_REGISTRY[tokens[0]]
+        tag = ':'.join(tokens[1:])
+    except KeyError:
+        # We can't do anything with this tag, so just return it
+        return tag
+
     if form == 'xml':
         return '{' + nspace + '}' + tag
     elif form == 'rdf':

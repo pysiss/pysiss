@@ -125,7 +125,9 @@ class CoverageService(id_object):
             response = requests.request(params=payload,
                                         **self._describe_endpoint)
             if response.ok:
-                desc = self._descriptions[layer] = etree.fromstring(response.content),
+                desc = self._descriptions[layer] = Metadata(
+                    tree=etree.fromstring(response.content),
+                    mdatatype='wcs:describecoverage')
 
                 # # Get bounding box and grid information
                 # self.envelopes[layer] = \
