@@ -5,6 +5,9 @@
 // to arguments
 {
     "1.0": {
+        "getcapabilities": {
+
+        },
         "describecoverage": {
             "service": "wcs",
             "request": "describecoverage",

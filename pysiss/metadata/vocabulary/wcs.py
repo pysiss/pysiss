@@ -8,6 +8,7 @@
 
 from ..namespaces import NamespaceRegistry, shorten_namespace
 from .gml import position
+from ..regularize import regularize
 
 from shapely.geometry import box
 
@@ -39,12 +40,13 @@ def formats(elem):
 def url_info(tag):
     """ Parse information about an OGC endpoint from getCapabilities request
     """
+    rtag = regularize(tag)
     return lambda elem: {
         'url': elem.xpath(
-            '//{0}//wcs:onlineresource/@*'.format(tag),
+            '//{0}//wcs:onlineresource/@*'.format(rtag),
             namespaces=NAMESPACES)[0],
         'method': shorten_namespace(
-            elem.xpath('//{0}//wcs:http/*'.format(tag),
+            elem.xpath('//{0}//wcs:http/*'.format(rtag),
                        namespaces=NAMESPACES)[0].tag
         ).split(':')[1].lower()
     }
@@ -56,9 +58,9 @@ UNMARSHALLERS = {
     'wcs:description': text,
     'wcs:label': text,
     'wcs:supportedformats': formats,
-    'wcs:getcapabilities': url_info('wcs:getCapabilities'),
-    'wcs:describecoverage': url_info('wcs:describeCoverage'),
-    'wcs:getcoverage': url_info('wcs:getCoverage'),
+    'wcs:getcapabilities': url_info('wcs:getcapabilities'),
+    'wcs:describecoverage': url_info('wcs:describecoverage'),
+    'wcs:getcoverage': url_info('wcs:getcoverage'),
 }
 
 

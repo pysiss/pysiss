@@ -11,7 +11,11 @@
 
 from ..utilities import id_object
 from .registry import MetadataRegistry
-from .namespaces import shorten_namespace
+from .namespaces import shorten_namespace, expand_namespace
+from .regularize import regularize
+
+from copy import deepcopy
+from lxml import etree
 
 
 def yamlify(tree, indent_width=2, indent=0):
@@ -47,6 +51,15 @@ def yamlify(tree, indent_width=2, indent=0):
                           indent=indent + 1)
     return result
 
+def normalize(elem):
+    """ Normalize the tag for a given element
+    """
+    new = deepcopy(elem)
+    new.tag = expand_namespace(regularize(elem.tag))
+    for child in new.getchildren():
+        new.replace(child, normalize(child))
+    return new
+
 
 class Metadata(id_object):
 
@@ -59,7 +72,9 @@ class Metadata(id_object):
         self.mdatatype = mdatatype.lower()
         super(Metadata, self).__init__(ident=self.mdatatype)
         self.ident = ident or self.uuid
-        self.tree = tree
+
+        # Normalize tree tags
+        self.tree = normalize(tree)
 
         # Store other metadata
         for attrib, value in kwargs.items():
@@ -74,6 +89,8 @@ class Metadata(id_object):
 
     def xpath(self, *args, **kwargs):
         """ Pass XPath queries through to underlying tree
+
+            Todo: Make these use regularized tags?
         """
         return self.tree.xpath(*args, **kwargs)
 

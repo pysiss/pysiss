@@ -37,8 +37,6 @@ class CoverageService(id_object):
 
         # Update metadata
         self._capabilities, self._descriptions = None, None
-        self.get_capabilities(update=True)
-        self.get_descriptions(update=True)
 
     def make_payload(self, ident, bbox,
                      tbox=None, projection=None):
@@ -53,6 +51,20 @@ class CoverageService(id_object):
         if self._capabilities is None:
             self.get_capabilities(update=True)
         return self._capabilities
+
+    @property
+    def layers(self):
+        """ The layers available from the WCS
+        """
+        self.get_capabilities()
+        return self._layers
+
+    @property
+    def version(self):
+        """ The version of the WCS endpoint
+        """
+        self.get_capabilities()
+        return self._version
 
     @property
     def descriptions(self):
@@ -77,14 +89,14 @@ class CoverageService(id_object):
             cap = self._capabilities = Metadata(
                 tree=etree.fromstring(response.content),
                 mdatatype='wcs:wcs_capabilities')
-            self.version = cap.xpath('@version')[0]
-            self.describe_endpoint = \
+            self._version = cap.xpath('@version')[0]
+            self._describe_endpoint = \
                 unmarshal_all(cap.tree, 'wcs:describecoverage')[0]
-            self.coverage_endpoint = \
+            self._coverage_endpoint = \
                 unmarshal_all(cap.tree, 'wcs:getcoverage')[0]
 
             # Get available datasets
-            self.layers = cap.xpath(
+            self._layers = cap.xpath(
                 'wcs:contentmetadata/wcs:coverageofferingbrief'
                 '/wcs:name/text()',
                 namespaces=self.namespaces)
@@ -111,15 +123,14 @@ class CoverageService(id_object):
                 version=self.version,
                 ident=layer)
             response = requests.request(params=payload,
-                                        **self.describe_endpoint)
+                                        **self._describe_endpoint)
             if response.ok:
-                desc = self._descriptions[layer] = Metadata(
-                    tree=etree.fromstring(response.content),
-                    mdatatype='wcs:coverageDescription')
+                desc = self._descriptions[layer] = etree.fromstring(response.content),
 
-                # Get bounding box and grid information
-                self.envelopes[layer] = \
-                    unmarshal_all(desc.tree, '//wcs:spatialDomain//wcs:Envelope')
+                # # Get bounding box and grid information
+                # self.envelopes[layer] = \
+                #     unmarshal_all(desc.tree,
+                #                   '//wcs:spatialdomain//wcs:envelope')
 
             else:
                 raise IOError("Can't access endpoint {0}, "
