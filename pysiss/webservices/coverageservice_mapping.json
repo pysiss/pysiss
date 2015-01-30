@@ -7,18 +7,18 @@
         "describecoverage": {
             "service": "wcs",
             "request": "describecoverage",
-            "version": "1.0",
+            "version": "1.0.0",
             "coverage": "@ident"
         },
         "getcoverage": {
             "service": "wcs",
             "request": "getcoverage",
-            "version": "1.0",
+            "version": "1.0.0",
             "coverage": "@ident",
-            "crs": "@projection",
-            "bbox": ["@minx", "@maxx", "@miny", "@maxy"],
-            "time": ["@mint", "@maxt"],
-            "format": "@format"
+            "?crs": "@projection=None",
+            "?bbox": ["@minx=None", "@maxx=None", "@miny=None", "@maxy=None"],
+            "?time": ["@mint=None", "@maxt=None"],
+            "?format": "@format=geotiff"
         }
     },
     "1.1.0": {
@@ -37,9 +37,9 @@
             "request": "getcoverage",
             "version": "1.1.0",
             "identifier": "@ident",
-            "bbox": ["@minx", "@maxx", "@miny", "@maxy", "@projection"],
-            "time": ["@mint", "@maxt"],
-            "format": "@format"
+            "?bbox": ["@minx", "@maxx", "@miny", "@maxy", "@projection"],
+            "?time": ["@mint", "@maxt"],
+            "?format": "@format"
         }
     },
     "2.0.0": {
