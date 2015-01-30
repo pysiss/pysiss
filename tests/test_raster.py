@@ -18,24 +18,41 @@ import httmock
 BOUNDS = (119.52, -21.6, 120.90, -20.5)
 WCSURL = ('http://aster.nci.org.au/thredds/wcs/aster/vnir/'
           'Aus_Mainland/Aus_Mainland_AlOH_group_composition_reprojected.nc4')
-TEST_FILE = '{0}/resources/MgOH_group_composition.geotiff'
+TEST_FILE = '{0}/resources/AlOH_group_composition.geotiff'
 
 
 class WCSTest(unittest.TestCase):
 
+    def setUp(self):
+        with httmock.HTTMock(mock_resource):
+            self.wcs = webservices.CoverageService(WCSURL)
+
     def test_wcs_init(self):
         """ WebCoverageService should initialize without errors
         """
-        with httmock.HTTMock(mock_resource):
-            wcs = webservices.CoverageService(WCSURL)
+        self.assertTrue(self.wcs.version is not None)
+        self.assertTrue(self.wcs.endpoint == WCSURL.split('?')[0])
 
-        self.assertTrue(wcs.version is not None)
-        self.assertTrue(wcs.endpoint == WCSURL.split('?')[0])
-        self.assertTrue(wcs.capabilities is not None)
-        self.assertTrue(wcs.descriptions is not None)
+    def test_wcs_capabilities(self):
+        """ Check that values are initialized by calls to wcs capabilities
+        """
+        self.assertTrue(self.wcs.capabilities is not None)
+
+    def test_wcs_descriptions(self):
+        """ Check that descriptions are pulled in ok
+        """
+        self.assertTrue('AlOH_group_composition' in
+                        self.wcs.descriptions.keys())
+        desc = self.wcs.descriptions['AlOH_group_composition']
+        self.assertTrue(desc.mdatatype == 'wcs:describecoverage')
+
+    def test_layers(self):
+        """ Check that layers are decoded
+        """
+        self.assertTrue('AlOH_group_composition' in self.wcs.layers)
 
 
-class RasterTest(unittest.TestCase):
+class CoverageTest(unittest.TestCase):
 
     def setUp(self):
         test_dir = os.path.dirname(os.path.realpath(__file__))
