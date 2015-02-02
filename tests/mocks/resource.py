@@ -54,7 +54,7 @@ class Resource(object):
             LOGGER.warn(
                 "Warning: Missing a mock file {0} ".format(self.file_path)
                 + "- have you updated the mock resources by running "
-                + "tests/mocks/update.py recently?")
+                + "`python setup.py update_mocks` recently?")
             return httmock.response(404, {}, self.HEADERS, None,
                                     5, self.request)
 
