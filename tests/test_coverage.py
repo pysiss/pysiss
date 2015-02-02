@@ -7,7 +7,7 @@
 """
 
 from pysiss import geospatial, webservices
-from .mocks.resource import mock_resource
+from mocks.resource import mock_resource
 
 import unittest
 import numpy

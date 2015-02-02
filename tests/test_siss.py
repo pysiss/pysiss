@@ -14,7 +14,7 @@ import unittest
 import requests
 
 import pysiss.borehole as pybh
-from .decorators import skip_if_no_network
+from decorators import skip_if_no_network
 
 class SissTest(unittest.TestCase):
 

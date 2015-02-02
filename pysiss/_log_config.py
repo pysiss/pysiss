@@ -1,7 +1,7 @@
 LOG_CONFIG = {
     'version': 1,
     'loggers': {
-        'pysiss': {'handlers': ['console']}
+        'pysiss': {'level': 'CRITICAL', 'handlers': ['console']}
     },
     'formatters': {
         'brief': {'format': "(pysiss) %(module)-8s - %(levelname)-8s" \
@@ -11,6 +11,7 @@ LOG_CONFIG = {
     },
     'handlers': {
         'console': {'class': 'logging.StreamHandler',
-                    'formatter': 'brief', 'stream': 'ext://sys.stdout'}
+                    'formatter': 'brief',
+                    'stream': 'ext://sys.stdout'}
     }
 }

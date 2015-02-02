@@ -11,8 +11,8 @@ from pysiss.webservices import nvcl
 
 import unittest
 from httmock import HTTMock
-from .mocks.resource import mock_resource
-from .mocks.geology import synthetic_borehole
+from mocks.resource import mock_resource
+from mocks.geology import synthetic_borehole
 import logging
 
 

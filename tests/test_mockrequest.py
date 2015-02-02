@@ -6,7 +6,7 @@
     description: Tests for mock Resource class.
 """
 
-from .mocks.resource import Resource
+from mocks.resource import Resource
 
 import unittest
 import simplejson
