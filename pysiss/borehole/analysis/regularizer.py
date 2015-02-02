@@ -44,7 +44,10 @@ def unique(array, return_index=True, sort_method='heapsort', eqtest=None):
     except AttributeError:
         array = numpy.asanyarray(array).flatten()
     if array.size == 0:
-        return array, numpy.empty(0, numpy.bool)
+        if return_index:
+            return array, numpy.empty(0, numpy.bool)
+        else:
+            return array
 
     # Set default equality test
     if eqtest is None:
@@ -65,8 +68,8 @@ def unique(array, return_index=True, sort_method='heapsort', eqtest=None):
 
 
 class ReSampler(scipy.interpolate.InterpolatedUnivariateSpline):
-    """ Resamples a dataset over a given dataset onto a regularly
-        gridded dataset.
+    """ Resamples a signal over a given sampling domain onto a regularly
+        gridded sampling domain.
 
         On initialisation, a spline fit to the signal is generated. Subsequent
         calls to the ReSampler instance will use this spline to generate the
@@ -77,10 +80,10 @@ class ReSampler(scipy.interpolate.InterpolatedUnivariateSpline):
         uniform grid. If you want a non-uniform grid then you might like to
         take a look at that function.
 
-        :param dataset: the locations of each signal value in the dataset.
+        :param sample_locations: the locations of each value in the signal.
             Optional, if `spline` is specified then these signal will be
             ignored.
-        :type dataset: `numpy.ndarray`
+        :type sample_locations: `numpy.ndarray`
         :param signal: the signal evaluated at a given set of points. If
             `spline` is specified then these signal will be ignored.
         :type signal: `numpy.ndarray`
@@ -89,58 +92,55 @@ class ReSampler(scipy.interpolate.InterpolatedUnivariateSpline):
         :type order: `int`
     """
 
-    def __init__(self, dataset, signal, order=3):
+    def __init__(self, sample_locations, signal, order=3):
         """ Initialise the ReSampler instance
         """
         # Check inputs
-        if dataset is None or signal is None:
-            raise ValueError("You must specify both signal and locations to"
-                             " resample signal.")
-        elif len(dataset) != len(signal):
+        if len(sample_locations) != len(signal):
             raise ValueError("DataSet and value arrays are different lengths.")
-        self.dataset, self.signal = dataset, signal
+        self.sample_locations, self.signal = sample_locations, signal
         self.order = order
 
         # Data points must be increasing, perform a sort if not
         sorted_signal, sorted_index = \
-            unique(self.dataset, sort_method='heapsort',
+            unique(self.sample_locations, sort_method='heapsort',
                    eqtest=lambda a, b: (a - b) ** 2 / numpy.abs(a) <= 1e-12)
-        sorted_dataset = self.dataset[sorted_index]
+        sorted_sample = self.sample_locations[sorted_index]
         sorted_signal = self.signal[sorted_index]
 
-        # Get dataset bounds
-        self.dataset_bounds = (sorted_dataset[0], sorted_dataset[-1])
+        # Get sample bounds
+        self.sample_bounds = (sorted_sample[0], sorted_sample[-1])
 
         # Initialise underlying Spline instance
-        scipy.interpolate.InterpolatedUnivariateSpline.__init__(
-            x=sorted_dataset, y=sorted_signal, w=None,
-            bbox=self.dataset_bounds, k=self.order)
+        scipy.interpolate.InterpolatedUnivariateSpline.__init__(self,
+            x=sorted_sample, y=sorted_signal, w=None,
+            bbox=self.sample_bounds, k=self.order)
 
-    def resample(self, nsamples, dataset_bounds=None, derivative=0):
-        """ Generate a resampled dataset.
+    def resample(self, nsamples, sample_bounds=None, derivative=0):
+        """ Generate a resampled signal.
 
             The locations of the resampled points are uniformly distributed
-            over the range specified in `dataset_bounds`, which defaults to
-            the range of dataset values supplied.
+            over the range specified in `sample_bounds`, which defaults to
+            the range of sample values supplied.
 
             :param nsamples: number of resampled points
             :type nsamples: int
-            :param dataset_bounds: the range to resample over, given as a pair
-                `(dmin, dmax)`. Optional - if the dataset_values array not is
+            :param sample_bounds: the range to resample over, given as a pair
+                `(dmin, dmax)`. Optional - if the sample_values array not is
                 specified, this defaults to the max and min of the input data.
-            :type dataset_bounds: 2-tuple of int
+            :type sample_bounds: 2-tuple of int
             :param derivative: The order of derivative to return.
                 `derivative=0` returns the value at x, `derivative=1` the first
                 derivative and so on...
             :type derivative: int
             :returns: Two `numpy.ndarray` of length nsamples containing the
-                resampled dataset and the dataset grid
+                resampled sample and the sample grid
         """
-        if dataset_bounds is None:
-            dataset_bounds = self.dataset_bounds
-        resampled_dataset = numpy.linspace(dataset_bounds[0],
-                                           dataset_bounds[1], nsamples)
+        if sample_bounds is None:
+            sample_bounds = self.sample_bounds
+        resamples = numpy.linspace(sample_bounds[0],
+                                           sample_bounds[1], nsamples)
         resampled_data = \
             scipy.interpolate.InterpolatedUnivariateSpline.__call__(
-                x=resampled_dataset, nu=derivative)
-        return resampled_dataset, resampled_data
+                self, x=resamples, nu=derivative)
+        return resamples, resampled_data

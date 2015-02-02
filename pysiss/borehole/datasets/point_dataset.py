@@ -225,14 +225,6 @@ class PointDataSet(DataSet):
                 for sma, gidx, smb in zip(smeans[:-1], gap_idxs, smeans[1:]):
                     new_values[gidx] = (sma + smb) / 2.
 
-            elif fill_method == 'local median':
-                # local median value in gaps
-                gap_neighbours = zip(sdom_idxs[:-1], gap_idxs, sdom_idxs[1:])
-                for sidxa, gidx, sidxb in gap_neighbours:
-                    new_values[gidx] = numpy.median(numpy.concatenate(
-                        prop.values[sidxa],
-                        prop.values[sidxb]))
-
             else:
                 raise NotImplementedError
 
@@ -261,6 +253,9 @@ class PointDataSet(DataSet):
                     to 1 (i.e. linear interpolation). Values > 0 denote
                     polynomial interpolation, a value of 0 uses nearest-
                     neighbour interpolation.
+
+            ## Todo: This looks pretty similar to the method above - probably
+                     could do with a refactor?
         """
         # We need to identify gaps first
         if self.gaps is None:

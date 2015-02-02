@@ -8,12 +8,14 @@
 """
 
 from pysiss.webservices import nvcl
+from pysiss import borehole
 
 import unittest
 from httmock import HTTMock
 from mocks.resource import mock_resource
 from mocks.geology import synthetic_borehole
 import logging
+import numpy
 
 
 class TestBoreholeFunctional(unittest.TestCase):
@@ -46,8 +48,8 @@ class TestBoreholeFunctional(unittest.TestCase):
         self.assertTrue(data.properties is not None)
 
         # And we can munge this into a Pandas dataframe
-        data = data.to_dataframe()
-        data.head()
+        dframe = data.to_dataframe()
+        dframe.head()
 
 
 class TestBoreholeFunctionalSynthetic(unittest.TestCase):
@@ -93,6 +95,20 @@ class TestBoreholeFunctionalSynthetic(unittest.TestCase):
         new_data = self.sampdom.regularize(npoints=200, degree=2)
         self.assertEqual(len(new_data.depths), 200)
 
+    def test_sampdom_plots(self):
+        """ SampleDataset plotting should work ok
+        """
+        borehole.plotting.plot_point_dataset_data(self.sampdom)
+
+    def test_get_interval(self):
+        """ Test we can get an interval from the point dataset
+        """
+        fdp = self.sampdom.depths.min()
+        tdp = self.sampdom.depths.max()
+        interval = tdp - fdp
+        _ = self.sampdom.get_interval(from_depth=fdp + 0.1 * interval,
+                                      to_depth=tdp - 0.1 * interval)
+
     def test_interval_to_sampling(self):
         """ We should be able to add a new sampling domain ok
         """
@@ -122,10 +138,39 @@ class TestBoreholeFunctionalSynthetic(unittest.TestCase):
         # Regularise geochemistry dataset
         sampdom.split_at_gaps()
         self.assertTrue(sampdom.gaps is not None)
-        resampled = sampdom.regularize(degree=1)
+        sampdom.gaps = None
+
+        # Try some different regularization methods
+        fill_methods = ('interpolate', 'median', 'mean', 'local mean')
+        for degree in (0, 1, 2):
+            for fill_method in fill_methods:
+                resampled = sampdom.regularize(degree=degree,
+                                               fill_method=fill_method)
+
+        # Add dataset to borehole
         self.bh.add_dataset(resampled)
         self.assertTrue(len(self.bh.point_datasets) > 1)
         self.assertTrue(len(sampdom.depths) < len(resampled.depths))
+
+        # Check that unknown method raises NotImplementedError
+        self.assertRaises(NotImplementedError, sampdom.regularize,
+                          degree=1, fill_method='quux')
+
+    def test_resample_degree(self):
+        """ Resampling to specified depths should work ok for a point dataset
+        """
+        fill_methods = ('interpolate', 'median', 'mean', 'local mean')
+
+        for npoints in (1, 10, 100):
+            new_depths = numpy.linspace(self.sampdom.depths[0],
+                                        self.sampdom.depths[-1],
+                                        npoints)
+            for method in fill_methods:
+                for degree in range(4):
+                    result = self.sampdom.resample(new_depths=new_depths,
+                                                   fill_method=method,
+                                                   degree=degree)
+                    self.assertEqual(len(result.depths), npoints)
 
 
 if __name__ == "__main__":
