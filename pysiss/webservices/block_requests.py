@@ -11,7 +11,9 @@ import numpy
 import textwrap
 import requests
 import os
+import logging
 
+LOGGER = logging.getLogger('pysiss')
 
 def make_blocks(lower_corner, upper_corner, nx_blocks, ny_blocks=None):
     """ Subdivide a bbox into a number of smaller bboxes, to improve the
@@ -126,5 +128,5 @@ def post_block_requests(wfsurl, filename,
                 for chunk in response.iter_content(chunk_size=int(1e5)):
                     fhandle.write(chunk)
         else:
-            print 'Request failed for file {1} - {0}'.format(
-                response.status_code, subfilename)
+            LOGGER.error('Request failed for file {1} - {0}'.format(
+                response.status_code, subfilename))

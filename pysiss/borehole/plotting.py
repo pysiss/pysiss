@@ -13,6 +13,9 @@ import matplotlib.pyplot
 import matplotlib.cm
 import matplotlib.collections
 import numpy
+import logging
+
+LOGGER = logging.getLogger('pysiss')
 
 
 def make_figure_grid(nplots, ncols=3, size=6):
@@ -265,7 +268,7 @@ def plot_point_dataset_data(point_dataset, keys_to_plot=None):
                         dataset=point_dataset.depths,
                         orientation='vertical')
         except TypeError:
-            print key
+            LOGGER.warn("Can't plot {0}".format(key))
         axes.set_xlabel("")
         if i == 0:
             axes.set_ylabel('Depth (m)')

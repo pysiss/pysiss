@@ -12,6 +12,9 @@ from .dataset import DataSet
 import numpy
 from scipy.interpolate import InterpolatedUnivariateSpline as Spline
 import pandas
+import logging
+
+LOGGER = logging.getLogger('pysiss')
 
 
 class PointDataSet(DataSet):
@@ -142,9 +145,10 @@ class PointDataSet(DataSet):
         """
         # We need to identify gaps first
         if self.gaps is None:
-            print ("Warning - your dataset hasn't been analysed for gaps yet. "
-                   "I'm going to assume you just want to use the default "
-                   "values")
+            LOGGER.warn(
+                "Warning - your dataset hasn't been analysed for gaps yet. "
+                "I'm going to assume you just want to use the default "
+                "values")
             self.split_at_gaps()
 
        # Specify ident & number of points if not already passed
@@ -182,12 +186,12 @@ class PointDataSet(DataSet):
         for prop in self.properties.values():
             if prop.property_type.isnumeric is False:
                 # We can't interpolate non-numeric data
-                print ("Property {0} in dataset {1} is not numeric so I'm "
-                       "skipping it. If this is a suprise to you, maybe you "
-                       "should check whether you've correctly set the "
-                       "is_numeric flag in the PropertyType class for this "
-                       "property."
-                       ).format(prop.property_type.ident, self.ident)
+                LOGGER.warn((
+                    "Property {0} in dataset {1} is not numeric so I'm "
+                    "skipping it. If this is a suprise to you, maybe you "
+                    "should check whether you've correctly set the "
+                    "is_numeric flag in the PropertyType class for this "
+                    "property.").format(prop.property_type.ident, self.ident))
                 continue
 
             # Generate spline fit if required, else use nearest-neighbours
@@ -260,9 +264,10 @@ class PointDataSet(DataSet):
         """
         # We need to identify gaps first
         if self.gaps is None:
-            print ("Warning - your dataset hasn't been analysed for gaps yet. "
-                   "I'm going to assume you just want to use the default "
-                   "values")
+            LOGGER.warn((
+                "Warning - your dataset hasn't been analysed for gaps yet. "
+                "I'm going to assume you just want to use the default "
+                "values"))
             self.split_at_gaps()
 
        # Specify ident & number of points if not already passed
@@ -296,12 +301,12 @@ class PointDataSet(DataSet):
         for prop in self.properties.values():
             if prop.property_type.isnumeric is False:
                 # We can't interpolate non-numeric data
-                print ("Property {0} in dataset {1} is not numeric so I'm "
-                       "skipping it. If this is a suprise to you, maybe you "
-                       "should check whether you've correctly set the "
-                       "is_numeric flag in the PropertyType class for this "
-                       "property."
-                       ).format(prop.property_type.ident, self.ident)
+                LOGGER.warn((
+                    "Property {0} in dataset {1} is not numeric so I'm "
+                    "skipping it. If this is a suprise to you, maybe you "
+                    "should check whether you've correctly set the "
+                    "is_numeric flag in the PropertyType class for this "
+                    "property.").format(prop.property_type.ident, self.ident))
                 continue
 
             # Generate spline fit if required, else use nearest-neighbours

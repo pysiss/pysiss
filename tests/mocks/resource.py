@@ -11,6 +11,8 @@ import httmock
 import requests
 import logging
 
+LOGGER = logging.getLogger('pysiss')
+
 
 class Resource(object):
 
@@ -49,7 +51,7 @@ class Resource(object):
             return httmock.response(200, content, self.HEADERS, None,
                                     5, self.request)
         except IOError:
-            logging.warn(
+            LOGGER.warn(
                 "Warning: Missing a mock file {0} ".format(self.file_path)
                 + "- have you updated the mock resources by running "
                 + "tests/mocks/update.py recently?")
@@ -67,15 +69,22 @@ class Resource(object):
         if self.session is None:
             self.session = requests.Session()
         response = self.session.send(self.request.prepare())
-        with open(self.file_path, 'wb') as fhandle:
-            fhandle.write(response.content)
+        if response.ok:
+            LOGGER.info("Writing to {0}".format(self.file_path))
+            with open(self.file_path, 'wb') as fhandle:
+                fhandle.write(response.content)
+        else:
+            LOGGER.warn(("Couldn't hit {0}, server returned {1}. "
+                          "Leaving {2} alone.").format(response.url,
+                                                       response.status_code,
+                                                       self.file_path))
 
 
 @httmock.all_requests
 def mock_resource(url, request):
     """ Redirect requests calls to the relevant mock'd Resource object
     """
-    logging.info("Intercepted HTTP request: {0}".format(url))
+    LOGGER.info("Intercepted HTTP request: {0}".format(url))
 
     # Pick out a few things to pass to the Resource class
     try:

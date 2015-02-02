@@ -12,6 +12,8 @@ from setuptools import Command
 import re
 import logging
 
+LOGGER = logging.getLogger('pysiss')
+
 VERSION_PY_TEMPLATE = """\
 # This file is originally generated from Git information by running 'setup.py
 # update_version'. Distribution tarballs contain a pre-generated copy of this
@@ -23,7 +25,8 @@ __version__ = '{0}'
 def update_version():
     # Query git for the current description
     if not os.path.isdir(".git"):
-        print "This does not appear to be a Git repository."
+        LOGGER.warn("This does not appear to be a Git repository, leaving "
+                    "pysiss/_version.py alone.")
         return
     try:
         p = subprocess.Popen(["git", "describe", "--always"],
@@ -36,14 +39,14 @@ def update_version():
             if len(ver) > 1:
                 ver = ver[0] + '.dev' + ver[1]
     except EnvironmentError:
-        logging.exception(
+        LOGGER.warn(
             "Unable to run git, leaving pysiss/_version.py alone")
         return
 
     # Write to file
     current_ver = get_version()
     if current_ver != ver:
-        logging.info("Version {0} out of date, updating to {1}".format(
+        LOGGER.info("Version {0} out of date, updating to {1}".format(
             current_ver, ver))
         with open('pysiss/_version.py', 'wb') as fhandle:
             fhandle.write(VERSION_PY_TEMPLATE.format(ver))
@@ -57,7 +60,7 @@ def get_version():
             for line in (f for f in fhandle if not f.startswith('#')):
                 return re.match("__version__ = '([^']+)'", line).group(1)
     except EnvironmentError:
-        logging.exception(
+        LOGGER.error(
             "Can't find pysiss/_version.py - what's the version, doc?")
         return 'unknown'
 
@@ -81,7 +84,7 @@ class Version(Command):
 
     def run(self):
         update_version()
-        logging.info("Version is now", get_version())
+        LOGGER.info("Version is now", get_version())
 
 if __name__ == '__main__':
     update_version()

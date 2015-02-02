@@ -10,6 +10,8 @@
 from resource import Resource
 import simplejson
 import os
+import logging
+import logging.config
 
 MOCK_CONFIG_FILE = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
@@ -17,17 +19,21 @@ MOCK_CONFIG_FILE = os.path.join(
 
 
 def main():
+    # Set up logging
+    from pysiss._log_config import LOG_CONFIG
+    logging.config.dictConfig(LOG_CONFIG)
+    logger = logging.getLogger('pysiss')
+
 	# Load endpoint data from config file
     with open(MOCK_CONFIG_FILE, 'rb') as fhandle:
         mocks = simplejson.load(fhandle)
 
     # Make Resource objects, and update them
     for idx, (name, mock) in enumerate(mocks.items()):
-        print '{1}: Updating {0}'.format(name, idx + 1)
-        print '   Hitting {0}...'.format(mock['url']),
+        logger.info('Updating {0} from {1}'.format(name, mock['url']))
         res = Resource(**mock)
-        res.update()
-        print 'done\n'
+        result = res.update()
+        logger.info('Finished updating\n')
 
 
 if __name__ == '__main__':

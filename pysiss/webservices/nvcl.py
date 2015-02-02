@@ -16,7 +16,10 @@ import pandas
 import requests
 from lxml import etree
 from StringIO import StringIO
+import logging
 
+
+LOGGER = logging.getLogger('pysiss')
 
 NAMESPACES = NamespaceRegistry()
 DEFAULT_ENDPOINTS = {
@@ -238,7 +241,8 @@ class NVCLImporter(object):
             return analyte_idents
         else:
             raise Exception(
-                'Request for data returned {0}'.format(response.status_code))
+                'Request for NVCL data returned {0}'.format(
+                    response.status_code))
 
     def get_analytes(self, hole_ident, dataset_name, dataset_ident,
                      analyte_idents=None):
@@ -259,7 +263,7 @@ class NVCLImporter(object):
         analyte_ident_dict = self.get_analyte_idents(dataset_ident)
         if len(analyte_ident_dict) == 0:
             # This dataset has no analytes
-            logging.warn('Dataset {0} has no analytes'.format(dataset_ident))
+            LOGGER.warn('Dataset {0} has no analytes'.format(dataset_ident))
             return None
 
         # Generate request URL

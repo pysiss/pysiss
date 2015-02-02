@@ -31,7 +31,8 @@ class TestBoreholeFunctional(unittest.TestSuite):
         # available at this endpoint
         with HTTMock(mock_resource):
             for ident, url in gswa.get_borehole_idents_and_urls().items():
-                print ident, url
+                LOGGER.info('Found data {0} at {1}'.format(
+                            ident, url))
 
         # And we can get all the datasets as a Borehole instance
         with HTTMock(mock_resource):

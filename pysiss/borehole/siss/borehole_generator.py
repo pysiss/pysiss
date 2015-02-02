@@ -269,7 +269,7 @@ class SISSBoreholeGenerator(object):
             details_elt.find(cored_interval_xpath.format(NS[self.ns_key],
                                                          GML_NS[self.ns_key]))
         cored_interval_units = \
-            self.unit_reg[cored_interval_elt.attrib['uomLabels']]
+            self.unit_reg(cored_interval_elt.attrib['uomLabels'])
 
         cored_interval_lower_corner = \
             _element_text(cored_interval_elt,
