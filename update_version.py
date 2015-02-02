@@ -10,6 +10,7 @@ import subprocess
 import os
 from setuptools import Command
 import re
+import logging
 
 VERSION_PY_TEMPLATE = """\
 # This file is originally generated from Git information by running 'setup.py
@@ -35,14 +36,15 @@ def update_version():
             if len(ver) > 1:
                 ver = ver[0] + '.dev' + ver[1]
     except EnvironmentError:
-        print "Unable to run git, leaving pysiss/_version.py alone"
+        logging.exception(
+            "Unable to run git, leaving pysiss/_version.py alone")
         return
 
     # Write to file
     current_ver = get_version()
     if current_ver != ver:
-        print "Version {0} out of date, updating to {1}".format(
-            current_ver, ver)
+        logging.info("Version {0} out of date, updating to {1}".format(
+            current_ver, ver))
         with open('pysiss/_version.py', 'wb') as fhandle:
             fhandle.write(VERSION_PY_TEMPLATE.format(ver))
 
@@ -55,7 +57,8 @@ def get_version():
             for line in (f for f in fhandle if not f.startswith('#')):
                 return re.match("__version__ = '([^']+)'", line).group(1)
     except EnvironmentError:
-        print "Can't find pysiss/_version.py - what's the version, doc?"
+        logging.exception(
+            "Can't find pysiss/_version.py - what's the version, doc?")
         return 'unknown'
 
 
@@ -78,7 +81,7 @@ class Version(Command):
 
     def run(self):
         update_version()
-        print "Version is now", get_version()
+        logging.info("Version is now", get_version())
 
 if __name__ == '__main__':
     update_version()
