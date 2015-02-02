@@ -1,0 +1,21 @@
+{
+    "getcapabilities": {
+        "service": "wcs",
+        "request": "getcapabilities"
+    },
+    "describecoverage": {
+        "service": "wcs",
+        "request": "describecoverage",
+        "version": "1.1.0",
+        "identifier": "@ident"
+    },
+    "getcoverage": {
+        "service": "wcs",
+        "request": "getcoverage",
+        "version": "1.1.0",
+        "identifier": "@ident",
+        "?bbox": ["@min_x", "@max_x", "@min_y", "@max_y", "@projection"],
+        "?time": ["@min_t", "@max_t"],
+        "?format": "@format"
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "get": {
+        "getcapabilities": {
+            "service": "wcs",
+            "request": "getcapabilities"
+    },
+    "describecoverage": {},
+    "getcoverage": {}
+}

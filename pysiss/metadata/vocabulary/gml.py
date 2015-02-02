@@ -13,12 +13,20 @@ from shapely.geometry import Polygon, LineString
 NAMESPACES = NamespaceRegistry()
 
 
-def position(elem):
+def poslist(elem):
     """ Unmarshal a gml:posList, gml:pos or gml:coordinates element
     """
     if elem.text:
         token_pairs = elem.text.split('\n')[1:-1]
         return [map(float, p.split()) for p in token_pairs]
+    else:
+        return None
+
+def position(elem):
+    """ Unmarshal a gml:position element
+    """
+    if elem.text:
+        return map(float, elem.text.split())
     else:
         return None
 
@@ -70,12 +78,12 @@ def description(elem):
 
 
 UNMARSHALLERS = {
-    'gml:posList': position,
+    'gml:posList': poslist,
     'gml:pos': position,
-    'gml:coordinates': position,
+    'gml:coordinates': poslist,
     'gml:Polygon': polygon,
     'gml:LineString': linestring,
     'gml:description': description,
 }
 
-__all__ = ['position', 'polygon', 'linestring', 'UNMARSHALLERS']
+__all__ = ['position', 'poslist', 'polygon', 'linestring', 'UNMARSHALLERS']

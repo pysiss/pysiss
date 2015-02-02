@@ -6,7 +6,8 @@
     description: Wrapper functionality for unmarshalling XML elements
 """
 
-from ..namespaces import shorten_namespace, expand_namespace
+from ..namespaces import shorten_namespace, expand_namespace, \
+    NamespaceRegistry
 from ..regularize import regularize
 from . import gml, gsml, erml, wcs, wfs, csw
 
@@ -19,6 +20,8 @@ UNMARSHALLERS.update(erml.UNMARSHALLERS)
 UNMARSHALLERS.update(wcs.UNMARSHALLERS)
 UNMARSHALLERS.update(wfs.UNMARSHALLERS)
 UNMARSHALLERS.update(csw.UNMARSHALLERS)
+
+NAMESPACES = NamespaceRegistry()
 
 
 def unmarshal(elem):
@@ -35,14 +38,16 @@ def unmarshal(elem):
         return None
 
 
-def unmarshal_all(tree, tag):
-    """ Unmarshal all instances of <tag> in a tree
+def unmarshal_all(tree, query):
+    """ Unmarshal all instances returned by xpath query in a tree
+
+        Parameters:
+            tree - an lxml.etree instance to search over
+            query - an xpath query to select elements
     """
-    rtag = regularize(tag)
     results = []
-    for elem in tree.iter():
-        if regularize(elem.tag) == rtag:
-            results.append(unmarshal(elem))
+    for elem in tree.xpath(query, namespaces=NAMESPACES):
+        results.append(unmarshal(elem))
     return results
 
 def unmarshal_all_from_file(filename, tag='gsml:MappedFeature'):

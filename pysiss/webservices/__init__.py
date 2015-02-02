@@ -8,7 +8,7 @@
 """
 
 import nvcl
-from .coverageservice import CoverageService
+from .ogc import CoverageService
 from .block_requests import make_blocks, post_block_requests
 
 __all__ = ['nvcl', 'CoverageService',

@@ -86,6 +86,44 @@ class TestRasterCoverage(unittest.TestCase):
                               self.wcs._make_payload,
                               'describecoverage')
 
+    def test_get_coverage_ident(self):
+        """ Passing borked ident should raise ValueError
+        """
+        self.assertRaises(ValueError,
+                          self.wcs.get_coverage,
+                          bounds=BOUNDS,
+                          ident='quux')
+
+    def test_get_coverage_bbox(self):
+        """ Passing a borked projection should raise a ValueError
+        """
+        self.assertRaises(ValueError,
+                          self.wcs.get_coverage,
+                          bounds=BOUNDS,
+                          ident='AlOH_group_composition',
+                          projection='quux')
+
+    def test_get_coverage_format_borked(self):
+        """ Passing a borked output format should raise a ValueError
+        """
+        self.assertRaises(ValueError,
+                  self.wcs.get_coverage,
+                  bounds=BOUNDS,
+                  ident='AlOH_group_composition',
+                  output_format='quux')
+
+    def test_coverage(self):
+        """ Getting a coverage should work ok
+        """
+        coverage = \
+            self.wcs.get_coverage(ident='AlOH_group_composition',
+                                  bounds=BOUNDS,
+                                  output_format='GeoTIFF_Float')
+        self.assertTrue(coverage.ident is not None)
+        self.assertTrue(coverage.metadata is not None)
+        self.assertTrue(coverage.projection is not None)
+        self.assertTrue(numpy.allclose(coverage.bounds, BOUNDS))
+
 
 class CoverageTest(unittest.TestCase):
 
@@ -104,5 +142,4 @@ class CoverageTest(unittest.TestCase):
         self.assertTrue(self.raster.ident is not None)
         self.assertTrue(self.raster.metadata is not None)
         self.assertTrue(self.raster.projection is not None)
-        self.assertTrue(numpy.allclose(self.raster.bounds,
-                                       BOUNDS))
+        self.assertTrue(numpy.allclose(self.raster.bounds, BOUNDS))
