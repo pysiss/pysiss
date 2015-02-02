@@ -11,12 +11,15 @@ from .mocks.resource import Resource
 import unittest
 import simplejson
 import httmock
+import os
 
 
 class TestResource(unittest.TestCase):
 
     def setUp(self):
-        with open('mocks.json', 'rb') as fhandle:
+        fname = os.path.join(os.path.dirname(__file__),
+                             'mocks', 'mocks.json')
+        with open(fname, 'rb') as fhandle:
             self.mocks = simplejson.load(fhandle)
         self.test_key, self.test_endpoint = self.mocks.items()[0]
 
@@ -31,9 +34,7 @@ class TestResource(unittest.TestCase):
     def test_wrong_url(self):
         """ Resource should return a 404 on error
         """
-        wrong_params = {'quux': 'foobar'}
-        wrong_params.update(self.test_endpoint.params)
+        self.test_endpoint['params'] = {'quux': 'foobar'}
         resource = Resource(**self.test_endpoint)
-        resource.params.update({'quux': 'foobar'})
         response = resource.response()
         self.assertTrue(response.status_code == 404)

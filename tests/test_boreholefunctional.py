@@ -13,8 +13,7 @@ import unittest
 from httmock import HTTMock
 from .mocks.resource import mock_resource
 from .mocks.geology import synthetic_borehole
-
-__all__ = ['TestBoreholeFunctional', 'TestBoreholeFunctionalSynthetic']
+import logging
 
 
 class TestBoreholeFunctional(unittest.TestCase):
@@ -28,13 +27,13 @@ class TestBoreholeFunctional(unittest.TestCase):
         # If you don't know what endpoints are available, you can instantiate
         # an NVCL endpoint registry, and see what's available
         registry = nvcl.NVCLEndpointRegistry()
-        gswa = nvcl.NVCLImporter(registry['GSWA'])
+        gswa = nvcl.NVCLImporter('GSWA')
 
         # So we can query the importer to find out what boreholes are
         # available at this endpoint
         with HTTMock(mock_resource):
             for ident, url in gswa.get_borehole_idents_and_urls().items():
-                LOGGER.info('Found data {0} at {1}'.format(
+                logging.info('Found data {0} at {1}'.format(
                             ident, url))
 
         # And we can get all the datasets as a Borehole instance
@@ -50,9 +49,6 @@ class TestBoreholeFunctional(unittest.TestCase):
         data = data.to_dataframe()
         data.head()
 
-        # Try some groupby operations on the data
-        counts = data.groupby(['Grp1sTSAS']).agg(len).ix[:,0]
-
 
 class TestBoreholeFunctionalSynthetic(unittest.TestCase):
 
@@ -61,20 +57,20 @@ class TestBoreholeFunctionalSynthetic(unittest.TestCase):
 
     def setUp(self):
         self.bh = synthetic_borehole()
-        self.intdom = bh.interval_datasets['geochemistry']
+        self.intdom = self.bh.interval_datasets['geochemistry']
 
         # Convert geochemistry IntervalDataSet to SamplingDataSet
         midpoints = (self.intdom.from_depths
                      + self.intdom.to_depths) / 2.
-        self.sampdom = bh.add_point_dataset('geochemistry', midpoints)
+        self.sampdom = self.bh.add_point_dataset('geochemistry', midpoints)
         for prop in self.intdom.properties.values():
             self.sampdom.add_property(prop.property_type, prop.values)
 
     def test_init(self):
         """ Borehole should have some basic bits available
         """
-        self.assertTrue(len(bh.interval_datasets) > 0)
-        self.assertTrue(len(intdom.from_depths) > 0)
+        self.assertTrue(len(self.bh.interval_datasets) > 0)
+        self.assertTrue(len(self.intdom.from_depths) > 0)
 
     def test_intdom_split_at_gaps(self):
         """ Split_at_gaps should work ok
@@ -95,7 +91,7 @@ class TestBoreholeFunctionalSynthetic(unittest.TestCase):
         self.sampdom.gaps = None
         _ = self.sampdom.regularize(degree=2)
         new_data = self.sampdom.regularize(npoints=200, degree=2)
-        self.assertEqual(len(new_data) == 200)
+        self.assertEqual(len(new_data.depths), 200)
 
     def test_interval_to_sampling(self):
         """ We should be able to add a new sampling domain ok
@@ -103,8 +99,8 @@ class TestBoreholeFunctionalSynthetic(unittest.TestCase):
         # Convert geochemistry IntervalDataSet to SamplingDataSet
         midpoints = (self.intdom.from_depths
                      + self.intdom.to_depths) / 2.
-        sampdom = bh.add_point_dataset('geochemistry', midpoints)
-        self.assertTrue(len(self.bh.sampling_datasets) > 0)
+        sampdom = self.bh.add_point_dataset('geochemistry', midpoints)
+        self.assertTrue(len(self.bh.point_datasets) > 0)
         for prop in self.intdom.properties.values():
             sampdom.add_property(prop.property_type, prop.values)
 
@@ -118,8 +114,8 @@ class TestBoreholeFunctionalSynthetic(unittest.TestCase):
         # Convert geochemistry IntervalDataSet to SamplingDataSet
         midpoints = (self.intdom.from_depths
                      + self.intdom.to_depths) / 2.
-        sampdom = bh.add_point_dataset('geochemistry', midpoints)
-        self.assertTrue(len(self.bh.sampling_datasets) > 0)
+        sampdom = self.bh.add_point_dataset('geochemistry', midpoints)
+        self.assertTrue(len(self.bh.point_datasets) > 0)
         for prop in self.intdom.properties.values():
             sampdom.add_property(prop.property_type, prop.values)
 
@@ -127,9 +123,9 @@ class TestBoreholeFunctionalSynthetic(unittest.TestCase):
         sampdom.split_at_gaps()
         self.assertTrue(sampdom.gaps is not None)
         resampled = sampdom.regularize(degree=1)
-        bh.add_dataset(resampled)
-        self.assertTrue(len(bh.sampling_datasets) > 1)
-        self.assertEqual(len(samdom.depths), len(resampled.depths))
+        self.bh.add_dataset(resampled)
+        self.assertTrue(len(self.bh.point_datasets) > 1)
+        self.assertTrue(len(sampdom.depths) < len(resampled.depths))
 
 
 if __name__ == "__main__":

@@ -7,6 +7,8 @@
         based on Poisson arrival processes.
 """
 
+from pysiss import borehole
+
 import numpy
 import scipy.stats
 
@@ -88,7 +90,9 @@ def synthetic_borehole():
                                         for n, i in rock_column_spec])
 
     # Generate some random depths with some gaps
-    depth_differences = abs(numpy.random.normal(scale=3, size=rock_column.shape[1] + 1))
+    depth_differences = \
+        abs(numpy.random.normal(scale=3,
+                                size=rock_column_samples.shape[1] + 1))
     depth_differences[100] = 50
     depth_differences[197] = 24
     depths = numpy.cumsum(depth_differences)
@@ -96,11 +100,11 @@ def synthetic_borehole():
     to_depths = numpy.minimum(depths[:-1] + 10, depths[1:])
 
     # Wrap it up into a borehole object
-    bh = pysiss.borehole.Borehole(
+    bh = borehole.Borehole(
         ident='quux',
         origin_position=None)
     dataset = bh.add_interval_dataset('geochemistry', from_depths, to_depths)
     for ident, values in zip(component_labels, rock_column_samples):
-        ptype = pysiss.borehole.PropertyType(ident=ident)
+        ptype = borehole.PropertyType(ident=ident)
         dataset.add_property(ptype, values)
     return bh
