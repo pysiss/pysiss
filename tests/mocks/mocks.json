@@ -44,6 +44,88 @@
         },
         "data": ""
     },
+    "tests.test_nvcl.test_usage_3a": {
+        "url": "http://geossdi.dmp.wa.gov.au/resource/feature/gswa/borehole/pdp2c",
+        "method": "get",
+        "params": {},
+        "data": ""
+    },
+    "tests.test_nvcl.test_usage_3b": {
+        "url": "http://geossdi.dmp.wa.gov.au/NVCLDataServices/getDatasetCollection.html",
+        "method": "get",
+        "params": {
+            "holeidentifier": "PDP2C"
+        },
+        "data": ""
+    },
+    "tests.test_nvcl.test_usage_3c": {
+        "url": "http://geossdi.dmp.wa.gov.au/NVCLDataServices/getLogCollection.html",
+        "method": "get",
+        "params": {
+            "datasetid": "7c67604f-716c-421d-8356-2dacec40d39",
+            "mosaicsvc": "no"
+        },
+        "data": ""
+    },
+    "tests.test_nvcl.test_usage_3d": {
+        "url": "http://geossdi.dmp.wa.gov.au/NVCLDataServices/getLogCollection.html",
+        "method": "get",
+        "params": {
+            "datasetid": "e44f0569-2964-4f52-9643-aa99763e076",
+            "mosaicsvc": "no"
+        },
+        "data": ""
+    },
+    "tests.test_nvcl.test_usage_3e": {
+        "url": "http://geossdi.dmp.wa.gov.au/NVCLDataServices/getLogCollection.html",
+        "method": "get",
+        "params": {
+            "datasetid": "fde32851-c713-42df-b578-44bf889e6ce",
+            "mosaicsvc": "no"
+        },
+        "data": ""
+    },
+    "tests.test_nvcl.test_usage_3f": {
+        "url": "http://geossdi.dmp.wa.gov.au/NVCLDataServices/downloadscalars.html",
+        "method": "get",
+        "params": {
+            "logid": "b055f736-22ac-4792-9d00-53a5e743dbf",
+            "logid": "97aca126-a799-472e-816a-c92561581e7",
+            "logid": "1ffc1209-4992-46b5-bbc4-e055016077c",
+            "logid": "1420f100-a069-4e7b-86d7-c714b614c47",
+            "logid": "7adfdccc-0be0-45d3-8ff6-a9b64b9b487",
+            "logid": "db3ec7c8-a2dd-44fc-912e-7610e4c03ff",
+            "logid": "9824b77a-d66e-4bce-b7ba-2c3b89e317e",
+            "logid": "b4da20fb-fdf0-4136-8b84-ea07f2dcdf7",
+            "logid": "f4af07b3-c34c-4538-aaaf-01b44727427",
+            "logid": "58aaa32d-1590-45ed-b483-eec699d995b",
+            "logid": "a1c2c86b-efef-48e2-9d81-95078bfea4c",
+            "logid": "c8ffe79f-615a-4ca4-b284-a4ef58203cb",
+            "logid": "f7760238-440a-4084-bbb9-82612edada4",
+            "logid": "ae959d63-64f6-414d-bd18-ad1869eee13",
+            "logid": "f057c849-52b6-4167-924b-dcefe4facfd",
+            "logid": "5213fced-ac77-41c6-80bb-b2b967766d6",
+            "logid": "2cc9d60d-ce1f-4a70-a1a6-f9c24d1acdf",
+            "logid": "7e089df3-71fb-4fb9-8f03-aba2964f6ed",
+            "logid": "935876c8-f5ba-403c-a5bd-e0e5cd9f9b1",
+            "logid": "8d5bb341-dd93-4401-ab38-51e57867098",
+            "logid": "73cfb252-3e9d-48d9-9735-fc5a58c8e7f",
+            "logid": "3ec71863-06c4-4f1b-a05d-e542af3074c",
+            "logid": "c72a4321-2e09-4800-b619-f66dbf73e22",
+            "logid": "0d316dee-abc6-4839-a481-b858567d9d2",
+            "logid": "f41b6f6b-4ef2-4687-8a97-ff6c501cccd",
+            "logid": "4a0eae14-3768-4a71-ac4e-418547e490f",
+            "logid": "b3007fd6-0b1e-4b94-9438-1132aecfd8c",
+            "logid": "83e0d986-18bb-4008-a0ef-72f17926b90",
+            "logid": "f8e22950-98fa-40d6-ab87-bb97a7c8da0",
+            "logid": "ec27ce7e-539e-4905-80fc-37bfb2e4815",
+            "logid": "393f602b-c177-4e3f-9e43-8b6f05236e8",
+            "logid": "8acb5cfc-f579-4a0c-98ff-76d05e22409",
+            "logid": "881381b3-89b4-4219-bb72-821430b217b",
+            "logid": "7a893db1-0094-46ba-ad49-02ddbfc115e"
+        },
+        "data": ""
+    },
     "tests.test_raster.capabilities": {
         "url": "http://aster.nci.org.au/thredds/wcs/aster/vnir/Aus_Mainland/Aus_Mainland_AlOH_group_composition_reprojected.nc4",
         "method": "get",

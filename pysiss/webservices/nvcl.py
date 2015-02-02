@@ -259,15 +259,14 @@ class NVCLImporter(object):
         analyte_ident_dict = self.get_analyte_idents(dataset_ident)
         if len(analyte_ident_dict) == 0:
             # This dataset has no analytes
-            print 'Warning, dataset {0} has no analytes'.format(dataset_ident)
+            logging.warn('Dataset {0} has no analytes'.format(dataset_ident))
             return None
 
         # Generate request URL
         if analyte_idents is None:
             analyte_idents = analyte_ident_dict.values()
         url = self.urls['dataurl'] + 'downloadscalars.html?'
-        for ident in analyte_idents:
-            url += '&logid={0}'.format(ident)
+        url += '&'.join(['logid={0}'.format(i) for i in analyte_idents])
         response = requests.get(url)
         if not response.ok:
             raise IOError("Can't get analytes for borehole {0}, dataset {1}; "
@@ -276,7 +275,7 @@ class NVCLImporter(object):
                                                        response.status_code))
 
         # We'll use pandas to slurp the csv direct from the web service
-        analytedata = pandas.read_csv(response.content)
+        analytedata = pandas.read_csv(StringIO(response.content))
         startcol = 'StartDepth'
         endcol = 'EndDepth'
         analytecols = [k for k in analytedata.keys()

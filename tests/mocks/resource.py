@@ -9,6 +9,8 @@
 import os
 import httmock
 import requests
+import logging
+
 
 class Resource(object):
 
@@ -47,8 +49,10 @@ class Resource(object):
             return httmock.response(200, content, self.HEADERS, None,
                                     5, self.request)
         except IOError:
-            print "Warning: Missing a mock file - have you updated the mock "\
-                  "resource by running tests/mocks/update.py recently?"
+            logging.warn(
+                "Warning: Missing a mock file {0} ".format(self.file_path)
+                + "- have you updated the mock resources by running "
+                + "tests/mocks/update.py recently?")
             return httmock.response(404, {}, self.HEADERS, None,
                                     5, self.request)
 
@@ -71,7 +75,7 @@ class Resource(object):
 def mock_resource(url, request):
     """ Redirect requests calls to the relevant mock'd Resource object
     """
-    print "intercepted {0}".format(url)
+    logging.info("Intercepted HTTP request: {0}".format(url))
 
     # Pick out a few things to pass to the Resource class
     try:

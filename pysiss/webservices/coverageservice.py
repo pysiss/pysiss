@@ -13,6 +13,7 @@ import requests
 from lxml import etree
 import simplejson
 import pkg_resources
+import logging
 
 
 class CoverageService(id_object):
@@ -162,7 +163,8 @@ class CoverageService(id_object):
         missing = [k for k in required_keywords
                    if k not in kwargs.keys()]
         if missing:
-            print 'Bailing on {0} request'.format(request)
+            logging.exception('Bailing on build of {0} request: missing '
+                             'keywords {1}'.format(request, missing))
             raise KeyError(("Missing keyword(s) {0} required to construct "
                             "payload for WCS request").format(
                                 map(lambda s: s.lstrip('@'), missing)))
