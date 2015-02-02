@@ -14,12 +14,15 @@ from httmock import HTTMock
 from .mocks.resource import mock_resource
 from .mocks.geology import synthetic_borehole
 
-class TestBoreholeFunctional(unittest.TestSuite):
+__all__ = ['TestBoreholeFunctional', 'TestBoreholeFunctionalSynthetic']
+
+
+class TestBoreholeFunctional(unittest.TestCase):
 
     """ Functional tests to demonstrate Borehole usage
     """
 
-    def test_borehole_functional():
+    def test_borehole_functional(self):
         """ Functional test using borehole data
         """
         # If you don't know what endpoints are available, you can instantiate
@@ -50,28 +53,51 @@ class TestBoreholeFunctional(unittest.TestSuite):
         # Try some groupby operations on the data
         counts = data.groupby(['Grp1sTSAS']).agg(len).ix[:,0]
 
-class TestBoreholeFunctionalSynthetic(unittest.TestSuite):
+
+class TestBoreholeFunctionalSynthetic(unittest.TestCase):
 
     """ Test some stuff with boreholes using some confected data
     """
 
-    def setUp():
+    def setUp(self):
         self.bh = synthetic_borehole()
         self.intdom = bh.interval_datasets['geochemistry']
 
-    def test_init():
+        # Convert geochemistry IntervalDataSet to SamplingDataSet
+        midpoints = (self.intdom.from_depths
+                     + self.intdom.to_depths) / 2.
+        self.sampdom = bh.add_point_dataset('geochemistry', midpoints)
+        for prop in self.intdom.properties.values():
+            self.sampdom.add_property(prop.property_type, prop.values)
+
+    def test_init(self):
         """ Borehole should have some basic bits available
         """
         self.assertTrue(len(bh.interval_datasets) > 0)
         self.assertTrue(len(intdom.from_depths) > 0)
 
-    def test_intdom_split_at_gaps():
+    def test_intdom_split_at_gaps(self):
         """ Split_at_gaps should work ok
         """
         self.intdom.split_at_gaps()
         self.assertTrue(self.intdom.gaps is not None)
 
-    def test_interval_to_sampling():
+    def test_sampdom_split_at_gaps(self):
+        """ Split_at_gaps should work ok
+        """
+        self.sampdom.split_at_gaps()
+        self.assertTrue(self.sampdom.gaps is not None)
+
+    def test_sampdom_reglarize(self):
+        """ Regularize should work ok
+        """
+        # Should also work if gaps not found
+        self.sampdom.gaps = None
+        _ = self.sampdom.regularize(degree=2)
+        new_data = self.sampdom.regularize(npoints=200, degree=2)
+        self.assertEqual(len(new_data) == 200)
+
+    def test_interval_to_sampling(self):
         """ We should be able to add a new sampling domain ok
         """
         # Convert geochemistry IntervalDataSet to SamplingDataSet
@@ -86,7 +112,7 @@ class TestBoreholeFunctionalSynthetic(unittest.TestSuite):
         for key in self.intdom.properties.keys():
             self.assertTrue(key in sampdom.properties.keys())
 
-    def test_regularization():
+    def test_regularization(self):
         """ Regularization should work ok for dataset
         """
         # Convert geochemistry IntervalDataSet to SamplingDataSet
@@ -104,3 +130,7 @@ class TestBoreholeFunctionalSynthetic(unittest.TestSuite):
         bh.add_dataset(resampled)
         self.assertTrue(len(bh.sampling_datasets) > 1)
         self.assertEqual(len(samdom.depths), len(resampled.depths))
+
+
+if __name__ == "__main__":
+    unittest.main()

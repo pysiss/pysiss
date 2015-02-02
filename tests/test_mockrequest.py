@@ -13,7 +13,7 @@ import simplejson
 import httmock
 
 
-class TestResource(unittest.TestSuite):
+class TestResource(unittest.TestCase):
 
     def setUp(self):
         with open('mocks.json', 'rb') as fhandle:

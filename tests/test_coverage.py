@@ -21,7 +21,7 @@ WCSURL = ('http://aster.nci.org.au/thredds/wcs/aster/vnir/'
 TEST_FILE = '{0}/resources/AlOH_group_composition.geotiff'
 
 
-class WCSTest(unittest.TestCase):
+class TestRasterCoverage(unittest.TestCase):
 
     # testversions = ('1.0.0', '1.1.0', '2.0.0')
     testversions = ('1.0.0', '1.1.0')
