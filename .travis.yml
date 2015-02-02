@@ -33,8 +33,7 @@ install:
 
 # Command to run tests
 script:
-  - echo "pySISS version: `python -c 'import pysiss; print pysiss.__version__'`"
-  - coverage run --source pysiss --omit='tests/mock' setup.py test
+  - coverage run --source pysiss run_test.py
 
 after_success:
   - coveralls
