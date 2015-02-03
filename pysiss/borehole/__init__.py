@@ -13,8 +13,6 @@ from .properties import Property, PropertyType
 from pysiss.borehole.siss.borehole_generator import SISSBoreholeGenerator
 from . import plotting, analysis
 
-__all__ = [Borehole, Feature,
-           DataSet, PointDataSet, IntervalDataSet,
-           Property, PropertyType,
-           SISSBoreholeGenerator,
-           plotting, analysis]
+__all__ = ['Borehole', 'Feature', 'DataSet', 'PointDataSet', 'IntervalDataSet',
+           'Property', 'PropertyType', 'SISSBoreholeGenerator', 'plotting',
+           'analysis']

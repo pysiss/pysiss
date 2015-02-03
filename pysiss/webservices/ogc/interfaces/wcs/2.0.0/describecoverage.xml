@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wcs:DescribeCoverage
+  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+  xsi:schemaLocation="http://www.opengis.net/wcs/2.0
+    http://schemas.opengis.net/wcs/2.0/wcsAll.xsd"
+  xmlns="http://www.opengis.net/wcs/2.0"
+  xmlns:wcs="http://www.opengis.net/wcs/2.0"
+  service="WCS"
+  version={version}>
+  <wcs:CoverageId>{ident}</wcs:CoverageId>
+</wcs:DescribeCoverage>

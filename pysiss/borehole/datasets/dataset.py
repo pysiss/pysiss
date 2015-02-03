@@ -21,26 +21,26 @@ class DataSet(id_object):
         This is an abstract base class
 
         Some important properties are:
-            properties - dict mapping property name to Property
+            properties - dict mapping property ident to Property
             size - the size of all the values sequences
-            name - an identifier
+            ident - an identifier
             subdatasets - a list of subdataset locations
             gaps - a list of gap locations
             details - the metadata associated with this dataset
 
-        :param name: an identifier for the dataset
-        :type name: string
+        :param ident: an identifier for the dataset
+        :type ident: string
         :param size: The number of items in the dataset
         :type size: int
         :param details: Metadata for a given dataset.
         :type details: pysiss.borehole.datasets.DatasetDetails
     """
 
-    def __init__(self, name, size, details=None):
+    def __init__(self, ident, size, details=None):
         assert size > 0, "dataset must have at least one element"
         self.properties = dict()
         self.size = size  # size of all values sequences
-        self.name = name
+        self.ident = ident
         self.subdatasets = None
         self.gaps = None
         self.details = details
@@ -50,10 +50,10 @@ class DataSet(id_object):
         """
         assert self.size == len(values), ("values must have the same number "
                                           "of elements as the dataset")
-        self.properties[property_type.name] = Property(property_type, values)
-        return self.properties[property_type.name]
+        self.properties[property_type.ident] = Property(property_type, values)
+        return self.properties[property_type.ident]
 
-    def get_property_names(self):
+    def get_property_idents(self):
         """ Return the properties defined over this dataset
         """
         return self.properties.keys()
@@ -61,7 +61,7 @@ class DataSet(id_object):
     def to_dataframe(self):
         """ Tranform the data in the dataset into a Pandas dataframe.
         """
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class DatasetDetails(Details):
@@ -69,4 +69,4 @@ class DatasetDetails(Details):
     """ Class to store metadata about a dataset
     """
 
-    detail_type = detail_type('BoreholeDetail', 'name values property_type')
+    detail_type = detail_type('BoreholeDetail', 'ident values property_type')

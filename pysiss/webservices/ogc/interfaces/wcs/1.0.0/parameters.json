@@ -1,0 +1,55 @@
+{
+    "getcapabilities": {
+        "service": "wcs",
+        "request": "getcapabilities",
+        "acceptversions": "2.0.0,1.1.0,1.0.0",
+        "acceptformats": "text/xml"
+    },
+    "describecoverage": {
+        "service": "wcs",
+        "request": "describecoverage",
+        "version": "1.0.0",
+        "coverage": "@ident"
+    },
+    "getcoverage": {
+        "service": "wcs",
+        "request": "getcoverage",
+        "version": "1.0.0",
+        "coverage": "@ident",
+        "format": "@format",
+        "?crs": "@projection",
+        "?bbox": {
+            "string": "{minlongitude},{minlatitude},{maxlongitude},{maxlatitude}",
+            "minlongitude": "@minlongitude",
+            "maxlongitude": "@maxlongitude",
+            "minlatitude": "@minlatitude",
+            "maxlatitude": "@maxlatitude"
+        },
+        "?bbox": {
+            "string": "{longitude},{minlatitude},{longitude},{maxlatitude}",
+            "longitude": "@longitude",
+            "minlatitude": "@minlatitude",
+            "maxlatitude": "@maxlatitude"
+        },
+        "?bbox": {
+            "string": "{longitude},{latitude},{longitude},{latitude}",
+            "longitude": "@longitude",
+            "latitude": "@latitude"
+        },
+        "?bbox": {
+            "string": "{minlongitude},{latitude},{maxlongitude},{latitude}",
+            "minlongitude": "@minlongitude",
+            "maxlongitude": "@maxlongitude",
+            "latitude": "@latitude"
+        },
+        "?time": {
+            "string": "{mintime},{maxtime}",
+            "mintime": "@mintime",
+            "maxtime": "@maxtime"
+        },
+        "?time": {
+            "string": "{time},{time}",
+            "time": "@time"
+        }
+    }
+}

@@ -7,10 +7,15 @@
     description: Plotting for the pysiss.borehole module.
 """
 
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot
 import matplotlib.cm
 import matplotlib.collections
 import numpy
+import logging
+
+LOGGER = logging.getLogger('pysiss')
 
 
 def make_figure_grid(nplots, ncols=3, size=6):
@@ -23,21 +28,6 @@ def make_figure_grid(nplots, ncols=3, size=6):
     axeses = [matplotlib.pyplot.subplot(nrows, ncols, i + 1)
               for i in range(nplots)]
     return fig, axeses
-
-
-def plot_variable(axes, variable, cmap=None):
-    """ Generate a single image of a wavelet transform
-    """
-    if cmap is None:
-        cmap = matplotlib.cm.get_cmap('Paired')
-    axes.imshow(variable.T, cmap=cmap, interpolation='nearest')
-    axes.set_aspect(variable.shape[0] / float(variable.shape[1]))
-    axes.set_xlabel(r"Fourier Scale $\lambda_{i}$")
-    axes.set_xticklabels([''])
-    axes.set_xticks([])
-    axes.set_ylabel(r"DataSet $x_{i}$")
-    axes.set_yticklabels([''])
-    axes.set_yticks([])
 
 
 def plot_difference(axes, dataset, observed_value, expected_value,
@@ -159,87 +149,6 @@ def plot_signal(axes, dataset, signal, orientation='horizontal'):
                          'vertical"')
 
 
-def plot_connection_graph(embedding, correlations, names, cluster_labels):
-    """ Plots a connection graph in 2D given an embedding and a correlation
-        matrix.
-    """
-    # Plot the nodes using the coordinates of our embedding
-    axes = matplotlib.pyplot.gca()
-    axes.scatter(embedding[0], embedding[1],
-                 c=cluster_labels,
-                 cmap=matplotlib.cm.get_cmap('Spectral'))
-
-    # Plot the edges - a sequence of (*line0*, *line1*, *line2*), where
-    #            linen = (x0, y0), (x1, y1), ... (xm, ym)
-    non_zero = numpy.logical_not(correlations.mask)
-    start_idx, end_idx = numpy.where(non_zero)
-    segments = [[embedding[:, start], embedding[:, stop]]
-                for start, stop in zip(start_idx, end_idx)]
-    values = correlations[non_zero]
-    lines = matplotlib.collections.LineCollection(
-        segments,
-        zorder=0,
-        cmap=matplotlib.cm.get_cmap('RdBu'),
-        norm=matplotlib.pylab.Normalize(.7 * values.min(), .7 * values.max()))
-    lines.set_array(values)
-    lines.set_linewidths(15 * numpy.abs(values))
-    axes.add_collection(lines)
-
-    # Add a label to each node
-    label_info = zip(names, cluster_labels, embedding.T)
-    for index, (name, label, (xloc, yloc)) in enumerate(label_info):
-        (xloc, yloc), alignment = float_label(index, (xloc, yloc), embedding)
-        point_color = matplotlib.cm.get_cmap('Spectral')(
-            label / float(max(cluster_labels)))
-        matplotlib.pylab.text(
-            xloc, yloc, name, size=10,
-            horizontalalignment=alignment[0],
-            verticalalignment=alignment[1],
-            bbox=dict(facecolor=point_color,
-                      edgecolor=point_color,
-                      alpha=.3))
-
-    # Adjust axes limits
-    axes.set_xlim(embedding[0].min() - .15 * embedding[0].ptp(),
-                  embedding[0].max() + .10 * embedding[0].ptp(),)
-    axes.set_ylim(embedding[1].min() - .03 * embedding[1].ptp(),
-                  embedding[1].max() + .03 * embedding[1].ptp())
-
-
-def float_label(index, position, embedding):
-    """ Floating labels for plot so that they avoid one another.
-
-        The challenge here is that we want to position the labels to avoid
-        overlap with other labels. We use the neighbour data in the embedding
-        to juggle the label positions to avoid collisions.
-    """
-    xloc, yloc = position
-    dxloc = xloc - embedding[0]
-    dxloc[index] = 1
-    dyloc = yloc - embedding[1]
-    dyloc[index] = 1
-    this_dxloc = dxloc[numpy.argmin(numpy.abs(dyloc))]
-    this_dyloc = dyloc[numpy.argmin(numpy.abs(dxloc))]
-    if this_dxloc > 0:
-        horizontalalignment = 'left'
-        xloc += .002
-        yloc += .001
-    else:
-        horizontalalignment = 'right'
-        xloc -= .002
-        yloc -= .001
-    if this_dyloc > 0:
-        verticalalignment = 'bottom'
-        yloc += .002
-        xloc += .001
-    else:
-        verticalalignment = 'top'
-        yloc -= .002
-        xloc -= .001
-
-    return (xloc, yloc), (horizontalalignment, verticalalignment)
-
-
 ## Borehole plotting
 def plot_point_dataset_data(point_dataset, keys_to_plot=None):
     """ Plot the data stored in the current node object
@@ -263,7 +172,7 @@ def plot_point_dataset_data(point_dataset, keys_to_plot=None):
                         dataset=point_dataset.depths,
                         orientation='vertical')
         except TypeError:
-            print key
+            LOGGER.warn("Can't plot {0}".format(key))
         axes.set_xlabel("")
         if i == 0:
             axes.set_ylabel('Depth (m)')

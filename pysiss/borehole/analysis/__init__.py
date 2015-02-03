@@ -10,3 +10,6 @@
 
 from .regularizer import ReSampler, unique
 from .detrend import detrend, demean
+
+__all__ = ['ReSampler', 'unique',
+           'detrend', 'demean']

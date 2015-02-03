@@ -11,16 +11,16 @@ from pysiss import borehole as pybh
 import numpy
 import unittest
 
-DENSITY = pybh.PropertyType(name="d",
+DENSITY = pybh.PropertyType(ident="d",
                             long_name="density",
                             units="g/cm3")
 
 # bogus unit from original spreadsheet
-IMPEDANCE = pybh.PropertyType(name="imp",
+IMPEDANCE = pybh.PropertyType(ident="imp",
                               long_name="impedance",
                               units="kg/m2.s.10-3")
 
-ROCK_TYPE = pybh.PropertyType(name="rock", long_name="rock type")
+ROCK_TYPE = pybh.PropertyType(ident="rock", long_name="rock type")
 
 
 class BoreholeTest(unittest.TestCase):
@@ -28,10 +28,10 @@ class BoreholeTest(unittest.TestCase):
     def setUp(self):
         self.borehole = pybh.Borehole("test")
 
-    def test_name(self):
-        """ Test that name is being captured for borehole
+    def test_identifier(self):
+        """ Test that identifier is being captured for borehole
         """
-        self.assertEquals(self.borehole.name, "test")
+        self.assertEquals(self.borehole.ident, "test")
 
     def test_features(self):
         """ Test store and retrieve a single point feature with a one
@@ -53,9 +53,11 @@ class BoreholeTest(unittest.TestCase):
             [11.0, 14.0, "SC", "CA"],
             [14.0, 15.0, "SC", "FE"]
         ]
+
         # the starts and ends of the intervals
         from_depths = numpy.asarray([x[0] for x in geology_intervals])
         to_depths = numpy.asarray([x[1] for x in geology_intervals])
+
         # rock type is a multivalued category property
         rock_type = [x[2:] for x in geology_intervals]
         self.assertTrue(all(numpy.diff(from_depths) > 0))
@@ -73,6 +75,7 @@ class BoreholeTest(unittest.TestCase):
         """Test store and retrieve two properties sampled at four depths"""
         # the depths of the dataset
         depths = [4.0, 4.02, 4.0603, 4.0803]
+
         # two numerical properties
         densities = [2.8073, 2.837, 2.8569, 2.8158]
         impedances = [9010.898, 9250.686, 11854.32, 11621.28]
@@ -89,7 +92,7 @@ class BoreholeTest(unittest.TestCase):
             self.borehole.point_datasets["samples"].properties["imp"].values)
         self.assertEquals(
             "samples",
-            self.borehole.point_datasets['samples'].name)
+            self.borehole.point_datasets['samples'].ident)
 
     def test_interval_dataset_depths_empty(self):
         """ Test that empty interval depths raises an AssertionError

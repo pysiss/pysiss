@@ -4,33 +4,37 @@
 # date:   Wednesday January 14, 2015
 
 language: python
-matrix:
-  include:
-    # - python: 3.4
-    #   env:
-    #     - NUMPYSPEC=numpy
-    - python: 2.7
-      env:
-        - NUMPYSPEC=numpy
-    # - python: 2.6
-    #   env:
-    #     - NUMPYSPEC="numpy==1.6.2"
+python:
+    # - "3.4"
+    - "2.7"
 
-# Command to install dependencies
-before_install: 
+# Command to install miniconda to build test environment
+before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -qq libatlas-dev libatlas-base-dev liblapack-dev gfortran
-  - sudo apt-get install -qq libgmp-dev libmpfr-dev
-  - sudo apt-get install libgdal1-dev
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget http://repo.continuum.io/miniconda/Miniconda-3.4.2-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget http://repo.continuum.io/miniconda/Miniconda3-3.4.2-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  # Add Jess' binstar channel to get custom builds
+  - conda config --add channels jesserobertson
+  - conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
 
 install:
-  - pip install unittest2
-  - pip install --install-option="--no-cython-compile" Cython
-  - pip install $NUMPYSPEC
-  - pip install scipy matplotlib 
-  - pip install pandas 
-  - pip install shapely owslib simplejson lxml pint
-  - python setup.py install
+  - conda create -q -n test-pysiss python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib pandas lxml simplejson shapely rasterio requests pint coverage coveralls httmock
+  - source activate test-pysiss
+  - python setup.py update_version install
 
 # Command to run tests
-script: python setup.py test
+script:
+  - python setup.py update_mocks
+  - coverage run --source pysiss run_test.py
+
+after_success:
+  - coveralls

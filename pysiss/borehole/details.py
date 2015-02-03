@@ -9,21 +9,21 @@
 from collections import namedtuple
 
 
-def detail_type(detail_name, detail_attr=None):
+def detail_type(ident, detail_attr=None):
     """ Return a detail type for use in a Details class
 
         This is essentially a wrapper around `collections.namedtuple`,
         for more details on the formatting of the detail_attr, see the
         Python documentation.
 
-        :param detail_name: The identifier of the new detail type
-        :type detail_name: string
+        :param ident: The identifier of the new detail type
+        :type ident: string
         :param detail_attr: The attributes of the new detail type
         :type detail_attr: string
     """
     if detail_attr is None:
-        detail_attr = 'name values property_type'
-    return namedtuple(detail_name, detail_attr)
+        detail_attr = 'ident values property_type'
+    return namedtuple(ident, detail_attr)
 
 
 class Details(dict):
@@ -34,20 +34,20 @@ class Details(dict):
     def __init__(self):
         super(Details, self).__init__()
 
-    def add_detail(self, name, values, property_type=None):
+    def add_detail(self, ident, values, property_type=None):
         """ Add a detail to the class
 
-            :param name: An identifier for the detail
-            :type name: string
+            :param ident: An identifier for the detail
+            :type ident: string
             :param values: The data to add
             :type values: any Python object
             :param property_type: The property type of the detail, optional,
                 defaults to None
             :type property_type: `pysiss.borehole.PropertyType`
         """
-        self[name] = self.detail_type(name=name,
-                                      values=values,
-                                      property_type=property_type)
+        self[ident] = self.detail_type(ident=ident,
+                                       values=values,
+                                       property_type=property_type)
 
     def __setattr__(self):
         """ Disable setattr method
