@@ -13,6 +13,8 @@ import httmock
 import requests
 import hashlib
 
+PRINT_INTERCEPTIONS = False
+
 
 class Resource(object):
 
@@ -87,7 +89,8 @@ class Resource(object):
 def mock_resource(url, request):
     """ Redirect requests calls to the relevant mock'd Resource object
     """
-    print("Intercepted HTTP request: {0}".format(url))
+    if PRINT_INTERCEPTIONS:
+        print("Intercepted HTTP request: {0}".format(url))
 
     # Pick out a few things to pass to the Resource class
     try:
