@@ -9,7 +9,7 @@ python:
     - "2.7"
 
 # Command to install miniconda to build test environment
-before_install: 
+before_install:
   - sudo apt-get update -qq
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
       wget http://repo.continuum.io/miniconda/Miniconda-3.4.2-Linux-x86_64.sh -O miniconda.sh;
@@ -32,8 +32,8 @@ install:
   - python setup.py install
 
 # Command to run tests
-script: 
-  - coverage run --source tests --omit='tests/mock' -m py.test
+script:
+  - coverage run --source pysiss -m py.test tests
 
 after_success:
   - coveralls
