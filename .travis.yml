@@ -27,13 +27,14 @@ before_install:
   - conda info -a
 
 install:
-  - conda create -q -n test-pysiss python=$TRAVIS_PYTHON_VERSION matplotlib numpy scipy pandas lxml simplejson shapely owslib rasterio requests pint coverage coveralls pytest
+  - conda create -q -n test-pysiss python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib pandas lxml simplejson shapely rasterio requests pint coverage coveralls httmock
   - source activate test-pysiss
-  - python setup.py install
+  - python setup.py update_version install
 
 # Command to run tests
 script:
-  - coverage run --source pysiss -m py.test tests
+  - python setup.py update_mocks
+  - coverage run --source pysiss run_test.py
 
 after_success:
   - coveralls

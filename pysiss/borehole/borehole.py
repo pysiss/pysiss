@@ -42,14 +42,14 @@ class Borehole(id_object):
         (UCUM): http://unitsofmeasure.org/ucum.html
 
         Some useful properties include:
-            features - dict mapping feature name to Feature
-            interval_datasets - dict mapping interval dataset name to
+            features - dict mapping feature ident to Feature
+            interval_datasets - dict mapping interval dataset ident to
                 IntervalDataSet
-            point_datasets - dict mapping sampling dataset name to
+            point_datasets - dict mapping sampling dataset ident to
                 PointDataSet
 
-        :param name: An identifier for the borehole
-        :type name: `string`
+        :param ident: An identifier for the borehole
+        :type ident: `string`
         :param origin_position: The borehole's position (lat/long; defaults to
             None)
         :type origin_position: OriginPosition class
@@ -63,34 +63,35 @@ class Borehole(id_object):
         IntervalDataSet: 'interval_datasets',
     }
 
-    def __init__(self, name, origin_position=None):
-        super(Borehole, self).__init__(name=name)
-        self.name = name
+    def __init__(self, ident, origin_position=None):
+        super(Borehole, self).__init__(ident=ident)
+        self.ident = ident
         self.origin_position = origin_position
         self.survey = None
         self.features = dict()
         self.details = BoreholeDetails()
 
         # Initialize dataset lists
-        for dataset_attr in self._type_to_attr.values():
-            setattr(self, dataset_attr, dict())
+        self.datasets = {}
+        self.point_datasets = {}
+        self.interval_datasets = {}
 
     def __repr__(self):
         """ String representation
         """
         info = 'Borehole {0} at origin position {1} contains '
-        info_str = info.format(self.name, self.origin_position)
+        info_str = info.format(self.ident, self.origin_position)
         n_datasets = sum([len(getattr(self, a))
-                         for a in self._type_to_attr.values()])
+                          for a in self._type_to_attr.values()])
         summary_str = '{0} datasets'.format(n_datasets)
         summary_str += ' & {0} features'.format(len(self.features))
         dataset_list = ''
         if len(self.interval_datasets) > 0:
             dataset_list += ('\nIDs: ' + '\n     '.join(
-                             map(str, self.interval_datasets.values())))
+                                 map(str, self.interval_datasets.values())))
         if len(self.point_datasets) > 0:
             dataset_list += ('\nSDs: ' + '\n     '.join(
-                             map(str, self.point_datasets.values())))
+                                 map(str, self.point_datasets.values())))
         if len(self.details.values()) > 0:
             borehole_details_str = \
                 '\nBorehole details: {0}'.format(self.details)
@@ -99,17 +100,17 @@ class Borehole(id_object):
 
         return info_str + summary_str + dataset_list + borehole_details_str
 
-    def add_feature(self, name, depth):
+    def add_feature(self, ident, depth):
         """ Add and return a new Feature.
 
-            :param name: The identifier for the new feature
-            :type name: `string`
+            :param ident: The identifier for the new feature
+            :type ident: `string`
             :param depth: Down-hole depth in metres from collar
             :type depth: `int` or `float`
             :returns: the new `pysiss.borehole.Feature` instance
         """
-        self.features[name] = Feature(name, depth)
-        return self.features[name]
+        self.features[ident] = Feature(ident, depth)
+        return self.features[ident]
 
     def add_dataset(self, dataset):
         """ Add and return an existing dataset instance to the borehole.
@@ -120,15 +121,15 @@ class Borehole(id_object):
         # Work out which attribute we should add the dataset to
         add_to_attr = self._type_to_attr[type(dataset)]
 
-        # Add to the given attribute using the dataset name as a key
-        getattr(self, add_to_attr)[dataset.name] = dataset
+        # Add to the given attribute using the dataset ident as a key
+        getattr(self, add_to_attr)[dataset.ident] = dataset
         return dataset
 
-    def add_interval_dataset(self, name, from_depths, to_depths):
+    def add_interval_dataset(self, ident, from_depths, to_depths):
         """ Add and return a new IntervalDataSet
 
-            :param name: The identifier for the new IntervalDataSet
-            :type name: `string`
+            :param ident: The identifier for the new IntervalDataSet
+            :type ident: `string`
             :param from_depths: Interval start point down-hole depths in metres
                     from collar
             :type from_depths: iterable of numeric values
@@ -138,46 +139,46 @@ class Borehole(id_object):
 
             :returns: the new `pysiss.borehole.IntervalDataSet` instance.
         """
-        return self.add_dataset(IntervalDataSet(name=name,
+        return self.add_dataset(IntervalDataSet(ident=ident,
                                                 from_depths=from_depths,
                                                 to_depths=to_depths))
 
-    def add_point_dataset(self, name, depths):
+    def add_point_dataset(self, ident, depths):
         """ Add and return a new PointDataSet.
 
-            :param name: The identifier for the new PointDataSet
-            :type name: `string`
+            :param ident: The identifier for the new PointDataSet
+            :type ident: `string`
             :param depths: Sample locations given as down-hole depths in metres
                     from collar
             :type depths: iterable of numeric values
             :returns: the new `pysiss.borehole.PointDataSet` instance.
         """
-        return self.add_dataset(PointDataSet(name=name,
+        return self.add_dataset(PointDataSet(ident=ident,
                                              depths=depths))
 
-    def desurvey(self, depths, crs):
-        """ Return the depths as three-dimensional points in the given
-            coordinate reference system
-        """
-        raise NotImplementedError
+    # def desurvey(self, depths, crs):
+    #     """ Return the depths as three-dimensional points in the given
+    #         coordinate reference system
+    #     """
+    #     raise NotImplementedError
 
-    def add_merged_interval_dataset(self, name, source_name_a, source_name_b):
-        """ Add a new merged interval dataset from the two sources
-        """
-        raise NotImplementedError
+    # def add_merged_interval_dataset(self, ident, source_a, source_b):
+    #     """ Add a new merged interval dataset from the two sources
+    #     """
+    #     raise NotImplementedError
 
-    def add_detail(self, name, values, property_type=None):
+    def add_detail(self, ident, values, property_type=None):
         """ Add a detail to this borehole object.
 
-            :param name: An identifier for the detail
-            :type name: string
+            :param ident: An identifier for the detail
+            :type ident: string
             :param values: The data to add
             :type values: any Python object
             :param property_type: The property type of the detail, optional,
                    defaults to None
             :type property_type: pysiss.borehole.PropertyType
         """
-        self.details.add_detail(name, values, property_type)
+        self.details.add_detail(ident, values, property_type)
 
 
 class Feature(id_object):
@@ -186,18 +187,18 @@ class Feature(id_object):
 
         Useful properties:
             depth - down-hole depth in metres
-            properties - dict mapping property name to Property
+            properties - dict mapping property ident to Property
 
-        :param name: The identifier for the new PointDataSet
-        :type name: `string`
+        :param ident: The identifier for the new PointDataSet
+        :type ident: `string`
         :param depth: Feature location given as down-hole depth in metres
                 from collar
         :type depth: numeric value
     """
 
-    def __init__(self, name, depth):
-        super(Feature, self).__init__(name=name)
-        self.name = name
+    def __init__(self, ident, depth):
+        super(Feature, self).__init__(ident=ident)
+        self.ident = ident
         self.depth = depth
         self.properties = dict()
 
@@ -205,7 +206,7 @@ class Feature(id_object):
         """ String representation
         """
         info = 'Feature {0}: at {1} depth with {2} properties'
-        return info.format(self.name, len(self.depth), len(self.properties))
+        return info.format(self.ident, len(self.depth), len(self.properties))
 
     def add_property(self, property_type, values):
         """ Add a property to this feature.
@@ -213,33 +214,33 @@ class Feature(id_object):
             values - a single value or multiple values for a multivalued
                 property
         """
-        self.properties[property_type.name] = Property(property_type, values)
+        self.properties[property_type.ident] = Property(property_type, values)
 
-    def get_property_names(self):
-        """ Return the names of the available properties for this feature
+    def get_property_idents(self):
+        """ Return the idents of the available properties for this feature
         """
         return self.properties.keys()
 
 
-class CoordinateReferenceSystem(object):
+# class CoordinateReferenceSystem(object):
 
-    """System for describing a spatial location as a tuple of real numbers."""
+#     """System for describing a spatial location as a tuple of real numbers."""
 
-    def __init__(self):
-        raise NotImplementedError
+#     def __init__(self):
+#         raise NotImplementedError
 
 
-class Survey(object):
+# class Survey(object):
 
-    """ The spatial shape of the borehole path in three dimensions from the
-        collar.
+#     """ The spatial shape of the borehole path in three dimensions from the
+#         collar.
 
-        Used to convert a sequence of down-hole depths into a sequence of
-        three-dimensional points in some coordinate reference system.
-    """
+#         Used to convert a sequence of down-hole depths into a sequence of
+#         three-dimensional points in some coordinate reference system.
+#     """
 
-    def __init__(self):
-        raise NotImplementedError
+#     def __init__(self):
+#         raise NotImplementedError
 
 
 class OriginPosition(id_object):
@@ -249,10 +250,10 @@ class OriginPosition(id_object):
     """
 
     def __init__(self, latitude, longitude, elevation, property_type=None):
-        super(OriginPosition, self).__init__(name=str((latitude,
-                                                       longitude,
-                                                       elevation,
-                                                       property_type)))
+        super(OriginPosition, self).__init__(ident=str((latitude,
+                                                        longitude,
+                                                        elevation,
+                                                        property_type)))
         self.latitude = latitude
         self.longitude = longitude
         self.elevation = elevation
@@ -273,4 +274,4 @@ class BoreholeDetails(Details):
     """ Class to store details about drilling a Borehole
     """
 
-    detail_type = detail_type('BoreholeDetail', 'name values property_type')
+    detail_type = detail_type('BoreholeDetail', 'ident values property_type')

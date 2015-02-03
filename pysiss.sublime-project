@@ -40,17 +40,16 @@
 	[
 		{
 			"name": "Production build",
-			"cmd": ["python", "setup.py", "build"],
+			"cmd": ["python", "setup.py", "develop"],
 			"working_dir": "$project_path"
 		},
 		{
 			"name": "Install",
-			"cmd": ["python", "setup.py", "install", "--user"],
+			"cmd": ["python", "setup.py", "develop"],
 			"working_dir": "$project_path"
 		},
 		{
 			"name": "Run test suite",
-			// "cmd": ["{", "python", "setup.py", "test;", "}", ">", "logs/test_`date +\"%D:%H:%S\"`.log"],
 			"cmd": ["bash", "test_suite.sh"],
 			"working_dir": "$project_path"
 		}
