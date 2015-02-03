@@ -1,9 +1,48 @@
 {
-    "get": {
-        "getcapabilities": {
-            "service": "wcs",
-            "request": "getcapabilities"
+    "getcapabilities": {
+        "service": "wcs",
+        "request": "getcapabilities",
+        "acceptversions": "2.0.0,1.1.0,1.0.0",
+        "acceptformats": "text/xml"
     },
-    "describecoverage": {},
-    "getcoverage": {}
+    "describecoverage": {
+        "service": "wcs",
+        "request": "describecoverage",
+        "version": "2.0.0",
+        "coverageId": "@ident"
+    },
+    "getcoverage": {
+        "service": "wcs",
+        "request": "getcoverage",
+        "version": "2.0.0",
+        "coverage": "@ident",
+        "?projection": "@projection",
+        "?subset": {
+            "string": "http://www.opengis.net/def/axis/OGC/0/longitude({low},{high})",
+            "low": "@minlongitude",
+            "high": "@maxlongitude"
+        },
+        "?subset": {
+            "string": "http://www.opengis.net/def/axis/OGC/0/longitude({point})",
+            "point": "@longitude"
+        },
+        "?subset": {
+            "string": "http://www.opengis.net/def/axis/OGC/0/latitude({low},{high})",
+            "low": "@minlatitude",
+            "high": "@maxlatitude"
+        },
+        "?subset": {
+            "string": "http://www.opengis.net/def/axis/OGC/0/latitude({point})",
+            "point": "@latitude"
+        },
+        "?subset": {
+            "string": "http://www.opengis.net/dev/axis/OGC/0/phenomenon-time({point})",
+            "point": "@time"
+        },
+        "?subset": {
+            "string": "http://www.opengis.net/dev/axis/OGC/0/phenomenon-time({low},{high})",
+            "low": "@mintime",
+            "high": "@maxtime"
+        }
+    }
 }

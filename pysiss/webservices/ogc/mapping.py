@@ -10,56 +10,109 @@
 import simplejson
 import pkg_resources
 from copy import deepcopy
+from collections import defaultdict
 
+class accumulator(object):
 
-def _parse_parameters(parameters):
-    """ Parse the parameter spec for the given request
-
-        Asking for an unknown request will raise a KeyError
+    """ Class providing a dictionary where repeated entries to
+        a key generate a list rather than overwriting
     """
-    categories = {
-        'required_key': [],
-        'optional_key': [],
-        'specified_value': {},
-        'user_required_value': {},
-        'user_optional_value': {}
-    }
-    links = []
-    defaults = {}
 
-    # Little function to parse a single value
-    def _process_value(is_optional, value):
-        # Values are supplied or specified (beginning with '@')
-        is_user_value = value.startswith('@')
-        if is_user_value and is_optional:
-            categories['user_optional_value'].append(value.lstrip('@'))
-        elif is_user_value and not is_optional:
-            categories['user_required_value'].append(value.lstrip('@'))
+    def __init__(self, *args, **kwargs):
+        super(accumulator, self).__init__()
+        self._dict = defaultdict(list)
+        self.update(*args, **kwargs)
+
+    def __str__(self):
+        """ String representation
+        """
+        return 'acumulator(' + ', '.join(['{0}={1:s}'.format(*it)
+                                          for it in self.items()])
+
+
+    def update(self, *args, **kwargs):
+        """ Update the accumulator with a new set of pairs, a dictionary
+            or a set of keyword arguments
+        """
+        # Update using argument which may be dictionaries
+        # or lists of key, value pairs
+        if args:
+            for arg in args:
+                try:
+                    for key, value in arg.items():
+                        self[key] = value
+                except AttributeError:
+                    # We have a list of pairs
+                    for key, value in arg:
+                        self[key] = value
+
+        # Update using keyword arguments
+        if kwargs:
+            for key, value in kwargs.items():
+                self[key] = value
+
+    def replace(self, key, value):
+        """ Explicitly replace the current value of key with the given value
+        """
+        del self._dict[key]
+        self[key] = value
+
+    def __setitem__(self, key, value):
+        """ Setting items adds them to a list of values, rather than
+            overwriting
+        """
+        self._dict[key].append(value)
+
+    def __getitem__(self, key):
+        """ Return items from the dictionary
+        """
+        item = self._dict[key]
+        if len(item) == 1:
+            return item[0]
         else:
-            categories['specified_value'].append(value)
+            return item
 
-    # Sweep through and process everything
-    for key, value in parameters.items():
-        # Keys are either required or optional (begining with '?')
-        is_optional = key.startswith('?')
-        if is_optional:
-            categories['optional_key'].append(key.lstrip('?'))
-        else:
-            categories['required_key'].append(key)
+    def __delitem__(self, key):
+        """ Remove an item from the dictionary
+        """
+        del self._dict[key]
 
-        if isinstance(value, list):
-            # We have a list of values which must appear together
-            map(lambda v: _process_value(is_optional, v),
-                value)
-            links.append(set(value))
-            defaults[key] = [None] * len(value)
-        elif isinstance(value, str):
-            _process_value(is_optional, value)
-            defaults[key] = None
-        else:
-            raise ValueError('Unknown value type {0}'.format(value))
+    def keys(self):
+        """ Return the keys from the dictionary
+        """
+        return self._dict.keys()
 
-    return categories, links, defaults
+    def values(self):
+        """ Return the values from the dictionary
+        """
+        return [v[0] if len(v) == 1 else v for v in self._dict.values()]
+
+    def items(self):
+        """ Return the items from the dictionary
+        """
+        return zip(self.keys(), self.values())
+
+
+class OGCQueryString(accumulator):
+
+    """ Class providing an OGC query string, allows repeated keys
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(OGCQueryString, self).__init__(*args, **kwargs)
+
+    def __str__(self):
+        """ Print out query string
+        """
+        result = '?'
+        for key, values in self._dict.items():
+            if not (result.endswith('&') or result.endswith('?')):
+                result += '&'
+            result += '&'.join(['{0}={1}'.format(key, v) for v in values])
+        return result
+
+    def __repr__(self):
+        return str(self)
 
 
 class OGCServiceMapping(object):
@@ -73,11 +126,14 @@ class OGCServiceMapping(object):
         self.service = service
         self.version = version
 
-        # Load in mappings dynamically
+        # Load in mappings dynamically, hook into accumulator to allow
+        # repeated keys (although that's not 'proper' JSON we allow it
+        # to be able to construct OGC2.0 requests)
         self.parameters = simplejson.load(
             pkg_resources.resource_stream(
                 'pysiss.webservices.ogc',
-                'interfaces/{0}/{1}/parameters.json'.format(service, version)))
+                'interfaces/{0}/{1}/parameters.json'.format(service, version)),
+            object_pairs_hook=accumulator)
 
     def request(self, request, method='get', **kwargs):
         """ Put together a PreparedRequest object to make the API call
@@ -94,52 +150,78 @@ class OGCServiceMapping(object):
 
         # Palm off the construction to the appropriate method
         if method == 'get':
-            return self._get_request(request, **kwargs)
+            return self.make_get_request(request, **kwargs)
         elif method == 'post':
-            return self._post_request(request, **kwargs)
+            return self.make_post_request(request, **kwargs)
 
-    def _get_request(self, request, **kwargs):
+    def make_get_request(self, request, **kwargs):
         """ Construct a get request for an API call
         """
-        # Get the request parameters
-        categories, links = _parse_parameters(self.parameters[request])
+        # Function to get a single parameter
+        def _get_value(param):
+            "Parse a single parameter"
+            # Deal with multiple options
+            if isinstance(param, list):
+                # Loop through options until we find one that works
+                values = []
+                for value in param:
+                    try:
+                        value = _get_value(value)
+                        values.append(value)
+                    except KeyError:
+                        continue
+                value = '&'.join(values)
+
+            elif isinstance(param, accumulator):
+                template = param['string']
+                inputs = {k: v for k, v in param.items()
+                          if k != 'string'}
+                for key, value in inputs.items():
+                    try:
+                        if value.startswith('@'):
+                            inputs[key] = kwargs[value.lstrip('@')]
+                    except AttributeError:
+                        continue
+
+                value = template.format(**inputs)
+
+            else:
+                value = (kwargs[param.lstrip('@')]
+                         if param.startswith('@') else param)
+
+            return value
 
         # Construct dictionary of parameters.
-        parameter_dict = deepcopy(self.parameters.request)
+        parameter_dict = OGCQueryString(self.parameters[request])
         for key, param in parameter_dict.items():
             if key.startswith('?'):
                 # We have an optional key, check whether values have been
                 # specified already
                 try:
-                    if isinstance(param, list):
-                        value = [kwargs[v] if v.startswith('@')
-                                 else v for v in param]
-                    else:
-                        value = \
-                            kwargs[param] if param.startswith('@') else param
-                    parameter_dict[key.lstrip('?')] = value
-                finally:
-                    # We'll get here always - if things have been spec'd
-                    # properly there will be a proper value available
-                    # otherwise we didn't need this key anyway
-                    del parameter_dict[key]
+                    value = _get_value(param)
+                    if value:
+                        parameter_dict[key.lstrip('?')] = value
+                except KeyError:
+                    # We're missing something, so just delete the key
+                    continue
 
             else:
                 # We have a required key, better have a value for this or we
                 # need to toss our toys out of the cot
                 try:
-                    if isinstance(param, list):
-                        value = [kwargs[v] for v in param]
-                    else:
-                        value = kwargs
-                    parameter_dict[key] = value
+                    parameter_dict.replace(key, _get_value(param))
                 except KeyError:
                     raise KeyError('Missing parameter {0} required'.format(
                                     param))
 
-        return params
+        # Remove placeholders
+        for key in parameter_dict.keys():
+            if key.startswith('?'):
+                del parameter_dict[key]
 
-    def _post_request(self, request, **kwargs):
+        return str(parameter_dict)
+
+    def make_post_request(self, request, **kwargs):
         """ Construct a post request for an API call
         """
         raise NotImplementedError('Post requests not working yet...')
