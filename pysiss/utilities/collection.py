@@ -3,31 +3,31 @@
             CSIRO Minerals Resources Flagship
     date:   25 August 2014
 
-    description: A utility class for forming collections of objects
+    description: A utility class for forming collections of things
 """
 
 
 class Collection(list):
 
-    """ A collection of objects, accessible as a list or dictionary
+    """ A collection of things, accessible as a list or dictionary
 
-        :param objects: The objects to add on initialization
-        :type objects: list of object instances
+        :param things: The things to add on initialization
+        :type things: list of thing instances
     """
 
-    def __init__(self, objects=None):
+    def __init__(self, things=None):
         super(Collection, self).__init__()
         self._index = {}
 
-        # Add the list of objects if required
-        if objects:
-            for obj in objects:
+        # Add the list of things if required
+        if things:
+            for obj in things:
                 self.append(obj)
 
     def __getitem__(self, ident_or_idx):
-        """ Retrieve a object from the collection
+        """ Retrieve a thing from the collection
 
-            :param ident_or_idx: Either an integer index, or a object name.
+            :param ident_or_idx: Either an integer index, or a thing name.
         """
         # Try to use as an index first
         try:
@@ -42,22 +42,22 @@ class Collection(list):
             return super(Collection, self).__getitem__(
                 self._index[ident_or_idx])
         except KeyError:
-            str = ('Unknown key or index {0} passed '
+            string = ('Unknown key or index {0} passed '
                    'to BoreholeCollection').format(ident_or_idx)
-            raise IndexError(str)
+            raise IndexError(string)
 
-    def __setitem__(self, index, object):
+    def __setitem__(self, index, thing):
         """ Collection does not support __setitem__, use append instead
         """
         raise NotImplementedError(
             "Collection does not support __setitem__, use append instead")
 
     def __delitem__(self, ident_or_idx):
-        """ Remove a object from the collection
+        """ Remove a thing from the collection
         """
         # Assume it's an ident first
         try:
-            # Find location of object in list
+            # Find location of thing in list
             idx = self._index[ident_or_idx]
             ident = ident_or_idx
         except KeyError:
@@ -65,19 +65,19 @@ class Collection(list):
             idx = ident_or_idx
             ident = self[idx].ident
 
-        # Move subsequent object indices up
+        # Move subsequent thing indices up
         for obj in self[idx:]:
             self._index[obj.ident] -= 1
 
-        # Delete object
+        # Delete thing
         del self._index[ident]
         del self[idx]
 
-    def append(self, object):
-        """ Add a object to the collection
+    def append(self, thing):
+        """ Add a thing to the collection
         """
-        super(Collection, self).append(object)
-        self._index[object.ident] = len(self)
+        super(Collection, self).append(thing)
+        self._index[thing.ident] = len(self)
 
     def keys(self):
         return [obj.ident for obj in self]

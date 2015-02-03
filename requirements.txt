@@ -1,9 +1,10 @@
-matplotlib>=1.0
-numpy>=1.6
-scipy>=0.9
+matplotlib
+numpy
+scipy
+pandas
 lxml
-simplejson>=3.0
-pandas>=0.10
+simplejson
 shapely
+rasterio
 requests
 pint

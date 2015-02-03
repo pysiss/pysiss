@@ -8,3 +8,5 @@
 
 from .property import Property
 from .property_type import PropertyType
+
+__all__ = ['Property', 'PropertyType']

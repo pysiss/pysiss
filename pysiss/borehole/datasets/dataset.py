@@ -61,7 +61,7 @@ class DataSet(id_object):
     def to_dataframe(self):
         """ Tranform the data in the dataset into a Pandas dataframe.
         """
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class DatasetDetails(Details):

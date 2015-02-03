@@ -9,15 +9,17 @@
 from ..borehole import PropertyType, SISSBoreholeGenerator
 from ..borehole.datasets import PointDataSet  # , IntervalDataSet
 from ..utilities import Singleton
-from ..metadata.namespaces import expand_namespace, NamespaceRegistry
+from ..metadata import expand_namespace, NamespaceRegistry
 
-from owslib.wfs import WebFeatureService
 import numpy
 import pandas
 import requests
 from lxml import etree
 from StringIO import StringIO
+import logging
 
+
+LOGGER = logging.getLogger('pysiss')
 
 NAMESPACES = NamespaceRegistry()
 DEFAULT_ENDPOINTS = {
@@ -139,30 +141,45 @@ class NVCLImporter(object):
     def __repr__(self):
         """ String representation
         """
-        str = 'NVCLImporter(endpoint="{0}")'.format(self.endpoint)
-        return str
+        string = 'NVCLImporter(endpoint="{0}")'.format(self.endpoint)
+        return string
 
     def get_borehole_idents_and_urls(self, maxids=None):
         """ Generates a dictionary containing identifiers and urls for
             boreholes with NVCL scanned data at this endpoint
+
+            # Todo: Use pysiss.webservices.FeatureService rather than
+            #       raw requests call
 
             :param maxids: The maximum number of boreholes to request or
                 None for no limit
             :type maxids: integer
             :returns: an dictionary of urls keyed by borehole identifiers
         """
-        wfs = WebFeatureService(self.urls['wfsurl'], version="1.1.0")
-        wfsresponse = wfs.getfeature(
-            typename="nvcl:ScannedBoreholeCollection",
-            maxfeatures=maxids)
-        xmltree = etree.parse(wfsresponse)
+        # Make a request to the wfs
+        payload = {
+            'version': '1.1.0',
+            'service': 'wfs',
+            'request': 'getfeature',
+            'typename': 'nvcl:ScannedBoreholeCollection'
+        }
+        if maxids:
+            payload['maxids'] = str(maxids)
+        response = requests.get(self.urls['wfsurl'], params=payload)
 
-        idents = {}
-        for match in xmltree.findall(".//nvcl:scannedBorehole",
-                                     namespaces=NAMESPACES):
-            idents[match.get(expand_namespace('xlink:title'))] = \
-                match.get(expand_namespace('xlink:href'))
-        return idents
+        # Parse response
+        if response.ok:
+            xmltree = etree.fromstring(response.content)
+            idents = {}
+            for match in xmltree.findall(".//nvcl:scannedBorehole",
+                                         namespaces=NAMESPACES):
+                idents[match.get(expand_namespace('xlink:title'))] = \
+                    match.get(expand_namespace('xlink:href'))
+            return idents
+
+        else:
+            raise IOError('Server at {0} returned error: {1}'.format(
+                              response.url, response.status_code))
 
     def get_borehole_idents(self, maxids=None):
         """ Returns the identifiers of boreholes with NVCL scanned data
@@ -196,14 +213,12 @@ class NVCLImporter(object):
                     dset.find('DatasetID').text
             return datasets
 
-    def get_analyte_idents(self, hole_ident, dataset_ident):
+    def get_analyte_idents(self, dataset_ident):
         """ Generates a dictionary mapping all NVCL analytes for a given
             borehole dataset to their GUIDs.
 
             Returns None if the XML fails to parse.
 
-            :param hole_ident: The GUID for a borehole available at dataurl
-            :type hole_ident: string
             :param dataset_ident: The GUID for a dataset available at dataurl
             :type dataset_ident: string
             :returns: a dictionary keyed by analyte name, where each value is
@@ -226,11 +241,11 @@ class NVCLImporter(object):
             return analyte_idents
         else:
             raise Exception(
-                'Request for data returned {0}'.format(response.code))
+                'Request for NVCL data returned {0}'.format(
+                    response.status_code))
 
     def get_analytes(self, hole_ident, dataset_name, dataset_ident,
-                     analyte_idents=None,
-                     from_depth=None, to_depth=None,):
+                     analyte_idents=None):
         """ Get the analytes from the given borehole and dataset
 
             :param hole_ident: The identifier for a borehole
@@ -243,27 +258,28 @@ class NVCLImporter(object):
                 Optional, if None then all analytes in the given dataset are
                 downloaded.
             :type analyte_idents: list of str
-            :param from_depth/to_depth: The depth range included in the
-                dataset. Optional, defaults to the entire depths defined in
-                the NVCL.
-            :type from_depth/to_depth: float
         """
         # Get analyte data
-        analyte_ident_dict = self.get_analyte_idents(hole_ident, dataset_ident)
+        analyte_ident_dict = self.get_analyte_idents(dataset_ident)
         if len(analyte_ident_dict) == 0:
             # This dataset has no analytes
-            print 'Warning, dataset {0} has no analytes'.format(dataset_ident)
+            LOGGER.warn('Dataset {0} has no analytes'.format(dataset_ident))
             return None
 
         # Generate request URL
         if analyte_idents is None:
             analyte_idents = analyte_ident_dict.values()
         url = self.urls['dataurl'] + 'downloadscalars.html?'
-        for ident in analyte_idents:
-            url += '&logid={0}'.format(ident)
+        url += '&'.join(['logid={0}'.format(i) for i in analyte_idents])
+        response = requests.get(url)
+        if not response.ok:
+            raise IOError("Can't get analytes for borehole {0}, dataset {1}; "
+                          "server returned {2}".format(hole_ident,
+                                                       dataset_ident,
+                                                       response.status_code))
 
         # We'll use pandas to slurp the csv direct from the web service
-        analytedata = pandas.read_csv(url)
+        analytedata = pandas.read_csv(StringIO(response.content))
         startcol = 'StartDepth'
         endcol = 'EndDepth'
         analytecols = [k for k in analytedata.keys()
@@ -303,7 +319,7 @@ class NVCLImporter(object):
             associated with a given borehole, so is suitable for large
             borehole ranges
         """
-        raise NotImplemented
+        raise NotImplementedError
 
     def get_images(self, hole_ident, from_depth=None, to_depth=None):
         """ Requests high-resolution images from the NVCL data portal
@@ -311,7 +327,7 @@ class NVCLImporter(object):
             These images are high-resolution and represent slices of the
             core sitting in the core tray.
         """
-        raise NotImplemented
+        raise NotImplementedError
 
     def get_borehole(self, hole_ident, ident=None, get_analytes=True,
                      raise_error=True):

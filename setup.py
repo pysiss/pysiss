@@ -9,21 +9,29 @@
 from setuptools import setup, find_packages
 import os
 
-# Get requirements from requirements.txt file
-with open('requirements.txt') as fhandle:
-    REQUIREMENTS = map(lambda l: l.strip('\n'), fhandle.readlines())
-
-
 def read(*paths):
-    """Build a file path from *paths* and return the contents."""
+    """ Build a file path from *paths and return the contents.
+    """
     with open(os.path.join(*paths), 'r') as f:
         return f.read()
+
+# Get requirements from requirements.txt file
+with open('requirements.txt') as fhandle:
+    REQUIREMENTS = [l.strip('\n') for l in fhandle]
+
+# Get version number from _version.py
+# Can be updated using python setup.py update_version
+from update_version import update_version, Version, get_version
+update_version()
+
+# Update mocks
+from tests.mocks.update import UpdateMocks
 
 ## PACKAGE INFORMATION
 setup(
     # Metadata
     name='pysiss',
-    version='0.0.4',
+    version=get_version(),
     description='A pythonic interface to Spatial Information Services Stack '
                 '(SISS) services',
     long_description=read('README.rst'),
@@ -47,23 +55,18 @@ setup(
     ],
 
     # Dependencies
-    install_requires=[
-        'matplotlib>=1.0',
-        'numpy>=1.6',
-        'scipy>=0.9',
-        'OWSLib>=0.8',
-        'lxml',
-        'simplejson>=3.0',
-        'pandas>=0.10',
-        'shapely',
-        'requests',
-        'pint'
-    ],
+    install_requires=REQUIREMENTS,
 
     # Contents
     packages=find_packages(exclude=['test*']),
     package_data={
-        'pysiss.metadata': ['*.json']
+        'pysiss.metadata': ['*.json'],
+        'pysiss.webservices': ['*.json'],
+        'pysiss.webservices.ogc': ['interfaces/*/*/*.json', 'interfaces/*/*/*.xml']
     },
-    test_suite='tests'
+    test_suite='tests',
+    cmdclass={
+        'update_version': Version,
+        'update_mocks': UpdateMocks
+    }
 )

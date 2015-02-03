@@ -14,12 +14,6 @@
 			"file_exclude_patterns": ["*.o"]
 		},
 		{
-			"path": "examples",
-			"name": "Examples",
-			"folder_exclude_patterns": [".ipynb_checkpoints"],
-			"file_exclude_patterns": []
-		},
-		{
 			"path": "tests",
 			"name": "Tests",
 			"folder_exclude_patterns": [],
@@ -46,17 +40,17 @@
 	[
 		{
 			"name": "Production build",
-			"cmd": ["python", "setup.py", "build"],
+			"cmd": ["python", "setup.py", "develop"],
 			"working_dir": "$project_path"
 		},
 		{
 			"name": "Install",
-			"cmd": ["python", "setup.py", "install", "--user"],
+			"cmd": ["python", "setup.py", "develop"],
 			"working_dir": "$project_path"
 		},
 		{
 			"name": "Run test suite",
-			"cmd": ["python", "setup.py", "test"],
+			"cmd": ["bash", "test_suite.sh"],
 			"working_dir": "$project_path"
 		}
 	]

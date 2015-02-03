@@ -52,18 +52,35 @@ def shorten_namespace(tag):
     """ Strip a namespace out of an XML tag and replace it with the shortcut
         version
     """
-    ns, tag = split_namespace(tag)
-    return _NAMESPACE_REGISTRY.inverse[ns] + ':' + tag
+    nspace, tag = split_namespace(tag)
+    try:
+        return _NAMESPACE_REGISTRY.inverse[nspace] + ':' + tag
+    except KeyError:
+        if nspace is not None:
+            # We need to check whether we have some of the namespace already
+            # So we re-run on the namespace recursively
+            return shorten_namespace(nspace) + ':' + tag
+
+        else:
+            # We can't do anything with this one, just return the tag
+            return tag
 
 
 def expand_namespace(tag, form='xml'):
     """ Expand a tag's namespace
     """
-    ns, tag = split_namespace(tag)
+    tokens = tag.split(':')
+    try:
+        nspace = _NAMESPACE_REGISTRY[tokens[0]]
+        tag = ':'.join(tokens[1:])
+    except KeyError:
+        # We can't do anything with this tag, so just return it
+        return tag
+
     if form == 'xml':
-        return '{' + _NAMESPACE_REGISTRY[ns] + '}' + tag
+        return '{' + nspace + '}' + tag
     elif form == 'rdf':
-        return _NAMESPACE_REGISTRY[ns] + ':' + tag
+        return nspace + ':' + tag
     else:
         raise ValueError(
             ('Unknown format type {0}. '
@@ -75,16 +92,16 @@ def split_namespace(tag):
     """
     if tag.startswith('{'):
         # We have an expanded namespace to deal with
-        ns, tag = tag.lstrip('{').split('}')
+        nspace, tag = tag.lstrip('{').split('}')
     elif tag.count(':') > 1:
         # We have an expanded namespace of the form ns:ns:ns:ns:tag
         tokens = tag.split(':')
         tag = tokens.pop()
-        ns = ':'.join(tokens)
+        nspace = ':'.join(tokens)
     elif tag.count(':') == 1:
         # We have a shortened namespaces of the form ns:tag
-        ns, tag = tag.split(':')
+        nspace, tag = tag.split(':')
     else:
         # Don't know what to do here? Just return None for namespace
-        ns = None
-    return ns, tag
+        nspace = None
+    return nspace, tag

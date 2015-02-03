@@ -11,7 +11,9 @@ import numpy
 import textwrap
 import requests
 import os
+import logging
 
+LOGGER = logging.getLogger('pysiss')
 
 def make_blocks(lower_corner, upper_corner, nx_blocks, ny_blocks=None):
     """ Subdivide a bbox into a number of smaller bboxes, to improve the
@@ -25,8 +27,8 @@ def make_blocks(lower_corner, upper_corner, nx_blocks, ny_blocks=None):
     dy = (uy - ly) / float(ny_blocks)
 
     # Make an index for x and y
-    x_idx, y_idx = numpy.meshgrid(numpy.arange(nx_blocks),
-                                  numpy.arange(ny_blocks))
+    x_idx, y_idx = \
+        numpy.meshgrid(numpy.arange(nx_blocks), numpy.arange(ny_blocks))
 
     # Return blocks as lower and upper corners
     lower_x, upper_x = map(lambda x: lx + x * dx, (x_idx, x_idx + 1))
@@ -66,8 +68,7 @@ BBOX_FILTER_REQUEST = textwrap.dedent("""\
 
 def post_block_requests(wfsurl, filename,
                         lower_corner, upper_corner, nx_blocks, ny_blocks=None,
-                        max_features=500, timeout=2000,
-                        delete_temp_files=True):
+                        max_features=500, timeout=2000):
     """ Make several POST requests to a WFS URL and stash the data in seperate
         XML files
 
@@ -98,9 +99,6 @@ def post_block_requests(wfsurl, filename,
         :type max_features: int
         :param timeout: The timeout for each request, in seconds.
         :type timeout: int
-        :param delete_temp_files: Whether to delete the temporary subfiles
-            after the call. Optional, defaults to true.
-        :type delete_temp_files: bool
     """
     # Split bounding box into blocks to make requests more manageable
     blocks = make_blocks(lower_corner, upper_corner, nx_blocks, ny_blocks)
@@ -130,5 +128,5 @@ def post_block_requests(wfsurl, filename,
                 for chunk in response.iter_content(chunk_size=int(1e5)):
                     fhandle.write(chunk)
         else:
-            print 'Request failed for file {1} - {0}'.format(
-                response.status_code, subfilename)
+            LOGGER.error('Request failed for file {1} - {0}'.format(
+                response.status_code, subfilename))

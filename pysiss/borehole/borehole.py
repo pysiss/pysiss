@@ -72,8 +72,9 @@ class Borehole(id_object):
         self.details = BoreholeDetails()
 
         # Initialize dataset lists
-        for dataset_attr in self._type_to_attr.values():
-            setattr(self, dataset_attr, dict())
+        self.datasets = {}
+        self.point_datasets = {}
+        self.interval_datasets = {}
 
     def __repr__(self):
         """ String representation
@@ -81,16 +82,16 @@ class Borehole(id_object):
         info = 'Borehole {0} at origin position {1} contains '
         info_str = info.format(self.ident, self.origin_position)
         n_datasets = sum([len(getattr(self, a))
-                         for a in self._type_to_attr.values()])
+                          for a in self._type_to_attr.values()])
         summary_str = '{0} datasets'.format(n_datasets)
         summary_str += ' & {0} features'.format(len(self.features))
         dataset_list = ''
         if len(self.interval_datasets) > 0:
             dataset_list += ('\nIDs: ' + '\n     '.join(
-                             map(str, self.interval_datasets.values())))
+                                 map(str, self.interval_datasets.values())))
         if len(self.point_datasets) > 0:
             dataset_list += ('\nSDs: ' + '\n     '.join(
-                             map(str, self.point_datasets.values())))
+                                 map(str, self.point_datasets.values())))
         if len(self.details.values()) > 0:
             borehole_details_str = \
                 '\nBorehole details: {0}'.format(self.details)
@@ -155,16 +156,16 @@ class Borehole(id_object):
         return self.add_dataset(PointDataSet(ident=ident,
                                              depths=depths))
 
-    def desurvey(self, depths, crs):
-        """ Return the depths as three-dimensional points in the given
-            coordinate reference system
-        """
-        raise NotImplementedError
+    # def desurvey(self, depths, crs):
+    #     """ Return the depths as three-dimensional points in the given
+    #         coordinate reference system
+    #     """
+    #     raise NotImplementedError
 
-    def add_merged_interval_dataset(self, ident, source_a, source_b):
-        """ Add a new merged interval dataset from the two sources
-        """
-        raise NotImplementedError
+    # def add_merged_interval_dataset(self, ident, source_a, source_b):
+    #     """ Add a new merged interval dataset from the two sources
+    #     """
+    #     raise NotImplementedError
 
     def add_detail(self, ident, values, property_type=None):
         """ Add a detail to this borehole object.
@@ -221,25 +222,25 @@ class Feature(id_object):
         return self.properties.keys()
 
 
-class CoordinateReferenceSystem(object):
+# class CoordinateReferenceSystem(object):
 
-    """System for describing a spatial location as a tuple of real numbers."""
+#     """System for describing a spatial location as a tuple of real numbers."""
 
-    def __init__(self):
-        raise NotImplementedError
+#     def __init__(self):
+#         raise NotImplementedError
 
 
-class Survey(object):
+# class Survey(object):
 
-    """ The spatial shape of the borehole path in three dimensions from the
-        collar.
+#     """ The spatial shape of the borehole path in three dimensions from the
+#         collar.
 
-        Used to convert a sequence of down-hole depths into a sequence of
-        three-dimensional points in some coordinate reference system.
-    """
+#         Used to convert a sequence of down-hole depths into a sequence of
+#         three-dimensional points in some coordinate reference system.
+#     """
 
-    def __init__(self):
-        raise NotImplementedError
+#     def __init__(self):
+#         raise NotImplementedError
 
 
 class OriginPosition(id_object):
@@ -250,9 +251,9 @@ class OriginPosition(id_object):
 
     def __init__(self, latitude, longitude, elevation, property_type=None):
         super(OriginPosition, self).__init__(ident=str((latitude,
-                                                       longitude,
-                                                       elevation,
-                                                       property_type)))
+                                                        longitude,
+                                                        elevation,
+                                                        property_type)))
         self.latitude = latitude
         self.longitude = longitude
         self.elevation = elevation

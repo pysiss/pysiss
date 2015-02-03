@@ -11,6 +11,10 @@
 
 from ..utilities import Singleton
 
+import logging
+
+LOGGER = logging.getLogger('pysiss')
+
 
 class MetadataRegistry(dict):
 
@@ -30,7 +34,7 @@ class MetadataRegistry(dict):
         # Check to see whether the item already exists
         if not replace_existing:
             if metadata_item.ident in self.registered_ids and verbose:
-                print Warning(('Metadata ID {0} already exists, skipping'
+                LOGGER.warn(('Metadata ID {0} already exists, skipping'
                                ' registration').format(metadata_item.ident))
             return
 
