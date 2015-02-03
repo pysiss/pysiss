@@ -7,16 +7,13 @@
 """
 
 from ...utilities import id_object
-from ...metadata import Metadata, NamespaceRegistry, unmarshal_all, unmarshal
-from .mapping import OGCServiceMapping
+from ...metadata import Metadata, NamespaceRegistry, unmarshal_all
+from .mapping import OGCServiceMapping, accumulator
 from ...geospatial import Coverage
 
 import requests
 from lxml import etree
-import simplejson
-import pkg_resources
 import logging
-from collections import defaultdict, Iterable
 import os
 
 LOGGER = logging.getLogger('pysiss')
@@ -211,16 +208,33 @@ class CoverageService(id_object):
         else:
             output_format = allowed_formats[0]
 
-        # Construct request
-        params = dict(ident=ident,
-                      minlongitude=bounds[0], maxlongitude=bounds[2],
-                      minlatitude=bounds[1], maxlatitude=bounds[3],
-                      format=output_format)
+        # Construct request - todo better argument checking
+        params = accumulator(ident=ident, format=output_format)
+
+        # Deal with bounding box
+        if all([b is not None for b in bounds]):
+            params.update(
+                minlongitude=bounds[0], maxlongitude=bounds[2],
+                minlatitude=bounds[1], maxlatitude=bounds[3])
+        elif longitude and latitude is None:
+            params.update(
+                longitude=longitude,
+                minlatitude=bounds[1], maxlatitude=bounds[3])
+        elif latitude and longitude is None:
+            params.update(
+                minlongitude=bounds[0], maxlongitude=bounds[2],
+                latitude=latitude)
+        elif latitude and longitude:
+            params.update(latitude=latitude, longitude=longitude)
         if projection:
-            params.update({'projection': projection})
+            params.update(projection=projection)
+
+        # Deal with time bounds
         if time_bounds:
-            params.update({'mintime': time_bounds[0],
-                           'maxtime': time_bounds[1]})
+            params.update(mintime=time_bounds[0],
+                          maxtime=time_bounds[1])
+        elif time:
+            params.update(time=time)
 
         # Construct and get data
         endpoint = self._describe_endpoint['url']

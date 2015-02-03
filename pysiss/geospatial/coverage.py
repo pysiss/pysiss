@@ -11,7 +11,7 @@ from ..metadata import unmarshal_all
 
 import rasterio
 from matplotlib.pyplot import gca, get_cmap
-from lxml import etree
+import numpy
 
 
 class Coverage(id_object):

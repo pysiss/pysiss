@@ -84,7 +84,7 @@ class Version(Command):
 
     def run(self):
         update_version()
-        LOGGER.info("Version is now", get_version())
+        LOGGER.info("Version is now {0}".format(get_version()))
 
 if __name__ == '__main__':
     update_version()
