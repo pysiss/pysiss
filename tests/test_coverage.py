@@ -12,13 +12,13 @@ from mocks.resource import mock_resource
 import unittest
 import numpy
 import os
+import shutil
 import httmock
 
 # ASTER products for tests
-BOUNDS = (119.52, -21.6, 120.90, -20.5)
+BOUNDS = (119.5, -20.6, 119.6, -20.5)
 WCSURL = ('http://aster.nci.org.au/thredds/wcs/aster/vnir/'
           'Aus_Mainland/Aus_Mainland_AlOH_group_composition_reprojected.nc4')
-TEST_FILE = '{0}/resources/AlOH_group_composition.geotiff'
 
 
 class TestRasterCoverage(unittest.TestCase):
@@ -83,31 +83,18 @@ class TestRasterCoverage(unittest.TestCase):
     def test_coverage(self):
         """ Getting a coverage should work ok
         """
-        coverage = \
-            self.wcs.get_coverage(ident='AlOH_group_composition',
-                                  bounds=BOUNDS,
-                                  output_format='GeoTIFF')
-        self.assertTrue(coverage.ident is not None)
+        with httmock.HTTMock(mock_resource):
+            coverage = \
+                self.wcs.get_coverage(ident='AlOH_group_composition',
+                                      bounds=BOUNDS,
+                                      output_format='GeoTIFF')
+        self.assertTrue(coverage.ident == 'AlOH_group_composition',)
         self.assertTrue(coverage.metadata is not None)
         self.assertTrue(coverage.projection is not None)
-        self.assertTrue(numpy.allclose(coverage.bounds, BOUNDS))
+        for idx, expected in enumerate(BOUNDS):
+            self.assertTrue((expected - coverage.bounds[idx]) ** 2 < 1e-3)
+        del coverage
+        shutil.rmtree('coverages')
 
-
-class CoverageTest(unittest.TestCase):
-
-    def setUp(self):
-        test_dir = os.path.dirname(os.path.realpath(__file__))
-        self.raster = geospatial.Coverage(
-            filename=TEST_FILE.format(test_dir))
-
-    def tearDown(self):
-        del self.raster
-
-    @unittest.skip('Skipping file init for now')
-    def test_file_init(self):
-        """ Raster object should load from file with no errors
-        """
-        self.assertTrue(self.raster.ident is not None)
-        self.assertTrue(self.raster.metadata is not None)
-        self.assertTrue(self.raster.projection is not None)
-        self.assertTrue(numpy.allclose(self.raster.bounds, BOUNDS))
+if __name__ == '__main__':
+    unittest.main()

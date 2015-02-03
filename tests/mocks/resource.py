@@ -10,6 +10,7 @@ import os
 import httmock
 import requests
 import logging
+import hashlib
 
 LOGGER = logging.getLogger('pysiss')
 
@@ -32,10 +33,13 @@ class Resource(object):
         self.folder = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
             'cache', url.lstrip('https://'))
-        self.file_path = os.path.join(
-            self.folder,
-            '?' + '&'.join(
-                ('{0}={1}'.format(*it) for it in self.params.items())))
+
+        # We're just going to generate a hash based on the sorted parameter
+        # characters
+        query_string = \
+            '&'.join(('{0}={1}'.format(*it) for it in self.params.items()))
+        self.filename = hashlib.md5(''.join(sorted(query_string))).hexdigest()
+        self.file_path = os.path.join(self.folder, self.filename)
 
         # Make request object to return
         self.session = None

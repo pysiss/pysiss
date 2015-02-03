@@ -130,19 +130,34 @@
         "url": "http://aster.nci.org.au/thredds/wcs/aster/vnir/Aus_Mainland/Aus_Mainland_AlOH_group_composition_reprojected.nc4",
         "method": "get",
         "params": {
+            "acceptversions": "2.0.0,1.1.0,1.0.0",
             "request": "getcapabilities",
+            "acceptformats": "text/xml",
             "service": "wcs"
         },
         "data": ""
     },
     "tests.test_raster.descriptions": {
-        "url": "http://aster.nci.org.au/thredds/wcs/aster/vnir/Aus_Mainland/Aus_Mainland_AlOH_group_composition_reprojected.nc4",
+        "url": "http://aster.nci.org.au//thredds/wcs/aster/vnir/Aus_Mainland/Aus_Mainland_AlOH_group_composition_reprojected.nc4",
         "method": "get",
         "params": {
             "version": "1.0.0",
             "request": "describecoverage",
-            "ident": "MgOH_group_composition",
+            "coverage": "AlOH_group_composition",
             "service": "wcs"
+        },
+        "data": ""
+    },
+    "tests.test_raster.descriptions": {
+        "url": "http://aster.nci.org.au//thredds/wcs/aster/vnir/Aus_Mainland/Aus_Mainland_AlOH_group_composition_reprojected.nc4",
+        "method": "get",
+        "params": {
+            "version": "1.0.0",
+            "request": "getcoverage",
+            "coverage": "AlOH_group_composition",
+            "service": "wcs",
+            "format": "GeoTIFF",
+            "bbox": "119.5,-20.6,119.6,-20.5"
         },
         "data": ""
     }

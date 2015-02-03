@@ -9,6 +9,7 @@
 from ...utilities import id_object
 from ...metadata import Metadata, NamespaceRegistry, unmarshal_all, unmarshal
 from .mapping import OGCServiceMapping
+from ...geospatial import Coverage
 
 import requests
 from lxml import etree
@@ -16,6 +17,7 @@ import simplejson
 import pkg_resources
 import logging
 from collections import defaultdict, Iterable
+import os
 
 LOGGER = logging.getLogger('pysiss')
 
@@ -198,7 +200,6 @@ class CoverageService(id_object):
         if projection is not None:
             allowed_proj = unmarshal_all(
                 metadata, '//wcs:supportedcrss/wcs:requestcrss')
-            print allowed_proj
             self._check('get_coverage', 'projection', projection, allowed_proj)
 
         # Check requested output format
@@ -229,12 +230,26 @@ class CoverageService(id_object):
                                       **params)
         response = requests.request(url=endpoint + query,
                                     method=method)
+        if response.ok:
+            # Stream response to file
+            if not os.path.exists('coverages'):
+                os.mkdir('coverages')
+            filename = 'coverages/{0}.{1}'.format(ident, output_format)
+            with open(filename, 'wb') as fhandle:
+                fhandle.write(response.content)
 
-        for key, value in response.__dict__.items():
-            try:
-                print ['  - ' + v for v in value.readlines()]
-            except AttributeError:
-                print value
+            # Write metadata to file
+            md_filename = 'coverages/{0}_metadata.xml'.format(ident)
+            with open(md_filename, 'wb') as fhandle:
+                fhandle.write(etree.tostring(
+                                self.descriptions[ident].tree))
+
+            return Coverage(filename,
+                            ident=ident,
+                            metadata=self.descriptions[ident])
+        else:
+            raise IOError(("Couldn't get coverage {0}, server "
+                          "returned {1}").format(ident, response.status_code))
 
     def _check(self, function, key, value, allowed):
         """ Check whether a parameter value is ok

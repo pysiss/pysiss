@@ -19,36 +19,36 @@
         "format": "@format",
         "?crs": "@projection",
         "?bbox": {
-            "string": "({minlongitude},{minlatitude},{maxlongitude},{maxlatitude})",
+            "string": "{minlongitude},{minlatitude},{maxlongitude},{maxlatitude}",
             "minlongitude": "@minlongitude",
             "maxlongitude": "@maxlongitude",
             "minlatitude": "@minlatitude",
             "maxlatitude": "@maxlatitude"
         },
         "?bbox": {
-            "string": "({longitude},{minlatitude},{longitude},{maxlatitude})",
+            "string": "{longitude},{minlatitude},{longitude},{maxlatitude}",
             "longitude": "@longitude",
             "minlatitude": "@minlatitude",
             "maxlatitude": "@maxlatitude"
         },
         "?bbox": {
-            "string": "({longitude},{latitude},{longitude},{latitude})",
+            "string": "{longitude},{latitude},{longitude},{latitude}",
             "longitude": "@longitude",
             "latitude": "@latitude"
         },
         "?bbox": {
-            "string": "({minlongitude},{latitude},{maxlongitude},{latitude})",
+            "string": "{minlongitude},{latitude},{maxlongitude},{latitude}",
             "minlongitude": "@minlongitude",
             "maxlongitude": "@maxlongitude",
             "latitude": "@latitude"
         },
         "?time": {
-            "string": "({mintime},{maxtime})",
+            "string": "{mintime},{maxtime}",
             "mintime": "@mintime",
             "maxtime": "@maxtime"
         },
         "?time": {
-            "string": "({time},{time})",
+            "string": "{time},{time}",
             "time": "@time"
         }
     }

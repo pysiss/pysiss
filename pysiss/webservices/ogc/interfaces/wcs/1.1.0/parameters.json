@@ -18,7 +18,7 @@
         "identifier": "@ident",
         "format": "@format",
         "?bbox": {
-            "string": "({minlongitude},{minlatitude},{maxlongitude},{maxlatitude},{projection})",
+            "string": "{minlongitude},{minlatitude},{maxlongitude},{maxlatitude},{projection}",
             "minlongitude": "@minlongitude",
             "maxlongitude": "@maxlongitude",
             "minlatitude": "@minlatitude",
@@ -26,32 +26,32 @@
             "projection": "@projection"
         },
         "?bbox": {
-            "string": "({longitude},{minlatitude},{longitude},{maxlatitude},{projection})",
+            "string": "{longitude},{minlatitude},{longitude},{maxlatitude},{projection}",
             "longitude": "@longitude",
             "minlatitude": "@minlatitude",
             "maxlatitude": "@maxlatitude",
             "projection": "@projection"
         },
         "?bbox": {
-            "string": "({longitude},{latitude},{longitude},{latitude},{projection})",
+            "string": "{longitude},{latitude},{longitude},{latitude},{projection}",
             "longitude": "@longitude",
             "latitude": "@latitude",
             "projection": "@projection"
         },
         "?bbox": {
-            "string": "({minlongitude},{latitude},{maxlongitude},{latitude},{projection})",
+            "string": "{minlongitude},{latitude},{maxlongitude},{latitude},{projection}",
             "minlongitude": "@minlongitude",
             "maxlongitude": "@maxlongitude",
             "latitude": "@latitude",
             "projection": "@projection"
         },
         "?time": {
-            "string": "({low},{high})",
+            "string": "{low},{high}",
             "low": "@mintime",
             "high": "@maxtime"
         },
         "?time": {
-            "string": "({time},{time})",
+            "string": "{time},{time}",
             "time": "@time"
         }
     }
