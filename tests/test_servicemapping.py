@@ -100,58 +100,67 @@ class TestServiceMapping(unittest.TestCase):
     """ Tests for ServiceMapping object
     """
 
-    def test_init(self):
+    requests = [dict(request='getcapabilities',
+                     method='get'),
+                dict(request='describecoverage',
+                     ident='foo',
+                     method='get'),
+                dict(request='getcoverage',
+                     ident='foo',
+                     method='get',
+                     minlongitude=132, maxlongitude=145,
+                     minlatitude=34, maxlatitude=55,
+                     projection='CRS_something',
+                     format='geotiff'),
+                dict(request='getcoverage',
+                     ident='foo',
+                     method='get',
+                     mintime='1-1-2015', maxtime='5-1-2015',
+                     format='geotiff'),
+                dict(request='getcoverage',
+                     ident='foo',
+                     method='get',
+                     time='1-1-2015',
+                     format='geotiff'),
+                dict(request='getcoverage',
+                     ident='foo',
+                     method='get',
+                     latitude=45, longitude=42,
+                     projection='CRS_something',
+                     format='geotiff'),
+                dict(request='getcoverage',
+                     ident='foo',
+                     method='get',
+                     projection='CRS_something',
+                     latitude=45, longitude=42,
+                     time='1-1-2015',
+                     format='geotiff')]
+
+    def test_init_v100(self):
+        self._run_init('1.0.0')
+
+    def test_init_v110(self):
+        self._run_init('1.1.0')
+
+    def test_init_v200(self):
+        self._run_init('2.0.0')
+
+    def _run_init(self, version):
         """ ServiceMapping object should init ok
         """
-        requests = [
-            dict(request='getcapabilities',
-                 method='get'),
-            dict(request='describecoverage',
-                 ident='foo',
-                 method='get'),
-            dict(request='getcoverage',
-                 ident='foo',
-                 method='get',
-                 minlongitude=132, maxlongitude=145,
-                 minlatitude=34, maxlatitude=55,
-                 projection='CRS_something'),
-            dict(request='getcoverage',
-                 ident='foo',
-                 method='get',
-                 mintime='1-1-2015', maxtime='5-1-2015'),
-            dict(request='getcoverage',
-                 ident='foo',
-                 method='get',
-                 time='1-1-2015'),
-            dict(request='getcoverage',
-                 ident='foo',
-                 method='get',
-                 latitude=45, longitude=42,
-                 projection='CRS_something'),
-            dict(request='getcoverage',
-                 ident='foo',
-                 method='get',
-                 projection='CRS_something',
-                 latitude=45, longitude=42,
-                 time='1-1-2015')
-        ]
+        mapping = OGCServiceMapping(service='wcs', version=version)
+        for request in self.requests:
+            # Construct query string
+            result = mapping.request(**request)
 
-        for version in ('1.0.0', '1.1.0', '2.0.0'):
-            print '\n\nTesting version {0}'.format(version)
-            mapping = OGCServiceMapping(service='wcs', version=version)
-            for request in requests:
-                # Construct query string
-                result = mapping.request(**request)
-                print result
-
-                # Check that templates have been replaced
-                self.assertTrue('@' not in result)
-                self.assertTrue('?' not in result[1:])
-                for key, value in request.items():
-                    if key is not 'method':
-                        self.assertTrue(str(value) in result,
-                                        'Missing value {0} '.format(value) +
-                                        'associated with key {0}'.format(key))
+            # Check that templates have been replaced
+            self.assertTrue('@' not in result)
+            self.assertTrue('?' not in result[1:])
+            for key, value in request.items():
+                if key is not 'method':
+                    self.assertTrue(str(value) in result,
+                                    'Missing value {0} '.format(value) +
+                                    'associated with key {0}'.format(key))
 
 if __name__ == '__main__':
     unittest.main()

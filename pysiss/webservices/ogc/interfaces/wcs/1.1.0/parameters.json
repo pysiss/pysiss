@@ -16,6 +16,7 @@
         "request": "getcoverage",
         "version": "1.1.0",
         "identifier": "@ident",
+        "format": "@format",
         "?bbox": {
             "string": "({minlongitude},{minlatitude},{maxlongitude},{maxlatitude},{projection})",
             "minlongitude": "@minlongitude",
@@ -52,7 +53,6 @@
         "?time": {
             "string": "({time},{time})",
             "time": "@time"
-        },
-        "?format": "@format"
+        }
     }
 }

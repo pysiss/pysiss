@@ -61,7 +61,7 @@ setup(
     packages=find_packages(exclude=['test*']),
     package_data={
         'pysiss.metadata': ['*.json'],
-        'pysiss.webservices': ['*.json']
+        'pysiss.webservices': ['*.json'],
         'pysiss.webservices.ogc': ['**/*.json', '**/*.xml']
     },
     test_suite='tests',

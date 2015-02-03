@@ -47,8 +47,8 @@ class CoverageService(id_object):
         self._version = '1.0.0' # Dummy for now, will get replaced
 
         # Set up mapping to OGC webservices
-        self.request_mappings = OGCServiceMapping(version=self.version,
-                                                  service='wcs')
+        self.mappings = OGCServiceMapping(version=self._version,
+                                          service='wcs')
 
     @property
     def capabilities(self):
@@ -86,15 +86,22 @@ class CoverageService(id_object):
             return
 
         # Update capabilities from server
-        params = self._make_payload(request='getcapabilities')
-        response = requests.get(self.endpoint, params=params)
+        query_string = self.mappings.request(request='getcapabilities',
+                                             method='get')
+        response = requests.get(self.endpoint + query_string)
 
         # Parse metadata
         if response.ok:
             cap = self._capabilities = Metadata(
                 tree=etree.fromstring(response.content),
                 mdatatype='wcs:wcs_capabilities')
+
+            # Update version number
             self._version = cap.xpath('@version')[0]
+            self.mappings = OGCServiceMapping(version=self.version,
+                                              service='wcs')
+
+            # Update endpoints
             self._describe_endpoint = \
                 unmarshal_all(cap.tree, '//wcs:describecoverage')[0]
             self._coverage_endpoint = \
@@ -122,10 +129,15 @@ class CoverageService(id_object):
         self._descriptions = dict()
         self.envelopes = dict()
         for layer in self.layers:
-            params = self._make_payload(request='describecoverage',
-                                        ident=layer)
-            response = requests.request(params=params,
-                                        **self._describe_endpoint)
+            # Construct and get data
+            endpoint = self._describe_endpoint['url']
+            method = self._describe_endpoint['method']
+            query = self.mappings.request(request='describecoverage',
+                                          ident=layer,
+                                          **self._describe_endpoint)
+            response = requests.request(url=endpoint + query,
+                                        method=method)
+
             if response.ok:
                 desc = self._descriptions[layer] = Metadata(
                     tree=etree.fromstring(response.content),
@@ -141,8 +153,9 @@ class CoverageService(id_object):
                               "server returned {1}".format(
                                   response.url, response.status_code))
 
-    def get_coverage(self, ident, bounds, time_bounds=None,
-                     projection=None, output_format=None):
+    def get_coverage(self, ident, bounds=None, time_bounds=None,
+                     projection=None, output_format=None,
+                     latitude=None, longitude=None, time=None):
         """ Get coverage data for the given bounding box
 
             Parameters are checked against the capabilities of the WCS endpoint
@@ -153,12 +166,21 @@ class CoverageService(id_object):
                     from (see CoverageService.layers for valid value). Invalid
                     values will raise a ValueError
                 bounds - the bounding box of the coverage, given as a
-                    (min_x, min_y, max_x, max_y) tuple.
+                    (min_x, min_y, max_x, max_y) tuple. Setting any of these
+                    values to None will default to the value for the coverage.
                 time_bounds - the time bounds of the coverage, given as a
                     (min_t, max_t) tuple, Optional, if not specified defaults
                     to entire time bounds.
                 projection - the projection of the bounding box. Optional,
                     defaults to the same projection as the coverage
+                latitude - a single latitude if you only want one
+                    pixel wide coverage back. Optional, if specified,
+                    max_latitude and min_latitude in bounds should be None.
+                longitude - a single longitude value if you only want one
+                    pixel wide coverage back. Optional, if specified,
+                    max_longitude and min_longitude in bounds should be None.
+                time - a single time if you only want one time back. Optional,
+                    only one of time or time_bounds should be specified.
                 output_format - the output format for the data from the server.
                     Optional, defaults to geoTIFF, or the first format
                     specified in `self.formats` if geoTIFF is not available.
@@ -190,14 +212,29 @@ class CoverageService(id_object):
 
         # Construct request
         params = dict(ident=ident,
-                      min_x=bounds[0], max_x=bounds[2],
-                      min_y=bounds[1], max_y=bounds[3])
+                      minlongitude=bounds[0], maxlongitude=bounds[2],
+                      minlatitude=bounds[1], maxlatitude=bounds[3],
+                      format=output_format)
         if projection:
             params.update({'projection': projection})
         if time_bounds:
-            params.update({'min_t': time_bounds[0],
-                           'max_t': time_bounds[1]})
-        self._make_payload(request='getcoverage', **params)
+            params.update({'mintime': time_bounds[0],
+                           'maxtime': time_bounds[1]})
+
+        # Construct and get data
+        endpoint = self._describe_endpoint['url']
+        method = self._describe_endpoint['method']
+        query = self.mappings.request(request='getcoverage',
+                                      method=method,
+                                      **params)
+        response = requests.request(url=endpoint + query,
+                                    method=method)
+
+        for key, value in response.__dict__.items():
+            try:
+                print ['  - ' + v for v in value.readlines()]
+            except AttributeError:
+                print value
 
     def _check(self, function, key, value, allowed):
         """ Check whether a parameter value is ok
@@ -207,55 +244,3 @@ class CoverageService(id_object):
                               'allowed values are {2}').format(key, value,
                                                                allowed,
                                                                function))
-
-    def _make_payload(self, request, **kwargs):
-        """ Generate a WCS payload for a request
-
-            Params:
-                request - the request type to make. One of
-                    'getcapabilities', 'describecoverage',
-                    'getcoverage'
-
-            Other parameters get passed in as keyword arguments
-        """
-        # # Get the payload from the mappings
-        # allowed = ('getcapabilities', 'describecoverage', 'getcoverage')
-        # self._check('_make_payload', 'request', request, allowed)
-        # payload = self.request_mappings[self.version][request]
-
-        # # Optional parameters start with a '?'
-        # optional, required = [], []
-        # for key in payload.keys():
-        #     if key.startswith('?'):
-        #         optional.append(key.strip('?'))
-        #     else:
-        #         required.append(key)
-
-        # # Check that we have all the required keyword arguments
-        # # for this mapping
-        # specify, supplied = [], []
-        # for value in payload.values():
-        #     is
-        # required_to_specify = \
-        #     [k for k in required if payload[k].startswith('@') ]
-        # for key, value in payload.items():
-        #     try:
-        #         if v.startswith('@'):
-        #             required_keywords.append(v.strip('@'))
-
-        # required_keywords = [v.lstrip('@') for v in payload.values()
-        #                      if v.startswith('@')]
-        # missing = [k for k in required_keywords
-        #            if k not in kwargs.keys()]
-        # if missing:
-        #     LOGGER.error(('Bailing on payload build of {0} request: missing '
-        #                   + 'keywords {1}').format(request, missing))
-        #     raise KeyError(("Missing keyword(s) {0} required to construct "
-        #                     "payload for WCS request").format(
-        #                         map(lambda s: s.lstrip('@'), missing)))
-
-        # # Generate the parameter dictionary for the call
-        # for key, value in payload.items():
-        #     if value.startswith('@'):
-        #         payload[key] = kwargs[value.lstrip('@')]
-        # return payload

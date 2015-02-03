@@ -16,6 +16,7 @@
         "request": "getcoverage",
         "version": "2.0.0",
         "coverage": "@ident",
+        "format": "@format",
         "?projection": "@projection",
         "?subset": {
             "string": "http://www.opengis.net/def/axis/OGC/0/longitude({low},{high})",

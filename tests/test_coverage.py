@@ -54,38 +54,6 @@ class TestRasterCoverage(unittest.TestCase):
         """
         self.assertTrue('AlOH_group_composition' in self.wcs.layers)
 
-    def test_getcapabilties_payload_creation(self):
-        """ Check that payloads get created ok
-        """
-        # Modify for other versions
-        for version in self.testversions:
-            self.wcs._version = version
-            self.wcs._make_payload('getcapabilities')
-
-    def test_borked_describecoverage_payload_creation(self):
-        """ Check that describecoverage payloads get created ok
-        """
-        layer = self.wcs.layers[0]
-
-        # Modify for other versions
-        for version in self.testversions:
-            self.wcs._version = version
-            self.wcs._make_payload('describecoverage',
-                                   ident=layer)
-
-    def test_borked_describecoverage_payload_creation(self):
-        """ Borked arguments should raise a KeyError
-        """
-        # Modify for other versions
-        for version in self.testversions:
-            self.wcs._version = version
-            self.assertRaises(KeyError,
-                              self.wcs._make_payload,
-                              request='describecoverage')
-            self.assertRaises(KeyError,
-                              self.wcs._make_payload,
-                              'describecoverage')
-
     def test_get_coverage_ident(self):
         """ Passing borked ident should raise ValueError
         """
@@ -118,7 +86,7 @@ class TestRasterCoverage(unittest.TestCase):
         coverage = \
             self.wcs.get_coverage(ident='AlOH_group_composition',
                                   bounds=BOUNDS,
-                                  output_format='GeoTIFF_Float')
+                                  output_format='GeoTIFF')
         self.assertTrue(coverage.ident is not None)
         self.assertTrue(coverage.metadata is not None)
         self.assertTrue(coverage.projection is not None)
