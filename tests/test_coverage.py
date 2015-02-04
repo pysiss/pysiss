@@ -1,4 +1,4 @@
-""" file: test_raster.py
+""" file: test_coverage.py
     author: Jess Robertson
             CSIRO Minerals Resources Flagship
     date:   January 2015
@@ -21,10 +21,7 @@ WCSURL = ('http://aster.nci.org.au/thredds/wcs/aster/vnir/'
           'Aus_Mainland/Aus_Mainland_AlOH_group_composition_reprojected.nc4')
 
 
-class TestRasterCoverage(unittest.TestCase):
-
-    # testversions = ('1.0.0', '1.1.0', '2.0.0')
-    testversions = ('1.0.0', '1.1.0')
+class TestCoverageService(unittest.TestCase):
 
     def setUp(self):
         with httmock.HTTMock(mock_resource):

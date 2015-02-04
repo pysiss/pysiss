@@ -43,7 +43,7 @@ class CoverageService(id_object):
 
         # Initialize metadata slots
         self._capabilities, self._descriptions = None, None
-        self._version = '1.0.0' # Dummy for now, will get replaced
+        self._version = '1.0.0'  # Dummy for now, will get replaced
 
         # Set up mapping to OGC webservices
         self.mappings = OGCServiceMapping(version=self._version,
@@ -97,7 +97,7 @@ class CoverageService(id_object):
 
             # Update version number
             self._version = cap.xpath('@version')[0]
-            self.mappings = OGCServiceMapping(version=self.version,
+            self.mappings = OGCServiceMapping(version=self._version,
                                               service='wcs')
 
             # Update endpoints
@@ -113,9 +113,10 @@ class CoverageService(id_object):
                 namespaces=self.namespaces)
 
         else:
-            raise IOError("Can't access endpoint {0}, "
-                          "server returned {1}".format(response.url,
-                                                       response.status_code))
+            raise IOError("Can't get capabilities from endpoint {0}, "
+                          "server returned {1}, content was:\n\n{2}".format(
+                                response.url, response.status_code
+                                response.content))
 
     def get_descriptions(self, update=False):
         """ Get a description of the coverage from the service
