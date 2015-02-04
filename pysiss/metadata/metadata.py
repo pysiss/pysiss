@@ -16,6 +16,7 @@ from .regularize import regularize
 
 from copy import deepcopy
 from lxml import etree
+from StringIO import StringIO
 
 
 def yamlify(tree, indent_width=2, indent=0):
@@ -55,26 +56,59 @@ def normalize(elem):
     """ Normalize the tag for a given element
     """
     new = deepcopy(elem)
-    new.tag = expand_namespace(regularize(elem.tag))
+    try:
+        new.tag = expand_namespace(regularize(elem.tag), form='xml')
+    except ValueError:
+        print elem.tag
+        print regularize(elem.tag)
+        print expand_namespace(regularize(elem.tag), form='xml')
     for child in new.getchildren():
         new.replace(child, normalize(child))
     return new
+
+PARSER = etree.XMLParser(remove_comments=True, recover=True)
+
+def make_normalized_etree(data):
+    """ Generate a normalized etree from an existing etree or string
+
+        Parameters:
+            data - either an lxml.etree.ElementTree instance, or a string
+                containing raw XML data.
+    """
+    if isinstance(data, basestring):
+        # Parse the string first
+        tree = etree.parse(StringIO(data), parser=PARSER)
+        return normalize(tree.getroot())
+
+    elif isinstance(data, etree.ElementTree):
+        return normalize(data)
+
+    else:
+        raise ValueError("Don't know what to do with this {0}".format(arg))
 
 
 class Metadata(id_object):
 
     """ Class to store metadata record
+
+        Parameters:
+            tree_or_string - either an XML etree instance, or a
+                string containing some XML.
+            mdatatype - the datatype for the metadata
+            ident - a unique identifier for the metadata. Optional, one will
+                be generated for the instance if not specified.
+            **kwargs - arbitrary attributes to attach to the metadata instance
     """
 
     registry = MetadataRegistry()
 
-    def __init__(self, tree, mdatatype, ident=None, **kwargs):
+    def __init__(self, tree_or_string, mdatatype, ident=None, **kwargs):
         self.mdatatype = mdatatype.lower()
         super(Metadata, self).__init__(ident=self.mdatatype)
         self.ident = ident or self.uuid
 
         # Normalize tree tags
-        self.tree = normalize(tree)
+        self.tree = make_normalized_etree(tree_or_string)
 
         # Store other metadata
         for attrib, value in kwargs.items():
@@ -89,8 +123,6 @@ class Metadata(id_object):
 
     def xpath(self, *args, **kwargs):
         """ Pass XPath queries through to underlying tree
-
-            Todo: Make these use regularized tags?
         """
         return self.tree.xpath(*args, **kwargs)
 

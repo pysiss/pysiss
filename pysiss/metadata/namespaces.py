@@ -90,18 +90,22 @@ def expand_namespace(tag, form='xml'):
 def split_namespace(tag):
     """ Split a tag into a namespace and a tag
     """
-    if tag.startswith('{'):
-        # We have an expanded namespace to deal with
-        nspace, tag = tag.lstrip('{').split('}')
-    elif tag.count(':') > 1:
-        # We have an expanded namespace of the form ns:ns:ns:ns:tag
-        tokens = tag.split(':')
-        tag = tokens.pop()
-        nspace = ':'.join(tokens)
-    elif tag.count(':') == 1:
-        # We have a shortened namespaces of the form ns:tag
-        nspace, tag = tag.split(':')
-    else:
-        # Don't know what to do here? Just return None for namespace
-        nspace = None
+    try:
+        if tag.startswith('{'):
+            # We have an expanded namespace to deal with
+            nspace, tag = tag.lstrip('{').split('}')
+        elif tag.count(':') > 1:
+            # We have an expanded namespace of the form ns:ns:ns:ns:tag
+            tokens = tag.split(':')
+            tag = tokens.pop()
+            nspace = ':'.join(tokens)
+        elif tag.count(':') == 1:
+            # We have a shortened namespaces of the form ns:tag
+            nspace, tag = tag.split(':')
+        else:
+            # Don't know what to do here? Just return None for namespace
+            nspace = None
+    except AttributeError, err:
+        print tag
+        raise err
     return nspace, tag
