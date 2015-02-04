@@ -1,7 +1,21 @@
 Introduction to pySISS
 ======================
 
-We want to make it easy to perform geological data analysis based on SISS services (including boreholes & geological measurements, raster and vector map data, and vocabularies) within Python using your favourite Python libraries. We rely pretty heavily on a lot of other excellent Python libraries (e.g. [pandas](http://pandas.pydata.org), [shapely](http://toblerity.org/shapely/manual.html), [rasterio](http://github.com/mapbox/rasterio) and [lxml](http://lxml.de)) --- the objective is to make it easy to start doing something with the data without having to worry about XML semantics and OGC APIs.
+PySISS makes it easy to perform analysis on geological datasets (including boreholes & geological measurements, raster and vector map data, and vocabularies) within Python, using data slurped from OGC-compliant webservices.
+
+Our aim is to provide a stack of Python libraries plus a bunch of glue and parsing code so that you can get your sticky hands on the actual data quickly, without having to worry about OGC APIs and GeoSciML semantics.
+
+This means we rely pretty heavily on a lot of excellent Python libraries (e.g. [pandas](http://pandas.pydata.org), [shapely](http://toblerity.org/shapely/manual.html), [rasterio](http://github.com/mapbox/rasterio) and [lxml](http://lxml.de)) to provide the native Python objects and metadata support at the other end. But it also means that getting some data is as simple as:
+
+```python
+from pysiss.webservices import CoverageService
+
+wcs = CoverageService(http://someURL).get_coverage()
+print wcs.layers  # shows available layers
+covg = wcs.get_coverage(ident=wcs.layers[0],
+                        bounds=some_bounding_box)
+print covg.array  # shows raster data as a numpy array.
+```
 
 **Where does the name come from?**
 
@@ -53,7 +67,7 @@ Boreholes have their own domains defining interval or point samples, and can als
 The Advanced Spaceborne Thermal Emission and Reflection Radiometer (ASTER) is an imaging instrument onboard Terra. ASTER supplies high resolution visible, thermal and infrared spectral imagery. Geoscience Australia makes some data products derived from this data available via WCS. There's a seperate WCS endpoint for each ASTER product. We're going to grab a few of the compositional products. Here I've pulled the WCS URL from the AuScope portal.
 
 ```python
-from pysiss.webservices import CoverageService
+from pysiss.webservices import ogc
 
 # Products to pull
 aster_products = [
@@ -67,7 +81,7 @@ wcsurl = 'http://aster.nci.org.au/thredds/wcs/aster/vnir/Aus_Mainland/Aus_Mainla
 coverages = {}
 for product in aster_products:
     url = wcsurl.format(product)
-    wcs = CoverageService(url)
+    wcs = ogc.CoverageService(url)
     coverages[product] = wcs.get_coverage(ident=wcs.layers[0],
                                           bounds=bounds)
 ```
