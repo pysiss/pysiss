@@ -10,7 +10,7 @@ from ..utilities import id_object
 from ..metadata import MetadataRegistry
 
 
-class MappedFeature(id_object):
+class Feature(id_object):
 
     """ Class containing vector GIS data.
 
@@ -20,7 +20,7 @@ class MappedFeature(id_object):
     md_registry = MetadataRegistry()
 
     def __init__(self, shape, projection, specification, ident=None, **kwargs):
-        super(MappedFeature, self).__init__(ident='mapped_feature')
+        super(Feature, self).__init__(ident='mapped_feature')
         self.ident = ident or self.uuid
 
         # Store some info on the shape
@@ -37,7 +37,7 @@ class MappedFeature(id_object):
     def __repr__(self):
         """ String representation
         """
-        info = 'MappedFeature {0} somewhere near {1} contains '
+        info = 'Feature {0} somewhere near {1} contains '
         info_str = info.format(self.ident, self.centroid)
         return info_str
 
@@ -52,6 +52,6 @@ class MappedFeature(id_object):
 
     @property
     def metadata(self):
-        """ Return the metadata associated with the MappedFeature
+        """ Return the metadata associated with the Feature
         """
         return self.md_registry[self.specification]

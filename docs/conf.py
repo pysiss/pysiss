@@ -33,9 +33,8 @@ extensions = [
     'matplotlib.sphinxext.plot_directive',
     'sphinx.ext.mathjax',
     'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'ipython_console_highlighting',
-    'numpydoc']
+    'sphinx.ext.doctest'
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['.templates']

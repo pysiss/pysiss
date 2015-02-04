@@ -96,7 +96,7 @@ for product in aster_products:
 Installing
 ----------
 
-## Using Anaconda/binstar
+**Using Anaconda/binstar**
 
 The easiset way to get pysiss is to install ContinuumIO's [Anaconda](http://continuum.io/downloads), and install from our prebuild binaries. Once Anaconda is installed, just run
 
@@ -111,7 +111,7 @@ and everything should just happen like magic. Optionally, you can create a seper
 
 which keeps everything isolated from other conda packages you might have.
 
-## Using pip
+**Using pip**
 
 An alternative way to get pysiss is to install the [version hosted on PyPI](https://pypi.python.org/pypi/pysiss/) via pip. This isn't quite as nice as installing via conda as you have to handle the non-Python library dependencies yourself.
 
@@ -129,11 +129,11 @@ This should pull all the dependencies for pysiss automatically. Depending on whe
 
 which will install it under your home directory (usually somewhere like `~/.local/lib/`).
 
-## From source
+**From source**
 
 `pysiss` has quite a few dependencies, most of which come from the numpy/scipy/matplotlib ecosystem. You also need to have the GDAL libraries and Python bindings installed. See the instructions in INSTALL.md for getting access to this stack.
 
-### Installing PySISS dependencies
+*Installing PySISS dependencies*
 
 Once you've got the numpy/scipy/matplotlib stack plus the GDAL libraries installed, you need:
 
@@ -149,7 +149,7 @@ If you want to run the examples, you might also want to consider
 
 These are optional but pretty kick-arse libraries which you should install and play with anyway.
 
-### Building PySISS
+*Building PySISS*
 
 If you've installed all the libraries above, all you should need to do is enter the python directory, and execute
 
@@ -161,7 +161,7 @@ or
 
 which should build and install pysiss for your system.
 
-### Running unit tests
+*Running unit tests*
 
 To run the unit tests, just go to the base directory and execute
 
@@ -171,7 +171,7 @@ They only take a couple of seconds to run and should all pass unless I've screwe
 
 The update_mocks command pulls down some data from the network to use in the tests. You should only need to run it once as this gets cached so that you can run the tests later without a network connection.
 
-### Building documentation
+*Building documentation*
 
 If you want to build your own version then you will need to have a version of [sphinx](http://sphinx.pocoo.org/) installed -- you can check by doing the following at a terminal prompt:
 
@@ -186,6 +186,8 @@ Now you are ready to build your docs, using make (or run the batch script make.b
     cd docs && make html
 
 (or latexpdf if you want a LaTeX versionm, or epub for ePub format - type make to see all the options). The documentation will be dumped under build/{format}. For HTML, if you point a browser to docs/build/html/index.html, you should see a basic sphinx site with the documentation for pysiss. For LaTeX you can open docs/build/latex/pysiss.pdf in your favourite PDF viewer to browse the documentation.
+
+I can't promise the documentation is very up to date at the moment though...
 
 Contributing
 ------------

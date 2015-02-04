@@ -5,12 +5,12 @@
 
 .. _intro:
 
-welcome to PySISS!
+Welcome to PySISS!
 ******************
 
-We want to make it easy to perform geological data analysis based on SISS services (including boreholes & geological measurements, raster and vector map data, and vocabularies) within Python using your favourite Python libraries. 
+We want to make it easy to perform geological data analysis based on SISS services (including boreholes & geological measurements, raster and vector map data, and vocabularies) within Python using your favourite Python libraries.
 
-This library is released under the CSIRO BSD/MIT license, whose terms are available in the `LICENSE.md` file. 
+This library is released under the CSIRO BSD/MIT license, whose terms are available in the `LICENSE.md` file.
 
 **Warning** - this library is in a pre-alpha state and could change without warning.
 
@@ -22,7 +22,6 @@ Getting started
 .. toctree::
    :maxdepth: 2
 
-   building
    examples
 
 API reference
@@ -32,10 +31,9 @@ API reference
    :maxdepth: 2
 
    borehole
-   coverage
+   geospatial
    metadata
    utilities
-   vocabulary
    webservices
 
 
