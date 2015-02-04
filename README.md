@@ -11,9 +11,13 @@ PySISS is just a Python client which sits on top of the hard work done by the ag
 
 **Where can I get some data to try this out?**
 
-This library is released under the CSIRO BSD/MIT license, whose terms are available in the `LICENSE.md` file.
+A good starting point is the [AuScope portal](http://portal.auscope.org) which will let you discover and visualise some of the datasets available. The data from the examples below come from exactly the same endpoints. You can find the enpoint url by clicking on the little binary icon beside each layer.
 
-**Warning** - this library is in a pre-alpha state and could change without warning.
+**Can I use this freely?**
+
+Yep - pySISS is released under the CSIRO BSD/MIT license, whose terms are available in the `LICENSE.md` file.
+
+**Warning** - this library is in an alpha state and could change without warning.
 
 [![Build Status](https://travis-ci.org/pysiss/pysiss.svg?branch=develop)](https://travis-ci.org/pysiss/pysiss)
 [![Coverage Status](https://coveralls.io/repos/pysiss/pysiss/badge.svg?branch=develop)](https://coveralls.io/r/pysiss/pysiss?branch=develop)
