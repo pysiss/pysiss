@@ -8,13 +8,18 @@ Our aim is to provide a stack of Python libraries plus a bunch of glue and parsi
 This means we rely pretty heavily on a lot of excellent Python libraries (e.g. [pandas](http://pandas.pydata.org), [shapely](http://toblerity.org/shapely/manual.html), [rasterio](http://github.com/mapbox/rasterio) and [lxml](http://lxml.de)) to provide the native Python objects and metadata support at the other end. But it also means that getting some data is as simple as:
 
 ```python
-from pysiss.webservices import CoverageService
+from pysiss.webservices import ogc
 
-wcs = CoverageService(http://someURL).get_coverage()
-print wcs.layers  # shows available layers
+# Set up an OGC coverage service endpoint
+wcs = ogc.CoverageService('http://someURL')
+
+# Get a raster dataset over some bounding box from the first layer
+# available on the server
 covg = wcs.get_coverage(ident=wcs.layers[0],
                         bounds=some_bounding_box)
-print covg.array  # shows raster data as a numpy array.
+
+# Show the pretty data...
+covg.show()
 ```
 
 **Where does the name come from?**
