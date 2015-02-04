@@ -1,15 +1,66 @@
 Introduction to pysiss
 ======================
 
-We want to make it easy to perform geological data analysis based on SISS services (including boreholes & geological measurements, raster and vector map data, and vocabularies) within Python using your favourite Python libraries. 
+We want to make it easy to perform geological data analysis based on SISS services (including boreholes & geological measurements, raster and vector map data, and vocabularies) within Python using your favourite Python libraries. We rely pretty heavily on a lot of other excellent Python libraries (e.g. [pandas](http://pandas.pydata.org), [shapely](http://toblerity.org/shapely/manual.html), [rasterio](http://github.com/mapbox/rasterio) and [lxml](http://lxml.de)) --- the objective is to make it easy to start doing something with the data without having to worry about XML semantics and OGC APIs.
 
-This library is released under the CSIRO BSD/MIT license, whose terms are available in the `LICENSE.md` file. 
+This library is released under the CSIRO BSD/MIT license, whose terms are available in the `LICENSE.md` file.
 
 **Warning** - this library is in a pre-alpha state and could change without warning.
 
 [![Build Status](https://travis-ci.org/pysiss/pysiss.svg?branch=develop)](https://travis-ci.org/pysiss/pysiss)
 [![Coverage Status](https://coveralls.io/repos/pysiss/pysiss/badge.svg?branch=develop)](https://coveralls.io/r/pysiss/pysiss?branch=develop)
 [![Code Health](https://landscape.io/github/pysiss/pysiss/develop/landscape.svg)](https://landscape.io/github/pysiss/pysiss/develop)
+
+Examples
+--------
+
+**Getting borehole data from the NVCL**
+
+The [National Virtual Core Library (NVCL)](http://www.auscope.org.au/site/nvcl.php) is a collaboration between the Australian state geological surveys, Geoscience Australia, CSIRO and AuScope which provides drillcore information via webservices. An example borehole
+
+```python
+from pysiss.webservices import nvcl
+
+gswa = nvcl.NVCLImporter('gswa')  # Use nvcl.NVCLEndpointRegistry to see valid keys
+borehole = gswa.get_borehole('PDP2C')
+print borehole
+```
+
+prints
+
+```
+Borehole PDP2C at origin position latitude -21.177643 degree, longitude 119.429516 degree, elevation 0.0 meter, PropertyType origin position elevation: long name is "origin position elevation", units are 1 meter contains 1 datasets & 0 features
+SDs: PointDataSet PDP2C: with 6057 depths and 34 properties
+Borehole details: {'driller': BoreholeDetail(name='driller', values='Mount Magnet Drilling', property_type=None), 'inclination type': BoreholeDetail(name='inclination type', values='inclined down', property_type=None), 'drilling method': BoreholeDetail(name='drilling method', values='diamond core', property_type=None), 'cored interval': BoreholeDetail(name='cored interval', values={'lower corner': <Quantity(69.3, 'meter')>, 'upper corner': <Quantity(114.6, 'meter')>}, property_type=PropertyType envelope: long name is "cored interval envelope", units are 1 meter), 'shape': BoreholeDetail(name='shape', values=[-21.1776, 119.43, -21.1775, 119.43], property_type=None), 'start point': BoreholeDetail(name='start point', values='natural ground surface', property_type=None), 'date of drilling': BoreholeDetail(name='date of drilling', values=datetime.datetime(2004, 1, 1, 0, 0), property_type=None)}
+```
+
+Boreholes have their own domains defining interval or point samples, and can also show imagery. For more on this see the docs.
+
+**Getting some ASTER data and munging it up with geological data**
+
+The Advanced Spaceborne Thermal Emission and Reflection Radiometer (ASTER) is an imaging instrument onboard Terra. ASTER supplies high resolution visible, thermal and infrared spectral imagery. Geoscience Australia makes some data products derived from this data available via WCS. There's a seperate WCS endpoint for each ASTER product. We're going to grab a few of the compositional products. Here I've pulled the WCS URL from the AuScope portal.
+
+```python
+from pysiss.webservices import CoverageService
+
+# Products to pull
+aster_products = [
+    'AlOH_group_composition',
+    'Ferric_oxide_composition',
+    'MgOH_group_composition'
+]
+bounds = (119.5, -20.6, 119.6, -20.5)
+wcsurl = 'http://aster.nci.org.au/thredds/wcs/aster/vnir/Aus_Mainland/Aus_Mainland_{0}_reprojected.nc4'
+
+coverages = {}
+for product in aster_products:
+    url = wcsurl.format(product)
+wcs = CoverageService(url)
+    coverages[product] = wcs.get_coverage(ident=wcs.layers[0],
+                                          bounds=bounds)
+```
+
+...and we can plot this data as an image.
 
 Installing via conda
 --------------------
@@ -53,7 +104,7 @@ Building and installing pysiss from source
 
 Once you've got the numpy/scipy/matplotlib stack plus the GDAL libraries installed, you need:
 
-- [pandas](http://pandas.pydata.org) for data munging, 
+- [pandas](http://pandas.pydata.org) for data munging,
 - [shapely](http://toblerity.org/shapely/), which lets you deal with vector GIS data nicely
 - [simplejson](https://pypi.python.org/pypi/simplejson) and [lxml](http://lxml.de) for dealing with JSON, XML and text data for some of the queries.
 
@@ -99,7 +150,7 @@ Now you are ready to build your docs, using make (or run the batch script make.b
 
     cd docs && make html
 
-(or latexpdf if you want a LaTeX versionm, or epub for ePub format - type make to see all the options). The documentation will be dumped under build/<format>. For HTML, if you point a browser to docs/build/html/index.html, you should see a basic sphinx site with the documentation for pysiss. For LaTeX you can open docs/build/latex/pysiss.pdf in your favourite PDF viewer to browse the documentation.
+(or latexpdf if you want a LaTeX versionm, or epub for ePub format - type make to see all the options). The documentation will be dumped under build/{format}. For HTML, if you point a browser to docs/build/html/index.html, you should see a basic sphinx site with the documentation for pysiss. For LaTeX you can open docs/build/latex/pysiss.pdf in your favourite PDF viewer to browse the documentation.
 
 Contributing
 ------------
