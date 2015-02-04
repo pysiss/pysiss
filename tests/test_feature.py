@@ -8,6 +8,7 @@
 
 from pysiss import geospatial, webservices
 from mocks.resource import mock_resource
+from decorators import skip_if_no_network
 
 import unittest
 import httmock
@@ -23,6 +24,7 @@ class TestFeatureService(unittest.TestCase):
             for obj in GEOLOGIC_OBJECTS:
                 self.wcs[obj] = webservices.FeatureService(WFSURL.format(obj))
 
+    @skip_if_no_network
     def test_capabilities(self):
         """ FeatureService should configure itself from the endpoint
             capabilities

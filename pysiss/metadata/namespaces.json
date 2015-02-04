@@ -5,6 +5,7 @@
     "crs": "urn:ogc:def:crs",
     "dc": "http://purl.org/dc/elements/1.1/",
     "gml": "http://www.opengis.net/gml",
+    "gmlcov": "http://www.opengis.net/gmlcov/1.0",
     "gsml": "urn:cgi:xmlns:CGI:GeoSciML:2.0",
     "html": "http://www.w3.org/1999/xhtml",
     "ics_strat": "urn:cgi:classifier:ICS:StratChart:2008",

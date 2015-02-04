@@ -6,7 +6,7 @@
     description: Unmarshalling functions for GeoSciML/GML objects
 """
 
-from ...geospatial.feature import MappedFeature
+from ...geospatial.feature import Feature
 from ..metadata import Metadata
 from ..namespaces \
     import NamespaceRegistry, expand_namespace, shorten_namespace
@@ -30,9 +30,9 @@ def mapped_feature(elem):
     spec_elem = elem.find('./gsml:specification', namespaces=NAMESPACES)
     spec = specification(spec_elem)
 
-    return MappedFeature(ident=ident, shape=shape_data['shape'],
-                         projection=shape_data['projection'],
-                         specification=spec)
+    return Feature(ident=ident, shape=shape_data['shape'],
+                   projection=shape_data['projection'],
+                   specification=spec)
 
 
 def specification(elem):
