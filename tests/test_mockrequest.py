@@ -21,7 +21,7 @@ class TestResource(unittest.TestCase):
                              'mocks', 'mocks.json')
         with open(fname, 'rb') as fhandle:
             self.mocks = simplejson.load(fhandle)
-        self.test_key, self.test_endpoint = self.mocks.items()[0]
+        self.test_endpoint = self.mocks[0]
 
     def test_init(self):
         """ Resource should initialize with no errors
