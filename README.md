@@ -1,7 +1,15 @@
-Introduction to pysiss
+Introduction to pySISS
 ======================
 
 We want to make it easy to perform geological data analysis based on SISS services (including boreholes & geological measurements, raster and vector map data, and vocabularies) within Python using your favourite Python libraries. We rely pretty heavily on a lot of other excellent Python libraries (e.g. [pandas](http://pandas.pydata.org), [shapely](http://toblerity.org/shapely/manual.html), [rasterio](http://github.com/mapbox/rasterio) and [lxml](http://lxml.de)) --- the objective is to make it easy to start doing something with the data without having to worry about XML semantics and OGC APIs.
+
+**Where does the name come from?**
+
+SISS stands for the [Spatial Information Services Stack](https://www.seegrid.csiro.au/wiki/Siss/WebHome), which is a suite of tools for spatial data interoperability using the OGC standards, GeoServer, FullMoon and GeoNetwork. It deals with map, feature and raster data, as well as providing vocabulary services to handle semantic data, and registries to track and catalogue available data services. Many Australian government agencies use SISS to push out geospatial datasets over OGC-compliant webservices.
+
+PySISS is just a Python client which sits on top of the hard work done by the agencies releasing the data.
+
+**Where can I get some data to try this out?**
 
 This library is released under the CSIRO BSD/MIT license, whose terms are available in the `LICENSE.md` file.
 
@@ -55,7 +63,7 @@ wcsurl = 'http://aster.nci.org.au/thredds/wcs/aster/vnir/Aus_Mainland/Aus_Mainla
 coverages = {}
 for product in aster_products:
     url = wcsurl.format(product)
-wcs = CoverageService(url)
+    wcs = CoverageService(url)
     coverages[product] = wcs.get_coverage(ident=wcs.layers[0],
                                           bounds=bounds)
 ```
