@@ -88,8 +88,10 @@ for product in aster_products:
 
 ...and we can plot this data as an image.
 
-Installing via conda
---------------------
+Installing
+----------
+
+## Using Anaconda/binstar
 
 The easiset way to get pysiss is to install ContinuumIO's [Anaconda](http://continuum.io/downloads), and install from our prebuild binaries. Once Anaconda is installed, just run
 
@@ -104,8 +106,7 @@ and everything should just happen like magic. Optionally, you can create a seper
 
 which keeps everything isolated from other conda packages you might have.
 
-Installing via pip
-------------------
+## Using pip
 
 An alternative way to get pysiss is to install the [version hosted on PyPI](https://pypi.python.org/pypi/pysiss/) via pip. This isn't quite as nice as installing via conda as you have to handle the non-Python library dependencies yourself.
 
@@ -123,10 +124,11 @@ This should pull all the dependencies for pysiss automatically. Depending on whe
 
 which will install it under your home directory (usually somewhere like `~/.local/lib/`).
 
-Building and installing pysiss from source
-------------------------------------------
+## From source
 
 `pysiss` has quite a few dependencies, most of which come from the numpy/scipy/matplotlib ecosystem. You also need to have the GDAL libraries and Python bindings installed. See the instructions in INSTALL.md for getting access to this stack.
+
+### Installing PySISS dependencies
 
 Once you've got the numpy/scipy/matplotlib stack plus the GDAL libraries installed, you need:
 
@@ -142,6 +144,8 @@ If you want to run the examples, you might also want to consider
 
 These are optional but pretty kick-arse libraries which you should install and play with anyway.
 
+### Building PySISS
+
 If you've installed all the libraries above, all you should need to do is enter the python directory, and execute
 
     python setup.py install
@@ -152,17 +156,17 @@ or
 
 which should build and install pysiss for your system.
 
-Unit tests
-----------
+### Running unit tests
 
 To run the unit tests, just go to the base directory and execute
 
-	python setup.py test
+	python setup.py update_mocks test
 
 They only take a couple of seconds to run and should all pass unless I've screwed something up... The unit tests use the vanilla unittest framework, so should play nicely with your favourite testing framework should you prefer to use something else.
 
-Building documentation
-----------------------
+The update_mocks command pulls down some data from the network to use in the tests. You should only need to run it once as this gets cached so that you can run the tests later without a network connection.
+
+### Building documentation
 
 If you want to build your own version then you will need to have a version of [sphinx](http://sphinx.pocoo.org/) installed -- you can check by doing the following at a terminal prompt:
 
@@ -184,7 +188,5 @@ Contributing
 For a list of contributors, see `AUTHORS.md`.
 
 We'd love to have more people use the library and contribute to it. If you've pulled this from the public repository on CSIRO install of Stash ([stash.csiro.au](https://stash.csiro.au/projects/DARDA/repos/pysiss/browse)), then you might like to check out the [mirrored repository on Github](https://github.com/pysiss/pysiss) or [Bitbucket](https://bitbucket.org/pysiss/pysiss) which should make it easier for non-CSIRO types to fork and hack away.
-
-We like unit tests and documentation - feel free to contribute your own.
 
 For more details, feel free to contact Jess: his email is jesse.robertson with CSIRO's domain (google it).
