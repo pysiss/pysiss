@@ -71,9 +71,9 @@ class FeatureService(id_object):
             self._version = cap.xpath('@version')[0]
             self.mappings = OGCServiceMapping(version=self._version,
                                               service='wfs')
-         else:
+        else:
             raise IOError("Can't get capabilities from endpoint {0}, "
                           "server returned {1}, content was:\n\n{2}".format(
-                                response.url, response.status_code
+                                response.url, response.status_code,
                                 response.content))
 

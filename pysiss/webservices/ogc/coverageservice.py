@@ -115,7 +115,7 @@ class CoverageService(id_object):
         else:
             raise IOError("Can't get capabilities from endpoint {0}, "
                           "server returned {1}, content was:\n\n{2}".format(
-                                response.url, response.status_code
+                                response.url, response.status_code,
                                 response.content))
 
     def get_descriptions(self, update=False):
@@ -149,9 +149,11 @@ class CoverageService(id_object):
                                   '//wcs:spatialdomain/wcs:envelope')
 
             else:
-                raise IOError("Can't access endpoint {0}, "
-                              "server returned {1}".format(
-                                  response.url, response.status_code))
+                raise IOError("Can't get description from endpoint {0}, "
+                              "server returned {1}, content was:"
+                              "\n\n{2}".format(response.url,
+                                               response.status_code,
+                                               response.content))
 
     def get_coverage(self, ident, bounds=None, time_bounds=None,
                      projection=None, output_format=None,
@@ -263,8 +265,10 @@ class CoverageService(id_object):
                             ident=ident,
                             metadata=self.descriptions[ident])
         else:
-            raise IOError(("Couldn't get coverage {0}, server "
-                          "returned {1}").format(ident, response.status_code))
+            raise IOError("Can't get coverage from endpoint {0}, "
+                          "server returned {1}, content was:\n\n{2}".format(
+                                response.url, response.status_code,
+                                response.content))
 
     def _check(self, function, key, value, allowed):
         """ Check whether a parameter value is ok

@@ -10,6 +10,7 @@ from pysiss import geospatial, webservices
 from mocks.resource import mock_resource
 
 import unittest
+import httmock
 
 WFSURL = ("http://www.ga.gov.au/geows/{0}/oneg_wa_1m/wfs")
 GEOLOGIC_OBJECTS = ('contacts', 'faults', 'geologicunits')
@@ -17,9 +18,10 @@ GEOLOGIC_OBJECTS = ('contacts', 'faults', 'geologicunits')
 class TestFeatureService(unittest.TestCase):
 
     def setUp(self):
+        self.wcs = {}
         with httmock.HTTMock(mock_resource):
             for obj in GEOLOGIC_OBJECTS:
-                self.wcs[obj] = webservices.FeatureService(WFSURL)
+                self.wcs[obj] = webservices.FeatureService(WFSURL.format(obj))
 
     def test_capabilities(self):
         """ FeatureService should configure itself from the endpoint
@@ -31,3 +33,6 @@ class TestFeatureService(unittest.TestCase):
                     self.wcs[obj].capabilities is not None)
                 self.assertTrue(
                     self.wcs[obj].version is not None)
+
+if __name__ == '__main__':
+    unittest.main()

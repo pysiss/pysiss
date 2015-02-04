@@ -13,7 +13,7 @@ import httmock
 import requests
 import hashlib
 
-PRINT_INTERCEPTIONS = False
+PRINT_INTERCEPTIONS = True
 
 
 class Resource(object):

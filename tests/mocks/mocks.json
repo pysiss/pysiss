@@ -1,5 +1,5 @@
-{
-	"csiro_nvcl_wfs_endpoint": {
+[
+	{
 		"url": "http://nvclwebservices.vm.csiro.au/geoserverBH/wfs",
 		"method": "get",
 		"params": {
@@ -9,13 +9,13 @@
         },
 		"data": ""
 	},
-    "csiro_nvcl_image_endpoint": {
+    {
         "url": "http://nvclwebservices.vm.csiro.au/resource/feature/CSIRO/borehole/WTB5",
         "method": "get",
         "params": {},
         "data": ""
     },
-	"gswa_nvcl_wfs_endpoint": {
+	{
 		"url": "http://geossdi.dmp.wa.gov.au/services/wfs",
 		"method": "get",
 		"params": {
@@ -25,7 +25,7 @@
 		},
 		"data": ""
 	},
-    "tests.test_nvcl.test_usage_1": {
+    {
         "url": "http://geossdi.dmp.wa.gov.au/services/wfs",
         "method": "get",
         "params": {
@@ -36,7 +36,7 @@
         },
         "data": ""
     },
-    "tests.test_nvcl.test_usage_2": {
+    {
         "url": "http://geossdi.dmp.wa.gov.au/NVCLDataServices/getDatasetCollection.html",
         "method": "get",
         "params": {
@@ -44,13 +44,13 @@
         },
         "data": ""
     },
-    "tests.test_nvcl.test_usage_3a": {
+    {
         "url": "http://geossdi.dmp.wa.gov.au/resource/feature/gswa/borehole/pdp2c",
         "method": "get",
         "params": {},
         "data": ""
     },
-    "tests.test_nvcl.test_usage_3b": {
+    {
         "url": "http://geossdi.dmp.wa.gov.au/NVCLDataServices/getDatasetCollection.html",
         "method": "get",
         "params": {
@@ -58,7 +58,7 @@
         },
         "data": ""
     },
-    "tests.test_nvcl.test_usage_3c": {
+    {
         "url": "http://geossdi.dmp.wa.gov.au/NVCLDataServices/getLogCollection.html",
         "method": "get",
         "params": {
@@ -67,7 +67,7 @@
         },
         "data": ""
     },
-    "tests.test_nvcl.test_usage_3d": {
+    {
         "url": "http://geossdi.dmp.wa.gov.au/NVCLDataServices/getLogCollection.html",
         "method": "get",
         "params": {
@@ -76,7 +76,7 @@
         },
         "data": ""
     },
-    "tests.test_nvcl.test_usage_3e": {
+    {
         "url": "http://geossdi.dmp.wa.gov.au/NVCLDataServices/getLogCollection.html",
         "method": "get",
         "params": {
@@ -85,7 +85,7 @@
         },
         "data": ""
     },
-    "tests.test_nvcl.test_usage_3f": {
+    {
         "url": "http://geossdi.dmp.wa.gov.au/NVCLDataServices/downloadscalars.html",
         "method": "get",
         "params": {
@@ -126,7 +126,7 @@
         },
         "data": ""
     },
-    "tests.test_raster.capabilities": {
+    {
         "url": "http://aster.nci.org.au/thredds/wcs/aster/vnir/Aus_Mainland/Aus_Mainland_AlOH_group_composition_reprojected.nc4",
         "method": "get",
         "params": {
@@ -137,7 +137,7 @@
         },
         "data": ""
     },
-    "tests.test_raster.descriptions": {
+    {
         "url": "http://aster.nci.org.au//thredds/wcs/aster/vnir/Aus_Mainland/Aus_Mainland_AlOH_group_composition_reprojected.nc4",
         "method": "get",
         "params": {
@@ -148,7 +148,7 @@
         },
         "data": ""
     },
-    "tests.test_raster.descriptions": {
+    {
         "url": "http://aster.nci.org.au//thredds/wcs/aster/vnir/Aus_Mainland/Aus_Mainland_AlOH_group_composition_reprojected.nc4",
         "method": "get",
         "params": {
@@ -161,7 +161,7 @@
         },
         "data": ""
     },
-    "tests.test_coverage.descriptions2": {
+    {
         "url": "http://aster.nci.org.au//thredds/wcs/aster/vnir/Aus_Mainland/Aus_Mainland_AlOH_group_composition_reprojected.nc4",
         "method": "get",
         "params": {
@@ -170,5 +170,38 @@
             "service": "wcs",
             "coverage": "AlOH_group_composition"
         }
+    },
+    {
+        "url": "http://www.ga.gov.au/geows/contacts/oneg_wa_1m/wfs",
+        "method": "get",
+        "params": {
+            "acceptversions": "2.0.0,1.1.0,1.0.0",
+            "request": "getcapabilities",
+            "acceptformats": "text/xml",
+            "service": "wfs"
+        },
+        "data": ""
+    },
+    {
+        "url": "http://www.ga.gov.au/geows/faults/oneg_wa_1m/wfs",
+        "method": "get",
+        "params": {
+            "acceptversions": "2.0.0,1.1.0,1.0.0",
+            "request": "getcapabilities",
+            "acceptformats": "text/xml",
+            "service": "wfs"
+        },
+        "data": ""
+    },
+    {
+        "url": "http://www.ga.gov.au/geows/geologicunits/oneg_wa_1m/wfs",
+        "method": "get",
+        "params": {
+            "acceptversions": "2.0.0,1.1.0,1.0.0",
+            "request": "getcapabilities",
+            "acceptformats": "text/xml",
+            "service": "wfs"
+        },
+        "data": ""
     }
-}
+]

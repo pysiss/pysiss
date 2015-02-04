@@ -30,8 +30,8 @@ def update_mocks():
         mocks = simplejson.load(fhandle)
 
     # Make Resource objects, and update them
-    for idx, (name, mock) in enumerate(mocks.items()):
-        LOGGER.info('Updating {0} from {1}'.format(name, mock['url']))
+    for idx, (mock) in enumerate(mocks):
+        LOGGER.info('Updating from {0}'.format(mock['url']))
         res = Resource(**mock)
         result = res.update()
         LOGGER.info('Finished updating\n')
