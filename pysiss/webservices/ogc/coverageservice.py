@@ -92,8 +92,7 @@ class CoverageService(id_object):
         # Parse metadata
         if response.ok:
             cap = self._capabilities = Metadata(
-                tree=etree.fromstring(response.content),
-                mdatatype='wcs:wcs_capabilities')
+                response.content, mdatatype='wcs:wcs_capabilities')
 
             # Update version number
             self._version = cap.xpath('@version')[0]
@@ -140,8 +139,7 @@ class CoverageService(id_object):
 
             if response.ok:
                 desc = self._descriptions[layer] = Metadata(
-                    tree=etree.fromstring(response.content),
-                    mdatatype='wcs:describecoverage')
+                    response.content, mdatatype='wcs:describecoverage')
 
                 # Get bounding box and grid information
                 self.envelopes[layer] = \

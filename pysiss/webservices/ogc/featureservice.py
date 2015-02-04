@@ -37,7 +37,7 @@ class FeatureService(id_object):
 
         # Initialize metadata slows
         self._capabilities = None
-        self._version = '1.0.0'  # Dummy for now, replaced on \
+        self._version = '1.0.0'   # Dummy for now, replaced on \
                                  # first getcapabilities request
 
         # Set up mapping to OGC webservices
@@ -52,6 +52,14 @@ class FeatureService(id_object):
             self.get_capabilities(update=True)
         return self._capabilities
 
+    @property
+    def version(self):
+        """ The version of the WCS endpoint
+        """
+        if self._capabilities is None:
+            self.get_capabilities()
+        return self._version
+
     def get_capabilities(self, update=False):
         """ Get the capabilities from the feature service
         """
@@ -64,8 +72,7 @@ class FeatureService(id_object):
         # Parse metadata
         if response.ok:
             cap = self._capabilities = Metadata(
-                tree=etree.fromstring(response.content),
-                mdatatype='wfs:wfs_capabilities')
+                response.content, mdatatype='wfs:wfs_capabilities')
 
             # Update version number and mappings
             self._version = cap.xpath('@version')[0]
