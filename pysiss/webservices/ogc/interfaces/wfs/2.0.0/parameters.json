@@ -4,5 +4,13 @@
         "acceptversions": "2.0.0,1.1.0,1.0.0",
         "request": "getcapabilities",
         "service": "wfs"
+    },
+    "describefeaturetype": {
+        "request": "describefeaturetype",
+        "service": "wfs"
+    },
+    "getfeature": {
+        "request": "getfeature",
+        "service": "wfs"
     }
 }

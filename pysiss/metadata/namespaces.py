@@ -48,6 +48,39 @@ def add_namespace(abbrev, url):
     _NAMESPACE_REGISTRY[abbrev] = url
 
 
+def split_namespace(tag):
+    """ Split a tag into a namespace and a tag
+    """
+    # : and / have special delimiter status unless part of http:// spec
+    tag = tag.replace('://', '@')
+
+    try:
+        if tag.startswith('{'):
+            # We have an expanded namespace to deal with
+            nspace, tag = tag.lstrip('{').split('}')
+        elif ':' in tag:
+            # We have a URIi namespace of the form ns:ns:ns:ns:tag
+            tokens = tag.split(':')
+            tag = tokens.pop()
+            nspace = ':'.join(tokens).replace('http_', 'http:')
+        elif '/' in tag:
+            # We have a namespace of the form root/ns/ns/ns/tag
+            tokens = tag.split('/')
+            tag = tokens.pop()
+            nspace = '/'.join(tokens)
+        else:
+            # Don't know what to do here? Just return None for namespace
+            nspace = None
+    except AttributeError, err:
+        print tag
+        raise err
+
+    # Reinstate :// string
+    if nspace:
+        nspace = nspace.replace('@', '://')
+    return nspace, tag
+
+
 def shorten_namespace(tag):
     """ Strip a namespace out of an XML tag and replace it with the shortcut
         version
@@ -66,10 +99,10 @@ def shorten_namespace(tag):
             return tag
 
 
-def expand_namespace(tag, form='xml'):
+def expand_namespace(tag, form=None):
     """ Expand a tag's namespace
     """
-    tokens = tag.split(':')
+    tokens = tag.strip().split(':')
     try:
         nspace = _NAMESPACE_REGISTRY[tokens[0]]
         tag = ':'.join(tokens[1:])
@@ -77,35 +110,20 @@ def expand_namespace(tag, form='xml'):
         # We can't do anything with this tag, so just return it
         return tag
 
-    if form == 'xml':
-        return '{' + nspace + '}' + tag
+    if form is None or form == 'xml':
+        tag_tokens = tag.split(':')
+        if ":" in nspace.replace('://', ''):
+            return '{' + ':'.join([nspace] + tag_tokens[:-1]) + '}' + tag_tokens[-1]
+        elif "/" in nspace.replace('://', ''):
+            return '{' + '/'.join([nspace] + tag_tokens[:-1]) + '}' + tag_tokens[-1]
     elif form == 'rdf':
+        tag_tokens = tag.split(':')
+        if ":" in nspace.replace('://', ''):
+            return ':'.join([nspace] + tag_tokens[:-1]) + ':' + tag_tokens[-1]
+        elif "/" in nspace.replace('://', ''):
+            return '/'.join([nspace] + tag_tokens[:-1]) + ':' + tag_tokens[-1]
         return nspace + ':' + tag
     else:
         raise ValueError(
             ('Unknown format type {0}. '
              'Allowed values are {1}').format(form, ['xml', 'rdf']))
-
-
-def split_namespace(tag):
-    """ Split a tag into a namespace and a tag
-    """
-    try:
-        if tag.startswith('{'):
-            # We have an expanded namespace to deal with
-            nspace, tag = tag.lstrip('{').split('}')
-        elif tag.count(':') > 1:
-            # We have an expanded namespace of the form ns:ns:ns:ns:tag
-            tokens = tag.split(':')
-            tag = tokens.pop()
-            nspace = ':'.join(tokens)
-        elif tag.count(':') == 1:
-            # We have a shortened namespaces of the form ns:tag
-            nspace, tag = tag.split(':')
-        else:
-            # Don't know what to do here? Just return None for namespace
-            nspace = None
-    except AttributeError, err:
-        print tag
-        raise err
-    return nspace, tag
