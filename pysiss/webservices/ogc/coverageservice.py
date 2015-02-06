@@ -7,7 +7,7 @@
 """
 
 from ...utilities import id_object
-from ...metadata import Metadata, NamespaceRegistry, unmarshal_all
+from ...metadata import Metadata, Namespace, unmarshal_all
 from .mapping import OGCServiceMapping, accumulator
 from ...geospatial import Coverage
 
@@ -35,7 +35,7 @@ class CoverageService(id_object):
                 coverage
     """
 
-    namespaces = NamespaceRegistry()
+    namespace = Namespace()
 
     def __init__(self, endpoint):
         super(CoverageService, self).__init__(ident=endpoint)
@@ -108,8 +108,7 @@ class CoverageService(id_object):
             # Get available datasets
             self._layers = cap.xpath(
                 'wcs:contentmetadata/wcs:coverageofferingbrief'
-                '/wcs:name/text()',
-                namespaces=self.namespaces)
+                '/wcs:name/text()')
 
         else:
             raise IOError("Can't get capabilities from endpoint {0}, "

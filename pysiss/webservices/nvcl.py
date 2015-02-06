@@ -9,7 +9,7 @@
 from ..borehole import PropertyType, SISSBoreholeGenerator
 from ..borehole.datasets import PointDataSet  # , IntervalDataSet
 from ..utilities import Singleton
-from ..metadata import expand_namespace, NamespaceRegistry
+from ..metadata import Namespace
 
 import numpy
 import pandas
@@ -21,7 +21,7 @@ import logging
 
 LOGGER = logging.getLogger('pysiss')
 
-NAMESPACES = NamespaceRegistry()
+NAMESPACES = Namespace()
 DEFAULT_ENDPOINTS = {
     'CSIRO': {
         'wfsurl': 'http://nvclwebservices.vm.csiro.au/geoserverBH/wfs',
@@ -121,6 +121,8 @@ class NVCLImporter(object):
         :type endpoint: string
     """
 
+    namespace = Namespace()
+
     def __init__(self, endpoint='CSIRO'):
         super(NVCLImporter, self).__init__()
         self.endpoint = endpoint
@@ -173,8 +175,10 @@ class NVCLImporter(object):
             idents = {}
             for match in xmltree.findall(".//nvcl:scannedBorehole",
                                          namespaces=NAMESPACES):
-                idents[match.get(expand_namespace('xlink:title'))] = \
-                    match.get(expand_namespace('xlink:href'))
+                title = match.get(
+                    self.namespace.expand_namespace('xlink:title'))
+                idents[title] = \
+                    match.get(self.namespace.expand_namespace('xlink:href'))
             return idents
 
         else:

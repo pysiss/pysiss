@@ -10,7 +10,6 @@ import unittest
 from decorators import slow
 
 from pysiss.geospatial import feature
-from pysiss.metadata import shorten_namespace
 
 BOUNDS = (119.52, -21.6, 120.90, -20.5)
 WFSURL = "http://www.ga.gov.au/geows/{0}/oneg_wa_1m/wfs"
@@ -40,6 +39,4 @@ class GeologyTest(unittest.TestCase):
                             'features')
         unit = geologic_units[0]
         self.assertEquals(unit.metadata.tree.tag,
-                          '{urn:cgi:xmlns:CGI:GeoSciML:2.0}GeologicUnit')
-        self.assertEquals(shorten_namespace(unit.metadata.tree.tag),
                           'gsml:GeologicUnit')

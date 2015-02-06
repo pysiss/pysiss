@@ -19,16 +19,16 @@ from StringIO import StringIO
 
 
 def yamlify(tree, indent_width=2, indent=0):
-    """ Convert an etree into a YAML-esque representation
+    """ Convert a ElementTree into a YAML-esque representation
 
         Parameters
-            tree - an etree instance (try lxml.etree.Etree)
+            tree - an lxml.etree.ElementTree instance
             indent_width - with of a single indent step in characters
             indent - initial number of indentations
     """
     # Build line for current element
     spaces = ' ' * indent_width * indent
-    result = spaces + '{0}:'.format(regularize(tree.tag))
+    result = spaces + '{0}:'.format(tree.tag)
     if tree.text and tree.text.strip() != '':
         result += ' {0}\n'.format(tree.text)
     elif tree.attrib:
@@ -75,7 +75,7 @@ class Metadata(id_object):
         self.ident = ident or self.uuid
 
         # Normalize tree tags
-        self.tree = make_normalized_etree(tree_or_string)
+        self.tree = self._init_normalized_etree(tree_or_string)
 
         # Store other metadata
         for attrib, value in kwargs.items():
@@ -98,7 +98,7 @@ class Metadata(id_object):
             kwargs['namespaces'].update(self.namespace)
         else:
             kwargs.update(namespaces=self.namespace)
-        return self.tree.xpath(*args, namespaces=self.namespace, **kwargs)
+        return self.tree.xpath(*args, **kwargs)
 
     def find(self, *args, **kwargs):
         """ Pass ElementPath queries through to underlying tree
@@ -124,13 +124,13 @@ class Metadata(id_object):
         """
         new = deepcopy(elem)
         try:
-            new.tag = expand_namespace(regularize(elem.tag), form='xml')
+            new.tag = self.namespace.expand_namespace(
+                self.namespace.regularize(elem.tag), form='xml')
         except ValueError:
-            print elem.tag
-            print regularize(elem.tag)
-            print expand_namespace(regularize(elem.tag), form='xml')
+            raise ValueError("Don't know how to normalize {0}".format(new.tag))
+
         for child in new.getchildren():
-            new.replace(child, normalize(child))
+            new.replace(child, self._normalize(child))
         return new
 
     def _init_normalized_etree(self, data):
@@ -143,10 +143,10 @@ class Metadata(id_object):
         if isinstance(data, basestring):
             # Parse the string first
             tree = etree.parse(StringIO(data), parser=self.parser)
-            return normalize(tree.getroot())
+            return self._normalize(tree.getroot())
 
         elif isinstance(data, etree.ElementTree):
-            return normalize(data)
+            return self._normalize(data)
 
         else:
             raise ValueError("Don't know what to do with this {0}".format(arg))

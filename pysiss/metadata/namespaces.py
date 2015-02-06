@@ -69,11 +69,6 @@ class Namespace(dict):
         del self.inverse[self[key]]
         super(Namespace, self).__delitem__(key)
 
-    def add(self, abbrev, url):
-        """ Add an XML namespace to the registry
-        """
-        self[abbrev] = url
-
     def regularize(self, name):
         """ Return name in regularized form, that is, lowercased with shortened namespaces
         """
@@ -85,7 +80,7 @@ class Namespace(dict):
         """ Strip a namespace out of an XML tag and replace it with the shortcut
             version
         """
-        nspace, tag = split_namespace(tag)
+        nspace, tag = split_tag(tag)
         try:
             return self.inverse[nspace] + ':' + tag
         except KeyError:

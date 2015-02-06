@@ -10,7 +10,6 @@ from .registry import MetadataRegistry
 from .metadata import Metadata
 from .namespaces import Namespace
 from .vocabulary import unmarshal, unmarshal_all
-from .regularize import regularize
 
 __all__ = ['MetadataRegistry', 'Metadata', 'Namespace',
            'unmarshal', 'unmarshal_all']
