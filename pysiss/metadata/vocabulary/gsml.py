@@ -8,11 +8,10 @@
 
 from ...geospatial.feature import Feature
 from ..metadata import Metadata
-from ..namespaces \
-    import NamespaceRegistry, expand_namespace, shorten_namespace
+from ..namespaces import Namespace
 from .gml import UNMARSHALLERS as GML_UNMARSHALLERS
 
-NAMESPACES = NamespaceRegistry()
+NAMESPACES = Namespace()
 
 
 def mapped_feature(elem):

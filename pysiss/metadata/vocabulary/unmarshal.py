@@ -6,9 +6,7 @@
     description: Wrapper functionality for unmarshalling XML elements
 """
 
-from ..namespaces import shorten_namespace, expand_namespace, \
-    NamespaceRegistry
-from ..regularize import regularize
+from ..namespaces import Namespace
 from . import gml, gsml, erml, wcs, wfs, csw
 
 from lxml.etree import iterparse, XMLSyntaxError
@@ -21,16 +19,16 @@ UNMARSHALLERS.update(wcs.UNMARSHALLERS)
 UNMARSHALLERS.update(wfs.UNMARSHALLERS)
 UNMARSHALLERS.update(csw.UNMARSHALLERS)
 
-NAMESPACES = NamespaceRegistry()
+NAMESPACES = Namespace()
 
 
-def unmarshal(elem):
+def unmarshal(elem, namespace):
     """ Unmarshal an lxml.etree.Element element
 
         If there is no unmarshalling function available, this just returns the
         lxml.etree element.
     """
-    tag = regularize(elem.tag)
+    tag = namespace.regularize(elem.tag)
     unmarshal = UNMARSHALLERS.get(tag)
     if unmarshal:
         return unmarshal(elem)
@@ -38,15 +36,15 @@ def unmarshal(elem):
         return None
 
 
-def unmarshal_all(tree, query):
-    """ Unmarshal all instances returned by xpath query in a tree
+def unmarshal_all(metadata, query):
+    """ Unmarshal all instances returned by xpath query
 
         Parameters:
-            tree - an lxml.etree instance to search over
+            metadata - a Metadata instance to search over
             query - an xpath query to select elements
     """
     results = []
-    for elem in tree.xpath(query, namespaces=NAMESPACES):
+    for elem in metadata.xpath(query):
         results.append(unmarshal(elem))
     return results
 

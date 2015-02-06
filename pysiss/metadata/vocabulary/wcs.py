@@ -6,14 +6,13 @@
     description: Unmarshalling functions for WCS metadata
 """
 
-from ..namespaces import NamespaceRegistry, shorten_namespace
+from ..namespaces import Namespace
 from .gml import position
-from ..regularize import regularize
 
 from shapely.geometry import box
 from lxml import etree
 
-NSP = {'namespaces': NamespaceRegistry()}
+NSP = {'namespaces': Namespace()}
 
 def envelope(elem):
     """ Unmarshal an envelope element

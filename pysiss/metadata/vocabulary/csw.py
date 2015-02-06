@@ -6,11 +6,6 @@
     description: Unmarshalling functions for GeoSciML/GML objects
 """
 
-from ..namespaces import NamespaceRegistry
-
-NAMESPACES = NamespaceRegistry()
-
-
 UNMARSHALLERS = {}
 
 __all__ = ['UNMARSHALLERS']
