@@ -7,8 +7,6 @@
     description: Plotting for the pysiss.borehole module.
 """
 
-import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot
 import matplotlib.cm
 import matplotlib.collections
