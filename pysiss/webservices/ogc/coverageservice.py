@@ -108,8 +108,7 @@ class CoverageService(id_object):
             # Get available datasets
             self._layers = cap.xpath(
                 'wcs:contentmetadata/wcs:coverageofferingbrief'
-                '/wcs:name/text()',
-                namespaces=self.namespaces)
+                '/wcs:name/text()')
 
         else:
             raise IOError("Can't get capabilities from endpoint {0}, "

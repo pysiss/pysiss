@@ -155,6 +155,7 @@ class Metadata(id_object):
             string += '\nExpanded: {0}'.format(self.ns.expand(reg, form='xml'))
             string += '\nNamespaces: {0}'.format(self.ns)
             raise ValueError(string)
+
         for child in new.getchildren():
             new.replace(child, self._normalize(child))
         return new

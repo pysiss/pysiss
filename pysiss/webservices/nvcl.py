@@ -120,6 +120,8 @@ class NVCLImporter(object):
         :type endpoint: string
     """
 
+    namespace = Namespace()
+
     def __init__(self, endpoint='CSIRO'):
         super(NVCLImporter, self).__init__()
         self.endpoint = endpoint
