@@ -43,12 +43,24 @@ def split_tag(tag):
     # Reinstate :// string
     if nspace:
         nspace = nspace.replace('@', '://')
+    tag.replace('@', '://')
     return nspace, tag
 
 
 class Namespace(dict):
 
     """ Registry for XML namespace objects
+
+        This registry can be initialized by passing a dictionary or
+        keyword-value pairs on initilization. These parameters are optional,
+        an empty registry is created if neither of these are passed.
+
+        Parameters:
+            namespaces - a dict with each key referring to a shortened
+                namespace, and the value referring to a URI representing that
+                namespace (e.g. {'gsml': 'urn:cgi:xmlns:GCI:GeoSciML:2.0'}).
+            **kwargs - keyword-value pairs specifying namespaces (e.g.
+                gsml='urn:cgi:xmlns:GCI:GeoSciML:2.0').
     """
 
     # Load default namespaces list in namespaces.json
@@ -56,10 +68,15 @@ class Namespace(dict):
         pkg_resources.resource_stream(
             "pysiss.metadata", "namespaces.json"))
 
-    def __init__(self):
+    def __init__(self, namespaces=None, **kwargs):
         super(Namespace, self).__init__()
-        self.update(self.default_namespaces)
         self.inverse = dict(reversed(item) for item in self.items())
+
+        # Init with namespace dictionaries
+        if namespaces:
+            self.update(namespaces)
+        if kwargs:
+            self.update(kwargs)
 
     def __setitem__(self, key, value):
         super(Namespace, self).__setitem__(key, value)
@@ -69,36 +86,64 @@ class Namespace(dict):
         del self.inverse[self[key]]
         super(Namespace, self).__delitem__(key)
 
-    def add(self, abbrev, url):
-        """ Add an XML namespace to the registry
+    def update(self, namespaces, **kwargs):
+        """ Add new namespaces to the registry
         """
-        self[abbrev] = url
+        for key, value in namespaces.items():
+            self[key] = value
+        for key, value in kwargs.items():
+            self[key] = value
+
+    def add_namespace_from_tag(self, tag):
+        """ Attempt to infer a shortened namespace name and version number
+            from a given tag.
+        """
+        nspace, tag = split_tag(tag)
+        print nspace, tag
 
     def regularize(self, name):
-        """ Return name in regularized form, that is, lowercased with shortened namespaces
+        """ Return name in regularized form, that is, lowercased with
+            shortened namespaces
+
+            Parameters:
+                name - the XML tag name to regularize
         """
-        rname = self.shorten_namespace(name)
+        rname = self.shorten(name)
         rname = rname.lower().replace(' ', '_')
         return rname
 
-    def shorten_namespace(self, tag):
+    def shorten(self, tag):
         """ Strip a namespace out of an XML tag and replace it with the shortcut
             version
+
+            Parameters:
+                tag - the XML tag name to shorten
         """
-        nspace, tag = split_namespace(tag)
+        nspace, tag = split_tag(tag)
+
+        if nspace is None:
+            # We can't do anything here, just return tag
+            return tag
+
         try:
             return self.inverse[nspace] + ':' + tag
+
         except KeyError:
             if nspace is not None:
                 # We need to check whether we have some of the namespace already
                 # So we re-run on the namespace recursively
-                return shorten_namespace(nspace) + ':' + tag
-
+                return self.shorten(nspace) + ':' + tag
             else:
                 # We can't do anything with this one, just return the tag
                 return tag
 
-    def expand_namespace(self, tag, form=None):
+    def split(self, tag):
+        """ Return a tag, and it's namespace, and a version if required
+        """
+        ns, tag = split_tag(tag)
+        return ns, tag
+
+    def expand(self, tag, form=None):
         """ Expand a tag's namespace
         """
         # Try to split into a namespace and a tag
@@ -128,6 +173,7 @@ class Namespace(dict):
                 return ('/'.join([nspace] + tag_tokens[:-1]) + ':'
                         + tag_tokens[-1])
             return nspace + ':' + tag
+
         else:
             raise ValueError(
                 ('Unknown format type {0}. '

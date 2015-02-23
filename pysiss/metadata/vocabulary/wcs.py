@@ -45,12 +45,11 @@ def formats(elem):
 def url_info(tag):
     """ Parse information about an OGC endpoint from getCapabilities request
     """
-    rtag = regularize(tag)
     return lambda elem: {
         'url': elem.xpath(
-            '//{0}//wcs:onlineresource/@*'.format(rtag), **NSP)[0],
+            '//{0}//wcs:onlineresource/@*'.format(tag), **NSP)[0],
         'method': shorten_namespace(
-            elem.xpath('//{0}//wcs:http/*'.format(rtag), **NSP)[0].tag
+            elem.xpath('//{0}//wcs:http/*'.format(tag), **NSP)[0].tag
         ).split(':')[1].lower()
     }
 

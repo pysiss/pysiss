@@ -9,7 +9,7 @@
 from ..borehole import PropertyType, SISSBoreholeGenerator
 from ..borehole.datasets import PointDataSet  # , IntervalDataSet
 from ..utilities import Singleton
-from ..metadata import expand_namespace, NamespaceRegistry
+from ..metadata import Namespace, Metadata
 
 import numpy
 import pandas
@@ -21,7 +21,6 @@ import logging
 
 LOGGER = logging.getLogger('pysiss')
 
-NAMESPACES = NamespaceRegistry()
 DEFAULT_ENDPOINTS = {
     'CSIRO': {
         'wfsurl': 'http://nvclwebservices.vm.csiro.au/geoserverBH/wfs',
@@ -124,6 +123,7 @@ class NVCLImporter(object):
     def __init__(self, endpoint='CSIRO'):
         super(NVCLImporter, self).__init__()
         self.endpoint = endpoint
+        self.ns = Namespace()
 
         # Get URL data associated with endpoint
         registry = NVCLEndpointRegistry()
@@ -169,12 +169,11 @@ class NVCLImporter(object):
 
         # Parse response
         if response.ok:
-            xmltree = etree.fromstring(response.content)
+            mdata = Metadata(response.content)
             idents = {}
-            for match in xmltree.findall(".//nvcl:scannedBorehole",
-                                         namespaces=NAMESPACES):
-                idents[match.get(expand_namespace('xlink:title'))] = \
-                    match.get(expand_namespace('xlink:href'))
+            for match in mdata.findall(".//nvcl:scannedborehole"):
+                idents[match.get(mdata.ns.expand('xlink:title'))] = \
+                    match.get(mdata.ns.expand('xlink:href'))
             return idents
 
         else:
@@ -200,15 +199,15 @@ class NVCLImporter(object):
             :returns: a dictionary keyed by dataset name, where each dictionary
                 value is the GUID of the dataset.
         """
-        xmltree = None
+        mdata = None
         holeurl = (self.urls['dataurl'] + 'getDatasetCollection.html?'
                    'holeidentifier={0}').format(hole_ident)
         response = requests.get(holeurl)
         if response:
-            xmltree = etree.fromstring(response.content)
+            mdata = Metadata(response.content)
 
             datasets = {}
-            for dset in xmltree.findall(".//Dataset"):
+            for dset in mdata.findall(".//Dataset"):
                 datasets[dset.find('DatasetName').text] = \
                     dset.find('DatasetID').text
             return datasets
@@ -231,9 +230,9 @@ class NVCLImporter(object):
 
         # Parse XML tree to return analytes
         if response:
-            xmltree = etree.fromstring(response.content)
+            mdata = etree.fromstring(response.content)
             analyte_idents = {}
-            for analyte in xmltree.findall(".//Log"):
+            for analyte in mdata.findall(".//Log"):
                 log_ident = analyte.find("LogID").text
                 name = analyte.find("logName").text
                 # sample_count = analyte.find('SampleCount').text

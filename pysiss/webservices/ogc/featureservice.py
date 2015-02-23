@@ -7,7 +7,7 @@
 """
 
 from ...utilities import id_object
-from ...metadata import Metadata, NamespaceRegistry, unmarshal_all
+from ...metadata import Metadata, Namespace, unmarshal_all
 from .mapping import OGCServiceMapping, accumulator
 from ...geospatial import Coverage
 

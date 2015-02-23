@@ -18,35 +18,35 @@ from lxml import etree
 from StringIO import StringIO
 
 
-def yamlify(tree, indent_width=2, indent=0):
-    """ Convert an etree into a YAML-esque representation
+def yamlify(mdata, namespace, indent_width=2, indent=0):
+    """ Convert an Metadata instance into a YAML-esque representation
 
         Parameters
-            tree - an etree instance (try lxml.etree.Etree)
+            mdata - an Metadata instancw
             indent_width - with of a single indent step in characters
             indent - initial number of indentations
     """
     # Build line for current element
     spaces = ' ' * indent_width * indent
-    result = spaces + '{0}:'.format(regularize(tree.tag))
-    if tree.text and tree.text.strip() != '':
-        result += ' {0}\n'.format(tree.text)
-    elif tree.attrib:
-        tree_attrs = dict(tree.attrib)
-        for key, value in tree.attrib.items():
+    result = spaces + '{0}:'.format(namespace.regularize(mdata.tag))
+    if mdata.text and mdata.text.strip() != '':
+        result += ' {0}\n'.format(mdata.text)
+    elif mdata.attrib:
+        mdata_attrs = dict(mdata.attrib)
+        for key, value in mdata.attrib.items():
             old_key = key
-            key = regularize(key)
+            key = namespace.regularize(key)
             if key != old_key:
-                tree_attrs[key] = value
-                del tree_attrs[old_key]
+                mdata_attrs[key] = value
+                del mdata_attrs[old_key]
         result += '\n' + spaces + ' ' * indent_width
-        result += '  {0}\n'.format(tree_attrs)
+        result += '  {0}\n'.format(mdata_attrs)
     else:
         result += '\n'
 
     # Add lines for children
-    for child in tree.getchildren():
-        result += yamlify(child,
+    for child in mdata.getchildren():
+        result += yamlify(child, namespace,
                           indent_width=indent_width,
                           indent=indent + 1)
     return result
@@ -66,25 +66,29 @@ class Metadata(id_object):
     """
 
     registry = MetadataRegistry()
-    namespace = Namespace()
+    ns = Namespace()
     parser = etree.XMLParser(remove_comments=True, recover=True)
 
-    def __init__(self, tree_or_string, mdatatype, ident=None, **kwargs):
-        self.mdatatype = mdatatype.lower()
-        super(Metadata, self).__init__(ident=self.mdatatype)
+    def __init__(self, tree_or_string, mdatatype=None, ident=None, **kwargs):
+        super(Metadata, self).__init__()
         self.ident = ident or self.uuid
 
         # Normalize tree tags
-        self.tree = make_normalized_etree(tree_or_string)
+        self.tree = None
+        self._init_normalized_etree(tree_or_string)
 
         # Store other metadata
         for attrib, value in kwargs.items():
             setattr(self, attrib, value)
 
         # Register yourself with the registry
-        self.registry.register(self)
+        if mdatatype is not None:
+            self.mdatatype = mdatatype.lower()
+            self.registry.register(self)
 
     def __str__(self):
+        """ String representation
+        """
         template = 'Metadata record {0}, of datatype {1}\n{2}'
         return template.format(self.ident, self.mdatatype, self.tree)
 
@@ -93,60 +97,90 @@ class Metadata(id_object):
 
             Uses the namespace dictionary from the metadata tree
             to expand namespace definitions
+
+            Parameters: see lxml.etree.xpath for details
         """
         if 'namespaces' in kwargs.keys():
-            kwargs['namespaces'].update(self.namespace)
+            kwargs['namespaces'].update(self.ns)
         else:
-            kwargs.update(namespaces=self.namespace)
-        return self.tree.xpath(*args, namespaces=self.namespace, **kwargs)
+            kwargs.update(namespaces=self.ns)
+        return self.tree.xpath(*args, **kwargs)
 
     def find(self, *args, **kwargs):
         """ Pass ElementPath queries through to underlying tree
         """
         if 'namespaces' in kwargs.keys():
-            kwargs['namespaces'].update(self.namespace)
+            kwargs['namespaces'].update(self.ns)
         else:
-            kwargs.update(namespaces=self.namespace)
+            kwargs.update(namespaces=self.ns)
         return self.tree.find(*args, **kwargs)
+
+    def findall(self, *args, **kwargs):
+        """ Pass ElementPath queries through to underlying tree
+        """
+        if 'namespaces' in kwargs.keys():
+            kwargs['namespaces'].update(self.ns)
+        else:
+            kwargs.update(namespaces=self.ns)
+        return self.tree.findall(*args, **kwargs)
 
     def yaml(self, indent_width=2):
         """ Return a YAML-like representation of the tags
 
-            Parameters
+            Parameters:
+                indent_width - the number of spaces in each indent level.
+                    Optional, defaults to 2.
 
             Returns:
                 a string reprentation of the metadata tree
         """
-        return yamlify(self.tree, indent_width=indent_width)
+        return yamlify(self.tree,
+                       namespace=self.ns,
+                       indent_width=indent_width)
 
     def _normalize(self, elem):
         """ Normalize the tag for a given element
+
+            Parameters:
+                elem - the element to normalize
         """
         new = deepcopy(elem)
         try:
-            new.tag = expand_namespace(regularize(elem.tag), form='xml')
+            new.tag = self.ns.expand(self.ns.regularize(elem.tag),
+                                     form='xml')
         except ValueError:
-            print elem.tag
-            print regularize(elem.tag)
-            print expand_namespace(regularize(elem.tag), form='xml')
+            reg = self.ns.regularize(elem.tag)
+            string = 'Having trouble normalizing {0}'.format(elem.tag)
+            string += '\nRegularized: {0}'.format(reg)
+            string += '\nExpanded: {0}'.format(self.ns.expand(reg, form='xml'))
+            string += '\nNamespaces: {0}'.format(self.ns)
+            raise ValueError(string)
         for child in new.getchildren():
-            new.replace(child, normalize(child))
+            new.replace(child, self._normalize(child))
         return new
 
     def _init_normalized_etree(self, data):
         """ Generate a normalized etree from an existing etree or string
 
             Parameters:
-                data - either an lxml.etree.ElementTree instance, or a string
+                data - either an lxml.etree.ElementTree instance, an
+                    lxml.Element pointing to the root of a tree, or a string
                     containing raw XML data.
         """
         if isinstance(data, basestring):
             # Parse the string first
             tree = etree.parse(StringIO(data), parser=self.parser)
-            return normalize(tree.getroot())
+            self.ns.update(tree.getroot().nsmap)
+            self.tree = self._normalize(tree.getroot())
 
-        elif isinstance(data, etree.ElementTree):
-            return normalize(data)
+        # Matching on etree._ElementTree feels super kludgy here
+        elif isinstance(data, etree._ElementTree):
+            self.ns.update(data.getroot().nsmap)
+            self.tree = self._normalize(data.getroot())
+
+        elif isinstance(data, etree._Element):
+            self.ns.update(data.nsmap)
+            self.tree = self._normalize(data)
 
         else:
             raise ValueError("Don't know what to do with this {0}".format(arg))

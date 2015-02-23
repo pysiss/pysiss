@@ -14,9 +14,12 @@ class id_object(object):
         and defines the class __eq__ method to use this UUID.
     """
 
-    def __init__(self, ident, *args, **kwargs):
+    def __init__(self, ident=None, *args, **kwargs):
         super(id_object, self).__init__(*args, **kwargs)
-        self.uuid = uuid.uuid5(uuid.NAMESPACE_DNS, ident)
+        if ident:
+            self.uuid = uuid.uuid5(uuid.NAMESPACE_DNS, ident)
+        else:
+            self.uuid = uuid.uuid4()
 
     def __eq__(self, other):
         """ Equality test
