@@ -8,17 +8,14 @@
 
 from ...geospatial.feature import Feature
 from ..metadata import Metadata
-from ..namespaces import Namespace
 from .gml import UNMARSHALLERS as GML_UNMARSHALLERS
-
-NAMESPACES = Namespace()
 
 
 def mapped_feature(elem):
     """ Unmarshal a gsml:MappedFeature element
     """
     # Shape and projection data
-    shape_elem = elem.find('./gsml:shape', namespaces=NAMESPACES)
+    shape_elem = elem.find('./gsml:shape')
     shape_data = shape(shape_elem)
     shape_elem.clear()  # Remove shape element from metadata
 
@@ -26,7 +23,7 @@ def mapped_feature(elem):
     ident = elem.get(expand_namespace('gml:id')) or None
 
     # Get specification metadata records
-    spec_elem = elem.find('./gsml:specification', namespaces=NAMESPACES)
+    spec_elem = elem.find('./gsml:specification')
     spec = specification(spec_elem)
 
     return Feature(ident=ident, shape=shape_data['shape'],
@@ -73,7 +70,7 @@ def get_value(elem):
         Returns the text value for a given element, stripping out children of
         the given element
     """
-    return elem.find('.//gsml:value/text()', namespaces=NAMESPACES)
+    return elem.find('.//gsml:value/text()')
 
 
 def cgi_termrange(elem):
@@ -82,7 +79,7 @@ def cgi_termrange(elem):
         Return the value range for a given element
     """
     return map(get_value,
-               elem.xpath('.//gsml:CGI_TermValue', namespaces=NAMESPACES))
+               elem.xpath('.//gsml:CGI_TermValue'))
 
 
 def sampling_frame(elem):

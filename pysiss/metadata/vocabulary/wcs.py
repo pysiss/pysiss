@@ -6,20 +6,17 @@
     description: Unmarshalling functions for WCS metadata
 """
 
-from ..namespaces import Namespace
 from .gml import position
 
 from shapely.geometry import box
 from lxml import etree
-
-NSP = {'namespaces': Namespace()}
 
 def envelope(elem):
     """ Unmarshal an envelope element
     """
     projection = elem.attrib['srsName']
     lower_left, upper_right = \
-        map(position, elem.findall('gml:pos', **NSP))
+        map(position, elem.findall('gml:pos'))
     bounding_box = box(lower_left[0], lower_left[1],
                        upper_right[0], upper_right[1])
     return {'bounding_box': bounding_box,
@@ -40,16 +37,16 @@ def number(elem):
 def formats(elem):
     """ Unmarshal an element contatining supported formats
     """
-    return [e.text for e in elem.findall('wcs:formats', **NSP)]
+    return [e.text for e in elem.findall('wcs:formats')]
 
 def url_info(tag):
     """ Parse information about an OGC endpoint from getCapabilities request
     """
     return lambda elem: {
         'url': elem.xpath(
-            '//{0}//wcs:onlineresource/@*'.format(tag), **NSP)[0],
+            '//{0}//wcs:onlineresource/@*'.format(tag))[0],
         'method': shorten_namespace(
-            elem.xpath('//{0}//wcs:http/*'.format(tag), **NSP)[0].tag
+            elem.xpath('//{0}//wcs:http/*'.format(tag))[0].tag
         ).split(':')[1].lower()
     }
 

@@ -6,7 +6,6 @@
     description: Wrapper functionality for unmarshalling XML elements
 """
 
-from ..namespaces import Namespace
 from . import gml, gsml, erml, wcs, wfs, csw
 
 from lxml.etree import iterparse, XMLSyntaxError
@@ -18,8 +17,6 @@ UNMARSHALLERS.update(erml.UNMARSHALLERS)
 UNMARSHALLERS.update(wcs.UNMARSHALLERS)
 UNMARSHALLERS.update(wfs.UNMARSHALLERS)
 UNMARSHALLERS.update(csw.UNMARSHALLERS)
-
-NAMESPACES = Namespace()
 
 
 def unmarshal(elem, namespace):

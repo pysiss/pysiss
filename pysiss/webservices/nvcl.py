@@ -9,7 +9,7 @@
 from ..borehole import PropertyType, SISSBoreholeGenerator
 from ..borehole.datasets import PointDataSet  # , IntervalDataSet
 from ..utilities import Singleton
-from ..metadata import Namespace, Metadata
+from ..metadata import Metadata
 
 import numpy
 import pandas
@@ -120,12 +120,9 @@ class NVCLImporter(object):
         :type endpoint: string
     """
 
-    namespace = Namespace()
-
     def __init__(self, endpoint='CSIRO'):
         super(NVCLImporter, self).__init__()
         self.endpoint = endpoint
-        self.ns = Namespace()
 
         # Get URL data associated with endpoint
         registry = NVCLEndpointRegistry()

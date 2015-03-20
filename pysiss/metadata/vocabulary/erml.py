@@ -6,7 +6,6 @@
     description: Unmarshalling functions for GeoSciML/GML objects
 """
 
-
 UNMARSHALLERS = {}
 
 __all__ = ['UNMARSHALLERS']

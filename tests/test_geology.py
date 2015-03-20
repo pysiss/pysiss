@@ -10,7 +10,6 @@ import unittest
 from decorators import slow
 
 from pysiss.geospatial import feature
-from pysiss.metadata import Namespace
 
 BOUNDS = (119.52, -21.6, 120.90, -20.5)
 WFSURL = "http://www.ga.gov.au/geows/{0}/oneg_wa_1m/wfs"
@@ -21,9 +20,6 @@ class GeologyTest(unittest.TestCase):
 
     """ Run a functional test using geological WFS data
     """
-
-    def setUp(self):
-        self.ns = Namespace()
 
     @unittest.skip("Skipping feature request for now")
     def test_getting_geology(self):

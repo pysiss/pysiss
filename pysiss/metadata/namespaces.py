@@ -8,52 +8,18 @@
     TODO: Pull unknown namespace definitions from XML file and add to registry
 """
 
+import re
 import simplejson
 import pkg_resources
-from ..utilities import Singleton
 
 
-def split_tag(tag):
-    """ Split a tag into a namespace and a tag
-    """
-    # : and / have special delimiter status unless part of http:// spec
-    tag = tag.replace('://', '@')
+class NamespaceMap(dict):
 
-    try:
-        if tag.startswith('{'):
-            # We have an expanded namespace to deal with
-            nspace, tag = tag.lstrip('{').split('}')
-        elif ':' in tag:
-            # We have a URIi namespace of the form ns:ns:ns:ns:tag
-            tokens = tag.split(':')
-            tag = tokens.pop()
-            nspace = ':'.join(tokens)
-        elif '/' in tag:
-            # We have a namespace of the form root/ns/ns/ns/tag
-            tokens = tag.split('/')
-            tag = tokens.pop()
-            nspace = '/'.join(tokens)
-        else:
-            # Don't know what to do here? Just return None for namespace
-            nspace = None
-    except AttributeError, err:
-        print tag
-        raise err
+    """ Two-way dictionary to store shortened XML namespace keys
 
-    # Reinstate :// string
-    if nspace:
-        nspace = nspace.replace('@', '://')
-    tag.replace('@', '://')
-    return nspace, tag
-
-
-class Namespace(dict):
-
-    """ Registry for XML namespace objects
-
-        This registry can be initialized by passing a dictionary or
+        This dictionary can be initialized by passing a dictionary or
         keyword-value pairs on initilization. These parameters are optional,
-        an empty registry is created if neither of these are passed.
+        an empty dictionary is created if neither of these are passed.
 
         Parameters:
             namespaces - a dict with each key referring to a shortened
@@ -63,13 +29,8 @@ class Namespace(dict):
                 gsml='urn:cgi:xmlns:GCI:GeoSciML:2.0').
     """
 
-    # Load default namespaces list in namespaces.json
-    default_namespaces = simplejson.load(
-        pkg_resources.resource_stream(
-            "pysiss.metadata", "namespaces.json"))
-
     def __init__(self, namespaces=None, **kwargs):
-        super(Namespace, self).__init__()
+        super(NamespaceMap, self).__init__()
         self.inverse = dict(reversed(item) for item in self.items())
 
         # Init with namespace dictionaries
@@ -79,102 +40,82 @@ class Namespace(dict):
             self.update(kwargs)
 
     def __setitem__(self, key, value):
-        super(Namespace, self).__setitem__(key, value)
-        self.inverse[value] = key
+        if key is None:
+            # Use the namespaces from etree where possible, but sometimes a
+            # namespace might map to None (if the default namespace) so we need
+            # to assign it a shortened version so that xpath doesn't bork...
+            self.add_from_url(value)
+
+        else:
+            # Make sure that all our namespaces are lowercase
+            key = key.lower()
+
+            # Add the keys to the mapping and the inverse
+            super(NamespaceMap, self).__setitem__(key, value)
+            self.inverse[value] = key
 
     def __delitem__(self, key):
         del self.inverse[self[key]]
-        super(Namespace, self).__delitem__(key)
+        super(NamespaceMap, self).__delitem__(key)
 
     def update(self, namespaces, **kwargs):
         """ Add new namespaces to the registry
         """
-        for key, value in namespaces.items():
-            self[key] = value
-        for key, value in kwargs.items():
-            self[key] = value
+        # Add namespaces from dict
+        for args in (namespaces, kwargs):
+            for key, namespace_url in args.items():
+                self[key] = namespace_url
 
-    def add_namespace_from_tag(self, tag):
-        """ Attempt to infer a shortened namespace name and version number
-            from a given tag.
+    def expand(self, tag):
+        """ Expand a tag given a short namespace
         """
-        nspace, tag = split_tag(tag)
-        print nspace, tag
+        ns, tag = tag.split(':')
+        return '{{{0}}}{1}'.format(self[ns], tag)
 
-    def regularize(self, name):
-        """ Return name in regularized form, that is, lowercased with
-            shortened namespaces
+    def add_from_url(self, namespace_uri):
+        """ Shorten a namespace URL using some heuristics
 
-            Parameters:
-                name - the XML tag name to regularize
+            Plays nicely with namespace versions etc.
+
+            Examples:
+                "http://www.opengis.net/wfs" -> "wfs",
+                "http://www.opengis.net/gml" -> "gml",
+                "urn:cgi:xmlns:CGI:GeoSciML:2.0" -> "geosciml",
+                "urn:cgi:xmlns:CGI:GeoSciML:22.0" -> "geosciml",
+                "http://www.opengis.net/sampling/1.0" -> "sampling",
+                "http://www.opengis.net/sampling/1.0.1" -> "sampling",
+                "http://www.opengis.net/sampling/1.0.1alpha" -> "sampling",
+                "http://www.w3.org/1999/xlink" -> "xlink"
         """
-        rname = self.shorten(name)
-        rname = rname.lower().replace(' ', '_')
-        return rname
-
-    def shorten(self, tag):
-        """ Strip a namespace out of an XML tag and replace it with the shortcut
-            version
-
-            Parameters:
-                tag - the XML tag name to shorten
-        """
-        nspace, tag = split_tag(tag)
-
-        if nspace is None:
-            # We can't do anything here, just return tag
-            return tag
-
-        try:
-            return self.inverse[nspace] + ':' + tag
-
-        except KeyError:
-            if nspace is not None:
-                # We need to check whether we have some of the namespace already
-                # So we re-run on the namespace recursively
-                return self.shorten(nspace) + ':' + tag
-            else:
-                # We can't do anything with this one, just return the tag
-                return tag
-
-    def split(self, tag):
-        """ Return a tag, and it's namespace, and a version if required
-        """
-        ns, tag = split_tag(tag)
-        return ns, tag
-
-    def expand(self, tag, form=None):
-        """ Expand a tag's namespace
-        """
-        # Try to split into a namespace and a tag
-        tokens = tag.strip().split(':')
-        try:
-            nspace = self[tokens[0]]
-            tag = ':'.join(tokens[1:])
-        except KeyError:
-            # We can't do anything with this tag, so just return it
-            return tag
-
-        if form is None or form == 'xml':
-            tag_tokens = tag.split(':')
-            if ":" in nspace.replace('://', ''):
-                return ('{' + ':'.join([nspace] + tag_tokens[:-1]) + '}'
-                        + tag_tokens[-1])
-            elif "/" in nspace.replace('://', ''):
-                return ('{' + '/'.join([nspace] + tag_tokens[:-1]) + '}'
-                        + tag_tokens[-1])
-
-        elif form == 'rdf':
-            tag_tokens = tag.split(':')
-            if ":" in nspace.replace('://', ''):
-                return (':'.join([nspace] + tag_tokens[:-1]) + ':'
-                        + tag_tokens[-1])
-            elif "/" in nspace.replace('://', ''):
-                return ('/'.join([nspace] + tag_tokens[:-1]) + ':'
-                        + tag_tokens[-1])
-            return nspace + ':' + tag
-
+        # Get tokens from namespace
+        if '://' in namespace_uri:
+            # We have a namespace of the form protocol://root/ns/ns/ns/tag
+            protocol, namespace = namespace_uri.replace('://', '@').split('@')
+            tokens = namespace.split('/')
+        elif ':' in namespace_uri:
+            # We have a URN namespace of the form ns:ns:ns:ns:tag
+            tokens = namespace_uri.split(':')
         else:
-            raise ValueError(
-                ('Unknown format type {0}. '
-                 'Allowed values are {1}').format(form, ['xml', 'rdf']))
+            raise ValueError("Can't shorten namespace "
+                             "URI {0}".format(namespace_uri))
+
+        # Find the shortened namespace - last token can often be a version number,
+        # (e.g. maj.min.build*) so we just split on periods and look for that.
+        last = tokens.pop()
+        last_is_version = len(last.split('.')) > 1 and \
+                          all([tk.isdigit() for tk in last.split('.')[:-1]])
+        if last_is_version:
+            version = last
+            short_namespace = tokens.pop().lower()
+        else:
+            short_namespace = last.lower()
+            version = tokens.pop()
+
+        # Check that we don't already have this namespace
+        # We need to qualify our namespace with another version
+        if short_namespace in self.keys():
+            short_namespace = short_namespace + ':' + version
+
+        # Add the latest mapping
+        self[short_namespace] = namespace_uri
+

@@ -6,11 +6,7 @@
     description: Unmarshalling functions for GeoSciML/GML objects
 """
 
-from ..namespaces import Namespace
-
 from shapely.geometry import Polygon, LineString
-
-NAMESPACE = Namespace()
 
 
 def poslist(elem):
@@ -35,17 +31,14 @@ def polygon(elem):
     """ Unmarshal a gml:Polygon element
     """
     # Get the projection
-    projection = elem.xpath('.//@srsName',
-                            namespaces=NAMESPACE)[0]
+    projection = elem.xpath('.//@srsName')[0]
 
     # Get outer boundary first, we always have this
     outer = position(
-        elem.xpath('.//gml:outerBoundaryIs//gml:posList',
-                   namespaces=NAMESPACE)[0])
+        elem.xpath('.//gml:outerBoundaryIs//gml:posList')[0])
 
     # We may have 0, 1 or more inner boundaries
-    inners = elem.xpath('.//gml:innerBoundaryIs//gml:posList',
-                        namespaces=NAMESPACE)
+    inners = elem.xpath('.//gml:innerBoundaryIs//gml:posList')
     if not inners:
         inners = None
     else:
@@ -59,13 +52,11 @@ def linestring(elem):
     """ Unmarshal a gml:LineString element
     """
     # Get the projection
-    projection = elem.xpath('.//@srsName',
-                            namespaces=NAMESPACE)[0]
+    projection = elem.xpath('.//@srsName')[0]
 
     # Get the LineString text
     string = position(
-        elem.xpath('./gml:posList',
-                   namespaces=NAMESPACE)[0])
+        elem.xpath('./gml:posList')[0])
 
     return {'projection': projection,
             'shape': LineString(string)}

@@ -1,5 +1,5 @@
 import unittest
-from pysiss.metadata import Namespace
+from pysiss.metadata.namespaces import NamespaceMap
 
 
 class TestXMLNamespaces(unittest.TestCase):
@@ -8,7 +8,7 @@ class TestXMLNamespaces(unittest.TestCase):
     """
 
     def setUp(self):
-        self.ns = Namespace({
+        self.ns = NamespaceMap({
             'om': 'http://www.opengis.net/om/1.0',
             'ows': 'http://www.opengis.net/ows/1.0',
             'gml': 'http://www.opengis.net/gml',
@@ -20,52 +20,29 @@ class TestXMLNamespaces(unittest.TestCase):
             'cgu': 'urn:cgi:xmlns:CGI:DbUtils:1.0'
         })
 
-    def test_namespace_shortening(self):
-        """ Adding namespaces should work ok
-        """
-        test_namespaces = {
-            "ows:tag": "{http://www.opengis.net/ows/1.0}tag",
-            "gsml:tag": "urn:cgi:xmlns:CGI:GeoSciML:2.0:tag"
-        }
-        for sname, lname in test_namespaces.items():
-            self.assertEqual(sname, self.ns.shorten(lname))
-
-    def test_namespace_lengthening_rdf(self):
-        namespaces = {
-            "ows:tag": "http://www.opengis.net/ows/1.0:tag",
-            "gsml:tag": "urn:cgi:xmlns:CGI:GeoSciML:2.0:tag"
-        }
-        for sname, lname in namespaces.items():
-            self.assertEqual(self.ns.expand(sname, form='rdf'),
-                             lname)
-
-    def test_namespace_lengthening_lxml(self):
-        namespaces = {
-            "ows:tag": "{http://www.opengis.net/ows/1.0}tag",
-            "gsml:tag": "{urn:cgi:xmlns:CGI:GeoSciML:2.0}tag"
-        }
-        for sname, lname in namespaces.items():
-            self.assertEqual(self.ns.expand(sname), lname)
-
-    def test_split_namespace(self):
-        """ Test namespace splitting returns the right values
-        """
-        self.assertEqual(
-            self.ns.split('urn:cgi:xmlns:CGI:GeoSciML:2.0:MappedFeature'),
-            ('urn:cgi:xmlns:CGI:GeoSciML:2.0', 'MappedFeature'))
-        self.assertEqual(
-            self.ns.split('{urn:cgi:xmlns:CGI:GeoSciML:2.0}MappedFeature'),
-            ('urn:cgi:xmlns:CGI:GeoSciML:2.0', 'MappedFeature'))
-        self.assertEqual(
-            self.ns.split('gsml:MappedFeature'),
-            ('gsml', 'MappedFeature'))
-
     def test_shorten(self):
         """ Check namespace shortening
         """
-        self.assertEqual(
-            self.ns.shorten('{http://www.opengis.net/gml}boundedBy'),
-            'gml:boundedBy')
+        tests = [
+            ("http://www.opengis.net/ows", "ows"),
+            ("http://www.opengis.net/ogc", "ogc"),
+            ("http://www.opengis.net/wfs", "wfs"),
+            ("http://www.opengis.net/gml", "gml"),
+            ("urn:cgi:xmlns:CGI:GeoSciML:2.0", "geosciml"),
+            ("urn:cgi:xmlns:CGI:GeoSciML:22.0", "geosciml"),
+            ("http://www.opengis.net/sampling/1.0", "sampling"),
+            ("http://www.opengis.net/sampling/1.0.1", "sampling"),
+            ("http://www.opengis.net/sampling/1.0.1alpha", "sampling"),
+            ("http://www.w3.org/1999/xlink", "xlink")
+        ]
+
+        ns = NamespaceMap()
+        for namespace_uri, short_namespace in tests:
+            ns.add_from_url(namespace_uri)
+            self.assertEqual(ns.inverse[namespace_uri],
+                             short_namespace)
+            self.assertEqual(ns[short_namespace],
+                             namespace_uri)
 
     def test_expand(self):
         """ Check namespace expansion
@@ -73,9 +50,6 @@ class TestXMLNamespaces(unittest.TestCase):
         self.assertEqual(
             self.ns.expand('gsml:MappedFeature'),
             '{urn:cgi:xmlns:CGI:GeoSciML:2.0}MappedFeature')
-        self.assertEqual(
-            self.ns.expand('gsml:MappedFeature', form='rdf'),
-            'urn:cgi:xmlns:CGI:GeoSciML:2.0:MappedFeature')
 
 
 if __name__ == '__main__':
