@@ -120,6 +120,11 @@ class Metadata(id_object):
         template = 'Metadata record {0}, of datatype {1}\n{2}'
         return template.format(self.ident, self.dtype, self.tree)
 
+    def get(self, attribute):
+        """ Get the value of the given attribute
+        """
+        return self.attrib.get(attribute)
+
     def parse(self, xml):
         """ Parse some XML containing a metadata record
 
