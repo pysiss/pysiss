@@ -17,6 +17,15 @@ from copy import deepcopy
 from lxml import etree
 from StringIO import StringIO
 
+def qname_str(qname):
+    """ Represent a QName in a namespace:localname string
+    """
+    if qname.namespace not in (None, 'None'):
+        result = '{0}:{1}'.format(qname.namespace, qname.localname)
+    else:
+        result = '{0}'.format(qname.localname)
+    return result
+
 
 def yamlify(mdata, nsmap, indent_width=2, indent=0):
     """ Convert an ETree instance into a YAML-esque representation
@@ -28,11 +37,7 @@ def yamlify(mdata, nsmap, indent_width=2, indent=0):
     """
     # Build line for current element
     spaces = ' ' * indent_width * indent
-    tag = nsmap.regularize(mdata.tag, short_namespace=True)
-    if tag.namespace is not None:
-        result = spaces + '{0}:{1}:'.format(tag.namespace, tag.localname)
-    else:
-        result = spaces + '{1}:'.format(tag.localname)
+    result = spaces + qname_str(nsmap.regularize(mdata.tag))
 
     # Add lines for text
     if mdata.text and mdata.text.strip() != '':
@@ -41,15 +46,9 @@ def yamlify(mdata, nsmap, indent_width=2, indent=0):
     # ... and metadata
     if mdata.attrib:
         for key in mdata.attrib.keys():
-            qname = nsmap.regularize(key, short_namespace=True)
-            if qname.namespace not in (None, 'None'):
-                attrib = '@{0}:{1}: {2}'.format(qname.namespace,
-                                               qname.localname,
-                                               mdata.attrib[key])
-            else:
-                attrib = '@{0}: {1}'.format(qname.localname,
-                                           mdata.attrib[key])
-            result += '\n' + spaces + ' ' * indent_width + attrib
+            qname = qname_str(nsmap.regularize(key, short_namespace=True))
+            result += '\n' + spaces + ' ' * indent_width + \
+                      '@{0}: {1}'.format(qname, mdata.attrib[key])
 
     # Add lines for children
     result += '\n'
@@ -70,9 +69,8 @@ class Metadata(id_object):
             tree - either an etree.ElementTree or etree.Element instance
                 containing already-parsed data. Optional, but one of 'xml' or
                 tree must be specified.
-            dtype - the datatype for the metadata. Optional but if
-                specified will cause the metadata to be registered with the
-                metadata registry under this datatype.
+            dtype - the datatype for the metadata. Optional, if not specified
+                the tag of the root of the metadata tree will be used.
             ident - a unique identifier for the metadata. Optional, one will
                 be generated for the instance if not specified.
             **kwargs - arbitrary attributes to attach to the metadata instance
@@ -89,8 +87,21 @@ class Metadata(id_object):
         if xml is not None:
             self.tree, self.namespaces = self.parse(xml)
         elif tree is not None:
-            self.tree, self.namespaces = tree, NamespaceMap(tree.nsmap)
+            if type(tree) is etree._ElementTree:
+                self.tree, self.namespaces = tree, NamespaceMap(tree.nsmap)
+            elif type(tree) is etree._Element:
+                self.tree = etree.ElementTree(tree)
+                self.namespaces = NamespaceMap(tree.nsmap)
+            else:
+                raise ValueError("Argument to 'tree' in Metadata constructor "
+                                 "is not of type lxml.etree.ElementTree or "
+                                 "lxml.etree.Element (it's type is "
+                                 "{0})".format(type(tree)))
+        else:
+            raise ValueError('One of tree or xml has to be specified to '
+                             'create a Metadata instance')
         self.tag = self.tree.getroot().tag
+        print self.tag
 
         # Store other metadata
         for attrib, value in kwargs.items():
@@ -99,7 +110,9 @@ class Metadata(id_object):
         # Register yourself with the registry
         if dtype is not None:
             self.dtype = dtype.lower()
-            self.registry.register(self)
+        else:
+            self.dtype = self.tag
+        self.registry.register(self)
 
     def __str__(self):
         """ String representation
@@ -145,7 +158,8 @@ class Metadata(id_object):
             kwargs['namespaces'].update(self.namespaces)
         else:
             kwargs.update(namespaces=self.namespaces)
-        return map(self._to_metadata, self.tree.xpath(*args, **kwargs))
+        return map(lambda x: Metadata(tree=x),
+                   self.tree.xpath(*args, **kwargs))
 
     def find(self, *args, **kwargs):
         """ Pass ElementPath queries through to underlying tree
@@ -154,7 +168,7 @@ class Metadata(id_object):
             kwargs['namespaces'].update(self.namespaces)
         else:
             kwargs.update(namespaces=self.namespaces)
-        return map(self._to_metadata, self.tree.find(*args, **kwargs))
+        return Metadata(tree=self.tree.find(*args, **kwargs))
 
     def findall(self, *args, **kwargs):
         """ Pass ElementPath queries through to underlying tree
@@ -163,7 +177,8 @@ class Metadata(id_object):
             kwargs['namespaces'].update(self.namespaces)
         else:
             kwargs.update(namespaces=self.namespaces)
-        return map(self._to_metadata, self.tree.findall(*args, **kwargs))
+        return map(lambda x: Metadata(tree=x),
+                   self.tree.findall(*args, **kwargs))
 
     def yaml(self, indent_width=2):
         """ Return a YAML-like representation of the tags
@@ -177,21 +192,3 @@ class Metadata(id_object):
         """
         return yamlify(self.tree.getroot(), self.namespaces,
                        indent_width=indent_width)
-
-    def _to_metadata(self, elem, nsmap=None):
-        """ Converts an etree element to a Metadata instance with appropriate
-            namespace etc.
-
-            Parameters:
-                elem - an etree.Element instance to convert to a Metadata
-                    instance
-                nsmap - a NamespaceMap instance, optional, if not specified
-                    then the current namespace map is used
-
-            Returns:
-                The constructed Metadata instance
-        """
-        result = Metadata()
-        result.tree = elem
-        result.namespaces = nsmap or self.namespaces
-        return result

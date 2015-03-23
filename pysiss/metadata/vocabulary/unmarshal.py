@@ -27,7 +27,7 @@ def unmarshal(metadata):
     """
     # Sort out what we've been given.
     tag = metadata.namespaces.regularize(metadata.tag)
-    if tag.namespace is not 'None':
+    if tag.namespace not in (None, 'None'):
         tag = '{0.namespace}:{0.localname}'.format(tag)
     else:
         tag = '{0.localname}'.format(tag)
