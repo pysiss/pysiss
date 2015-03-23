@@ -72,7 +72,7 @@ class FeatureService(id_object):
         # Parse metadata
         if response.ok:
             cap = self._capabilities = Metadata(
-                response.content, mdatatype='wfs:wfs_capabilities')
+                response.content, dtype='wfs:wfs_capabilities')
 
             # Update version number and mappings
             self._version = cap.xpath('@version')[0]

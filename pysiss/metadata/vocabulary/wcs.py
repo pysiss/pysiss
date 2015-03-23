@@ -39,15 +39,12 @@ def formats(elem):
     """
     return [e.text for e in elem.findall('wcs:formats')]
 
-def url_info(tag):
+def url_info(elem):
     """ Parse information about an OGC endpoint from getCapabilities request
     """
-    return lambda elem: {
-        'url': elem.xpath(
-            '//{0}//wcs:onlineresource/@*'.format(tag))[0],
-        'method': shorten_namespace(
-            elem.xpath('//{0}//wcs:http/*'.format(tag))[0].tag
-        ).split(':')[1].lower()
+    return {
+        'url': elem.xpath('//wcs:onlineresource/@*')[0],
+        'method': elem.xpath('//wcs:http/*')[0].tag.split(':')[1].lower()
     }
 
 UNMARSHALLERS = {
@@ -60,9 +57,9 @@ UNMARSHALLERS = {
     'wcs:formats': text,
     'wcs:singlevalue': number,
     'wcs:supportedformats': formats,
-    'wcs:getcapabilities': url_info('wcs:getcapabilities'),
-    'wcs:describecoverage': url_info('wcs:describecoverage'),
-    'wcs:getcoverage': url_info('wcs:getcoverage'),
+    'wcs:getcapabilities': url_info,
+    'wcs:describecoverage': url_info,
+    'wcs:getcoverage': url_info,
 }
 
 

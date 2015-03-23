@@ -6,30 +6,40 @@
     description: Wrapper functionality for unmarshalling XML elements
 """
 
-from . import gml, gsml, erml, wcs, wfs, csw
+from . import gml, geosciml, erml, wcs, wfs, csw
 
 from lxml.etree import iterparse, XMLSyntaxError
 
 UNMARSHALLERS = {}
 UNMARSHALLERS.update(gml.UNMARSHALLERS)
-UNMARSHALLERS.update(gsml.UNMARSHALLERS)
+UNMARSHALLERS.update(geosciml.UNMARSHALLERS)
 UNMARSHALLERS.update(erml.UNMARSHALLERS)
 UNMARSHALLERS.update(wcs.UNMARSHALLERS)
 UNMARSHALLERS.update(wfs.UNMARSHALLERS)
 UNMARSHALLERS.update(csw.UNMARSHALLERS)
 
 
-def unmarshal(elem, namespace):
-    """ Unmarshal an lxml.etree.Element element
+def unmarshal(metadata):
+    """ Unmarshal a Metadata element
 
         If there is no unmarshalling function available, this just returns the
         lxml.etree element.
     """
-    tag = namespace.regularize(elem.tag)
-    unmarshal = UNMARSHALLERS.get(tag)
-    if unmarshal:
-        return unmarshal(elem)
+    # Sort out what we've been given.
+    tag = metadata.namespaces.regularize(metadata.tag)
+    if tag.namespace is not 'None':
+        tag = '{0.namespace}:{0.localname}'.format(tag)
     else:
+        tag = '{0.localname}'.format(tag)
+
+    # Find an unmarshaller
+    unmarshal = UNMARSHALLERS.get(tag)
+
+    # Unmarshal it!
+    if unmarshal:
+        return unmarshal(metadata)
+    else:
+        print "Can't unmarshal {0}".format(tag)
         return None
 
 
@@ -43,19 +53,4 @@ def unmarshal_all(metadata, query):
     results = []
     for elem in metadata.xpath(query):
         results.append(unmarshal(elem))
-    return results
-
-def unmarshal_all_from_file(filename, tag='gsml:MappedFeature'):
-    """ Unmarshal all instances of a tag from an xml file
-        and return them as a list of objects
-    """
-    tag = expand_namespace(tag)
-    results = []
-    with open(filename, 'rb') as fhandle:
-        try:
-            context = iter(iterparse(fhandle, events=('end',), tag=tag))
-            for _, elem in context:
-                results.append(unmarshal(elem))
-        except XMLSyntaxError:
-            pass
     return results

@@ -12,10 +12,10 @@ from .gml import UNMARSHALLERS as GML_UNMARSHALLERS
 
 
 def mapped_feature(elem):
-    """ Unmarshal a gsml:MappedFeature element
+    """ Unmarshal a geosciml:mappedfeature element
     """
     # Shape and projection data
-    shape_elem = elem.find('./gsml:shape')
+    shape_elem = elem.find('./geosciml:shape')
     shape_data = shape(shape_elem)
     shape_elem.clear()  # Remove shape element from metadata
 
@@ -23,7 +23,7 @@ def mapped_feature(elem):
     ident = elem.get(expand_namespace('gml:id')) or None
 
     # Get specification metadata records
-    spec_elem = elem.find('./gsml:specification')
+    spec_elem = elem.find('./geosciml:specification')
     spec = specification(spec_elem)
 
     return Feature(ident=ident, shape=shape_data['shape'],
@@ -32,7 +32,7 @@ def mapped_feature(elem):
 
 
 def specification(elem):
-    """ Unmarshall a gsml:specification element
+    """ Unmarshall a geosciml:specification element
     """
     # If we only have an xlink, this is just a pointer to another record
     xlink = elem.get(expand_namespace('xlink:href'))
@@ -47,14 +47,13 @@ def specification(elem):
         spec_elem = elem.iterchildren().next()
         ident = spec_elem.get(expand_namespace('gml:id'))
         mdata = Metadata(ident=ident,
-                         mdatatype=shorten_namespace(spec_elem.tag),
-                         tree=spec_elem,
-                         type='gsml:specification')
+                         dtype=shorten_namespace(spec_elem.tag),
+                         tree=spec_elem)
         return mdata.ident
 
 
 def shape(elem):
-    """ Unmarshal a gsml:shape element
+    """ Unmarshal a geosciml:shape element
 
         Here we just pass through to underlying gml shape data
     """
@@ -64,41 +63,41 @@ def shape(elem):
 
 
 def get_value(elem):
-    """ Unmashall an element containing a gsml:value element somewhere in its
+    """ Unmashall an element containing a geosciml:value element somewhere in its
         descendents.
 
         Returns the text value for a given element, stripping out children of
         the given element
     """
-    return elem.find('.//gsml:value/text()')
+    return elem.find('.//geosciml:value/text()')
 
 
 def cgi_termrange(elem):
-    """ Unmarshal a gsml:CGI_TermRange element
+    """ Unmarshal a geosciml:cgi_termrange element
 
         Return the value range for a given element
     """
     return map(get_value,
-               elem.xpath('.//gsml:CGI_TermValue'))
+               elem.xpath('.//geosciml:cgi_termvalue'))
 
 
 def sampling_frame(elem):
-    """ Unmarshal a gsml:samplingFrame element
+    """ Unmarshal a geosciml:samplingframe element
     """
     return elem.get(expand_namespace('xlink:href'))
 
 
 UNMARSHALLERS = {
-    'gsml:shape': shape,
-    'gsml:value': get_value,
-    'gsml:CGI_TermValue': get_value,
-    'gsml:CGI_TermRange': cgi_termrange,
-    'gsml:preferredAge': get_value,
-    'gsml:observationMethod': get_value,
-    'gsml:positionalAccuracy': get_value,
-    'gsml:samplingFrame': sampling_frame,
-    'gsml:MappedFeature': mapped_feature,
-    'gsml:specification': specification
+    'geosciml:shape': shape,
+    'geosciml:value': get_value,
+    'geosciml:cgi_termvalue': get_value,
+    'geosciml:cgi_termrange': cgi_termrange,
+    'geosciml:preferredAge': get_value,
+    'geosciml:observationmethod': get_value,
+    'geosciml:positionalaccuracy': get_value,
+    'geosciml:samplingframe': sampling_frame,
+    'geosciml:mappedfeature': mapped_feature,
+    'geosciml:specification': specification
 }
 
 __all__ = ['UNMARSHALLERS']

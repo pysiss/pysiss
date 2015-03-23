@@ -171,8 +171,7 @@ class NVCLImporter(object):
             mdata = Metadata(response.content)
             idents = {}
             for match in mdata.findall(".//nvcl:scannedborehole"):
-                idents[match.get(mdata.ns.expand('xlink:title'))] = \
-                    match.get(mdata.ns.expand('xlink:href'))
+                idents[match.get('xlink:title')] = match.get('xlink:href')
             return idents
 
         else:

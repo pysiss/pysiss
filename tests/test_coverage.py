@@ -47,7 +47,7 @@ class TestCoverageService(unittest.TestCase):
             self.assertTrue('AlOH_group_composition' in
                             self.wcs.descriptions.keys())
             desc = self.wcs.descriptions['AlOH_group_composition']
-            self.assertTrue(desc.mdatatype == 'wcs:describecoverage')
+            self.assertTrue(desc.dtype == 'wcs:describecoverage')
 
     def test_layers(self):
         """ Check that layers are decoded

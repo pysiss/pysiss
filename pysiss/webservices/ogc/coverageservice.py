@@ -89,8 +89,8 @@ class CoverageService(id_object):
 
         # Parse metadata
         if response.ok:
-            cap = self._capabilities = Metadata(
-                response.content, mdatatype='wcs:wcs_capabilities')
+            cap = self._capabilities = \
+                Metadata(response.content, dtype='wcs:wcs_capabilities')
 
             # Update version number
             self._version = cap.xpath('@version')[0]
@@ -99,9 +99,9 @@ class CoverageService(id_object):
 
             # Update endpoints
             self._describe_endpoint = \
-                unmarshal_all(cap.tree, '//wcs:describecoverage')[0]
+                unmarshal_all(cap, '//wcs:describecoverage')[0]
             self._coverage_endpoint = \
-                unmarshal_all(cap.tree, '//wcs:getcoverage')[0]
+                unmarshal_all(cap, '//wcs:getcoverage')[0]
 
             # Get available datasets
             self._layers = cap.xpath(
@@ -136,11 +136,11 @@ class CoverageService(id_object):
 
             if response.ok:
                 desc = self._descriptions[layer] = Metadata(
-                    response.content, mdatatype='wcs:describecoverage')
+                    response.content, dtype='wcs:describecoverage')
 
                 # Get bounding box and grid information
                 self.envelopes[layer] = \
-                    unmarshal_all(desc.tree,
+                    unmarshal_all(desc,
                                   '//wcs:spatialdomain/wcs:envelope')
 
             else:
@@ -189,7 +189,7 @@ class CoverageService(id_object):
         self.get_capabilities()
         self.get_descriptions()
         self._check('get_coverage', 'ident', ident, self.layers)
-        metadata = self._descriptions[ident].tree
+        metadata = self._descriptions[ident]
 
         # Check requested projection
         if projection is not None:

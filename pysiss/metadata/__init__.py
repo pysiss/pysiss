@@ -7,9 +7,9 @@
 """
 
 from .registry import MetadataRegistry
-from .metadata import Metadata
+from .metadata import Metadata, yamlify
 from .namespaces import NamespaceMap
 from .vocabulary import unmarshal, unmarshal_all
 
 __all__ = ['MetadataRegistry', 'Metadata', 'NamespaceMap',
-           'unmarshal', 'unmarshal_all']
+           'unmarshal', 'unmarshal_all', 'yamlify']
