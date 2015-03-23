@@ -100,10 +100,10 @@ class Metadata(id_object):
         else:
             raise ValueError('One of tree or xml has to be specified to '
                              'create a Metadata instance')
-        self.tag = self.tree.getroot().tag
-        print self.tag
 
         # Store other metadata
+        for attr in ('tag', 'attrib', 'text'):
+            setattr(self, attr, getattr(self.tree.getroot(), attr))
         for attrib, value in kwargs.items():
             setattr(self, attrib, value)
 
@@ -158,8 +158,17 @@ class Metadata(id_object):
             kwargs['namespaces'].update(self.namespaces)
         else:
             kwargs.update(namespaces=self.namespaces)
-        return map(lambda x: Metadata(tree=x),
-                   self.tree.xpath(*args, **kwargs))
+
+        # We need to check that we've actually got back element tree elements
+        # before trying to wrap in a Metadata instance - xpath results may be
+        # strings!
+        results = []
+        for result in self.tree.xpath(*args, **kwargs):
+            try:
+                results.append(Metadata(tree=result))
+            except ValueError:
+                results.append(result)
+        return results
 
     def find(self, *args, **kwargs):
         """ Pass ElementPath queries through to underlying tree

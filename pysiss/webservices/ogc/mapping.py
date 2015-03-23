@@ -11,6 +11,7 @@ import simplejson
 import pkg_resources
 from copy import deepcopy
 from collections import defaultdict
+from lxml.etree import QName
 
 class accumulator(object):
 
@@ -138,7 +139,11 @@ class OGCServiceMapping(object):
     def request(self, request, method='get', **kwargs):
         """ Put together a PreparedRequest object to make the API call
         """
-        # Chekc that we actually know what to do
+        # There might be a namespace associated with the request, strip it
+        request = request.split('}')[-1]
+        method = method.split('}')[-1]
+
+        # Check that we actually know what to do
         allowed_requests = self.parameters.keys()
         allowed_methods = ('get', 'post')
         if request not in allowed_requests:
