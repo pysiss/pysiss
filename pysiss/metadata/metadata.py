@@ -142,13 +142,17 @@ class Metadata(id_object):
         nspace = NamespaceMap()
 
         # Process root first, stash for later
-        context = iter(etree.iterparse(xml,
+        context = iter(etree.iterparse(xml, events=('end', 'start-ns'),
                                        remove_comments=True,
                                        recover=True))
 
         # Walk tree and generate parsing events to normalize tags
-        for _, elem in context:
-            elem.tag = nspace.regularize(elem.tag, short_namespace=False)
+        for event, elem in context:
+            if event == 'start-ns':
+                nskey, nsurl = elem  # start-ns elem is a tuple
+                nspace[nskey] = nsurl
+            else:
+                elem.tag = nspace.regularize(elem.tag, short_namespace=False)
         return etree.ElementTree(elem), nspace
 
     def xpath(self, *args, **kwargs):

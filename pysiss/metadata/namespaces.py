@@ -41,7 +41,7 @@ class NamespaceMap(dict):
             self.update(kwargs)
 
     def __setitem__(self, key, value):
-        if key is None:
+        if key in (None, 'None', 'none', ''):
             # Use the namespaces from etree where possible, but sometimes a
             # namespace might map to None (if the default namespace) so we need
             # to assign it a shortened version so that xpath doesn't bork...
@@ -64,14 +64,14 @@ class NamespaceMap(dict):
                 self[key] = namespace_url
 
     @property
-    def stored_urls(self):
+    def stored_namespace_urls(self):
         """ Return a list of the stored namespace urls
         """
         return self.inverse.keys()
 
     @property
     def stored_namespace_keys(self):
-        """ Return a list of the stored namespace keys
+        """ Return a list of the stored namespace keys8
         """
         return self.keys()
 
@@ -96,8 +96,10 @@ class NamespaceMap(dict):
         # Check input tag, try to assign a namespace and value
         try:
             tag = QName(tag)
-            if tag.namespace is not None:
-                if tag.namespace not in self.stored_namespace_keys:
+            if tag.namespace not in (None, '', 'None'):
+                if tag.namespace not in self.stored_namespace_urls:
+                    print 'adding new namespace url {0}'.format(tag.namespace),
+                    print 'keys: ', self.keys()
                     self.add_from_url(tag.namespace)
         except ValueError:
             # the tag is already given as a shortened version
