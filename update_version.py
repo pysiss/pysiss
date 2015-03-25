@@ -38,6 +38,8 @@ def update_version():
             ver = stdout.strip().split('-')
             if len(ver) > 1:
                 ver = ver[0] + '.dev' + ver[1]
+            else:
+                ver = ver[0]
     except EnvironmentError:
         LOGGER.warn(
             "Unable to run git, leaving pysiss/_version.py alone")
