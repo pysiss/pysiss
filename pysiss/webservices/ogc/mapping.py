@@ -130,10 +130,11 @@ class OGCServiceMapping(object):
         # Load in mappings dynamically, hook into accumulator to allow
         # repeated keys (although that's not 'proper' JSON we allow it
         # to be able to construct OGC2.0 requests)
+        version_string = version.replace('.', '_')
         self.parameters = simplejson.load(
             pkg_resources.resource_stream(
                 'pysiss.webservices.ogc',
-                'interfaces/{0}/{1}/parameters.json'.format(service, version)),
+                'interfaces/{0}/{1}/parameters.json'.format(service, version_string)),
             object_pairs_hook=accumulator)
 
     def request(self, request, method='get', **kwargs):
