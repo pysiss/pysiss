@@ -8,7 +8,7 @@
 """
 
 from resource import Resource
-import simplejson
+import json
 import os
 
 import logging
@@ -27,7 +27,7 @@ MOCK_CONFIG_FILE = os.path.join(
 def update_mocks():
 	# Load endpoint data from config file
     with open(MOCK_CONFIG_FILE, 'rb') as fhandle:
-        mocks = simplejson.load(fhandle)
+        mocks = json.load(fhandle)
 
     # Make Resource objects, and update them
     for idx, (mock) in enumerate(mocks):

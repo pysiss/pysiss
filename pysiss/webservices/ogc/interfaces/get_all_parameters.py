@@ -8,7 +8,6 @@
 """
 
 import os
-import simplejson
 
 
 def get_folders(folder):

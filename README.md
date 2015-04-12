@@ -139,7 +139,7 @@ Once you've got the numpy/scipy/matplotlib stack plus the GDAL libraries install
 
 - [pandas](http://pandas.pydata.org) for data munging,
 - [shapely](http://toblerity.org/shapely/), which lets you deal with vector GIS data nicely
-- [simplejson](https://pypi.python.org/pypi/simplejson) and [lxml](http://lxml.de) for dealing with JSON, XML and text data for some of the queries.
+- [lxml](http://lxml.de) for dealing with XML and text data for some of the queries.
 
 If you want to run the examples, you might also want to consider
 

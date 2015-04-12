@@ -9,7 +9,6 @@
 """
 
 import re
-import simplejson
 import pkg_resources
 from lxml.etree import QName
 

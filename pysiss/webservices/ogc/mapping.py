@@ -7,7 +7,7 @@
         correct version of the OGC Webservice API.
 """
 
-import simplejson
+import json
 import pkg_resources
 from copy import deepcopy
 from collections import defaultdict
@@ -131,7 +131,7 @@ class OGCServiceMapping(object):
         # repeated keys (although that's not 'proper' JSON we allow it
         # to be able to construct OGC2.0 requests)
         version_string = version.replace('.', '_')
-        self.parameters = simplejson.load(
+        self.parameters = json.load(
             pkg_resources.resource_stream(
                 'pysiss.webservices.ogc',
                 'interfaces/{0}/{1}/parameters.json'.format(service, version_string)),

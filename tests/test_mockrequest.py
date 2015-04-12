@@ -9,7 +9,7 @@
 from mocks.resource import Resource
 
 import unittest
-import simplejson
+import json
 import httmock
 import os
 
@@ -20,7 +20,7 @@ class TestResource(unittest.TestCase):
         fname = os.path.join(os.path.dirname(__file__),
                              'mocks', 'mocks.json')
         with open(fname, 'rb') as fhandle:
-            self.mocks = simplejson.load(fhandle)
+            self.mocks = json.load(fhandle)
         self.test_endpoint = self.mocks[0]
 
     def test_init(self):

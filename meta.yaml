@@ -22,7 +22,6 @@ requirements:
     - numpy >=1.6
     - scipy >=0.9
     - lxml
-    - simplejson >=3.0
     - pandas >=0.10
     - shapely
     - rasterio
@@ -35,7 +34,6 @@ requirements:
     - numpy >=1.6
     - scipy >=0.9
     - lxml
-    - simplejson >=3.0
     - pandas >=0.10
     - shapely
     - rasterio
@@ -67,7 +65,7 @@ test:
     - pysiss.webservices
 
   commands:
-    python setup.py test
+    python run_test.py
 
 about:
   home: http://github.com/pysiss/pysiss
