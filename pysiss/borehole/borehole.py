@@ -6,6 +6,8 @@
     description: Borehole class implementation
 """
 
+from __future__ import division, print_function
+
 from .details import Details, detail_type
 from .datasets import DataSet, PointDataSet, IntervalDataSet
 from .properties import Property
@@ -88,11 +90,11 @@ class Borehole(id_object):
         dataset_list = ''
         if len(self.interval_datasets) > 0:
             dataset_list += ('\nIDs: ' + '\n     '.join(
-                                 map(str, self.interval_datasets.values())))
+                                 [str(i) for i in self.interval_datasets.values()]))
         if len(self.point_datasets) > 0:
             dataset_list += ('\nSDs: ' + '\n     '.join(
-                                 map(str, self.point_datasets.values())))
-        if len(self.details.values()) > 0:
+                                 [str(p) for p in self.point_datasets.values()]))
+        if len(self.details) > 0:
             borehole_details_str = \
                 '\nBorehole details: {0}'.format(self.details)
         else:
@@ -219,7 +221,7 @@ class Feature(id_object):
     def get_property_idents(self):
         """ Return the idents of the available properties for this feature
         """
-        return self.properties.keys()
+        return list(self.properties.keys())
 
 
 # class CoordinateReferenceSystem(object):

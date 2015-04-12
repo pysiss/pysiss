@@ -13,8 +13,10 @@ o If the expectation is that only one borehole element should be
   he/she desires, that test may fail.
 """
 
+from __future__ import division, print_function
+
 import re
-import xml.etree.ElementTree
+import lxml.etree.ElementTree
 from datetime import datetime
 from pint import UnitRegistry
 

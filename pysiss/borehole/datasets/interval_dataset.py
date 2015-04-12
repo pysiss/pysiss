@@ -17,6 +17,8 @@
     be gaps between intervals.
 """
 
+from __future__ import division, print_function
+
 from .dataset import DataSet
 from .point_dataset import PointDataSet
 
@@ -180,4 +182,4 @@ class IntervalDataSet(DataSet):
         return pandas.DataFrame(
             data=dict(((k, self.properties[k].values)
                        for k in self.properties.keys())),
-            index=zip(self.from_depths, self.to_depths))
+            index=list(zip(self.from_depths, self.to_depths)))

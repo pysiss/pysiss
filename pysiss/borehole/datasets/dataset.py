@@ -9,6 +9,8 @@
     or all the dataset data types; it should not be instantiated by users.
 """
 
+from __future__ import division, print_function
+
 from ..properties import Property
 from ..details import Details, detail_type
 from ...utilities import id_object
@@ -56,7 +58,7 @@ class DataSet(id_object):
     def get_property_idents(self):
         """ Return the properties defined over this dataset
         """
-        return self.properties.keys()
+        return list(self.properties.keys())
 
     def to_dataframe(self):
         """ Tranform the data in the dataset into a Pandas dataframe.

@@ -7,6 +7,8 @@
     description: Plotting for the pysiss.borehole module.
 """
 
+from __future__ import division, print_function
+
 import matplotlib.pyplot
 import matplotlib.cm
 import matplotlib.collections

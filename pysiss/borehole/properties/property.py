@@ -6,6 +6,8 @@
     description: Imports for pysiss.borehole.properties
 """
 
+from __future__ import division, print_function
+
 class Property(object):
 
     """ Container for values with type.

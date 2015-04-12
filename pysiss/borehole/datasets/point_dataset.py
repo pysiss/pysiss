@@ -7,6 +7,8 @@
             points down a borehole)
 """
 
+from __future__ import division, print_function
+
 from .dataset import DataSet
 
 import numpy

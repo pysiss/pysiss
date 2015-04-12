@@ -7,6 +7,8 @@
     PointDataSet instance (i.e. detrending).
 """
 
+from __future__ import division, print_function
+
 import numpy
 import scipy.optimize
 
@@ -156,7 +158,8 @@ def detrend(data, trend=None, func=None, param_guess=None):
 
     # If we're here, we are going to use a builtin funciton.
     default = 'linear'
-    if (trend is not None) and (trend not in BUILTIN_TRENDS.keys()):
+    avilable_detrends = set(BUILTIN_TRENDS.keys())
+    if (trend is not None) and (trend not in avilable_detrends):
         raise ValueError("trend should be one of {0}"
-                         .format(BUILTIN_TRENDS.keys()))
+                         .format(avilable_detrends))
     return BUILTIN_TRENDS[trend or default](data)
