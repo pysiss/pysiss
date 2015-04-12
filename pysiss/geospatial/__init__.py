@@ -7,5 +7,6 @@
 """
 
 from .coverage import Coverage
+from .feature import Feature
 
-__all__ = ['Coverage']
+__all__ = ['Coverage', 'Feature']

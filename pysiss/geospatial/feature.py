@@ -6,6 +6,8 @@
     desription: Implementation of classes for vector coverage data
 """
 
+from __future__ import division, print_function
+
 from ..utilities import id_object
 from ..metadata import MetadataRegistry
 
