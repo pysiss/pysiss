@@ -9,6 +9,8 @@
     sense to seperate these out into a seperate registry.
 """
 
+from __future__ import print_function, division
+
 from ..utilities import Singleton
 
 import logging
@@ -16,7 +18,7 @@ import logging
 LOGGER = logging.getLogger('pysiss')
 
 
-class MetadataRegistry(dict):
+class MetadataRegistry(dict, metaclass=Singleton):
 
     """ A registry to store metadata instances
 
@@ -25,7 +27,6 @@ class MetadataRegistry(dict):
         refer to keys within this repository.
     """
 
-    __metaclass__ = Singleton
     registered_ids = set()
 
     def register(self, metadata_item, replace_existing=False, verbose=False):

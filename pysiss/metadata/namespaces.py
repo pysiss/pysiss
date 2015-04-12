@@ -8,6 +8,8 @@
     TODO: Pull unknown namespace definitions from XML file and add to registry
 """
 
+from __future__ import print_function, division
+
 import re
 import pkg_resources
 from lxml.etree import QName
@@ -66,13 +68,13 @@ class NamespaceMap(dict):
     def stored_namespace_urls(self):
         """ Return a list of the stored namespace urls
         """
-        return self.inverse.keys()
+        return list(self.inverse.keys())
 
     @property
     def stored_namespace_keys(self):
         """ Return a list of the stored namespace keys8
         """
-        return self.keys()
+        return list(self.keys())
 
     def __delitem__(self, key):
         del self.inverse[self[key]]
@@ -97,8 +99,8 @@ class NamespaceMap(dict):
             tag = QName(tag)
             if tag.namespace not in (None, '', 'None'):
                 if tag.namespace not in self.stored_namespace_urls:
-                    print 'adding new namespace url {0}'.format(tag.namespace),
-                    print 'keys: ', self.keys()
+                    print('Adding new namespace url {0}'.format(tag.namespace),
+                          'keys: ', list(self.keys()))
                     self.add_from_url(tag.namespace)
         except ValueError:
             # the tag is already given as a shortened version
@@ -161,8 +163,9 @@ class NamespaceMap(dict):
 
         # Check that we don't already have this namespace/url combination
         # We need to qualify our namespace with another version
-        if short_namespace in self.keys():
-            if namespace_uri not in self.inverse.keys():
+        nspaces, uris = set(self.keys()), set(self.inverse.keys())
+        if short_namespace in nspaces:
+            if namespace_uri not in uris:
                 short_namespace = short_namespace + ':' + version
 
         # Add the latest mapping

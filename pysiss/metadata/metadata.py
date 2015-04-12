@@ -9,6 +9,8 @@
     sense to seperate these out into a seperate registry.
 """
 
+from __future__ import print_function, division
+
 from ..utilities import id_object
 from .registry import MetadataRegistry
 from .namespaces import NamespaceMap
@@ -163,7 +165,8 @@ class Metadata(id_object):
 
             Parameters: see lxml.etree.xpath for details
         """
-        if 'namespaces' in kwargs.keys():
+        keys = set(kwargs.keys())
+        if 'namespaces' in keys:
             kwargs['namespaces'].update(self.namespaces)
         else:
             kwargs.update(namespaces=self.namespaces)
@@ -182,7 +185,8 @@ class Metadata(id_object):
     def find(self, *args, **kwargs):
         """ Pass ElementPath queries through to underlying tree
         """
-        if 'namespaces' in kwargs.keys():
+        keys = set(kwargs.keys())
+        if 'namespaces' in keys:
             kwargs['namespaces'].update(self.namespaces)
         else:
             kwargs.update(namespaces=self.namespaces)
@@ -191,12 +195,12 @@ class Metadata(id_object):
     def findall(self, *args, **kwargs):
         """ Pass ElementPath queries through to underlying tree
         """
-        if 'namespaces' in kwargs.keys():
+        keys = set(kwargs.keys())
+        if 'namespaces' in keys:
             kwargs['namespaces'].update(self.namespaces)
         else:
             kwargs.update(namespaces=self.namespaces)
-        return map(lambda x: Metadata(tree=x),
-                   self.tree.findall(*args, **kwargs))
+        return [Metadata(tree=t) for t in self.tree.findall(*args, **kwargs)]
 
     def yaml(self, indent_width=2):
         """ Return a YAML-like representation of the tags
