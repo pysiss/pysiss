@@ -1,10 +1,12 @@
 """ file:   unmarshal.py (pysiss.vocabulary)
     author: Jess Robertson
             CSIRO Minerals Resources Flagship
-    date:   Monday 25 August, 2014
+date:   Monday 25 August, 2014
 
     description: Wrapper functionality for unmarshalling XML elements
 """
+
+from __future__ import print_function, division
 
 from . import gml, geosciml, erml, wcs, wfs, csw
 
@@ -39,7 +41,7 @@ def unmarshal(metadata):
     if unmarshal:
         return unmarshal(metadata)
     else:
-        print "Can't unmarshal {0}".format(tag)
+        print("Can't unmarshal {0}".format(tag))
         return None
 
 

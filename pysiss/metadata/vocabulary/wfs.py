@@ -6,6 +6,8 @@
     description: Unmarshalling functions for GeoSciML/GML objects
 """
 
+from __future__ import print_function, division
+
 UNMARSHALLERS = {}
 
 __all__ = ['UNMARSHALLERS']

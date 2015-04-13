@@ -6,6 +6,8 @@
     description: Unmarshalling functions for WCS metadata
 """
 
+from __future__ import print_function, division
+
 from .gml import position
 
 from shapely.geometry import box
@@ -16,7 +18,7 @@ def envelope(elem):
     """
     projection = elem.attrib['srsName']
     lower_left, upper_right = \
-        map(position, elem.findall('gml:pos'))
+        [position(e) for e in elem.findall('gml:pos')]
     bounding_box = box(lower_left[0], lower_left[1],
                        upper_right[0], upper_right[1])
     return {'bounding_box': bounding_box,

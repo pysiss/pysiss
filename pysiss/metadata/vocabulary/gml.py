@@ -6,6 +6,8 @@
     description: Unmarshalling functions for GeoSciML/GML objects
 """
 
+from __future__ import print_function, division
+
 from shapely.geometry import Polygon, LineString
 
 
@@ -14,7 +16,7 @@ def poslist(elem):
     """
     if elem.text:
         token_pairs = elem.text.split('\n')[1:-1]
-        return [map(float, p.split()) for p in token_pairs]
+        return [[float(x) for x in p.split()] for p in token_pairs]
     else:
         return None
 
@@ -22,7 +24,7 @@ def position(elem):
     """ Unmarshal a gml:position element
     """
     if elem.text:
-        return map(float, elem.text.split())
+        return [float(x) for x in elem.text.split()]
     else:
         return None
 
@@ -42,7 +44,7 @@ def polygon(elem):
     if not inners:
         inners = None
     else:
-        inners = map(position, inners)
+        inners = [position(e) for e in inners]
 
     return {'projection': projection,
             'shape': Polygon(outer, inners)}

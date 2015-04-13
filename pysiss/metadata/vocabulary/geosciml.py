@@ -6,6 +6,8 @@
     description: Unmarshalling functions for GeoSciML/GML objects
 """
 
+from __future__ import print_function, division
+
 from ...geospatial.feature import Feature
 from ..metadata import Metadata
 from .gml import UNMARSHALLERS as GML_UNMARSHALLERS
@@ -44,7 +46,7 @@ def specification(elem):
     # Otherwise we need to create a new metadata record, then return the
     # relevant key
     else:
-        spec_elem = elem.iterchildren().next()
+        spec_elem = next(elem.iterchildren())
         ident = spec_elem.get(expand_namespace('gml:id'))
         mdata = Metadata(ident=ident,
                          dtype=shorten_namespace(spec_elem.tag),
@@ -77,8 +79,7 @@ def cgi_termrange(elem):
 
         Return the value range for a given element
     """
-    return map(get_value,
-               elem.xpath('.//geosciml:cgi_termvalue'))
+    return [get_value(e) for e in elem.xpath('.//geosciml:cgi_termvalue')]
 
 
 def sampling_frame(elem):
