@@ -7,6 +7,8 @@
     description: Find all the parameters described in the specification files
 """
 
+from __future__ import print_function, division
+
 import os
 
 
@@ -24,8 +26,8 @@ def get_parameters():
         unique parameters
     """
     current_directory = os.getcwd()
-    interfaces = map(os.path.abspath, get_folders(
-                     os.path.join(current_directory)))
+    interfaces = [os.path.abspath(f)
+                  for f in get_folders(os.path.join(current_directory)))
     params = {i: [] for i in interfaces}
     for interface in interfaces:
         versions = [os.path.join(interface, v) for v in get_folders(interface)]
@@ -48,5 +50,5 @@ def get_parameters():
 if __name__ == '__main__':
     PARAMS = get_parameters()
     for iface, params in PARAMS.items():
-        print '\nParameters for interface {0}: {1}'.format(
-                    os.path.basename(iface), params)
+        print('\nParameters for interface {0}: {1}'.format(
+                    os.path.basename(iface), params))

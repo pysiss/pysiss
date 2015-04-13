@@ -6,6 +6,8 @@
     decsription: Implementation of simple FeatureService class
 """
 
+from __future__ import print_function, division
+
 from ...utilities import id_object
 from ...metadata import Metadata, unmarshal_all
 from .mapping import OGCServiceMapping, accumulator

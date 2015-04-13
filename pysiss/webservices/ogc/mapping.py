@@ -7,6 +7,8 @@
         correct version of the OGC Webservice API.
 """
 
+from __future__ import print_function, division
+
 import json
 import pkg_resources
 from copy import deepcopy
@@ -145,8 +147,8 @@ class OGCServiceMapping(object):
         method = method.split('}')[-1]
 
         # Check that we actually know what to do
-        allowed_requests = self.parameters.keys()
-        allowed_methods = ('get', 'post')
+        allowed_requests = set(self.parameters.keys())
+        allowed_methods = set('get', 'post')
         if request not in allowed_requests:
             raise ValueError('Unknown OGC request {0}, allowed values'
                              ' are {1}'.format(request, allowed_requests))
