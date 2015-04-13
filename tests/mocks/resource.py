@@ -6,7 +6,7 @@
 	description: Update the mock files
 """
 
-from __future__ import print_function
+from __future__ import print_function, division
 
 import os
 import httmock
@@ -100,7 +100,7 @@ def mock_resource(url, request):
             params = dict([st.split('=') for st in params.split('&')])
         else:
             params = {}
-    except IndexError, ValueError:
+    except (IndexError, ValueError):
         baseurl, params = url.netloc + url.path, {}
     try:
         data = request.data

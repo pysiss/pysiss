@@ -7,7 +7,10 @@
 	description: Update the mock files
 """
 
-from resource import Resource
+from __future__ import print_function, division
+
+from .resource import Resource
+
 import json
 import os
 

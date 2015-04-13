@@ -7,8 +7,11 @@
         based on Poisson arrival processes.
 """
 
+from __future__ import print_function, division
+
 import numpy
 import scipy.interpolate
+
 
 class Spectrum(object):
 
@@ -99,8 +102,8 @@ def add_peak(spectrum, loc, amplitude, width):
     values = spectrum.values
 
     # Calculate the peak shape using the norm PDF
-    peak = amplitude * numpy.asarray(map(numpy.exp, (-(wavelengths - loc) ** 2)
-                                         / (2. * width)))
+    peak = amplitude * numpy.asarray(
+        [numpy.exp(x) for x in (-(wavelengths - loc) ** 2) / (2. * width)])
     spectrum.values = values + peak
 
 

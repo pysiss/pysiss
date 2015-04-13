@@ -7,6 +7,8 @@
         based on Poisson arrival processes.
 """
 
+from __future__ import print_function, division
+
 from pysiss import borehole
 
 import numpy
