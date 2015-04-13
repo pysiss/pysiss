@@ -8,7 +8,7 @@
 
 from __future__ import print_function, division
 
-from .mocks.resource import Resource
+from mocks.resource import Resource
 
 import unittest
 import json
@@ -21,7 +21,7 @@ class TestResource(unittest.TestCase):
     def setUp(self):
         fname = os.path.join(os.path.dirname(__file__),
                              'mocks', 'mocks.json')
-        with open(fname, 'rb') as fhandle:
+        with open(fname, 'r') as fhandle:
             self.mocks = json.load(fhandle)
         self.test_endpoint = self.mocks[0]
 
