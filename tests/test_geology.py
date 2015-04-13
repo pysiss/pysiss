@@ -12,7 +12,7 @@ from pysiss.geospatial import feature
 
 import unittest
 
-from .decorators import slow
+from decorators import slow
 
 BOUNDS = (119.52, -21.6, 120.90, -20.5)
 WFSURL = "http://www.ga.gov.au/geows/{0}/oneg_wa_1m/wfs"

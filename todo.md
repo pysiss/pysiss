@@ -11,4 +11,4 @@
 ## Unmarshalling
 
 [ ] Put unmarshalling functions back into the construction factories?
-[ ] Simplify gml imports using shapely
+[x] Simplify gml imports using shapely

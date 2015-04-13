@@ -132,12 +132,13 @@ class OGCServiceMapping(object):
         # Load in mappings dynamically, hook into accumulator to allow
         # repeated keys (although that's not 'proper' JSON we allow it
         # to be able to construct OGC2.0 requests)
-        version_string = version.replace('.', '_')
-        self.parameters = json.load(
-            pkg_resources.resource_stream(
-                'pysiss.webservices.ogc',
-                'interfaces/{0}/{1}/parameters.json'.format(service, version_string)),
-            object_pairs_hook=accumulator)
+        version_str = version.replace('.', '_')
+        fname =  pkg_resources.resource_filename(
+            'pysiss.webservices.ogc',
+            'interfaces/{0}/{1}/parameters.json'.format(service, version_str))
+        with open(fname) as fhandle:
+            self.parameters = json.load(fhandle,
+                                        object_pairs_hook=accumulator)
 
     def request(self, request, method='get', **kwargs):
         """ Put together a PreparedRequest object to make the API call
@@ -148,7 +149,7 @@ class OGCServiceMapping(object):
 
         # Check that we actually know what to do
         allowed_requests = set(self.parameters.keys())
-        allowed_methods = set('get', 'post')
+        allowed_methods = {'get', 'post'}
         if request not in allowed_requests:
             raise ValueError('Unknown OGC request {0}, allowed values'
                              ' are {1}'.format(request, allowed_requests))
@@ -201,7 +202,7 @@ class OGCServiceMapping(object):
 
         # Construct dictionary of parameters.
         parameter_dict = OGCQueryString(self.parameters[request])
-        for key, param in parameter_dict.items():
+        for key, param in list(parameter_dict.items()):
             if key.startswith('?'):
                 # We have an optional key, check whether values have been
                 # specified already
@@ -223,7 +224,7 @@ class OGCServiceMapping(object):
                                     param))
 
         # Remove placeholders
-        for key in parameter_dict.keys():
+        for key in list(parameter_dict.keys()):
             if key.startswith('?'):
                 del parameter_dict[key]
 

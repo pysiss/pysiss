@@ -16,7 +16,7 @@ o If the expectation is that only one borehole element should be
 from __future__ import division, print_function
 
 import re
-import lxml.etree.ElementTree
+from lxml import etree
 from datetime import datetime
 from pint import UnitRegistry
 
@@ -81,7 +81,7 @@ class SISSBoreholeGenerator(object):
                 borehole details
         """
         if geo_source is not None:
-            geo_tree = xml.etree.ElementTree.parse(geo_source)
+            geo_tree = etree.parse(geo_source)
             borehole_elts = self._get_borehole_elts(geo_tree)
 
             if len(borehole_elts) != 0:
@@ -98,7 +98,7 @@ class SISSBoreholeGenerator(object):
             tag namespace variations.
 
             :param geo_tree: a GeoSciML element tree
-            :type geo_tree: xml.etree.ElementTree
+            :type geo_tree: etree.ElementTree
             :returns: a list of Borehole elements
         """
         boreholes = []

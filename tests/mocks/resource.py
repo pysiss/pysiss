@@ -39,7 +39,8 @@ class Resource(object):
         # characters
         query_string = \
             '&'.join(('{0}={1}'.format(*it) for it in self.params.items()))
-        self.filename = hashlib.md5(''.join(sorted(query_string))).hexdigest()
+        self.filename = hashlib.md5(
+            ''.join(sorted(query_string)).encode('utf-8')).hexdigest()
         self.file_path = os.path.join(self.folder, self.filename)
 
         # Make request object to return

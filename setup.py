@@ -62,7 +62,8 @@ setup(
     package_data={
         'pysiss.metadata': ['*.json'],
         'pysiss.webservices': ['*.json'],
-        'pysiss.webservices.ogc': ['interfaces/*/*/*.json', 'interfaces/*/*/*.xml']
+        'pysiss.webservices.ogc': ['interfaces/*/*/*.json',
+                                   'interfaces/*/*/*.xml']
     },
     test_suite='tests',
     cmdclass={

@@ -17,7 +17,7 @@ import os
 import unittest
 import requests
 
-from .decorators import skip_if_no_network
+from decorators import skip_if_no_network
 
 class SissTest(unittest.TestCase):
 

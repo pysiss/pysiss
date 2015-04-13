@@ -17,7 +17,7 @@ from .namespaces import NamespaceMap
 
 from copy import deepcopy
 from lxml import etree
-from StringIO import StringIO
+import io
 
 def qname_str(qname):
     """ Represent a QName in a namespace:localname string
@@ -139,8 +139,8 @@ class Metadata(id_object):
                 holding the namespace urls and keys
         """
         # Initialize tree and XML namespaces
-        if not isinstance(xml, file):
-            xml = StringIO(xml)
+        if not isinstance(xml, io.IOBase):
+            xml = io.BytesIO(xml.encode('utf-8'))
         nspace = NamespaceMap()
 
         # Process root first, stash for later

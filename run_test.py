@@ -7,6 +7,8 @@
     description: Run tests
 """
 
+from __future__ import print_function, division
+
 import sys
 import unittest
 import pysiss
@@ -16,7 +18,7 @@ from tests.mocks.update import update_mocks
 
 def main():
     # Print version for logging purposes
-    print 'pySISS version: {0}'.format(pysiss.__version__)
+    print('pySISS version: {0}'.format(pysiss.__version__))
 
     # Update networks if required
     if not os.path.exists('tests/mocks/cache'):

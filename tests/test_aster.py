@@ -15,7 +15,7 @@ import rasterio
 import os
 import unittest
 
-from .decorators import slow
+from decorators import slow
 
 ASTER_PRODUCTS = [
     'AlOH_group_composition',

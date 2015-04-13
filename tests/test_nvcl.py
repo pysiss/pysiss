@@ -13,7 +13,7 @@ from pysiss.webservices import nvcl
 import unittest
 import httmock
 
-from .mocks.resource import mock_resource
+from mocks.resource import mock_resource
 
 
 class TestNVCLEndpointRegistry(unittest.TestCase):

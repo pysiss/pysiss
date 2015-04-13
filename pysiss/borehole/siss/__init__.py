@@ -7,6 +7,6 @@
     description: Initialisation of the pysiss.borehole.siss module.
 """
 
-import borehole_generator
+from . import borehole_generator
 
 __all__ = ['borehole_generator']
