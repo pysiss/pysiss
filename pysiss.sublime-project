@@ -16,7 +16,7 @@
 		{
 			"path": "tests",
 			"name": "Tests",
-			"folder_exclude_patterns": [],
+			"folder_exclude_patterns": [".ipynb_checkpoints"],
 			"file_exclude_patterns": []
 		},
 		{

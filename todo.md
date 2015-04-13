@@ -6,3 +6,9 @@
 [ ] consider changing OGCMapping to make request rather than just returning query string? then calling classes don't need to know about requests
 
 ## Namespaces
+
+
+## Unmarshalling
+
+[ ] Put unmarshalling functions back into the construction factories?
+[ ] Simplify gml imports using shapely
