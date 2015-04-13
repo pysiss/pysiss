@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" file: test_real_data.py
+""" file:   test_real_data.py
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     date:   Wednesday November 20, 2013
@@ -8,13 +8,16 @@
     bascially just a couple of scripts pulled from the example sets.
 """
 
-import pysiss
+from __future__ import print_function, division
+
 import pandas
 import numpy
-import cPickle as pickle
+import pickle
 import itertools
 import os
 import unittest
+
+import pysiss
 
 # Location of data files
 PROP_TYPE_PKL = os.path.join('.', 'test_real_ptypes.pkl')

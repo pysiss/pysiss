@@ -6,10 +6,12 @@
     description: unittests for pysiss/borehole/utilities.py
 """
 
-import unittest
-import numpy
+from __future__ import print_function, division
+
 from pysiss.utilities import mask_all_nans
 
+import unittest
+import numpy
 
 class TestMaskNans(unittest.TestCase):
 

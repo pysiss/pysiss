@@ -6,10 +6,13 @@
     description: Functional tests using geology data and GA's WFS
 """
 
-import unittest
-from decorators import slow
+from __future__ import print_function, division
 
 from pysiss.geospatial import feature
+
+import unittest
+
+from .decorators import slow
 
 BOUNDS = (119.52, -21.6, 120.90, -20.5)
 WFSURL = "http://www.ga.gov.au/geows/{0}/oneg_wa_1m/wfs"
@@ -35,7 +38,7 @@ class GeologyTest(unittest.TestCase):
                             'vector requester should return gsml:GeologicUnit '
                             'features')
         unit = geologic_units[0]
-        self.assertEquals(unit.metadata.tree.tag,
-                          '{urn:cgi:xmlns:CGI:GeoSciML:2.0}GeologicUnit')
-        self.assertEquals(self.ns.shorten(unit.metadata.tree.tag),
-                          'gsml:GeologicUnit')
+        self.assertEqual(unit.metadata.tree.tag,
+                         '{urn:cgi:xmlns:CGI:GeoSciML:2.0}GeologicUnit')
+        self.assertEqual(self.ns.shorten(unit.metadata.tree.tag),
+                         'gsml:GeologicUnit')

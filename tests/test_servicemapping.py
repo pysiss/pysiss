@@ -7,8 +7,11 @@
         values to the correct version of the OGC Webservice API.
 """
 
+from __future__ import print_function, division
+
 from pysiss.webservices.ogc.mapping import accumulator, OGCServiceMapping, \
                                            OGCQueryString
+
 import unittest
 import logging
 
@@ -78,7 +81,7 @@ class TestOGCQueryString(unittest.TestCase):
     def test_values_query(self):
         """ Values should return values listed by key
         """
-        self.assertEqual(len(self.query.values()), 3)
+        self.assertEqual(len(list(self.query.values())), 3)
 
     def test_repr(self):
         """ Representation should just return the string

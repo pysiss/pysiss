@@ -6,11 +6,14 @@
     description: Tests for NVCL importer
 """
 
+from __future__ import print_function, division
+
 from pysiss.webservices import nvcl
 
 import unittest
 import httmock
-from mocks.resource import mock_resource
+
+from .mocks.resource import mock_resource
 
 
 class TestNVCLEndpointRegistry(unittest.TestCase):
@@ -32,14 +35,14 @@ class TestNVCLEndpointRegistry(unittest.TestCase):
         urls = ('a/url', 'b/url', 'c/url')
         self.registry.register('myendpoint', *urls)
         for url, key in zip(urls, keys):
-            self.assertEquals(url, self.registry['myendpoint'][key])
+            self.assertEqual(url, self.registry['myendpoint'][key])
 
         # Update the keys
         updated_urls = ('d/url', 'e/url', 'f/url')
         self.registry.register('myendpoint', *updated_urls,
                                update=True)
         for url, key in zip(updated_urls, keys):
-            self.assertEquals(url, self.registry['myendpoint'][key])
+            self.assertEqual(url, self.registry['myendpoint'][key])
 
         # Remove bogus data
         del self.registry['myendpoint']
@@ -48,7 +51,7 @@ class TestNVCLEndpointRegistry(unittest.TestCase):
         """ Check that only one instance of the registry
             is instantiated
         """
-        self.assertEquals(nvcl.NVCLEndpointRegistry(),
+        self.assertEqual(nvcl.NVCLEndpointRegistry(),
                           self.registry)
 
     def tearDown(self):

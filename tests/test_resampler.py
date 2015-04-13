@@ -7,9 +7,13 @@
     description: Tests for detrending functions
 """
 
+from __future__ import print_function, division
+
+from pysiss.borehole.analysis import ReSampler, unique
+
 import unittest
 import numpy
-from pysiss.borehole.analysis import ReSampler, unique
+
 
 class TestReSampler(unittest.TestCase):
 

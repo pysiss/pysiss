@@ -1,5 +1,17 @@
-import unittest
+""" file: test_xmlnamespaces.py
+    author: Jess Robertson
+            CSIRO Earth Science and Resource Engineering
+    date: Tuesday May 14, 2013
+
+    description: unittests for namespace maps
+"""
+
+
+from __future__ import print_function, division
+
 from pysiss.metadata.namespaces import NamespaceMap
+
+import unittest
 
 
 class TestXMLNamespaces(unittest.TestCase):

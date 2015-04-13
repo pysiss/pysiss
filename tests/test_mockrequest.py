@@ -6,7 +6,9 @@
     description: Tests for mock Resource class.
 """
 
-from mocks.resource import Resource
+from __future__ import print_function, division
+
+from .mocks.resource import Resource
 
 import unittest
 import json
