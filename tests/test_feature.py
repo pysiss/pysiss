@@ -6,12 +6,15 @@
     description: Tests of classes for feature data
 """
 
+from __future__ import print_function, division
+
 from pysiss import geospatial, webservices
-from mocks.resource import mock_resource
-from decorators import skip_if_no_network
 
 import unittest
 import httmock
+
+from .mocks.resource import mock_resource
+from .decorators import skip_if_no_network
 
 WFSURL = ("http://www.ga.gov.au/geows/{0}/oneg_wa_1m/wfs")
 GEOLOGIC_OBJECTS = ('contacts', 'faults', 'geologicunits')

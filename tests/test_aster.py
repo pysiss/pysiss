@@ -6,16 +6,16 @@
     description: Functional tests using ASTER data and GA's WFS
 """
 
-# import matplotlib.pyplot as plt
-# import numpy as np
-import rasterio
-import os
-
-import unittest
-from decorators import slow
+from __future__ import print_function, division
 
 from pysiss.geospatial import coverage
 from pysiss.webservices import CoverageService
+
+import rasterio
+import os
+import unittest
+
+from .decorators import slow
 
 ASTER_PRODUCTS = [
     'AlOH_group_composition',

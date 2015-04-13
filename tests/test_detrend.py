@@ -7,9 +7,12 @@
     description: Tests for detrending functions
 """
 
+from __future__ import print_function, division
+
+from pysiss.borehole.analysis import detrend
+
 import unittest
 import numpy
-from pysiss.borehole.analysis import detrend
 
 
 class TestDetrend(unittest.TestCase):

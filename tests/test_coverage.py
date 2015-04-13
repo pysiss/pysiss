@@ -6,6 +6,8 @@
     description: Tests of classes for raster coverage data
 """
 
+from __future__ import print_function, division
+
 from pysiss import geospatial, webservices
 from mocks.resource import mock_resource
 
@@ -45,7 +47,7 @@ class TestCoverageService(unittest.TestCase):
         """
         with httmock.HTTMock(mock_resource):
             self.assertTrue('AlOH_group_composition' in
-                            self.wcs.descriptions.keys())
+                            set(self.wcs.descriptions.keys()))
             desc = self.wcs.descriptions['AlOH_group_composition']
             self.assertTrue(desc.dtype == 'wcs:describecoverage')
 

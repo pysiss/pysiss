@@ -7,6 +7,8 @@
     description: Functional tests to demonstrate the borehole model.
 """
 
+from __future__ import print_function, division
+
 from pysiss.webservices import nvcl
 from pysiss import borehole
 
@@ -121,8 +123,9 @@ class TestBoreholeFunctionalSynthetic(unittest.TestCase):
             sampdom.add_property(prop.property_type, prop.values)
 
         # Check that everthings been added
+        all_keys = set(sampdom.properties.keys())
         for key in self.intdom.properties.keys():
-            self.assertTrue(key in sampdom.properties.keys())
+            self.assertTrue(key in all_keys)
 
     def test_regularization(self):
         """ Regularization should work ok for dataset

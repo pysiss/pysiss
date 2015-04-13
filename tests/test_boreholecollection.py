@@ -6,8 +6,11 @@
     description: Tests for BoreholeCollection class.
 """
 
+from __future__ import print_function, division
+
 from pysiss import borehole as pybh
 from pysiss.utilities import Collection
+
 import unittest
 
 

@@ -7,7 +7,10 @@
     description: Unit tests to demonstrate the borehole model.
 """
 
+from __future__ import print_function, division
+
 from pysiss import borehole as pybh
+
 import numpy
 import unittest
 
@@ -31,7 +34,7 @@ class BoreholeTest(unittest.TestCase):
     def test_identifier(self):
         """ Test that identifier is being captured for borehole
         """
-        self.assertEquals(self.borehole.ident, "test")
+        self.assertEqual(self.borehole.ident, "test")
 
     def test_features(self):
         """ Test store and retrieve a single point feature with a one
@@ -39,7 +42,7 @@ class BoreholeTest(unittest.TestCase):
         """
         feature = self.borehole.add_feature("fault-1", 27.3)
         feature.add_property(pybh.PropertyType("age"), "last friday")
-        self.assertEquals(
+        self.assertEqual(
             "last friday",
             self.borehole.features["fault-1"].properties["age"].values)
 
@@ -69,7 +72,7 @@ class BoreholeTest(unittest.TestCase):
         geol = self.borehole.interval_datasets["geology"]
         self.assertTrue(all(from_depths == geol.from_depths))
         self.assertTrue(all(to_depths == geol.to_depths))
-        self.assertEquals(["SC", "FE"], geol.properties["rock"].values[-1])
+        self.assertEqual(["SC", "FE"], geol.properties["rock"].values[-1])
 
     def test_point_datasets(self):
         """Test store and retrieve two properties sampled at four depths"""
@@ -84,13 +87,13 @@ class BoreholeTest(unittest.TestCase):
         dataset.add_property(IMPEDANCE, impedances)
         self.assertTrue(
             all(depths == self.borehole.point_datasets["samples"].depths))
-        self.assertEquals(
+        self.assertEqual(
             densities,
             self.borehole.point_datasets["samples"].properties["d"].values)
-        self.assertEquals(
+        self.assertEqual(
             impedances,
             self.borehole.point_datasets["samples"].properties["imp"].values)
-        self.assertEquals(
+        self.assertEqual(
             "samples",
             self.borehole.point_datasets['samples'].ident)
 
