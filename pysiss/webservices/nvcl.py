@@ -6,8 +6,10 @@
     description: Importer for NVCL data services
 """
 
+from __future__ import print_function, division
+
 from ..borehole import PropertyType, SISSBoreholeGenerator
-from ..borehole.datasets import PointDataSet  # , IntervalDataSet
+from ..borehole.datasets import PointDataSet
 from ..utilities import Singleton
 from ..metadata import Metadata
 
@@ -15,7 +17,7 @@ import numpy
 import pandas
 import requests
 from lxml import etree
-from StringIO import StringIO
+from io import StringIO
 import logging
 
 
@@ -56,7 +58,7 @@ DEFAULT_ENDPOINTS = {
 }
 
 
-class NVCLEndpointRegistry(dict):
+class NVCLEndpointRegistry(dict, metaclass=Singleton):
 
     """ Registry to manage information about NVCL endpoints
 
@@ -70,8 +72,6 @@ class NVCLEndpointRegistry(dict):
 
         New endpoints can be registered using `NVCLEndpointRegistry.register`.
     """
-
-    __metaclass__ = Singleton
 
     def __init__(self):
         for endpoint, urls in DEFAULT_ENDPOINTS.items():
@@ -98,7 +98,7 @@ class NVCLEndpointRegistry(dict):
 
         """
         # Check that we don't already have this endpoint registered
-        if endpoint in self.keys() and not(update):
+        if endpoint in set(self.keys()) and not(update):
             raise KeyError("Endpoint {0} is already in the registry and you "
                            "don't want to update it".format(endpoint))
 
@@ -129,8 +129,9 @@ class NVCLImporter(object):
         try:
             self.urls = registry[endpoint]
         except KeyError:
+            epts = list(registry.keys())
             raise KeyError('Unknown NVCL Endpoint {0}.'.format(endpoint) +
-                           'Registered endpoints: {0}'.format(registry.keys()))
+                           'Registered endpoints: {0}'.format(epts))
 
         # Set up SISSBoreholeGenerator instance
         # TODO: use this in get_borehole() instead of creating another
@@ -184,7 +185,7 @@ class NVCLImporter(object):
             :param maxids: The maximum number of boreholes to request or
                 None for no limit
             :type maxids: integer
-            :returns: a list borehole identifiers
+            :returns: a iterator over borehole identifiers
         """
         return self.get_borehole_idents_and_urls(maxids).keys()
 
@@ -326,8 +327,7 @@ class NVCLImporter(object):
         """
         raise NotImplementedError
 
-    def get_borehole(self, hole_ident, ident=None, get_analytes=True,
-                     raise_error=True):
+    def get_borehole(self, hole_ident, ident=None, get_analytes=True):
         """ Generates a pysiss.borehole.Borehole instance containing the data
             from the given borehole.
 
@@ -341,39 +341,30 @@ class NVCLImporter(object):
             :type ident: string
             :param get_analytes: If True, the analytes will also be downloaded
             :type get_analytes: bool
-            :param raise_error: Whether to raise an exception on an HTTP error
-                (e.g. 404'd). If false, get_borehole returns None.
             :returns: a `pysiss.borehole.Borehole` object
         """
-        try:
-            # Generate pysiss.borehole.Borehole instance to hold the data
-            if ident is None:
-                ident = hole_ident
-            siss_bhl_generator = SISSBoreholeGenerator()
-            bh_url = self.get_borehole_idents_and_urls()[hole_ident]
-            response = requests.get(bh_url)
+        # Generate pysiss.borehole.Borehole instance to hold the data
+        if ident is None:
+            ident = hole_ident
+        siss_bhl_generator = SISSBoreholeGenerator()
+        bh_url = self.get_borehole_idents_and_urls()[hole_ident]
+        response = requests.get(bh_url)
 
-            # Break out now if the request fails
-            if not response:
-                return None
-            bhl = siss_bhl_generator.geosciml_to_borehole(
-                ident, StringIO(response.content))
+        # Break out now if the request fails
+        if not response:
+            return None
+        bhl = siss_bhl_generator.geosciml_to_borehole(
+            ident, StringIO(response.content))
 
-            # For each dataset in the NVCL we want to add a dataset and store
-            # the dataset information in the DatasetDetails
-            if get_analytes:
-                datasets = self.get_dataset_idents(hole_ident)
-                for dataset_ident, dataset_guid in datasets.items():
-                    dataset = self.get_analytes(hole_ident=hole_ident,
-                                                dataset_name=dataset_ident,
-                                                dataset_ident=dataset_guid)
-                    if dataset is not None:
-                        bhl.add_dataset(dataset)
+        # For each dataset in the NVCL we want to add a dataset and store
+        # the dataset information in the DatasetDetails
+        if get_analytes:
+            datasets = self.get_dataset_idents(hole_ident)
+            for dataset_ident, dataset_guid in datasets.items():
+                dataset = self.get_analytes(hole_ident=hole_ident,
+                                            dataset_name=dataset_ident,
+                                            dataset_ident=dataset_guid)
+                if dataset is not None:
+                    bhl.add_dataset(dataset)
 
-            return bhl
-
-        except Exception, err:
-            if raise_error:
-                raise err
-            else:
-                return None
+        return bhl

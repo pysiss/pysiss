@@ -7,6 +7,8 @@
         queries. Useful if the endpoint does not implement paging.
 """
 
+from __future__ import print_function, division
+
 import numpy
 import textwrap
 import requests
@@ -31,10 +33,10 @@ def make_blocks(lower_corner, upper_corner, nx_blocks, ny_blocks=None):
         numpy.meshgrid(numpy.arange(nx_blocks), numpy.arange(ny_blocks))
 
     # Return blocks as lower and upper corners
-    lower_x, upper_x = map(lambda x: lx + x * dx, (x_idx, x_idx + 1))
-    lower_y, upper_y = map(lambda y: ly + y * dy, (y_idx, y_idx + 1))
-    corners = zip(zip(lower_x.ravel(), lower_y.ravel()),
-                  zip(upper_x.ravel(), upper_y.ravel()))
+    lower_x, upper_x = [lx + x * dx for x in (x_idx, x_idx + 1)]
+    lower_y, upper_y = [ly + y * dy for y in (y_idx, y_idx + 1)]
+    corners = list(zip(zip(lower_x.ravel(), lower_y.ravel()),
+                  zip(upper_x.ravel(), upper_y.ravel())))
     return corners
 
 # Post request body
