@@ -6,6 +6,8 @@
     description: A utility class for forming collections of things
 """
 
+from __future__ import print_function, division
+
 
 class Collection(list):
 

@@ -1,5 +1,13 @@
 """ file: maths.py (pysiss.utilities)
+    author: Jess Robertson
+            CSIRO Earth Science and Resource Engineering
+    email:  jesse.robertson@csiro.au
+    date:   Wednesday May 1, 2013
+
+    description: Maths functions
 """
+
+from __future__ import print_function, division
 
 import numpy
 import functools

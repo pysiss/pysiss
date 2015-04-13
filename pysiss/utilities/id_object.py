@@ -1,7 +1,13 @@
 """ file: objects.py (pysiss.utilities)
+    author: Jess Robertson
+            CSIRO Earth Science and Resource Engineering
+    email:  jesse.robertson@csiro.au
+    date:   Wednesday May 1, 2013
 
     description: Some basic metaclasses etc for defining pysiss classes
 """
+
+from __future__ import print_function, division
 
 import uuid
 

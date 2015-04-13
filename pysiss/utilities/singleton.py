@@ -7,6 +7,8 @@
     your class to use it
 """
 
+from __future__ import print_function, division
+
 
 class Singleton(type):
 
