@@ -10,8 +10,6 @@ from __future__ import print_function, division
 
 from . import gml, geosciml, erml, wcs, wfs, csw
 
-from lxml.etree import iterparse, XMLSyntaxError
-
 UNMARSHALLERS = {}
 UNMARSHALLERS.update(gml.UNMARSHALLERS)
 UNMARSHALLERS.update(geosciml.UNMARSHALLERS)
@@ -19,7 +17,6 @@ UNMARSHALLERS.update(erml.UNMARSHALLERS)
 UNMARSHALLERS.update(wcs.UNMARSHALLERS)
 UNMARSHALLERS.update(wfs.UNMARSHALLERS)
 UNMARSHALLERS.update(csw.UNMARSHALLERS)
-
 
 def unmarshal(metadata):
     """ Unmarshal a Metadata element
@@ -35,11 +32,11 @@ def unmarshal(metadata):
         tag = '{0.localname}'.format(tag)
 
     # Find an unmarshaller
-    unmarshal = UNMARSHALLERS.get(tag)
+    unmarshaller = UNMARSHALLERS.get(tag)
 
     # Unmarshal it!
-    if unmarshal:
-        return unmarshal(metadata)
+    if unmarshaller:
+        return unmarshaller(metadata)
     else:
         print("Can't unmarshal {0}".format(tag))
         return None

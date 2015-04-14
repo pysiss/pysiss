@@ -7,6 +7,7 @@
 
 ## Namespaces
 
+[ ] Add support for default namespaces
 
 ## Unmarshalling
 

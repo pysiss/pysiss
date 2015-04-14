@@ -11,7 +11,6 @@ from __future__ import print_function, division
 from .gml import position
 
 from shapely.geometry import box
-from lxml import etree
 
 def envelope(elem):
     """ Unmarshal an envelope element

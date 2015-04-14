@@ -9,7 +9,7 @@
 from __future__ import print_function, division
 
 
-class Collection(list):
+class collection(list):
 
     """ A collection of things, accessible as a list or dictionary
 
@@ -18,7 +18,7 @@ class Collection(list):
     """
 
     def __init__(self, things=None):
-        super(Collection, self).__init__()
+        super(collection, self).__init__()
         self._index = {}
 
         # Add the list of things if required
@@ -33,7 +33,7 @@ class Collection(list):
         """
         # Try to use as an index first
         try:
-            return super(Collection, self).__getitem__(ident_or_idx)
+            return super(collection, self).__getitem__(ident_or_idx)
         except IndexError:
             pass
         except TypeError:
@@ -41,18 +41,18 @@ class Collection(list):
 
         # If we're here, then it's not an index
         try:
-            return super(Collection, self).__getitem__(
+            return super(collection, self).__getitem__(
                 self._index[ident_or_idx])
         except KeyError:
             string = ('Unknown key or index {0} passed '
-                   'to BoreholeCollection').format(ident_or_idx)
+                      'to BoreholeCollection').format(ident_or_idx)
             raise IndexError(string)
 
     def __setitem__(self, index, thing):
-        """ Collection does not support __setitem__, use append instead
+        """ collection does not support __setitem__, use append instead
         """
         raise NotImplementedError(
-            "Collection does not support __setitem__, use append instead")
+            "collection does not support __setitem__, use append instead")
 
     def __delitem__(self, ident_or_idx):
         """ Remove a thing from the collection
@@ -78,18 +78,20 @@ class Collection(list):
     def append(self, thing):
         """ Add a thing to the collection
         """
-        super(Collection, self).append(thing)
+        super(collection, self).append(thing)
         self._index[thing.ident] = len(self)
 
     def keys(self):
+        """ Return the keys of the collection
+        """
         return [obj.ident for obj in self]
 
     def values(self):
+        """ Return the values of the collection
+        """
         return self
 
     def items(self):
+        """ Return the key/value pairs of the collection
+        """
         return zip(self.keys(), self.values())
-
-    @property
-    def shapes(self):
-        return (obj.shape for obj in self)

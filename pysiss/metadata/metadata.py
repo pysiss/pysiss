@@ -15,7 +15,6 @@ from ..utilities import id_object
 from .registry import MetadataRegistry
 from .namespaces import NamespaceMap
 
-from copy import deepcopy
 from lxml import etree
 import io
 
@@ -61,6 +60,46 @@ def yamlify(mdata, nsmap, indent_width=2, indent=0):
     return result
 
 
+def parse(xml):
+    """ Parse some XML containing a metadata record
+
+        Parameters:
+            xml - either a handle to an open xml file, or a string of XML
+
+        Returns:
+            a tuple containing an lxml.etree.ElementTree instance holding
+            the parsed data, and a pysiss.metadata.NamespaceMap instance
+            holding the namespace urls and keys
+    """
+    # Initialize tree and XML namespaces
+    if not isinstance(xml, io.IOBase):
+        try:
+            xml = io.BytesIO(xml.encode('utf-8'))
+        except AttributeError:
+            # We already have a bytestring so don't bother encoding it
+            xml = io.BytesIO(xml)
+    nspace = NamespaceMap()
+
+    # Walk tree and generate parsing events to normalize tags
+    context = iter(etree.iterparse(xml,
+                                   events=('end', 'start-ns'),
+                                   remove_comments=True,
+                                   recover=True))
+    elem = None
+    for event, elem in context:
+        if event == 'start-ns':
+            nskey, nsurl = elem  # start-ns elem is a tuple
+            nspace[nskey] = nsurl
+        else:
+            elem.tag = nspace.regularize(elem.tag, short_namespace=False)
+
+    # Return the results if we have em
+    if elem:
+        return etree.ElementTree(elem), nspace
+    else:
+        raise ValueError("Couldn't parse xml")
+
+
 class Metadata(id_object):
 
     """ Class to store metadata record
@@ -87,11 +126,11 @@ class Metadata(id_object):
 
         # Slurp in data
         if xml is not None:
-            self.tree, self.namespaces = self.parse(xml)
+            self.tree, self.namespaces = parse(xml)
         elif tree is not None:
-            if type(tree) is etree._ElementTree:
+            if isinstance(tree, etree._ElementTree):
                 self.tree, self.namespaces = tree, NamespaceMap(tree.nsmap)
-            elif type(tree) is etree._Element:
+            elif isinstance(tree, etree._Element):
                 self.tree = etree.ElementTree(tree)
                 self.namespaces = NamespaceMap(tree.nsmap)
             else:
@@ -102,6 +141,7 @@ class Metadata(id_object):
         else:
             raise ValueError('One of tree or xml has to be specified to '
                              'create a Metadata instance')
+        self.root = self.tree.getroot()
 
         # Store other metadata
         for attr in ('tag', 'attrib', 'text'):
@@ -113,7 +153,7 @@ class Metadata(id_object):
         if dtype is not None:
             self.dtype = dtype.lower()
         else:
-            self.dtype = self.tag
+            self.dtype = self.root.tag
         self.registry.register(self)
 
     def __str__(self):
@@ -125,37 +165,7 @@ class Metadata(id_object):
     def get(self, attribute):
         """ Get the value of the given attribute
         """
-        return self.attrib.get(attribute)
-
-    def parse(self, xml):
-        """ Parse some XML containing a metadata record
-
-            Parameters:
-                xml - either a handle to an open xml file, or a string of XML
-
-            Returns:
-                a tuple containing an lxml.etree.ElementTree instance holding
-                the parsed data, and a pysiss.metadata.NamespaceMap instance
-                holding the namespace urls and keys
-        """
-        # Initialize tree and XML namespaces
-        if not isinstance(xml, io.IOBase):
-            xml = io.BytesIO(xml.encode('utf-8'))
-        nspace = NamespaceMap()
-
-        # Process root first, stash for later
-        context = iter(etree.iterparse(xml, events=('end', 'start-ns'),
-                                       remove_comments=True,
-                                       recover=True))
-
-        # Walk tree and generate parsing events to normalize tags
-        for event, elem in context:
-            if event == 'start-ns':
-                nskey, nsurl = elem  # start-ns elem is a tuple
-                nspace[nskey] = nsurl
-            else:
-                elem.tag = nspace.regularize(elem.tag, short_namespace=False)
-        return etree.ElementTree(elem), nspace
+        return self.root.get(attribute)
 
     def xpath(self, *args, **kwargs):
         """ Pass XPath queries through to underlying tree

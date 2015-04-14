@@ -10,7 +10,7 @@ from __future__ import print_function, division
 
 from ..borehole import PropertyType, SISSBoreholeGenerator
 from ..borehole.datasets import PointDataSet
-from ..utilities import Singleton
+from ..utilities import singleton
 from ..metadata import Metadata
 
 import numpy
@@ -58,7 +58,7 @@ DEFAULT_ENDPOINTS = {
 }
 
 
-class NVCLEndpointRegistry(dict, metaclass=Singleton):
+class NVCLEndpointRegistry(dict, metaclass=singleton):
 
     """ Registry to manage information about NVCL endpoints
 

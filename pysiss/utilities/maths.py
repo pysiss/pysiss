@@ -74,8 +74,9 @@ def mask_all_nans(*arrays):
                          "size (arrays have shapes {0})".format(shapes))
 
     # Return the non-nan indices
-    return numpy.logical_not(functools.reduce(numpy.logical_or,
-                             [numpy.isnan(a) for a in arrays]))
+    return numpy.logical_not(
+        functools.reduce(numpy.logical_or,
+                         [numpy.isnan(a) for a in arrays]))
 
 
 def try_float(value_str):

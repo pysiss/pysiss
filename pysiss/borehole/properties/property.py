@@ -29,7 +29,7 @@ class Property(object):
     def __repr__(self):
         info = 'Property {0}: {1} values in units of {2}'
         return info.format(self.name, len(self.values),
-            self.property_type.units)
+                           self.property_type.units)
 
     @property
     def name(self):

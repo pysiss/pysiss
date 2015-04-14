@@ -9,91 +9,13 @@
 
 from __future__ import print_function, division
 
+from ...utilities import id_object, accumulator
+
 import json
 import pkg_resources
-from copy import deepcopy
-from collections import defaultdict
-from lxml.etree import QName
-
-class accumulator(object):
-
-    """ Class providing a dictionary where repeated entries to
-        a key generate a list rather than overwriting
-    """
-
-    def __init__(self, *args, **kwargs):
-        super(accumulator, self).__init__()
-        self._dict = defaultdict(list)
-        self.update(*args, **kwargs)
-
-    def __str__(self):
-        """ String representation
-        """
-        return 'acumulator(' + ', '.join(['{0}={1:s}'.format(*it)
-                                          for it in self.items()])
-
-
-    def update(self, *args, **kwargs):
-        """ Update the accumulator with a new set of pairs, a dictionary
-            or a set of keyword arguments
-        """
-        # Update using argument which may be dictionaries
-        # or lists of key, value pairs
-        if args:
-            for arg in args:
-                try:
-                    for key, value in arg.items():
-                        self[key] = value
-                except AttributeError:
-                    # We have a list of pairs
-                    for key, value in arg:
-                        self[key] = value
-
-        # Update using keyword arguments
-        if kwargs:
-            for key, value in kwargs.items():
-                self[key] = value
-
-    def replace(self, key, value):
-        """ Explicitly replace the current value of key with the given value
-        """
-        del self._dict[key]
-        self[key] = value
-
-    def __setitem__(self, key, value):
-        """ Setting items adds them to a list of values, rather than
-            overwriting
-        """
-        self._dict[key].append(value)
-
-    def __getitem__(self, key):
-        """ Return items from the dictionary
-        """
-        item = self._dict[key]
-        if len(item) == 1:
-            return item[0]
-        else:
-            return item
-
-    def __delitem__(self, key):
-        """ Remove an item from the dictionary
-        """
-        del self._dict[key]
-
-    def keys(self):
-        """ Return the keys from the dictionary
-        """
-        return self._dict.keys()
-
-    def values(self):
-        """ Return the values from the dictionary
-        """
-        return [v[0] if len(v) == 1 else v for v in self._dict.values()]
-
-    def items(self):
-        """ Return the items from the dictionary
-        """
-        return zip(self.keys(), self.values())
+from lxml import etree
+import requests
+import io
 
 
 class OGCQueryString(accumulator):
@@ -118,22 +40,37 @@ class OGCQueryString(accumulator):
         return str(self)
 
 
-class OGCServiceMapping(object):
+class OGCService(id_object):
 
     """ Provides a uniform interface to the variety of APIs published
         by the OGC
     """
 
-    def __init__(self, service, version, method='get'):
-        super(OGCServiceMapping, self).__init__()
+    def __init__(self, endpoint, service, method='get'):
+        super(OGCService, self).__init__()
+
+        # Sort out endpoint
+        self.ident = self.endpoint = endpoint.split('?')[0]
         self.service = service
-        self.version = version
+
+        # Make a getCapabilities request to determine version
+        try:
+            query = ('service={0}'
+                     '&request=getCapabilities'
+                     '&version=1.1.0')
+            response = requests.get(self.endpoint + query)
+            response.raise_for_status()
+            capabilities = etree.parse(io.StringIO(response.text))
+            self.version = capabilities.xpath('@version')
+        except requests.HTTPError:
+            import pdb
+            pdb.set_trace()
 
         # Load in mappings dynamically, hook into accumulator to allow
         # repeated keys (although that's not 'proper' JSON we allow it
         # to be able to construct OGC2.0 requests)
-        version_str = version.replace('.', '_')
-        fname =  pkg_resources.resource_filename(
+        version_str = self.version.replace('.', '_')
+        fname = pkg_resources.resource_filename(
             'pysiss.webservices.ogc',
             'interfaces/{0}/{1}/parameters.json'.format(service, version_str))
         with open(fname) as fhandle:
@@ -159,9 +96,13 @@ class OGCServiceMapping(object):
 
         # Palm off the construction to the appropriate method
         if method == 'get':
-            return self.make_get_request(request, **kwargs)
+            response = self.make_get_request(request, **kwargs)
         elif method == 'post':
-            return self.make_post_request(request, **kwargs)
+            response = self.make_post_request(request, **kwargs)
+
+        # Return the response if we've got here
+        response.raise_for_status()  # Raises an exception on 4/500 codes
+        return response
 
     def make_get_request(self, request, **kwargs):
         """ Construct a get request for an API call
@@ -221,18 +162,18 @@ class OGCServiceMapping(object):
                     parameter_dict.replace(key, _get_value(param))
                 except KeyError:
                     raise KeyError('Missing parameter {0} required'.format(
-                                    param))
+                                   param))
 
         # Remove placeholders
         for key in list(parameter_dict.keys()):
             if key.startswith('?'):
                 del parameter_dict[key]
 
-        return str(parameter_dict)
+        # Make request, return response or raise IOError:
+        query_string = str(parameter_dict)
+        return requests.get(self.endpoint + query_string)
 
     def make_post_request(self, request, **kwargs):
         """ Construct a post request for an API call
         """
         raise NotImplementedError('Post requests not working yet...')
-
-

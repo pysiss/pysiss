@@ -89,11 +89,11 @@ class Borehole(id_object):
         summary_str += ' & {0} features'.format(len(self.features))
         dataset_list = ''
         if len(self.interval_datasets) > 0:
-            dataset_list += ('\nIDs: ' + '\n     '.join(
-                                 [str(i) for i in self.interval_datasets.values()]))
+            idnames = [str(i) for i in self.interval_datasets.values()]
+            dataset_list += ('\nIDs: ' + '\n     '.join(idnames))
         if len(self.point_datasets) > 0:
-            dataset_list += ('\nSDs: ' + '\n     '.join(
-                                 [str(p) for p in self.point_datasets.values()]))
+            pdnames = [str(p) for p in self.point_datasets.values()]
+            dataset_list += ('\nSDs: ' + '\n     '.join(pdnames))
         if len(self.details) > 0:
             borehole_details_str = \
                 '\nBorehole details: {0}'.format(self.details)

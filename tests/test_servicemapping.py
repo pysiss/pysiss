@@ -18,7 +18,7 @@ import logging
 LOGGER = logging.getLogger('pysiss')
 
 
-class TestAccumulator(unittest.TestCase):
+class Testaccumulator(unittest.TestCase):
 
     """ Tests for accumulator object
     """

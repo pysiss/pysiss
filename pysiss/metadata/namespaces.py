@@ -10,8 +10,6 @@
 
 from __future__ import print_function, division
 
-import re
-import pkg_resources
 from lxml.etree import QName
 
 
@@ -140,7 +138,7 @@ class NamespaceMap(dict):
         # Get tokens from namespace
         if '://' in namespace_uri:
             # We have a namespace of the form protocol://root/ns/ns/ns/tag
-            protocol, namespace = namespace_uri.replace('://', '@').split('@')
+            _, namespace = namespace_uri.replace('://', '@').split('@')
             tokens = namespace.split('/')
         elif ':' in namespace_uri:
             # We have a URN namespace of the form ns:ns:ns:ns:tag

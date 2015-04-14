@@ -44,7 +44,7 @@ def unique(array, return_index=True, sort_method='heapsort', eqtest=None):
     try:
         array = array.flatten()
     except AttributeError:
-        array = numpy.asanyarray(array).flatten()
+        array = numpy.asarray(array).flatten()
     if array.size == 0:
         if return_index:
             return array, numpy.empty(0, numpy.bool)
@@ -114,8 +114,8 @@ class ReSampler(scipy.interpolate.InterpolatedUnivariateSpline):
         self.sample_bounds = (sorted_sample[0], sorted_sample[-1])
 
         # Initialise underlying Spline instance
-        scipy.interpolate.InterpolatedUnivariateSpline.__init__(self,
-            x=sorted_sample, y=sorted_signal, w=None,
+        scipy.interpolate.InterpolatedUnivariateSpline.__init__(
+            self, x=sorted_sample, y=sorted_signal, w=None,
             bbox=self.sample_bounds, k=self.order)
 
     def resample(self, nsamples, sample_bounds=None, derivative=0):
@@ -141,7 +141,8 @@ class ReSampler(scipy.interpolate.InterpolatedUnivariateSpline):
         if sample_bounds is None:
             sample_bounds = self.sample_bounds
         resamples = numpy.linspace(sample_bounds[0],
-                                           sample_bounds[1], nsamples)
+                                   sample_bounds[1],
+                                   nsamples)
         resampled_data = \
             scipy.interpolate.InterpolatedUnivariateSpline.__call__(
                 self, x=resamples, nu=derivative)

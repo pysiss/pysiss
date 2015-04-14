@@ -11,14 +11,14 @@
 
 from __future__ import print_function, division
 
-from ..utilities import Singleton
+from ..utilities import singleton
 
 import logging
 
 LOGGER = logging.getLogger('pysiss')
 
 
-class MetadataRegistry(dict, metaclass=Singleton):
+class MetadataRegistry(dict, metaclass=singleton):
 
     """ A registry to store metadata instances
 
@@ -36,7 +36,7 @@ class MetadataRegistry(dict, metaclass=Singleton):
         if not replace_existing:
             if metadata_item.ident in self.registered_ids and verbose:
                 LOGGER.warn(('Metadata ID {0} already exists, skipping'
-                               ' registration').format(metadata_item.ident))
+                             ' registration').format(metadata_item.ident))
             return
 
         # If it doesn't already exist

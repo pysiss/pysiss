@@ -59,7 +59,7 @@ def plot_difference(axes, dataset, observed_value, expected_value,
         :type orientation: str
     """
     # Expand the expected value if required
-    if type(expected_value) is not numpy.ndarray:
+    if not isinstance(expected_value, numpy.array):
         expected_value = expected_value * numpy.ones_like(dataset)
 
     # Helper functions for plotting the lines

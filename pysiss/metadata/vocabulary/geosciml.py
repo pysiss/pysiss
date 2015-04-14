@@ -22,7 +22,7 @@ def mapped_feature(elem):
     shape_elem.clear()  # Remove shape element from metadata
 
     # Identifier
-    ident = elem.get(expand_namespace('gml:id')) or None
+    ident = elem.get('gml:id') or None
 
     # Get specification metadata records
     spec_elem = elem.find('./geosciml:specification')
@@ -37,7 +37,7 @@ def specification(elem):
     """ Unmarshall a geosciml:specification element
     """
     # If we only have an xlink, this is just a pointer to another record
-    xlink = elem.get(expand_namespace('xlink:href'))
+    xlink = elem.get('xlink:href')
     if xlink:
         # Just return the metadata key
         # We need to strip out the # from the link
@@ -47,9 +47,9 @@ def specification(elem):
     # relevant key
     else:
         spec_elem = next(elem.iterchildren())
-        ident = spec_elem.get(expand_namespace('gml:id'))
+        ident = spec_elem.get('gml:id')
         mdata = Metadata(ident=ident,
-                         dtype=shorten_namespace(spec_elem.tag),
+                         dtype=spec_elem.tag,
                          tree=spec_elem)
         return mdata.ident
 
@@ -60,7 +60,7 @@ def shape(elem):
         Here we just pass through to underlying gml shape data
     """
     child = elem[0]
-    unmarshal = GML_UNMARSHALLERS[shorten_namespace(child.tag)]
+    unmarshal = GML_UNMARSHALLERS[child.tag]
     return unmarshal(child)
 
 
@@ -85,7 +85,7 @@ def cgi_termrange(elem):
 def sampling_frame(elem):
     """ Unmarshal a geosciml:samplingframe element
     """
-    return elem.get(expand_namespace('xlink:href'))
+    return elem.get('xlink:href')
 
 
 UNMARSHALLERS = {

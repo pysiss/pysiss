@@ -33,6 +33,8 @@ class Details(dict):
     """ Class to store details about another class
     """
 
+    detail_type = detail_type('details')
+
     def __init__(self):
         super(Details, self).__init__()
 
@@ -50,8 +52,3 @@ class Details(dict):
         self[ident] = self.detail_type(ident=ident,
                                        values=values,
                                        property_type=property_type)
-
-    def __setattr__(self):
-        """ Disable setattr method
-        """
-        raise NotImplementedError('Use add_detail to add details')

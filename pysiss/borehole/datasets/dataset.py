@@ -39,6 +39,7 @@ class DataSet(id_object):
     """
 
     def __init__(self, ident, size, details=None):
+        super(DataSet, self).__init__(ident=ident)
         assert size > 0, "dataset must have at least one element"
         self.properties = dict()
         self.size = size  # size of all values sequences

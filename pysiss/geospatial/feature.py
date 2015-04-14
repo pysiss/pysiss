@@ -27,8 +27,6 @@ class Feature(id_object):
 
         # Store some info on the shape
         self.shape = shape
-        self.projection = projection
-        self.centroid = self.shape.representative_point()
 
         # Store other metadata
         for attrib, value in kwargs.items():
@@ -40,17 +38,9 @@ class Feature(id_object):
         """ String representation
         """
         info = 'Feature {0} somewhere near {1} contains '
-        info_str = info.format(self.ident, self.centroid)
+        info_str = info.format(self.ident,
+                               self.shape.representative_point())
         return info_str
-
-    def reproject(self, new_projection):
-        """ Reproject the shape to a new projection.
-
-            :param new_projection: The identifier for the new projection
-            :type new_projection: int
-        """
-        raise NotImplementedError
-        # self.shape = type(self.shape)(project(self.shape.positions))
 
     @property
     def metadata(self):
