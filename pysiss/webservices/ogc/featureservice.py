@@ -36,14 +36,14 @@ class FeatureService(id_object):
 
         # Set up mapping to OGC webservices
         self.service = OGCService(endpoint=endpoint,
-                                  service='wfs')
+                                  service_type='wfs')
         self.version = self.service.version
         self.capabilities = self.get_capabilities()
 
     def get_capabilities(self, update=False):
         """ Get the capabilities from the feature service
         """
-        response = self.mappings.request(request='getcapabilities',
+        response = self.service.request(request='getcapabilities',
                                          method='get')
         cap = self._capabilities = Metadata(
             response.content, dtype='wfs:wfs_capabilities')

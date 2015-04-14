@@ -41,26 +41,15 @@ class CoverageService(id_object):
         # Initialize version using get_capabilities call
         super(CoverageService, self).__init__(ident=endpoint)
         self.service = OGCService(endpoint=endpoint,
-                                   service='wcs')
+                                  service_type='wcs')
         self.capabilities = self.service.capabilities
         self.version = self.service.version
-
-        # Set up mapping to OGC webservices
-        self.mappings = OGCServiceMapping(version=self.version,
-                                          service='wcs')
-
-    @property
-    def capabilities(self):
-        """ The capabilities of the WCS
-        """
-        return self._capabilities
 
     @property
     def layers(self):
         """ The layers available from the WCS
         """
-        self.get_capabilities()
-        return self._layers
+        return self.service.layers
 
     @property
     def descriptions(self):
@@ -74,11 +63,6 @@ class CoverageService(id_object):
                               'allowed values are {2}').format(key, value,
                                                                allowed,
                                                                function))
-
-    def get_capabilities(self, update=False):
-        # Check whether we already have the capabilities available
-        if not update:
-            return self._capabilities
 
     def describe_coverage(self, layer_id, update=False):
         # Check whether we already have a description for the given coverage

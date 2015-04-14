@@ -9,6 +9,7 @@
 
 from __future__ import print_function, division
 
+from ...metadata import Metadata
 from ...utilities import id_object, accumulator
 
 import json
@@ -16,6 +17,7 @@ import pkg_resources
 from lxml import etree
 import requests
 import io
+import pdb
 
 
 class OGCQueryString(accumulator):
@@ -46,25 +48,21 @@ class OGCService(id_object):
         by the OGC
     """
 
-    def __init__(self, endpoint, service, method='get'):
+    def __init__(self, endpoint, service_type):
         super(OGCService, self).__init__()
 
         # Sort out endpoint
         self.ident = self.endpoint = endpoint.split('?')[0]
-        self.service = service
+        self.service_type = service_type
 
         # Make a getCapabilities request to determine version
-        try:
-            query = ('service={0}'
-                     '&request=getCapabilities'
-                     '&version=1.1.0')
-            response = requests.get(self.endpoint + query)
-            response.raise_for_status()
-            capabilities = etree.parse(io.StringIO(response.text))
-            self.version = capabilities.xpath('@version')
-        except requests.HTTPError:
-            import pdb
-            pdb.set_trace()
+        query = ('service={0}'
+                 '&request=getCapabilities'
+                 '&version=1.1.0').format(self.service_type.upper())
+        response = requests.get(self.endpoint + '?' + query)
+        response.raise_for_status()
+        self.capabilities = Metadata(response.content)
+        self.version = self.capabilities.xpath('@version')[0]
 
         # Load in mappings dynamically, hook into accumulator to allow
         # repeated keys (although that's not 'proper' JSON we allow it
@@ -72,7 +70,8 @@ class OGCService(id_object):
         version_str = self.version.replace('.', '_')
         fname = pkg_resources.resource_filename(
             'pysiss.webservices.ogc',
-            'interfaces/{0}/{1}/parameters.json'.format(service, version_str))
+            'interfaces/{0}/{1}/parameters.json'.format(service_type,
+                                                        version_str))
         with open(fname) as fhandle:
             self.parameters = json.load(fhandle,
                                         object_pairs_hook=accumulator)
@@ -117,14 +116,15 @@ class OGCService(id_object):
                 for value in param:
                     try:
                         value = _get_value(value)
-                        values.append(value)
+                        values.append(str(value, 'utf-8'))
                     except KeyError:
                         continue
                 value = '&'.join(values)
 
             elif isinstance(param, accumulator):
                 template = param['string']
-                inputs = {k: v for k, v in param.items()
+                inputs = {k: str(v, 'utf-8')
+                          for k, v in param.items()
                           if k != 'string'}
                 for key, value in inputs.items():
                     try:
@@ -161,8 +161,8 @@ class OGCService(id_object):
                 try:
                     parameter_dict.replace(key, _get_value(param))
                 except KeyError:
-                    raise KeyError('Missing parameter {0} required'.format(
-                                   param))
+                    raise KeyError(
+                        'Missing parameter {0} required'.format(param))
 
         # Remove placeholders
         for key in list(parameter_dict.keys()):
@@ -171,7 +171,7 @@ class OGCService(id_object):
 
         # Make request, return response or raise IOError:
         query_string = str(parameter_dict)
-        return requests.get(self.endpoint + query_string)
+        return requests.get(self.endpoint + '?' + query_string)
 
     def make_post_request(self, request, **kwargs):
         """ Construct a post request for an API call
