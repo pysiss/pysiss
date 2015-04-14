@@ -66,8 +66,8 @@ def describe_coverage(response):
     """ Parse a describeCoverage response from a WCS 2.0.0 webservice
     """
     # Parse XML response
-    capabilities = Metadata(response.text,
-                            dtype='wcs:describe_coverage')
+    description = Metadata(response.text,
+                           dtype='wcs:describe_coverage')
 
 def get_coverage(response):
     """ Parse an XML response from a WCS 2.0.0 webservice

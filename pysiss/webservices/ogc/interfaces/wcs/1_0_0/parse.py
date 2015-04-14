@@ -6,9 +6,14 @@
 
 from __future__ import print_function, division
 
-from .....metadata import Metadata
+from ....metadata import Metadata
 
 from lxml import etree
+
+def localname(element):
+    """ Get the localname from an element's tag
+    """
+    return etree.QName(element.tag).localname
 
 def get_capabilities(response):
     """ Parse a get_capabilities response from a WCS 1.0.0 webservice
@@ -20,12 +25,12 @@ def get_capabilities(response):
 
     # # Get operations
     operations = []
-    for op_elem in capabilities.xpath('//ows:operation'):
+    for op_elem in capabilities.xpath('//wcs:request/*'):
         try:
-            method_elem = op_elem.xpath('.//ows:http/*')[0]
+            method_elem = op_elem.xpath('.//wcs:http/*')[0]
             operations.append({
-                'operation': op_elem.xpath('@name'),
-                'method':  etree.QName(method_elem.tag).localname.lower(),
+                'operation': localname(op_elem),
+                'method':  localname(method_elem),
                 'url': method_elem.xpath('.//@xlink:href')[0]
             })
         except IndexError:
