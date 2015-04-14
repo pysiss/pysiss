@@ -25,6 +25,26 @@ from .point_dataset import PointDataSet
 import numpy
 import pandas
 
+def make_depth_index(from_depths, to_depths):
+    """ Make a depth index for depth intervals
+
+        Also checks that the depth interval data is ok
+    """
+    from_depths = numpy.asarray(from_depths)
+    to_depths = numpy.asarray(to_depths)
+    if not len(from_depths) == len(to_depths):
+        raise ValueError("from_ and to_depths must be same length")
+    elif not all(numpy.diff(from_depths) > 0):
+        raise ValueError("from_depths must be monotonically increasing")
+    elif not all(numpy.diff(to_depths) > 0):
+        raise ValueError("to_depths must be monotonically increasing")
+    elif not all(to_depths - from_depths > 0):
+        raise ValueError("intervals must have positive length")
+    elif not all(to_depths[:-1] <= from_depths[1:]):
+        raise ValueError("intervals must not overlap")
+    index = pandas.Index(numpy.vstack([from_depths, to_depths]).transpose())
+    return index
+
 
 class IntervalDataSet(DataSet):
 
@@ -50,28 +70,17 @@ class IntervalDataSet(DataSet):
         :param to_depths: interval end point down-hole depths in metres from
             collar
         :type to_depths: iterable
-        :param details: The metadata associated with the dataset. Optional,
+        :param metadata: The metadata associated with the dataset. Optional,
             defaults to None.
-        :type details: pysiss.borehole.dataset.DatasetDetails
+        :type metadata: pysiss.borehole.dataset.DatasetDetails
     """
 
-    def __init__(self, ident, from_depths, to_depths, details=None):
-        super(IntervalDataSet, self).__init__(
-            ident, len(from_depths), details=details)
-        from_depths = numpy.asarray(from_depths)
-        to_depths = numpy.asarray(to_depths)
-        assert len(from_depths) == len(to_depths), \
-            "from_ and to_depths must be same length"
-        assert all(numpy.diff(from_depths) > 0), \
-            "from_depths must be monotonically increasing"
-        assert all(numpy.diff(to_depths) > 0), \
-            "to_depths must be monotonically increasing"
-        assert all(to_depths - from_depths > 0), \
-            "intervals must have positive length"
-        assert all(to_depths[:-1] <= from_depths[1:]), \
-            "intervals must not overlap"
-        self.from_depths = from_depths
-        self.to_depths = to_depths
+    def __init__(self, ident, from_depths, to_depths, metadata=None):
+        # Generate depth interval index
+        index = make_depth_index(from_depths, to_depths)
+        super(IntervalDataSet, self).__init__(ident, index, metadata)
+        self.from_depths = self.index[:, 0]
+        self.to_depths = self.index[:, 1]
 
     def __repr__(self):
         info = 'IntervalDataSet {0}: with {1} depth intervals and {2} '\
@@ -176,7 +185,8 @@ class IntervalDataSet(DataSet):
         sdom.properties = self.properties.copy()
         return sdom
 
-    def to_dataframe(self):
+    @property
+    def dataframe(self):
         """ Tranform the data in the dataset into a Pandas dataframe.
         """
         return pandas.DataFrame(

@@ -6,4 +6,4 @@ lxml
 shapely
 rasterio
 requests
-pint
+h5py

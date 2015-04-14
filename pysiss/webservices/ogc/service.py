@@ -55,11 +55,14 @@ class OGCService(id_object):
         self.ident = self.endpoint = endpoint.split('?')[0]
         self.service_type = service_type
 
+        # Start a requests session
+        self.session = requests.Session()
+
         # Make a getCapabilities request to determine version
         query = ('service={0}'
-                 '&request=getCapabilities'
-                 '&version=1.1.0').format(self.service_type.upper())
-        response = requests.get(self.endpoint + '?' + query)
+                 '&request=getcapabilities'
+                 '&version=1.1.0').format(self.service_type.lower())
+        response = self.session.get(self.endpoint + '?' + query)
         response.raise_for_status()
         self.capabilities = Metadata(response.content)
         self.version = self.capabilities.xpath('@version')[0]
@@ -76,7 +79,7 @@ class OGCService(id_object):
             self.parameters = json.load(fhandle,
                                         object_pairs_hook=accumulator)
 
-    def request(self, request, method='get', **kwargs):
+    def request(self, request, method='get', send=True, **kwargs):
         """ Put together a PreparedRequest object to make the API call
         """
         # There might be a namespace associated with the request, strip it
@@ -95,13 +98,16 @@ class OGCService(id_object):
 
         # Palm off the construction to the appropriate method
         if method == 'get':
-            response = self.make_get_request(request, **kwargs)
+            request = self.make_get_request(request, **kwargs)
         elif method == 'post':
-            response = self.make_post_request(request, **kwargs)
+            request = self.make_post_request(request, **kwargs)
 
-        # Return the response if we've got here
-        response.raise_for_status()  # Raises an exception on 4/500 codes
-        return response
+        if send:
+            response = self.session.send(request)
+            response.raise_for_status()  # Raises an exception on 4/500 codes
+            return response
+        else:
+            return request
 
     def make_get_request(self, request, **kwargs):
         """ Construct a get request for an API call
@@ -116,14 +122,14 @@ class OGCService(id_object):
                 for value in param:
                     try:
                         value = _get_value(value)
-                        values.append(str(value, 'utf-8'))
+                        values.append(value)
                     except KeyError:
                         continue
                 value = '&'.join(values)
 
             elif isinstance(param, accumulator):
                 template = param['string']
-                inputs = {k: str(v, 'utf-8')
+                inputs = {k: v
                           for k, v in param.items()
                           if k != 'string'}
                 for key, value in inputs.items():
@@ -169,9 +175,10 @@ class OGCService(id_object):
             if key.startswith('?'):
                 del parameter_dict[key]
 
-        # Make request, return response or raise IOError:
+        # Make request and return
         query_string = str(parameter_dict)
-        return requests.get(self.endpoint + '?' + query_string)
+        request = requests.Request('GET', self.endpoint + '?' + query_string)
+        return request.prepare()
 
     def make_post_request(self, request, **kwargs):
         """ Construct a post request for an API call

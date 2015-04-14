@@ -17,7 +17,7 @@ import numpy
 import pandas
 import requests
 from lxml import etree
-from io import StringIO
+import io
 import logging
 
 
@@ -166,18 +166,13 @@ class NVCLImporter(object):
         if maxids:
             payload['maxids'] = str(maxids)
         response = requests.get(self.urls['wfsurl'], params=payload)
+        response.raise_for_status()
 
         # Parse response
-        if response.ok:
-            mdata = Metadata(response.content)
-            idents = {}
-            for match in mdata.findall(".//nvcl:scannedborehole"):
-                idents[match.get('xlink:title')] = match.get('xlink:href')
-            return idents
-
-        else:
-            raise IOError('Server at {0} returned error: {1}'.format(
-                              response.url, response.status_code))
+        mdata = Metadata(response.content)
+        titles = mdata.xpath(".//nvcl:scannedborehole/@xlink:title")
+        urls = mdata.xpath(".//nvcl:scannedborehole/@xlink:href")
+        return dict(zip(titles, urls))
 
     def get_borehole_idents(self, maxids=None):
         """ Returns the identifiers of boreholes with NVCL scanned data
@@ -202,14 +197,15 @@ class NVCLImporter(object):
         holeurl = (self.urls['dataurl'] + 'getDatasetCollection.html?'
                    'holeidentifier={0}').format(hole_ident)
         response = requests.get(holeurl)
-        if response:
-            mdata = Metadata(response.content)
+        response.raise_for_status()
 
-            datasets = {}
-            for dset in mdata.findall(".//Dataset"):
-                datasets[dset.find('DatasetName').text] = \
-                    dset.find('DatasetID').text
-            return datasets
+        # Parse results
+        mdata = Metadata(response.content)
+        datasets = {}
+        for dset in mdata.findall(".//dataset"):
+            datasets[dset.find('datasetname').text] = \
+                dset.find('datasetid').text
+        return datasets
 
     def get_analyte_idents(self, dataset_ident):
         """ Generates a dictionary mapping all NVCL analytes for a given
@@ -226,14 +222,15 @@ class NVCLImporter(object):
         dseturl = 'getLogCollection.html?mosaicsvc=no&datasetid={0}'
         response = requests.get(self.urls['dataurl']
                                 + dseturl.format(dataset_ident))
+        response.raise_for_status()
 
         # Parse XML tree to return analytes
         if response:
-            mdata = etree.fromstring(response.content)
+            mdata = Metadata(response.content)
             analyte_idents = {}
-            for analyte in mdata.findall(".//Log"):
-                log_ident = analyte.find("LogID").text
-                name = analyte.find("logName").text
+            for analyte in mdata.findall(".//log"):
+                log_ident = analyte.find("logid").text
+                name = analyte.find("logname").text
                 # sample_count = analyte.find('SampleCount').text
                 analyte_idents[name] = log_ident
             return analyte_idents
@@ -277,7 +274,7 @@ class NVCLImporter(object):
                                                        response.status_code))
 
         # We'll use pandas to slurp the csv direct from the web service
-        analytedata = pandas.read_csv(StringIO(response.content))
+        analytedata = pandas.read_csv(io.StringIO(response.content))
         startcol = 'StartDepth'
         endcol = 'EndDepth'
         analytecols = [k for k in analytedata.keys()
@@ -349,12 +346,9 @@ class NVCLImporter(object):
         siss_bhl_generator = SISSBoreholeGenerator()
         bh_url = self.get_borehole_idents_and_urls()[hole_ident]
         response = requests.get(bh_url)
-
-        # Break out now if the request fails
-        if not response:
-            return None
+        response.raise_for_status()
         bhl = siss_bhl_generator.geosciml_to_borehole(
-            ident, StringIO(response.content))
+            ident, response.content)
 
         # For each dataset in the NVCL we want to add a dataset and store
         # the dataset information in the DatasetDetails

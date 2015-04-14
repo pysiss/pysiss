@@ -22,6 +22,7 @@ from pint import UnitRegistry
 
 from ..properties import PropertyType
 from ..borehole import Borehole, OriginPosition
+from ...metadata import Metadata
 
 # General namespace URIs for GeoSciML
 NS = {'gsml': 'urn:cgi:xmlns:CGI:GeoSciML:2.0',
@@ -81,7 +82,7 @@ class SISSBoreholeGenerator(object):
                 borehole details
         """
         if geo_source is not None:
-            geo_tree = etree.parse(geo_source)
+            geo_tree = Metadata(geo_source)
             borehole_elts = self._get_borehole_elts(geo_tree)
 
             if len(borehole_elts) != 0:
@@ -103,7 +104,7 @@ class SISSBoreholeGenerator(object):
         """
         boreholes = []
         for ns_prefix in ['gsml', 'gsmlbh']:
-            boreholes = geo_tree.findall('.//{' + NS[ns_prefix] + '}Borehole')
+            boreholes = geo_tree.findall('.//{' + NS[ns_prefix] + '}borehole')
             if len(boreholes) != 0:
                 self.ns_key = ns_prefix
                 break
@@ -120,7 +121,7 @@ class SISSBoreholeGenerator(object):
         """
         origin_position = None
 
-        latlon_xpath = './/{{{0}}}location/{{{1}}}Point/{{{2}}}pos'
+        latlon_xpath = './/{{{0}}}location/{{{1}}}point/{{{2}}}pos'
         latlon = _element_text(borehole_elt,
                                latlon_xpath.format(NS[self.ns_key],
                                                    GML_NS[self.ns_key],

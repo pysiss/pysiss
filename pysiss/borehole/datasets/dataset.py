@@ -12,8 +12,9 @@
 from __future__ import division, print_function
 
 from ..properties import Property
-from ..details import Details, detail_type
 from ...utilities import id_object
+
+import pandas
 
 
 class DataSet(id_object):
@@ -22,54 +23,51 @@ class DataSet(id_object):
 
         This is an abstract base class
 
-        Some important properties are:
-            properties - dict mapping property ident to Property
-            size - the size of all the values sequences
-            ident - an identifier
-            subdatasets - a list of subdataset locations
-            gaps - a list of gap locations
-            details - the metadata associated with this dataset
-
         :param ident: an identifier for the dataset
         :type ident: string
-        :param size: The number of items in the dataset
-        :type size: int
+        :param index: an index for the DataSet
+        :type index: an iterator
         :param details: Metadata for a given dataset.
         :type details: pysiss.borehole.datasets.DatasetDetails
     """
 
-    def __init__(self, ident, size, details=None):
+    def __init__(self, ident, index, metadata=None):
         super(DataSet, self).__init__(ident=ident)
-        assert size > 0, "dataset must have at least one element"
-        self.properties = dict()
-        self.size = size  # size of all values sequences
+        self._dataframe = pandas.DataFrame(index=index)
+        self.metadata = metadata
+        self.property_metadata = {}
         self.ident = ident
-        self.subdatasets = None
-        self.gaps = None
-        self.details = details
 
-    def add_property(self, property_type, values):
+    def __additem__(self, ident, values):
+        """ Add a new property to the DataSet
+
+            To add metadata with a property, add it using the
+            add_property method.
+        """
+        self.add_property(ident, values, metadata=None)
+
+    def __delitem__(self, ident):
+        """ Remove a property from the DataSet
+        """
+        super(self, DataSet).__delitem__(ident)
+        del self.property_metadata[ident]
+
+    def add_property(self, ident, values, metadata=None):
         """ Add and return a new property
         """
-        assert self.size == len(values), ("values must have the same number "
-                                          "of elements as the dataset")
-        self.properties[property_type.ident] = Property(property_type, values)
-        return self.properties[property_type.ident]
+        self[ident] = values
+        self.property_metadata[ident] = metadata
 
-    def get_property_idents(self):
+    @property
+    def idents(self):
         """ Return the properties defined over this dataset
         """
-        return list(self.properties.keys())
+        return list(self.keys())
 
-    def to_dataframe(self):
-        """ Tranform the data in the dataset into a Pandas dataframe.
-        """
-        raise NotImplementedError
+    @property
+    def dataframe(self):
+        return self._dataframe
 
-
-class DatasetDetails(Details):
-
-    """ Class to store metadata about a dataset
-    """
-
-    detail_type = detail_type('BoreholeDetail', 'ident values property_type')
+    @property
+    def index(self):
+        return self._dataframe.index

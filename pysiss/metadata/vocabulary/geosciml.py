@@ -8,8 +8,6 @@
 
 from __future__ import print_function, division
 
-from ...geospatial.feature import Feature
-from ..metadata import Metadata
 from .gml import UNMARSHALLERS as GML_UNMARSHALLERS
 
 
@@ -28,30 +26,9 @@ def mapped_feature(elem):
     spec_elem = elem.find('./geosciml:specification')
     spec = specification(spec_elem)
 
-    return Feature(ident=ident, shape=shape_data['shape'],
-                   projection=shape_data['projection'],
-                   specification=spec)
-
-
-def specification(elem):
-    """ Unmarshall a geosciml:specification element
-    """
-    # If we only have an xlink, this is just a pointer to another record
-    xlink = elem.get('xlink:href')
-    if xlink:
-        # Just return the metadata key
-        # We need to strip out the # from the link
-        return xlink.lstrip('#')
-
-    # Otherwise we need to create a new metadata record, then return the
-    # relevant key
-    else:
-        spec_elem = next(elem.iterchildren())
-        ident = spec_elem.get('gml:id')
-        mdata = Metadata(ident=ident,
-                         dtype=spec_elem.tag,
-                         tree=spec_elem)
-        return mdata.ident
+    return dict(ident=ident, shape=shape_data['shape'],
+                projection=shape_data['projection'],
+                specification=spec)
 
 
 def shape(elem):
@@ -98,7 +75,6 @@ UNMARSHALLERS = {
     'geosciml:positionalaccuracy': get_value,
     'geosciml:samplingframe': sampling_frame,
     'geosciml:mappedfeature': mapped_feature,
-    'geosciml:specification': specification
 }
 
 __all__ = ['UNMARSHALLERS']

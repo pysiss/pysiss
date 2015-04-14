@@ -1,21 +1,26 @@
-""" file: test_servicemapping.py
+""" file: test_service.py
     author: Jess Robertson
             CSIRO Mineral Resources Flagship
     date:   Monday February 2, 2015
 
-    description: Tests for utilities to describe service mapping from
+    description: Tests for utilities to describe service  from
         values to the correct version of the OGC Webservice API.
 """
 
 from __future__ import print_function, division
 
-from pysiss.webservices.ogc.mapping import accumulator, OGCServiceMapping, \
-                                           OGCQueryString
+from pysiss.utilities import accumulator
+from pysiss.webservices.ogc.service import OGCService, OGCQueryString
 
 import unittest
 import logging
+import httmock
+from mocks.resource import mock_resource
+
 
 LOGGER = logging.getLogger('pysiss')
+ENDPOINT = ('http://aster.nci.org.au/thredds/wcs/aster/vnir/Aus_Mainland/'
+            'Aus_Mainland_AlOH_group_composition_reprojected.nc4')
 
 
 class Testaccumulator(unittest.TestCase):
@@ -149,19 +154,22 @@ class TestServiceMapping(unittest.TestCase):
         self._run_init('2.0.0')
 
     def _run_init(self, version):
-        """ ServiceMapping object should init ok
+        """ Service object should init ok
         """
-        mapping = OGCServiceMapping(service='wcs', version=version)
+        with httmock.HTTMock(mock_resource):
+            service = OGCService(endpoint=ENDPOINT, service_type='wcs')
+
         for request in self.requests:
             # Construct query string
-            result = mapping.request(**request)
+            prepped_request = service.request(send=False, **request)
 
             # Check that templates have been replaced
-            self.assertTrue('@' not in result)
-            self.assertTrue('?' not in result[1:])
+            self.assertTrue('@' not in prepped_request.url)
+            self.assertTrue('?' not in s
+                            for s in prepped_request.url.split('?')[1:])
             for key, value in request.items():
                 if key is not 'method':
-                    self.assertTrue(str(value) in result,
+                    self.assertTrue(str(value) in prepped_request.url,
                                     'Missing value {0} '.format(value) +
                                     'associated with key {0}'.format(key))
 

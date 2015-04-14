@@ -45,17 +45,9 @@
         "data": ""
     },
     {
-        "url": "http://geossdi.dmp.wa.gov.au/resource/feature/gswa/borehole/pdp2c",
+        "url": "http://geossdi.dmp.wa.gov.au/resource/feature/gswa/borehole/kd1_tir",
         "method": "get",
         "params": {},
-        "data": ""
-    },
-    {
-        "url": "http://geossdi.dmp.wa.gov.au/NVCLDataServices/getDatasetCollection.html",
-        "method": "get",
-        "params": {
-            "holeidentifier": "PDP2C"
-        },
         "data": ""
     },
     {
@@ -138,6 +130,16 @@
         "data": ""
     },
     {
+        "url": "http://aster.nci.org.au/thredds/wcs/aster/vnir/Aus_Mainland/Aus_Mainland_AlOH_group_composition_reprojected.nc4",
+        "method": "get",
+        "params": {
+            "version": "1.1.0",
+            "request": "getcapabilities",
+            "service": "wcs"
+        },
+        "data": ""
+    },
+    {
         "url": "http://aster.nci.org.au//thredds/wcs/aster/vnir/Aus_Mainland/Aus_Mainland_AlOH_group_composition_reprojected.nc4",
         "method": "get",
         "params": {
@@ -203,5 +205,16 @@
             "service": "wfs"
         },
         "data": ""
+    },
+    {
+        "url": "http://www.ga.gov.au/geows/geologicunits/oneg_wa_1m/wfs",
+        "method": "get",
+        "params": {
+            "version": "1.1.0",
+            "request": "getCapabilities",
+            "service": "wfs"
+        },
+        "data": ""
     }
+
 ]

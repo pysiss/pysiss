@@ -41,12 +41,13 @@ class TestBoreholeFunctional(unittest.TestCase):
                             ident, url))
 
         # And we can get all the datasets as a Borehole instance
+        bhid = "PDP2C"
         with HTTMock(mock_resource):
-            bhole = gswa.get_borehole('PDP2C')
+            bhole = gswa.get_borehole(bhid)
 
         # We can checkout the pointdatasets that we've gotten back
-        self.assertTrue(bhole.point_datasets['PDP2C'] is not None)
-        data = bhole.point_datasets['PDP2C']
+        self.assertTrue(bhole.point_datasets[bhid] is not None)
+        data = bhole.point_datasets[bhid]
         self.assertTrue(data.properties is not None)
 
         # And we can munge this into a Pandas dataframe

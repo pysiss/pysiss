@@ -15,3 +15,5 @@ from .accumulator import accumulator
 
 __all__ = ['collection', 'id_object', 'singleton', 'accumulator',
            'heaviside', 'same_sign', 'integrate', 'mask_all_nans', 'try_float']
+
+

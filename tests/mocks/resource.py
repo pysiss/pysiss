@@ -13,7 +13,7 @@ import httmock
 import requests
 import hashlib
 
-PRINT_INTERCEPTIONS = True
+from . import PRINT_INTERCEPTIONS
 
 
 class Resource(object):
@@ -22,7 +22,7 @@ class Resource(object):
         proper network call.
     """
 
-    HEADERS = {'content-type': 'application/json'}
+    HEADERS = {'content-type': 'text'}
 
     def __init__(self, url, method, params, data=None):
         self.data = data
@@ -81,9 +81,9 @@ class Resource(object):
                 fhandle.write(response.content)
         else:
             print(("Couldn't hit {0}, server returned {1}. "
-                          "Leaving {2} alone.").format(response.url,
-                                                       response.status_code,
-                                                       self.file_path))
+                   "Leaving {2} alone.").format(response.url,
+                                                response.status_code,
+                                                self.file_path))
 
 
 @httmock.all_requests
@@ -109,5 +109,8 @@ def mock_resource(url, request):
         data = None
 
     # Generate the resource object
-    res = Resource(url=baseurl, method=request.method, params=params, data=data)
+    res = Resource(url=baseurl, method=request.method,
+                   params=params, data=data)
+    if PRINT_INTERCEPTIONS:
+        print("Looking for file {0}".format(res.filename))
     return res.response()

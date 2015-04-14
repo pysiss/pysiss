@@ -1,5 +1,6 @@
 [x] need to change mocks to use accumulators rather than dicts as json will return only the final version of a key!
 [x] remove simplejson dependency - replace with json?
+[ ] shift clean into a setup.py option
 
 ## Webservices
 

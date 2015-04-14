@@ -114,11 +114,14 @@ class NamespaceMap(dict):
                 tag = QName(None, localname)
 
         # Return regularized result
-        localname = tag.localname.lower()
-        if short_namespace and tag.namespace is not None:
-            return QName(self.inverse[tag.namespace], localname)
+        if tag.namespace in (None, 'None'):
+            return tag.localname.lower()
+        elif short_namespace:
+            return QName(self.inverse[tag.namespace],
+                         tag.localname.lower())
         else:
-            return QName(tag.namespace, localname)
+            return QName(tag.namespace,
+                         tag.localname.lower())
 
     def add_from_url(self, namespace_uri):
         """ Shorten a namespace URL using some heuristics

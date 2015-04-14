@@ -21,7 +21,8 @@ import io
 def qname_str(qname):
     """ Represent a QName in a namespace:localname string
     """
-    if qname.namespace not in (None, 'None'):
+    print(qname.namespace)
+    if qname.namespace not in (None, 'None', 'none'):
         result = '{0}:{1}'.format(qname.namespace, qname.localname)
     else:
         result = '{0}'.format(qname.localname)
@@ -94,7 +95,7 @@ def parse(xml):
             elem.tag = nspace.regularize(elem.tag, short_namespace=False)
 
     # Return the results if we have em
-    if elem:
+    if elem is not None:
         return etree.ElementTree(elem), nspace
     else:
         raise ValueError("Couldn't parse xml")

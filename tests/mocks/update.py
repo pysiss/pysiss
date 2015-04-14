@@ -30,13 +30,13 @@ MOCK_CONFIG_FILE = os.path.join(
 def update_mocks():
 	# Load endpoint data from config file
     with open(MOCK_CONFIG_FILE, 'rb') as fhandle:
-        mocks = json.load(fhandle)
+        mocks = json.loads(fhandle.read().decode('utf-8'))
 
     # Make Resource objects, and update them
-    for idx, (mock) in enumerate(mocks):
+    for mock in mocks:
         LOGGER.info('Updating from {0}'.format(mock['url']))
         res = Resource(**mock)
-        result = res.update()
+        res.update()
         LOGGER.info('Finished updating\n')
 
 

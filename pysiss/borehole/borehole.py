@@ -65,15 +65,19 @@ class Borehole(id_object):
         IntervalDataSet: 'interval_datasets',
     }
 
-    def __init__(self, ident, origin_position=None):
+    def __init__(self, ident, latitude, longitude, elevation=None,
+                 metadata=None):
         super(Borehole, self).__init__(ident=ident)
         self.ident = ident
-        self.origin_position = origin_position
+        self.collar = namedtuple('location elevation')
+        self.collar.location = \
+            shapely.geometry.Point(longitude, latitude, elevation)
+        self.collar.elevation = elevation
         self.survey = None
-        self.features = dict()
-        self.details = BoreholeDetails()
+        self.metadata = metadata
 
         # Initialize dataset lists
+        self.features = {}
         self.datasets = {}
         self.point_datasets = {}
         self.interval_datasets = {}
@@ -81,8 +85,8 @@ class Borehole(id_object):
     def __repr__(self):
         """ String representation
         """
-        info = 'Borehole {0} at origin position {1} contains '
-        info_str = info.format(self.ident, self.origin_position)
+        info = 'Borehole {0} at {1} contains '
+        info_str = info.format(self.ident, self.origin_position.xy)
         n_datasets = sum([len(getattr(self, a))
                           for a in self._type_to_attr.values()])
         summary_str = '{0} datasets'.format(n_datasets)
@@ -94,9 +98,6 @@ class Borehole(id_object):
         if len(self.point_datasets) > 0:
             pdnames = [str(p) for p in self.point_datasets.values()]
             dataset_list += ('\nSDs: ' + '\n     '.join(pdnames))
-        if len(self.details) > 0:
-            borehole_details_str = \
-                '\nBorehole details: {0}'.format(self.details)
         else:
             borehole_details_str = ''
 
@@ -169,18 +170,18 @@ class Borehole(id_object):
     #     """
     #     raise NotImplementedError
 
-    def add_detail(self, ident, values, property_type=None):
-        """ Add a detail to this borehole object.
+    # def add_detail(self, ident, values, property_type=None):
+    #     """ Add a detail to this borehole object.
 
-            :param ident: An identifier for the detail
-            :type ident: string
-            :param values: The data to add
-            :type values: any Python object
-            :param property_type: The property type of the detail, optional,
-                   defaults to None
-            :type property_type: pysiss.borehole.PropertyType
-        """
-        self.details.add_detail(ident, values, property_type)
+    #         :param ident: An identifier for the detail
+    #         :type ident: string
+    #         :param values: The data to add
+    #         :type values: any Python object
+    #         :param property_type: The property type of the detail, optional,
+    #                defaults to None
+    #         :type property_type: pysiss.borehole.PropertyType
+    #     """
+    #     self.details.add_detail(ident, values, property_type)
 
 
 class Feature(id_object):
@@ -251,24 +252,25 @@ class OriginPosition(id_object):
        longitude, and elevation.
     """
 
-    def __init__(self, latitude, longitude, elevation, property_type=None):
+    def __init__(self, latitude, longitude, elevation):
         super(OriginPosition, self).__init__(ident=str((latitude,
                                                         longitude,
                                                         elevation,
                                                         property_type)))
-        self.latitude = latitude
-        self.longitude = longitude
+        self.location = shapely.geometry.Point(longitude, latitude)
         self.elevation = elevation
-        self.property_type = property_type
 
     def __repr__(self):
         """ String representation
         """
-        info = "latitude {0}, longitude {1}, elevation {2}"
-        info = info.format(self.latitude, self.longitude, self.elevation)
-        if self.property_type is not None:
-            info = (info + ", {0}").format(self.property_type)
+        info = "latitude {0[0]}, longitude {0[1]}, elevation {1}"
+        info = info.format(self.location.xy, self.elevation)
         return info
+
+    @property
+    def xy(self):
+        return self.location.xy
+
 
 
 class BoreholeDetails(Details):
