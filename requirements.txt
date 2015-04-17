@@ -6,4 +6,3 @@ lxml
 shapely
 rasterio
 requests
-pint
