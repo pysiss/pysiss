@@ -46,3 +46,4 @@ class metadata_object(object):
             Class instances are equal if their UUIDs match
         """
         return self.uuid == other.uuid
+
