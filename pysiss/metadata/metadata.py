@@ -149,7 +149,7 @@ class Metadata(id_object):
             raise ValueError('One of tree or xml or tag has to be specified to '
                              'create a Metadata instance')
 
-        # Stack in 
+        # Stack in
         self.root = self.tree.getroot()
         if tag is not None:
             self.tag = tag
@@ -183,7 +183,7 @@ class Metadata(id_object):
         return self.root.get(attribute)
 
     def append(self, tag, text=None, attributes=None):
-        """ Add and return a metadata element with given attributes 
+        """ Add and return a metadata element with given attributes
             and text to the metadata instance.
 
             Parameters:
