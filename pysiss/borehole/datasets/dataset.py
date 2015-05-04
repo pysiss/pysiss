@@ -13,6 +13,7 @@ from __future__ import division, print_function
 
 from ..properties import Property
 from ...utilities import id_object
+from ...metadata import Metadata
 
 import pandas
 
@@ -33,10 +34,16 @@ class DataSet(id_object):
 
     def __init__(self, ident, index, metadata=None):
         super(DataSet, self).__init__(ident=ident)
-        self._dataframe = pandas.DataFrame(index=index)
-        self.metadata = metadata
-        self.property_metadata = {}
         self.ident = ident
+
+        # Add metadata
+        self.metadata = Metadata(ident=ident, tag='dataset')
+        if metadata:
+            self.metadata.append(metadata)
+        self.metadata.append(Metadata(tag='properties'))
+
+        # Set up dataframe
+        self._dataframe = pandas.DataFrame(index=index)
 
     def __additem__(self, ident, values):
         """ Add a new property to the DataSet
@@ -56,7 +63,8 @@ class DataSet(id_object):
         """ Add and return a new property
         """
         self[ident] = values
-        self.property_metadata[ident] = metadata
+        self.metadata['properties'].append(
+            Metadata(ident, metadata))
 
     @property
     def idents(self):

@@ -8,9 +8,10 @@
 
 from __future__ import division, print_function
 
+from .collar import Collar
 from .details import Details, detail_type
 from .datasets import DataSet, PointDataSet, IntervalDataSet
-from .properties import Property
+from .survey import Survey
 from ..utilities import id_object
 
 
@@ -52,9 +53,9 @@ class Borehole(id_object):
 
         :param ident: An identifier for the borehole
         :type ident: `string`
-        :param origin_position: The borehole's position (lat/long; defaults to
-            None)
-        :type origin_position: OriginPosition class
+        :param collar: The borehole's collar location. Optional, if not specified defaults to 
+            x=0, y=0, z=0.
+        :type origin_position: Collar class
 
     """
 
@@ -65,14 +66,10 @@ class Borehole(id_object):
         IntervalDataSet: 'interval_datasets',
     }
 
-    def __init__(self, ident, latitude, longitude, elevation=None,
-                 metadata=None):
+    def __init__(self, ident, collar=None, metadata=None):
         super(Borehole, self).__init__(ident=ident)
         self.ident = ident
-        self.collar = namedtuple('location elevation')
-        self.collar.location = \
-            shapely.geometry.Point(longitude, latitude, elevation)
-        self.collar.elevation = elevation
+        self.collar = collar or Collar(0, 0, None)
         self.survey = None
         self.metadata = metadata
 
@@ -182,100 +179,3 @@ class Borehole(id_object):
     #         :type property_type: pysiss.borehole.PropertyType
     #     """
     #     self.details.add_detail(ident, values, property_type)
-
-
-class Feature(id_object):
-
-    """A point feature with properties but no spatial extent.
-
-        Useful properties:
-            depth - down-hole depth in metres
-            properties - dict mapping property ident to Property
-
-        :param ident: The identifier for the new PointDataSet
-        :type ident: `string`
-        :param depth: Feature location given as down-hole depth in metres
-                from collar
-        :type depth: numeric value
-    """
-
-    def __init__(self, ident, depth):
-        super(Feature, self).__init__(ident=ident)
-        self.ident = ident
-        self.depth = depth
-        self.properties = dict()
-
-    def __repr__(self):
-        """ String representation
-        """
-        info = 'Feature {0}: at {1} depth with {2} properties'
-        return info.format(self.ident, len(self.depth), len(self.properties))
-
-    def add_property(self, property_type, values):
-        """ Add a property to this feature.
-
-            values - a single value or multiple values for a multivalued
-                property
-        """
-        self.properties[property_type.ident] = Property(property_type, values)
-
-    def get_property_idents(self):
-        """ Return the idents of the available properties for this feature
-        """
-        return list(self.properties.keys())
-
-
-# class CoordinateReferenceSystem(object):
-
-#     """System for describing a spatial location as a tuple of real numbers."""
-
-#     def __init__(self):
-#         raise NotImplementedError
-
-
-# class Survey(object):
-
-#     """ The spatial shape of the borehole path in three dimensions from the
-#         collar.
-
-#         Used to convert a sequence of down-hole depths into a sequence of
-#         three-dimensional points in some coordinate reference system.
-#     """
-
-#     def __init__(self):
-#         raise NotImplementedError
-
-
-class OriginPosition(id_object):
-
-    """Representation of borehole origin position in terms of latitude,
-       longitude, and elevation.
-    """
-
-    def __init__(self, latitude, longitude, elevation):
-        super(OriginPosition, self).__init__(ident=str((latitude,
-                                                        longitude,
-                                                        elevation,
-                                                        property_type)))
-        self.location = shapely.geometry.Point(longitude, latitude)
-        self.elevation = elevation
-
-    def __repr__(self):
-        """ String representation
-        """
-        info = "latitude {0[0]}, longitude {0[1]}, elevation {1}"
-        info = info.format(self.location.xy, self.elevation)
-        return info
-
-    @property
-    def xy(self):
-        return self.location.xy
-
-
-
-class BoreholeDetails(Details):
-
-    """ Class to store details about drilling a Borehole
-    """
-
-    detail_type = detail_type('BoreholeDetail', 'ident values property_type')
