@@ -46,7 +46,7 @@ class metadata_object(id_object):
 
     def __init__(self, ident=None, *args, **kwargs):
         super(metadata_object, self).__init__(*args, **kwargs)
-        if hasattr(self, __metadata_type__):
-            self.metadata = Metadata(type=self.__metadata_type__)
+        if hasattr(self, __metadata_tag__):
+            self.metadata = Metadata(tag=self.__metadata_tag__)
         else:
             self.metadata = Metadata()
