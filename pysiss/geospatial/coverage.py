@@ -6,22 +6,24 @@
     desription: Implementation of classes for raster coverage data
 """
 
-from ..utilities import id_object
-from ..metadata import unmarshal_all
+from __future__ import division, print_function
+
+from ..metadata import unmarshal_all, ObjectWithMetadata
 
 import rasterio
 from matplotlib.pyplot import gca, get_cmap
 import numpy
 
 
-class Coverage(id_object):
+class Coverage(ObjectWithMetadata):
 
     """ Class containing raster GIS coverage data.
     """
 
+    __metadata_tag__ = 'coverage'
+
     def __init__(self, filename, metadata, ident=None, **kwargs):
-        super(Coverage, self).__init__(ident='raster')
-        self.ident = ident or self.uuid
+        super(Coverage, self).__init__(ident=ident)
         self.filename = filename
 
         # Set up geotiff data
@@ -35,7 +37,7 @@ class Coverage(id_object):
         if kwargs:
             for attrib, value in kwargs.items():
                 setattr(self, attrib, value)
-        self.metadata = metadata
+        self.metadata.append_metadata(metadata)
         try:
             self.mask_value = \
                 unmarshal_all(self.metadata,

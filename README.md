@@ -61,7 +61,7 @@ prints
 
 ```
 Borehole PDP2C at origin position latitude -21.177643 degree, longitude 119.429516 degree, elevation 0.0 meter, PropertyType origin position elevation: long name is "origin position elevation", units are 1 meter contains 1 datasets & 0 features
-SDs: PointDataSet PDP2C: with 6057 depths and 34 properties
+SDs: PointDataset PDP2C: with 6057 depths and 34 properties
 Borehole details: {'driller': BoreholeDetail(name='driller', values='Mount Magnet Drilling', property_type=None), 'inclination type': BoreholeDetail(name='inclination type', values='inclined down', property_type=None), 'drilling method': BoreholeDetail(name='drilling method', values='diamond core', property_type=None), 'cored interval': BoreholeDetail(name='cored interval', values={'lower corner': <Quantity(69.3, 'meter')>, 'upper corner': <Quantity(114.6, 'meter')>}, property_type=PropertyType envelope: long name is "cored interval envelope", units are 1 meter), 'shape': BoreholeDetail(name='shape', values=[-21.1776, 119.43, -21.1775, 119.43], property_type=None), 'start point': BoreholeDetail(name='start point', values='natural ground surface', property_type=None), 'date of drilling': BoreholeDetail(name='date of drilling', values=datetime.datetime(2004, 1, 1, 0, 0), property_type=None)}
 ```
 

@@ -8,21 +8,20 @@
 
 from __future__ import division, print_function
 
-from ..utilities import id_object
-from ..metadata import MetadataRegistry
+from ..metadata import ObjectWithMetadata
 
 
-class Feature(id_object):
+class Feature(ObjectWithMetadata):
 
     """ Class containing vector GIS data.
 
         Corresponds roughly to gsml:MappedFeatures
     """
 
-    md_registry = MetadataRegistry()
+    __metadata_tag__ = 'feature'
 
-    def __init__(self, shape, projection, specification, ident=None, **kwargs):
-        super(Feature, self).__init__(ident='mapped_feature')
+    def __init__(self, shape, ident=None, **kwargs):
+        super(Feature, self).__init__(ident=ident)
         self.ident = ident or self.uuid
 
         # Store some info on the shape
@@ -41,9 +40,3 @@ class Feature(id_object):
         info_str = info.format(self.ident,
                                self.shape.representative_point())
         return info_str
-
-    @property
-    def metadata(self):
-        """ Return the metadata associated with the Feature
-        """
-        return self.md_registry[self.specification]

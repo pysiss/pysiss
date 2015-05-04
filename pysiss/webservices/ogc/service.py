@@ -9,15 +9,14 @@
 
 from __future__ import print_function, division
 
-from ...metadata import Metadata
-from ...utilities import id_object, accumulator
+from ...metadata import Metadata, ObjectWithMetadata
+from ...utilities import accumulator
 
 import json
 import pkg_resources
 from lxml import etree
 import requests
 import io
-import pdb
 
 
 class OGCQueryString(accumulator):
@@ -42,7 +41,7 @@ class OGCQueryString(accumulator):
         return str(self)
 
 
-class OGCService(id_object):
+class OGCService(ObjectWithMetadata):
 
     """ Provides a uniform interface to the variety of APIs published
         by the OGC
