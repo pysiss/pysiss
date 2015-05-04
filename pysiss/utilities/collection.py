@@ -41,8 +41,7 @@ class collection(list):
 
         # If we're here, then it's not an index
         try:
-            return super(collection, self).__getitem__(
-                self._index[ident_or_idx])
+            return self._index[ident_or_idx]
         except KeyError:
             string = ('Unknown key or index {0} passed '
                       'to BoreholeCollection').format(ident_or_idx)
@@ -79,7 +78,7 @@ class collection(list):
         """ Add a thing to the collection
         """
         super(collection, self).append(thing)
-        self._index[thing.ident] = len(self)
+        self._index[thing.ident] = thing
 
     def keys(self):
         """ Return the keys of the collection

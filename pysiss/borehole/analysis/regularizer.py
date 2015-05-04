@@ -99,7 +99,7 @@ class ReSampler(scipy.interpolate.InterpolatedUnivariateSpline):
         """
         # Check inputs
         if len(sample_locations) != len(signal):
-            raise ValueError("DataSet and value arrays are different lengths.")
+            raise ValueError("Dataset and value arrays are different lengths.")
         self.sample_locations, self.signal = sample_locations, signal
         self.order = order
 

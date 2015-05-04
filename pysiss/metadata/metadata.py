@@ -11,17 +11,17 @@
 
 from __future__ import print_function, division
 
-from ..utilities import id_object
 from .registry import MetadataRegistry
 from .namespaces import NamespaceMap
+from .pysiss_namespace import PYSISS_NAMESPACE
 
 from lxml import etree
 import io
+import uuid
 
 def qname_str(qname):
     """ Represent a QName in a namespace:localname string
     """
-    print(qname.namespace)
     if qname.namespace not in (None, 'None', 'none'):
         result = '{0}:{1}'.format(qname.namespace, qname.localname)
     else:
@@ -39,7 +39,7 @@ def yamlify(mdata, nsmap, indent_width=2, indent=0):
     """
     # Build line for current element
     spaces = ' ' * indent_width * indent
-    result = spaces + qname_str(nsmap.regularize(mdata.tag))
+    result = spaces + qname_str(nsmap.shorten(mdata.tag))
 
     # Add lines for text
     if mdata.text and mdata.text.strip() != '':
@@ -48,7 +48,7 @@ def yamlify(mdata, nsmap, indent_width=2, indent=0):
     # ... and metadata
     if mdata.attrib:
         for key in mdata.attrib.keys():
-            qname = qname_str(nsmap.regularize(key, short_namespace=True))
+            qname = qname_str(nsmap.shorten(key))
             result += '\n' + spaces + ' ' * indent_width + \
                       '@{0}: {1}'.format(qname, mdata.attrib[key])
 
@@ -61,8 +61,8 @@ def yamlify(mdata, nsmap, indent_width=2, indent=0):
     return result
 
 
-def parse(xml):
-    """ Parse some XML containing a metadata record
+def xml_to_metadata(xml):
+    """ Read some XML containing a metadata record
 
         Parameters:
             xml - either a handle to an open xml file, or a string of XML
@@ -82,85 +82,86 @@ def parse(xml):
     nspace = NamespaceMap()
 
     # Walk tree and generate parsing events to normalize tags
+    elem = None
     context = iter(etree.iterparse(xml,
                                    events=('end', 'start-ns'),
                                    remove_comments=True,
                                    recover=True))
-    elem = None
     for event, elem in context:
         if event == 'start-ns':
             nskey, nsurl = elem  # start-ns elem is a tuple
             nspace[nskey] = nsurl
-        else:
-            elem.tag = nspace.regularize(elem.tag, short_namespace=False)
 
     # Return the results if we have em
     if elem is not None:
-        return etree.ElementTree(elem), nspace
+        return Metadata(elem)
     else:
         raise ValueError("Couldn't parse xml")
 
 
-class Metadata(id_object):
+class Metadata(object):
 
     """ Class to store metadata record
 
         Parameters:
-            xml - either a handle to an open xml file, or a string of XML.
-                Optional, but one of 'xml' or tree must be specified.
-            tree - either an etree.ElementTree or etree.Element instance
+            elem - either an etree.ElementTree or etree.Element instance
                 containing already-parsed data. Optional, but one of 'xml' or
                 tree must be specified.
-            tag - the datatype for the metadata. Optional, if not specified
-                the tag of the root of the metadata tree will be used.
-            ident - a unique identifier for the metadata. Optional, one will
-                be generated for the instance if not specified.
+            tag - the tag for the metadata. Optional, if not specified
+                the tag of the root of the metadata tree will be used. If both
+                elem and tag are specified and elem.tag != tag, a ValueError
+                will be raised.
             **kwargs - arbitrary attributes to attach to the metadata instance
     """
 
     registry = MetadataRegistry()
 
-    def __init__(self, xml=None, tree=None, tag=None, ident=None,
-                 register=False, **kwargs):
+    def __init__(self, elem=None, register=False,
+                 tag=None, text=None, **attributes):
         super(Metadata, self).__init__()
-        self.ident = ident or self.uuid
+        self.uuid = uuid.uuid5(uuid.NAMESPACE_DNS,
+                               PYSISS_NAMESPACE + 'metadata')
+        self.ident = self.uuid
 
         # Slurp in data
-        if xml is not None:
-            self.tree, self.namespaces = parse(xml)
+        if elem is not None and tag is not None:
+            if tag != elem.tag:
+                raise ValueError(("Tags for element and constructor differ "
+                                  "(elem.tag = {0}, constructor argument={1})."
+                                  " Bailing out!").format(elem.tag, tag))
 
-        elif tree is not None:
-            if isinstance(tree, etree._ElementTree):
-                self.tree, self.namespaces = tree, NamespaceMap(tree.nsmap)
-            elif isinstance(tree, etree._Element):
-                self.tree = etree.ElementTree(tree)
-                self.namespaces = NamespaceMap(tree.nsmap)
-            else:
-                raise ValueError("Argument to 'tree' in Metadata constructor "
+        elif elem is not None:
+            # Check we have an element, not elementtree
+            if isinstance(elem, etree._ElementTree):
+                elem = elem.getroot()
+            elif not isinstance(elem, etree._Element):
+                raise ValueError("Argument to 'elem' in Metadata constructor "
                                  "is not of type lxml.etree.ElementTree or "
                                  "lxml.etree.Element (it's type is "
-                                 "{0})".format(type(tree)))
+                                 "{0})".format(type(elem)))
+
+            # Copy over new namespaces
+            self.namespaces = NamespaceMap(*elem.nsmap.values())
+            self.root = etree.Element(elem.tag,
+                                      nsmap=self.namespaces,
+                                      children=elem.getchildren())
+            self.tag = self.root.tag
 
         elif tag is not None:
             # Create an empty metadata instance
-            self.tree = etree.ElementTree(etree.Element(tag))
+            self.namespaces = NamespaceMap(tag)
+            self.root = etree.Element(tag, nsmap=self.namespaces)
 
         else:
             raise ValueError('One of tree or xml or tag has to be specified to '
                              'create a Metadata instance')
 
-        # Stack in
-        self.root = self.tree.getroot()
-        if tag is not None:
-            self.tag = tag
-        else:
-            self.tag = self.root.tag
-
-        # Store other metadata
-        for attr in ('tag', 'attrib', 'text'):
-            setattr(self, attr, getattr(self.tree.getroot(), attr))
-        for attrib, value in kwargs.items():
-            setattr(self, attrib, value)
+        # Add other attributes
+        for key, value in attributes.items():
+            self.set(key, value)
+        if text:
+            self.root.text = text
+        self.text = self.root.text
 
         # Register yourself with the registry if required
         if register:
@@ -169,8 +170,9 @@ class Metadata(id_object):
     def __str__(self):
         """ String representation
         """
-        template = 'Metadata record {0}, of datatype {1}\n{2}'
-        return template.format(self.ident, self.tag, self.tree)
+        template = 'Metadata record {0}, of datatype {1}'
+        short_tag = qname_str(self.namespaces.shorten(self.root.tag))
+        return template.format(self.ident, short_tag)
 
     def __getitem__(self, tag):
         """ Return the element associated with the given tag
@@ -182,7 +184,12 @@ class Metadata(id_object):
         """
         return self.root.get(attribute)
 
-    def append(self, tag, text=None, attributes=None):
+    def set(self, attribute, value):
+        """ Set the value of the given attribute
+        """
+        self.root.set(attribute, value)
+
+    def append(self, tag, text=None, children=None, **attributes):
         """ Add and return a metadata element with given attributes
             and text to the metadata instance.
 
@@ -194,22 +201,24 @@ class Metadata(id_object):
                 attributes - key-value pairs to be associated with this content.
         """
         element = etree.SubElement(self.root, tag)
-        if attributes:
-            self.root.update(attributes)
+        for key, value in attributes.items():
+            self.root.set(key, value)
         if text:
             element.text = text
-        element.nsmap = self.root.nsmap
-        return Metadata(tree=element)
+        if children:
+            element.append(children)
+        return Metadata(element)
 
-    def append_metadata(self, metadata):
-        """ Add and return a metadata element to the tree
+    def extend(self, *metadata):
+        """ Add and return metadata elements to the tree
         """
-        return self.root.append(metadata.root)
+        for metadatum in metadata:
+            self.root.append(metadatum.root)
 
     def xpath(self, *args, **kwargs):
-        """ Pass XPath queries through to underlying tree
+        """ Pass XPath queries through to underlying element
 
-            Uses the namespace dictionary from the metadata tree
+            Uses the namespace dictionary from the metadata element
             to expand namespace definitions
 
             Parameters: see lxml.etree.xpath for details
@@ -219,37 +228,39 @@ class Metadata(id_object):
             kwargs['namespaces'].update(self.namespaces)
         else:
             kwargs.update(namespaces=self.namespaces)
+        results = self.root.xpath(*args, **kwargs)
 
         # We need to check that we've actually got back element tree elements
         # before trying to wrap in a Metadata instance - xpath results may be
         # strings!
-        results = []
-        for result in self.tree.xpath(*args, **kwargs):
-            try:
-                results.append(Metadata(tree=result))
-            except ValueError:
-                results.append(result)
-        return results
+        try:
+            return [Metadata(r) for r in results]
+        except ValueError:
+            return results
 
     def find(self, *args, **kwargs):
-        """ Pass ElementPath queries through to underlying tree
+        """ Pass ElementPath queries through to underlying element
         """
         keys = set(kwargs.keys())
         if 'namespaces' in keys:
             kwargs['namespaces'].update(self.namespaces)
         else:
             kwargs.update(namespaces=self.namespaces)
-        return Metadata(tree=self.tree.find(*args, **kwargs))
+        return Metadata(self.root.find(*args, **kwargs))
 
     def findall(self, *args, **kwargs):
-        """ Pass ElementPath queries through to underlying tree
+        """ Pass ElementPath queries through to underlying element
         """
         keys = set(kwargs.keys())
         if 'namespaces' in keys:
             kwargs['namespaces'].update(self.namespaces)
         else:
             kwargs.update(namespaces=self.namespaces)
-        return [Metadata(tree=t) for t in self.tree.findall(*args, **kwargs)]
+        results = self.root.findall(*args, **kwargs)
+        try:
+            return [Metadata(r) for r in results]
+        except ValueError:
+            return results
 
     def yaml(self, indent_width=2):
         """ Return a YAML-like representation of the tags
@@ -261,5 +272,5 @@ class Metadata(id_object):
             Returns:
                 a string reprentation of the metadata tree
         """
-        return yamlify(self.tree.getroot(), self.namespaces,
+        return yamlify(self.root, self.namespaces,
                        indent_width=indent_width)

@@ -9,22 +9,11 @@
 
 from __future__ import print_function, division
 
+import pysiss
 from pysiss import borehole as pybh
 
 import numpy
 import unittest
-
-DENSITY = pybh.PropertyType(ident="d",
-                            long_name="density",
-                            units="g/cm3")
-
-# bogus unit from original spreadsheet
-IMPEDANCE = pybh.PropertyType(ident="imp",
-                              long_name="impedance",
-                              units="kg/m2.s.10-3")
-
-ROCK_TYPE = pybh.PropertyType(ident="rock", long_name="rock type")
-
 
 class BoreholeTest(unittest.TestCase):
 
@@ -40,12 +29,14 @@ class BoreholeTest(unittest.TestCase):
         """ Test store and retrieve a single point feature with a one
             single-valued category property
         """
-        feature = pybh.PointDataSet("fault-1", [27.3], 
-                                    Metadata('age', text='last friday'))
+        feature = pybh.PointDataset("fault-1", [27.3])
+        feature.metadata.set('age', 'last Friday')
         self.borehole.add_dataset(feature)
+        self.assertIsNotNone(self.borehole.point_datasets['fault-1'].metadata)
+        mdata = self.borehole.point_datasets["fault-1"].metadata
         self.assertEqual(
-            "last friday",
-            self.borehole.point_datasets["fault-1"].metadata.xpath('.//age/text()')[0])
+            "last Friday",
+            mdata.xpath('/pysiss:boreholePointDataset/@age')[0])
 
     def test_interval_dataset(self):
         """ Test store and retrieve four intervals with a single multivalued
@@ -59,20 +50,23 @@ class BoreholeTest(unittest.TestCase):
         ]
 
         # Construct dataset
-        geol = IntervalDataSet(
+        from_depths = [x[0] for x in geology_intervals]
+        to_depths = [x[1] for x in geology_intervals]
+        geol = pybh.IntervalDataset(
             ident='geology',
-            from_depths=[x[0] for x in geology_intervals],
-            to_depths=[x[1] for x in geology_intervals])
+            from_depths=from_depths,
+            to_depths=to_depths)
         self.assertTrue(all(numpy.diff(geol.from_depths) > 0))
         self.assertTrue(all(numpy.diff(geol.to_depths) > 0))
         self.assertTrue(all(from_depths == geol.from_depths))
         self.assertTrue(all(to_depths == geol.to_depths))
 
         # rock type is a multivalued category property
-        dataset.add_property(
+        geol.add_property(
             ident='rock',
             values=[x[2:] for x in geology_intervals],
-            metadata=dict(long_name='rock type code', units='none'))
+            long_name='rock type code',
+            units='none')
         self.assertEqual(["SC", "FE"], geol['rock'].values[-1])
 
     def test_point_datasets(self):
@@ -84,94 +78,96 @@ class BoreholeTest(unittest.TestCase):
         densities = [2.8073, 2.837, 2.8569, 2.8158]
         impedances = [9010.898, 9250.686, 11854.32, 11621.28]
         dataset = self.borehole.add_point_dataset("samples", depths)
-        dataset.add_property(DENSITY, densities)
-        dataset.add_property(IMPEDANCE, impedances)
-        self.assertTrue(
-            all(depths == self.borehole.point_datasets["samples"].depths))
-        self.assertEqual(
+        dataset.add_property('density', densities,
+                             long_name="density",
+                             units="g/cm3")
+        dataset.add_property('impedance', impedances,
+                             long_name="impedance",
+                             units="kg/m2.s.10-3")
+        self.assertTrue(numpy.allclose(
+            depths,
+            self.borehole.point_datasets["samples"].depths))
+        self.assertTrue(numpy.allclose(
             densities,
-            self.borehole.point_datasets["samples"].properties["d"].values)
-        self.assertEqual(
+            self.borehole.point_datasets["samples"]['density']))
+        self.assertTrue(numpy.allclose(
             impedances,
-            self.borehole.point_datasets["samples"].properties["imp"].values)
-        self.assertEqual(
-            "samples",
-            self.borehole.point_datasets['samples'].ident)
+            self.borehole.point_datasets["samples"]['impedance']))
 
     def test_interval_dataset_depths_empty(self):
-        """ Test that empty interval depths raises an AssertionError
+        """ Test that empty interval depths raises an ValueError
         """
         self.assertRaises(
-            AssertionError,
-            lambda: pybh.IntervalDataSet("test", [], []))
+            ValueError,
+            lambda: pybh.IntervalDataset("test", [], []))
 
     def test_interval_dataset_depths_different_size(self):
         """ Test that interval depths of different size raises an
-            AssertionError
+            ValueError
         """
         self.assertRaises(
-            AssertionError,
-            lambda: pybh.IntervalDataSet("test", [1, 3, 5], [2, 4]))
+            ValueError,
+            lambda: pybh.IntervalDataset("test", [1, 3, 5], [2, 4]))
 
     def test_interval_dataset_depths_decreasing(self):
-        """ Test that decreasing interval depths raises an AssertionError
+        """ Test that decreasing interval depths raises an ValueError
         """
         self.assertRaises(
-            AssertionError,
-            lambda: pybh.IntervalDataSet("test", [3, 1], [4, 2]))
+            ValueError,
+            lambda: pybh.IntervalDataset("test", [3, 1], [4, 2]))
 
     def test_interval_dataset_zero_length(self):
-        """ Test that zero interval length raises an AssertionError
+        """ Test that zero interval length raises an ValueError
         """
         self.assertRaises(
-            AssertionError,
-            lambda: pybh.IntervalDataSet("test", [1, 3], [2, 3]))
+            ValueError,
+            lambda: pybh.IntervalDataset("test", [1, 3], [2, 3]))
 
     def test_interval_dataset_negative_length(self):
-        """ Test that negative interval length raises an AssertionError
+        """ Test that negative interval length raises an ValueError
         """
         self.assertRaises(
-            AssertionError,
-            lambda: pybh.IntervalDataSet("test", [1, 4], [2, 3]))
+            ValueError,
+            lambda: pybh.IntervalDataset("test", [1, 4], [2, 3]))
 
     def test_interval_dataset_overlap(self):
-        """ Test that interval overlap raises an AssertionError
+        """ Test that interval overlap raises an ValueError
         """
         self.assertRaises(
-            AssertionError,
-            lambda: pybh.IntervalDataSet("test", [1, 2], [3, 4]))
+            ValueError,
+            lambda: pybh.IntervalDataset("test", [1, 2], [3, 4]))
 
     def test_interval_dataset_wrong_property_size(self):
         """ Test that interval property with wrong number of values raises an
-            AssertionError
+            ValueError
         """
-        dset = pybh.IntervalDataSet("test", [1, 3], [2, 4])
+        dset = pybh.IntervalDataset("test", [1, 3], [2, 4])
         self.assertRaises(
-            AssertionError,
-            lambda: dset.add_property(DENSITY, [1.3]))
+            ValueError,
+            lambda: dset.add_property('density', [1.3]))
 
     def test_point_dataset_depths_empty(self):
-        """ Test that empty point depths raises an AssertionError
+        """ Test that empty point depths raises an ValueError
         """
         self.assertRaises(
-            AssertionError,
-            lambda: pybh.PointDataSet("test", []))
+            ValueError,
+            lambda: pybh.PointDataset("test", []))
 
     def test_sampling_dataset_depths_decreasing(self):
-        """ Test that decreasing point depths raises an AssertionError
+        """ Test that decreasing point depths raises an ValueError
         """
         self.assertRaises(
-            AssertionError,
-            lambda: pybh.PointDataSet("test", [2, 1]))
+            ValueError,
+            lambda: pybh.PointDataset("test", [2, 1]))
 
     def test_sampling_dataset_wrong_property_size(self):
         """ Test that point property with wrong number of values raises an
-            AssertionError
+            ValueError
         """
-        dset = pybh.PointDataSet("test", [1, 2])
+        dset = pybh.PointDataset("test", [1, 2])
         self.assertRaises(
-            AssertionError,
-            lambda: dset.add_property(DENSITY, [1.3]))
+            ValueError,
+            lambda: dset.add_property('density', [1.3]))
 
 
 if __name__ == "__main__":

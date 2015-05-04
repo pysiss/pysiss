@@ -22,20 +22,29 @@ class NamespaceMap(dict):
         an empty dictionary is created if neither of these are passed.
 
         Parameters:
-            namespaces - a dict with each key referring to a shortened
-                namespace, and the value referring to a URI representing that
-                namespace (e.g. {'gsml': 'urn:cgi:xmlns:GCI:GeoSciML:2.0'}).
+            *namespaces - a list of URIs to refer to.
             **kwargs - keyword-value pairs specifying namespaces (e.g.
                 gsml='urn:cgi:xmlns:GCI:GeoSciML:2.0').
     """
 
-    def __init__(self, namespaces=None, **kwargs):
+    def __init__(self, *namespaces, **kwargs):
         super(NamespaceMap, self).__init__()
         self.inverse = dict(reversed(item) for item in self.items())
 
         # Init with namespace dictionaries
-        if namespaces:
-            self.update(namespaces)
+        for namespace in namespaces:
+            try:
+                # If we've been tossed a tag, split it first
+                # Will raise a ValueError if not a Name
+                qname = QName(namespace)
+                if qname.namespace:
+                    self.add_from_uri(qname.namespace)
+                else:
+                    continue
+
+            except ValueError:
+                self.add_from_uri(namespace)
+
         if kwargs:
             self.update(kwargs)
 
@@ -44,7 +53,7 @@ class NamespaceMap(dict):
             # Use the namespaces from etree where possible, but sometimes a
             # namespace might map to None (if the default namespace) so we need
             # to assign it a shortened version so that xpath doesn't bork...
-            self.add_from_url(value)
+            self.add_from_uri(value)
 
         else:
             # Make sure that all our namespaces are lowercase
@@ -63,7 +72,7 @@ class NamespaceMap(dict):
                 self[key] = namespace_url
 
     @property
-    def stored_namespace_urls(self):
+    def stored_namespace_uris(self):
         """ Return a list of the stored namespace urls
         """
         return list(self.inverse.keys())
@@ -78,8 +87,28 @@ class NamespaceMap(dict):
         del self.inverse[self[key]]
         super(NamespaceMap, self).__delitem__(key)
 
-    def regularize(self, tag, short_namespace=True):
-        """ Return a namespace in shortened form, and lowercase.
+    def expand(self, tag):
+        """ Return a tag with a namespace in expanded form
+
+            Parameters:
+                tag - the tag to regularize, in lxml format: '{ns}tag'
+                short_namespace - whether you want the namespace to be expanded
+                    or not (default is True for a short namespace).
+
+            Returns:
+                an lxml QName string which contains a regularized tag name
+        """
+        if ':' in tag:
+            namespace, localname = tag.split(':')
+            if namespace not in self.stored_namespace_keys:
+                raise ValueError(
+                    'Unknown namespace key {0}'.format(namespace)
+                    + ' in tag {0}'.format(tag))
+            else:
+                return QName(self[namespace], localname)
+
+    def shorten(self, tag):
+        """ Return a tag with a namespace in shortened form.
 
             Note: if the tag has an associated namespace that isn't in the
             mapping, then it is added.
@@ -93,50 +122,58 @@ class NamespaceMap(dict):
                 an lxml QName string which contains a regularized tag name
         """
         # Check input tag, try to assign a namespace and value
-        try:
-            tag = QName(tag)
-            if tag.namespace not in (None, '', 'None'):
-                if tag.namespace not in self.stored_namespace_urls:
-                    print('Adding new namespace url {0}'.format(tag.namespace),
-                          'keys: ', list(self.keys()))
-                    self.add_from_url(tag.namespace)
-        except ValueError:
-            # the tag is already given as a shortened version
-            if ':' in tag:
-                namespace, localname = tag.split(':')
-                if namespace not in self.stored_namespace_keys:
-                    raise ValueError(
-                        'Unknown namespace key {0}'.format(namespace)
-                        + ' in tag {0}'.format(tag))
-                else:
-                    tag = QName(self[namespace], localname)
-            else:
-                tag = QName(None, localname)
+        tag = QName(tag)
+        if tag.namespace not in (None, '', 'None'):
+            # Check whether we should add the uri
+            if tag.namespace not in self.stored_namespace_uris:
+                print('Adding new namespace url {0}'.format(tag.namespace),
+                      'keys: ', list(self.keys()))
+                self.add_from_uri(tag.namespace)
 
-        # Return regularized result
-        if tag.namespace in (None, 'None'):
-            return tag.localname.lower()
-        elif short_namespace:
             return QName(self.inverse[tag.namespace],
-                         tag.localname.lower())
+                         tag.localname)
         else:
-            return QName(tag.namespace,
-                         tag.localname.lower())
+            return tag
 
-    def add_from_url(self, namespace_uri):
-        """ Shorten a namespace URL using some heuristics
+    def add_from_uri(self, namespace_uri):
+        """ Shorten a namespace URI using some heuristics
 
-            Plays nicely with namespace versions etc.
+            Shortened namespace will be a lowercase version of the
+            last word in the URI (e.g. "http://foo/bar/baz" -> "baz")
 
-            Examples:
+            Version numbers are skipped, so namespaces ending with a version
+            number will shorten to the same base (e.g. this tag shortens as
+            "{http://foo/bar/baz/2.0}quux" -> "baz:quux"). Version numbers are
+            defined as numbers seperated by periods, except for the last value
+            which can be a string (to catch version numbers like 1.0.2dev).
+
+            If a different version of the same namespace is already present,
+            then new versions will have a version number appended present in
+            the dataset: "http://foo/bar/baz/1.0/quux" -> "baz:quux" and then
+            "http://foo/bar/baz/2.0/quux" -> "baz:2.0:quux". This could mean
+            that you won't know what the namespace is ahead of time - if this
+            is important for you (i.e. you're trying to write parsing code)
+            then try not to mix different versions of the same namespace.
+
+            Also plays nicely with URNs. It will tokenize on '/' if '://' is in
+            the string, and tokenize on ':' otherwise.
+
+            Some more examples:
+
                 "http://www.opengis.net/wfs" -> "wfs",
                 "http://www.opengis.net/gml" -> "gml",
-                "urn:cgi:xmlns:CGI:GeoSciML:2.0" -> "geosciml",
-                "urn:cgi:xmlns:CGI:GeoSciML:22.0" -> "geosciml",
-                "http://www.opengis.net/sampling/1.0" -> "sampling",
-                "http://www.opengis.net/sampling/1.0.1" -> "sampling",
-                "http://www.opengis.net/sampling/1.0.1alpha" -> "sampling",
                 "http://www.w3.org/1999/xlink" -> "xlink"
+
+                "urn:cgi:xmlns:CGI:GeoSciML:2.0" -> "geosciml",
+                "urn:cgi:xmlns:CGI:GeoSciML:22.0" -> "geosciml:22.0",
+
+                "http://www.opengis.net/sampling/1.0" -> "sampling",
+                "http://www.opengis.net/sampling/1.0.1" -> "sampling:1.0.1",
+                "http://www.opengis.net/sampling/1.0.1alpha"
+                    -> "sampling:1.0.1alpha",
+
+            Parameters:
+                namespace_uri - a URI denoting a namespace
         """
         # Get tokens from namespace
         if '://' in namespace_uri:

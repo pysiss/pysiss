@@ -132,7 +132,7 @@ def plot_signal(axes, dataset, signal, orientation='horizontal'):
                     colors=('red', 'blue'),
                     orientation=orientation)
     if orientation is 'horizontal':
-        axes.set_xlabel('DataSet $x$')
+        axes.set_xlabel('Dataset $x$')
         axes.set_ylabel(r'Signal $f(x)$',
                         rotation=0,
                         horizontalalignment='right',
@@ -140,7 +140,7 @@ def plot_signal(axes, dataset, signal, orientation='horizontal'):
         axes.set_xlim(dataset[0], dataset[-1])
         axes.set_ylim(numpy.min(signal), numpy.max(signal))
     elif orientation is 'vertical':
-        axes.set_ylabel('DataSet $x$')
+        axes.set_ylabel('Dataset $x$')
         axes.set_xlabel('Signal $f(x)$')
         axes.set_xlim(numpy.min(signal), numpy.max(signal))
         axes.set_ylim(dataset[-1], dataset[0])

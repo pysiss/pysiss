@@ -3,15 +3,15 @@
             CSIRO Earth Science and Resource Engineering
     date:   Sunday November 10, 2013
 
-    description: DataSet for interval data (data defined over an interval in
+    description: Dataset for interval data (data defined over an interval in
         the borehole).
 
-    An IntervalDataSet is is a sequence of borehole segments each having a
+    An IntervalDataset is is a sequence of borehole segments each having a
     single value for each property; this value is taken to be the same across
     the entire length of the interval. IntervalSampling can be merged to form a
-    new IntervalDataSet that has the intervals whose boundaries are the union
-    of the boundaries of the source IntervalSampling. An IntervalDataSet can be
-    interpolated onto a PointDataSet.
+    new IntervalDataset that has the intervals whose boundaries are the union
+    of the boundaries of the source IntervalSampling. An IntervalDataset can be
+    interpolated onto a PointDataset.
 
     Intervals must be in depth order and not overlap, but there might
     be gaps between intervals.
@@ -19,8 +19,8 @@
 
 from __future__ import division, print_function
 
-from .dataset import DataSet
-from .point_dataset import PointDataSet
+from .dataset import Dataset
+from .point_dataset import PointDataset
 
 import numpy
 import pandas
@@ -46,18 +46,18 @@ def make_depth_index(from_depths, to_depths):
     return index
 
 
-class IntervalDataSet(DataSet):
+class IntervalDataset(Dataset):
 
-    """ IntervalDataSet contains data which is defined over some depth
+    """ IntervalDataset contains data which is defined over some depth
         interval.
 
-        An IntervalDataSet is is a sequence of borehole segments each having a
+        An IntervalDataset is is a sequence of borehole segments each having a
         single value for each property; this value is taken to be the same
         across the entire length of the interval. IntervalSampling can be
-        merged to form a new IntervalDataSet that has the intervals whose
+        merged to form a new IntervalDataset that has the intervals whose
         boundaries are the union of the boundaries of the source
-        IntervalSampling. An IntervalDataSet can be interpolated onto a
-        PointDataSet.
+        IntervalSampling. An IntervalDataset can be interpolated onto a
+        PointDataset.
 
         Intervals must be in depth order and not overlap, but there might
         be gaps between intervals.
@@ -75,21 +75,26 @@ class IntervalDataSet(DataSet):
         :type metadata: pysiss.borehole.dataset.DatasetDetails
     """
 
+    __metadata_tag__ = 'boreholeIntervalDataset'
+
     def __init__(self, ident, from_depths, to_depths, metadata=None):
         # Generate depth interval index
+
+        if any(len(list(d)) == 0 for d in (from_depths, to_depths)):
+            raise ValueError('You must specify one or more depths.')
         index = make_depth_index(from_depths, to_depths)
-        super(IntervalDataSet, self).__init__(ident, index, metadata)
+        super(IntervalDataset, self).__init__(ident, index, metadata)
         self.from_depths = self.index[:, 0]
         self.to_depths = self.index[:, 1]
 
     def __repr__(self):
-        info = 'IntervalDataSet {0}: with {1} depth intervals and {2} '\
+        info = 'IntervalDataset {0}: with {1} depth intervals and {2} '\
                'properties'
         return info.format(self.ident, len(self.from_depths),
                            len(self.properties))
 
     def get_interval(self, from_depth, to_depth, dataset_ident=None):
-        """ Return the data between the given depths as as new IntervalDataSet
+        """ Return the data between the given depths as as new IntervalDataset
 
             Only intervals completely contained by the from_depth/to_depth
             interval are returned.
@@ -104,8 +109,8 @@ class IntervalDataSet(DataSet):
             numpy.logical_and(self.from_depths >= from_depth,
                               self.to_depths <= to_depth))
 
-        # Generate a new IntervalDataSet
-        newdom = IntervalDataSet(dataset_ident,
+        # Generate a new IntervalDataset
+        newdom = IntervalDataset(dataset_ident,
                                  self.from_depths[indices],
                                  self.to_depths[indices])
         for prop in self.properties.values():
@@ -118,7 +123,7 @@ class IntervalDataSet(DataSet):
         """ Split a dataset by finding significant gaps in the dataset.
 
             A metric to define 'gaps' is required. Currently we only have
-            'spacing_median', which is really only suitable for PointDataSet
+            'spacing_median', which is really only suitable for PointDataset
             instances.
 
             Available metrics:
@@ -141,17 +146,17 @@ class IntervalDataSet(DataSet):
         # Form a list of data subdatasets
         self.subdatasets = []
         for idx in range(len(gap_indices) - 1):
-            # DataSets start _after_ the gap & end with next gap
+            # Datasets start _after_ the gap & end with next gap
             self.subdatasets.append((
                 self.from_depths[gap_indices[idx] + 1],
                 self.to_depths[gap_indices[idx + 1]]))
         return self.subdatasets, self.gaps
 
     def to_point_dataset(self, ident=None, depths='midpoint'):
-        """ Convert an IntervalDataSet to a PointDataSet
+        """ Convert an IntervalDataset to a PointDataset
 
             Uses the specified method to recalculate the depths of the
-            PointDataSet points. Defaults to using the midpoint of each
+            PointDataset points. Defaults to using the midpoint of each
             interval.
 
             Available depth converters:
@@ -163,7 +168,7 @@ class IntervalDataSet(DataSet):
                 defaults to the same ident as the interval dataset.
             :type ident: string
             :param depths: the depth converter to use
-            :returns: the new PointDataSet instance
+            :returns: the new PointDataset instance
         """
         # Generate ident
         if ident is None:
@@ -181,7 +186,7 @@ class IntervalDataSet(DataSet):
                 'Unknown depth conversion method {0}'.format(depths))
 
         # Generate new dataset
-        sdom = PointDataSet(ident=ident, depths=depths)
+        sdom = PointDataset(ident=ident, depths=depths)
         sdom.properties = self.properties.copy()
         return sdom
 

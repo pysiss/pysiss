@@ -9,11 +9,10 @@
 
 from .maths import heaviside, same_sign, integrate, mask_all_nans, try_float
 from .collection import collection
-from .id_object import id_object
 from .singleton import singleton
 from .accumulator import accumulator
 
-__all__ = ['collection', 'id_object', 'singleton', 'accumulator',
+__all__ = ['collection', 'singleton', 'accumulator',
            'heaviside', 'same_sign', 'integrate', 'mask_all_nans', 'try_float']
 
 

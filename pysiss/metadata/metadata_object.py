@@ -1,4 +1,4 @@
-""" file: metadata_object.py (pysiss)
+""" file: ObjectWithMetadata.py (pysiss)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     email:  jesse.robertson@csiro.au
@@ -11,7 +11,10 @@ from __future__ import print_function, division
 
 import uuid
 
-class metadata_object(object):
+from .metadata import Metadata
+from .pysiss_namespace import PYSISS_NAMESPACE
+
+class ObjectWithMetadata(object):
 
     """ A mixin class to store metadata about an object
 
@@ -25,20 +28,23 @@ class metadata_object(object):
 
     def __init__(self, ident=None, *args, **kwargs):
         # Pass through initialization to object
-        super(metadata_object, self).__init__(*args, **kwargs)
+        super(ObjectWithMetadata, self).__init__()
         self.ident = ident
 
         # Generate a new identity if required, & construct metadata attributes
-        if hasattr(self, __metadata_tag__):
-            self.uuid = uuid.uuid5(uuid.NAMESPACE_DNS, __metadata_tag__)
-            self.metadata = Metadata(ident=self.ident,
-                                     tag=self.__metadata_tag__)
-        else:
-            self.uuid = uuid.uuid4()
-            self.metadata = Metadata(ident=self.ident)
+        if hasattr(self, '__metadata_tag__'):
+            self.uuid = uuid.uuid5(uuid.NAMESPACE_DNS,
+                                   PYSISS_NAMESPACE + self.__metadata_tag__)
+            self.ident = self.ident or str(self.uuid)
+            self.metadata = Metadata(tag=(PYSISS_NAMESPACE +
+                                          self.__metadata_tag__),
+                                     ident=self.ident)
 
-        # Assign ident if not already assigned
-        self.ident = self.ident or self.uuid
+        else:
+            self.ident = self.uuid = uuid.uuid4()
+            self.ident = self.ident or str(self.uuid)
+            self.metadata = Metadata(tag=(PYSISS_NAMESPACE + ':' + 'unknown'),
+                                     ident=self.ident)
 
     def __eq__(self, other):
         """ Equality test

@@ -6,8 +6,8 @@
     description: Imports for pyborholes.datasets
 """
 
-from .dataset import DataSet
-from .point_dataset import PointDataSet
-from .interval_dataset import IntervalDataSet
+from .dataset import Dataset
+from .point_dataset import PointDataset
+from .interval_dataset import IntervalDataset
 
-__all__ = ['DataSet', 'PointDataSet', 'IntervalDataSet']
+__all__ = ['Dataset', 'PointDataset', 'IntervalDataset']

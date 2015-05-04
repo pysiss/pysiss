@@ -10,12 +10,12 @@ from __future__ import division, print_function
 
 from .collar import Collar
 from .details import Details, detail_type
-from .datasets import DataSet, PointDataSet, IntervalDataSet
+from .datasets import Dataset, PointDataset, IntervalDataset
 from .survey import Survey
-from ..utilities import id_object
+from ..metadata import ObjectWithMetadata
 
 
-class Borehole(id_object):
+class Borehole(ObjectWithMetadata):
 
     """ Class to represent a borehole.
 
@@ -26,16 +26,16 @@ class Borehole(id_object):
         A Feature is analogous to a spatial point feature. It has a depth and
         properties but it makes no sense to perform any interpolation on these.
 
-        An IntervalDataSet is is a sequence of borehole segments each having a
+        An IntervalDataset is is a sequence of borehole segments each having a
         single value for each property; this value is taken to be the same
-        across the entire length of the interval. IntervalDataSets can be
-        merged to form a new IntervalDataSet that has the intervals whose
+        across the entire length of the interval. IntervalDatasets can be
+        merged to form a new IntervalDataset that has the intervals whose
         boundaries are the union of the boundaries of the source
-        IntervalDataSets. An IntervalDataSet can be interpolated onto a
-        PointDataSet.
+        IntervalDatasets. An IntervalDataset can be interpolated onto a
+        PointDataset.
 
-        A PointDataSet is a sequence of depths at which continuous properties
-        are sampled. Analogous to a coverage. One PointDataSet can be
+        A PointDataset is a sequence of depths at which continuous properties
+        are sampled. Analogous to a coverage. One PointDataset can be
         interpolated onto another.
 
         Depths are measured in metres down-hole from the borehole collar; depth
@@ -47,23 +47,25 @@ class Borehole(id_object):
         Some useful properties include:
             features - dict mapping feature ident to Feature
             interval_datasets - dict mapping interval dataset ident to
-                IntervalDataSet
+                IntervalDataset
             point_datasets - dict mapping sampling dataset ident to
-                PointDataSet
+                PointDataset
 
         :param ident: An identifier for the borehole
         :type ident: `string`
-        :param collar: The borehole's collar location. Optional, if not specified defaults to 
+        :param collar: The borehole's collar location. Optional, if not specified defaults to
             x=0, y=0, z=0.
         :type origin_position: Collar class
 
     """
 
+    __metadata_tag__ = 'borehole'
+
     # Mapping dataset types to class attributes
     _type_to_attr = {
-        DataSet: 'datasets',
-        PointDataSet: 'point_datasets',
-        IntervalDataSet: 'interval_datasets',
+        Dataset: 'datasets',
+        PointDataset: 'point_datasets',
+        IntervalDataset: 'interval_datasets',
     }
 
     def __init__(self, ident, collar=None, metadata=None):
@@ -71,7 +73,8 @@ class Borehole(id_object):
         self.ident = ident
         self.collar = collar or Collar(0, 0, None)
         self.survey = None
-        self.metadata = metadata
+        if metadata:
+            self.metadata.extend(metadata)
 
         # Initialize dataset lists
         self.features = {}
@@ -116,7 +119,7 @@ class Borehole(id_object):
         """ Add and return an existing dataset instance to the borehole.
 
             :param dataset: A precooked dataset with data
-            :type dataset: subclassed from `pysiss.borehole.DataSet`
+            :type dataset: subclassed from `pysiss.borehole.Dataset`
         """
         # Work out which attribute we should add the dataset to
         add_to_attr = self._type_to_attr[type(dataset)]
@@ -126,9 +129,9 @@ class Borehole(id_object):
         return dataset
 
     def add_interval_dataset(self, ident, from_depths, to_depths):
-        """ Add and return a new IntervalDataSet
+        """ Add and return a new IntervalDataset
 
-            :param ident: The identifier for the new IntervalDataSet
+            :param ident: The identifier for the new IntervalDataset
             :type ident: `string`
             :param from_depths: Interval start point down-hole depths in metres
                     from collar
@@ -137,23 +140,23 @@ class Borehole(id_object):
                 from collar
             :type to_depths: iterable of numeric values
 
-            :returns: the new `pysiss.borehole.IntervalDataSet` instance.
+            :returns: the new `pysiss.borehole.IntervalDataset` instance.
         """
-        return self.add_dataset(IntervalDataSet(ident=ident,
+        return self.add_dataset(IntervalDataset(ident=ident,
                                                 from_depths=from_depths,
                                                 to_depths=to_depths))
 
     def add_point_dataset(self, ident, depths):
-        """ Add and return a new PointDataSet.
+        """ Add and return a new PointDataset.
 
-            :param ident: The identifier for the new PointDataSet
+            :param ident: The identifier for the new PointDataset
             :type ident: `string`
             :param depths: Sample locations given as down-hole depths in metres
                     from collar
             :type depths: iterable of numeric values
-            :returns: the new `pysiss.borehole.PointDataSet` instance.
+            :returns: the new `pysiss.borehole.PointDataset` instance.
         """
-        return self.add_dataset(PointDataSet(ident=ident,
+        return self.add_dataset(PointDataset(ident=ident,
                                              depths=depths))
 
     # def desurvey(self, depths, crs):

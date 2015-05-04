@@ -3,13 +3,13 @@
             CSIRO Earth Science and Resource Engineering
     date:   Sunday November 10, 2013
 
-    description: DataSet for point sample data (data sampled at a finite set of
+    description: Dataset for point sample data (data sampled at a finite set of
             points down a borehole)
 """
 
 from __future__ import division, print_function
 
-from .dataset import DataSet
+from .dataset import Dataset
 
 import numpy
 from scipy.interpolate import InterpolatedUnivariateSpline as Spline
@@ -19,12 +19,12 @@ import logging
 LOGGER = logging.getLogger('pysiss')
 
 
-class PointDataSet(DataSet):
+class PointDataset(Dataset):
 
-    """ DataSet for data defined at points in the dataset.
+    """ Dataset for data defined at points in the dataset.
 
-        A PointDataSet is a sequence of depths at which continuous
-        properties are sampled. Analogous to a coverage. One PointDataSet
+        A PointDataset is a sequence of depths at which continuous
+        properties are sampled. Analogous to a coverage. One PointDataset
         can be interpolated onto another.
 
         Depths must be in monotonically increasing order.
@@ -38,31 +38,35 @@ class PointDataSet(DataSet):
         :type metadata: pysiss.borehole.dataset.DatasetDetails
     """
 
+    __metadata_tag__ = 'boreholePointDataset'
+
     def __init__(self, ident, depths, metadata=None):
-        super(PointDataSet, self).__init__(
-            ident, len(depths), metadata=metadata)
+        super(PointDataset, self).__init__(
+            ident, depths, metadata=metadata)
         depths = numpy.asarray(depths)
-        assert all(numpy.diff(depths) > 0), \
-            "depths must be monotonically increasing"
+        if depths.shape[0] == 0:
+            raise ValueError('You must specify one or more depths.')
+        if not all(numpy.diff(depths) > 0):
+            raise ValueError("Depths must be monotonically increasing")
         self.depths = depths
 
     def __repr__(self):
-        info = 'PointDataSet {0}: with {1} depths and {2} '\
+        info = 'PointDataset {0}: with {1} depths and {2} '\
                'properties'
         return info.format(self.ident, len(self.depths),
                            len(self.properties))
 
     def get_interval(self, from_depth, to_depth, dataset_ident=None):
-        """ Return the data between the given depths as as new PointDataSet
+        """ Return the data between the given depths as as new PointDataset
         """
         # Specify a ident if not already passed
         if dataset_ident is None:
             dataset_ident = '{0}: subdataset {1} to {2}'.format(
                 self.ident, from_depth, to_depth)
 
-        # Generate a new PointDataSet
+        # Generate a new PointDataset
         indices = self.get_interval_indices(from_depth, to_depth)
-        newdom = PointDataSet(dataset_ident, self.depths[indices])
+        newdom = PointDataset(dataset_ident, self.depths[indices])
         for prop in self.properties.values():
             newdom.add_property(prop.property_type, prop.values[indices])
         return newdom
@@ -78,7 +82,7 @@ class PointDataSet(DataSet):
         """ Split a dataset by finding significant gaps in the dataset.
 
             A metric to define 'gaps' is required. Currently we only have
-            'spacing_median', which is really only suitable for PointDataSet
+            'spacing_median', which is really only suitable for PointDataset
             instances. A gap is found where the sample spacing is greater than
             threshold * <gap_metric>.
 
@@ -113,7 +117,7 @@ class PointDataSet(DataSet):
         # Form a list of data subdatasets
         self.subdatasets = []
         for idx in range(len(gap_indices) - 1):
-            # DataSets start _after_ the gap & end with next gap
+            # Datasets start _after_ the gap & end with next gap
             from_depth = depths[gap_indices[idx] + 1]
             to_depth = depths[gap_indices[idx + 1]]
 
@@ -128,14 +132,14 @@ class PointDataSet(DataSet):
         """ Resample dataset onto regular grid.
 
             This regularizes the data so that all sample spacings are equal to
-            the median spacing of the raw data. Returns a new PointDataSet
+            the median spacing of the raw data. Returns a new PointDataset
             instance with the new data.
 
             Arguments:
                 npoints - the number of new points. Optional, if not specified
                     then the reinterpolated data will have the median spacing
                     of the raw data.
-                dataset_ident - the ident for the returned PointDataSet.
+                dataset_ident - the ident for the returned PointDataset.
                     Optional, defaults to "<current_ident> resampled".
                 fill_method - the method for filling the gaps. 'interpolate'
                     uses the interpolated spline, 'mean' fills gaps with the
@@ -160,9 +164,9 @@ class PointDataSet(DataSet):
             spacing = float(numpy.median(numpy.diff(self.depths)))
             npoints = abs(self.depths[-1] - self.depths[0]) / spacing
 
-        # Generate a new DataSet with the resampled data
+        # Generate a new Dataset with the resampled data
         new_depths = numpy.linspace(self.depths[0], self.depths[-1], npoints)
-        newdom = PointDataSet(dataset_ident, new_depths)
+        newdom = PointDataset(dataset_ident, new_depths)
 
         # If we're doing nearest neighbours then we only need to work out the
         # interpolation once
@@ -242,11 +246,11 @@ class PointDataSet(DataSet):
                  degree=0):
         """ Resample dataset onto regular grid.
 
-            Returns a new PointDataSet instance with the new data.
+            Returns a new PointDataset instance with the new data.
 
             Arguments:
                 new_depths - The new depths to resample at.
-                dataset_ident - the ident for the returned PointDataSet.
+                dataset_ident - the ident for the returned PointDataset.
                     Optional, defaults to "<current_ident> resampled".
                 fill_method - the method for filling the gaps. 'interpolate'
                     uses the interpolated spline, 'mean' fills gaps with the
@@ -271,8 +275,8 @@ class PointDataSet(DataSet):
         if dataset_ident is None:
             dataset_ident = '{0} resampled'.format(self.ident)
 
-        # Generate a new DataSet with the resampled data
-        newdom = PointDataSet(dataset_ident, new_depths)
+        # Generate a new Dataset with the resampled data
+        newdom = PointDataset(dataset_ident, new_depths)
 
         # If we're doing nearest neighbours then we only need to work out the
         # interpolation once

@@ -9,9 +9,9 @@
 from __future__ import print_function, division
 
 from ..borehole import PropertyType
-from ..borehole.datasets import PointDataSet
+from ..borehole.datasets import PointDataset
 from ..utilities import singleton
-from ..metadata import Metadata
+from ..metadata import Metadata, xml_to_metadata
 
 import numpy
 import pandas
@@ -169,9 +169,9 @@ class NVCLImporter(object):
         response.raise_for_status()
 
         # Parse response
-        mdata = Metadata(response.content)
-        titles = mdata.xpath(".//nvcl:scannedborehole/@xlink:title")
-        urls = mdata.xpath(".//nvcl:scannedborehole/@xlink:href")
+        mdata = xml_to_metadata(response.content)
+        titles = mdata.xpath(".//nvcl:ScannedBoreholeCollection/@xlink:title")
+        urls = mdata.xpath(".//nvcl:ScannedBoreholeCollection/@xlink:href")
         return dict(zip(titles, urls))
 
     def get_borehole_idents(self, maxids=None):
@@ -200,7 +200,7 @@ class NVCLImporter(object):
         response.raise_for_status()
 
         # Parse results
-        mdata = Metadata(response.content)
+        mdata = xml_to_metadata(response.content)
         datasets = {}
         for dset in mdata.findall(".//dataset"):
             datasets[dset.find('datasetname').text] = \
@@ -226,7 +226,7 @@ class NVCLImporter(object):
 
         # Parse XML tree to return analytes
         if response:
-            mdata = Metadata(response.content)
+            mdata = xml_to_metadata(response.content)
             analyte_idents = {}
             for analyte in mdata.findall(".//log"):
                 log_ident = analyte.find("logid").text
@@ -285,7 +285,7 @@ class NVCLImporter(object):
         # dataset
         analytedata = analytedata.drop_duplicates(startcol)
         startdepths = numpy.asarray(analytedata[startcol])
-        dataset = PointDataSet(dataset_name, startdepths)
+        dataset = PointDataset(dataset_name, startdepths)
 
         # Make a property for each analyte in the borehole
         #

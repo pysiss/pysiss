@@ -4,7 +4,7 @@
     date: Sunday November 10, 2013
 
     description: Utilities to low-pass filter regularly spaced data in a
-    PointDataSet instance (i.e. detrending).
+    PointDataset instance (i.e. detrending).
 """
 
 from __future__ import division, print_function

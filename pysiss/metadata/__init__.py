@@ -7,9 +7,11 @@
 """
 
 from .registry import MetadataRegistry
-from .metadata import Metadata, yamlify
+from .metadata import Metadata, yamlify, xml_to_metadata
 from .namespaces import NamespaceMap
 from .vocabulary import unmarshal, unmarshal_all
+from .metadata_object import ObjectWithMetadata, PYSISS_NAMESPACE
 
 __all__ = ['MetadataRegistry', 'Metadata', 'NamespaceMap',
-           'unmarshal', 'unmarshal_all', 'yamlify']
+           'unmarshal', 'unmarshal_all', 'yamlify', 'PYSISS_NAMESPACE',
+           'ObjectWithMetadata', 'xml_to_metadata']

@@ -82,7 +82,7 @@ class TestNVCLImporter(unittest.TestCase):
         """
         with httmock.HTTMock(mock_resource):
             bh_info = self.importers['GSWA'].get_borehole_idents_and_urls()
-
+            self.assertTrue(len(bh_info) > 0)
             for ident, url in dict(bh_info).items():
                 self.assertTrue(ident != '')
                 self.assertTrue(url != '')
