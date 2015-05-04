@@ -1,4 +1,4 @@
-""" file: objects.py (pysiss.utilities)
+""" file: objects.py (pysiss)
     author: Jess Robertson
             CSIRO Earth Science and Resource Engineering
     email:  jesse.robertson@csiro.au
@@ -33,3 +33,17 @@ class id_object(object):
             Class instances are equal if their UUIDs match
         """
         return self.uuid == other.uuid
+
+
+class metadata_object(id_object):
+
+    """ A mixin class to store metadata about an object
+
+        This metaclass generates a metadata record for a class at
+        initialization, and defines a set of methods for serializing and
+        deserializing that metadata
+    """
+
+    def __init__(self, ident=None, *args, **kwargs):
+        super(metadata_object, self).__init__(*args, **kwargs)
+
