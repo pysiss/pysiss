@@ -11,7 +11,7 @@ from __future__ import print_function, division
 
 import uuid
 
-class metadata_object(id_object):
+class metadata_object(object):
 
     """ A mixin class to store metadata about an object
 
@@ -24,19 +24,21 @@ class metadata_object(id_object):
     """
 
     def __init__(self, ident=None, *args, **kwargs):
+        # Pass through initialization to object
         super(metadata_object, self).__init__(*args, **kwargs)
-        if ident:
-            self.uuid = uuid.uuid5(uuid.NAMESPACE_DNS, ident)
-        else:
-            self.uuid = uuid.uuid4()
-            self.ident = self.uuid
+        self.ident = ident
 
-        # Construct metadata attributes
+        # Generate a new identity if required, & construct metadata attributes
         if hasattr(self, __metadata_tag__):
+            self.uuid = uuid.uuid5(uuid.NAMESPACE_DNS, __metadata_tag__)
             self.metadata = Metadata(ident=self.ident,
                                      tag=self.__metadata_tag__)
         else:
+            self.uuid = uuid.uuid4()
             self.metadata = Metadata(ident=self.ident)
+
+        # Assign ident if not already assigned
+        self.ident = self.ident or self.uuid
 
     def __eq__(self, other):
         """ Equality test
