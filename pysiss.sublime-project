@@ -10,13 +10,13 @@
 		{
 			"path": "pysiss",
 			"name": "Source",
-			"folder_exclude_patterns": [],
+			"folder_exclude_patterns": ["__pycache__"],
 			"file_exclude_patterns": ["*.o"]
 		},
 		{
 			"path": "tests",
 			"name": "Tests",
-			"folder_exclude_patterns": [".ipynb_checkpoints"],
+			"folder_exclude_patterns": [".ipynb_checkpoints", "__pycache__"],
 			"file_exclude_patterns": []
 		},
 		{

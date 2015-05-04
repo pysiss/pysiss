@@ -8,7 +8,7 @@
 
 from __future__ import print_function, division
 
-from ..borehole import PropertyType, SISSBoreholeGenerator
+from ..borehole import PropertyType
 from ..borehole.datasets import PointDataSet
 from ..utilities import singleton
 from ..metadata import Metadata
@@ -136,7 +136,7 @@ class NVCLImporter(object):
         # Set up SISSBoreholeGenerator instance
         # TODO: use this in get_borehole() instead of creating another
         # instance?
-        self.generator = SISSBoreholeGenerator()
+        # self.generator = SISSBoreholeGenerator()
 
     def __repr__(self):
         """ String representation
@@ -343,7 +343,7 @@ class NVCLImporter(object):
         # Generate pysiss.borehole.Borehole instance to hold the data
         if ident is None:
             ident = hole_ident
-        siss_bhl_generator = SISSBoreholeGenerator()
+        # siss_bhl_generator = SISSBoreholeGenerator()
         bh_url = self.get_borehole_idents_and_urls()[hole_ident]
         response = requests.get(bh_url)
         response.raise_for_status()

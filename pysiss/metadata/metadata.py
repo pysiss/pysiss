@@ -111,7 +111,7 @@ class Metadata(id_object):
             tree - either an etree.ElementTree or etree.Element instance
                 containing already-parsed data. Optional, but one of 'xml' or
                 tree must be specified.
-            dtype - the datatype for the metadata. Optional, if not specified
+            tag - the datatype for the metadata. Optional, if not specified
                 the tag of the root of the metadata tree will be used.
             ident - a unique identifier for the metadata. Optional, one will
                 be generated for the instance if not specified.
@@ -120,14 +120,15 @@ class Metadata(id_object):
 
     registry = MetadataRegistry()
 
-    def __init__(self, xml=None, tree=None, dtype=None, ident=None,
-                 **kwargs):
+    def __init__(self, xml=None, tree=None, tag=None, ident=None,
+                 register=False, **kwargs):
         super(Metadata, self).__init__()
         self.ident = ident or self.uuid
 
         # Slurp in data
         if xml is not None:
             self.tree, self.namespaces = parse(xml)
+
         elif tree is not None:
             if isinstance(tree, etree._ElementTree):
                 self.tree, self.namespaces = tree, NamespaceMap(tree.nsmap)
@@ -139,10 +140,21 @@ class Metadata(id_object):
                                  "is not of type lxml.etree.ElementTree or "
                                  "lxml.etree.Element (it's type is "
                                  "{0})".format(type(tree)))
+
+        elif tag is not None:
+            # Create an empty metadata instance
+            self.tree = etree.ElementTree(etree.Element(tag))
+
         else:
-            raise ValueError('One of tree or xml has to be specified to '
+            raise ValueError('One of tree or xml or tag has to be specified to '
                              'create a Metadata instance')
+
+        # Stack in 
         self.root = self.tree.getroot()
+        if tag is not None:
+            self.tag = tag
+        else:
+            self.tag = self.root.tag
 
         # Store other metadata
         for attr in ('tag', 'attrib', 'text'):
@@ -150,23 +162,49 @@ class Metadata(id_object):
         for attrib, value in kwargs.items():
             setattr(self, attrib, value)
 
-        # Register yourself with the registry
-        if dtype is not None:
-            self.dtype = dtype.lower()
-        else:
-            self.dtype = self.root.tag
-        self.registry.register(self)
+        # Register yourself with the registry if required
+        if register:
+            self.registry.register(self)
 
     def __str__(self):
         """ String representation
         """
         template = 'Metadata record {0}, of datatype {1}\n{2}'
-        return template.format(self.ident, self.dtype, self.tree)
+        return template.format(self.ident, self.tag, self.tree)
+
+    def __getitem__(self, tag):
+        """ Return the element associated with the given tag
+        """
+        return self.find(tag)
 
     def get(self, attribute):
         """ Get the value of the given attribute
         """
         return self.root.get(attribute)
+
+    def append(self, tag, text=None, attributes=None):
+        """ Add and return a metadata element with given attributes 
+            and text to the metadata instance.
+
+            Parameters:
+                tag - the tag of the new metadata element. This can use
+                    the currently defined namespaces (which will be copied
+                    into the new Metadata instance).
+                text - the text to be associated with the element
+                attributes - key-value pairs to be associated with this content.
+        """
+        element = etree.SubElement(self.root, tag)
+        if attributes:
+            self.root.update(attributes)
+        if text:
+            element.text = text
+        element.nsmap = self.root.nsmap
+        return Metadata(tree=element)
+
+    def append_metadata(self, metadata):
+        """ Add and return a metadata element to the tree
+        """
+        return self.root.append(metadata.root)
 
     def xpath(self, *args, **kwargs):
         """ Pass XPath queries through to underlying tree

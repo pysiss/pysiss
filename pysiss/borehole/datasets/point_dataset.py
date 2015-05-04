@@ -33,14 +33,14 @@ class PointDataSet(DataSet):
         :type ident: string
         :param depths: sample down-hole depths in metres from collar
         :type depths: iterable
-        :param details: The metadata associated with the dataset. Optional,
+        :param metadata: The metadata associated with the dataset. Optional,
             defaults to None.
-        :type details: pysiss.borehole.dataset.DatasetDetails
+        :type metadata: pysiss.borehole.dataset.DatasetDetails
     """
 
-    def __init__(self, ident, depths, details=None):
+    def __init__(self, ident, depths, metadata=None):
         super(PointDataSet, self).__init__(
-            ident, len(depths), details=details)
+            ident, len(depths), metadata=metadata)
         depths = numpy.asarray(depths)
         assert all(numpy.diff(depths) > 0), \
             "depths must be monotonically increasing"

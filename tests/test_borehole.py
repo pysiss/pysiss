@@ -40,11 +40,12 @@ class BoreholeTest(unittest.TestCase):
         """ Test store and retrieve a single point feature with a one
             single-valued category property
         """
-        feature = self.borehole.add_feature("fault-1", 27.3)
-        feature.add_property(pybh.PropertyType("age"), "last friday")
+        feature = pybh.PointDataSet("fault-1", [27.3], 
+                                    Metadata('age', text='last friday'))
+        self.borehole.add_dataset(feature)
         self.assertEqual(
             "last friday",
-            self.borehole.features["fault-1"].properties["age"].values)
+            self.borehole.point_datasets["fault-1"].metadata.xpath('.//age/text()')[0])
 
     def test_interval_dataset(self):
         """ Test store and retrieve four intervals with a single multivalued
@@ -57,22 +58,22 @@ class BoreholeTest(unittest.TestCase):
             [14.0, 15.0, "SC", "FE"]
         ]
 
-        # the starts and ends of the intervals
-        from_depths = numpy.asarray([x[0] for x in geology_intervals])
-        to_depths = numpy.asarray([x[1] for x in geology_intervals])
-
-        # rock type is a multivalued category property
-        rock_type = [x[2:] for x in geology_intervals]
-        self.assertTrue(all(numpy.diff(from_depths) > 0))
-        self.assertTrue(all(numpy.diff(to_depths) > 0))
-        dataset = self.borehole.add_interval_dataset("geology",
-                                                     from_depths,
-                                                     to_depths)
-        dataset.add_property(ROCK_TYPE, rock_type)
-        geol = self.borehole.interval_datasets["geology"]
+        # Construct dataset
+        geol = IntervalDataSet(
+            ident='geology',
+            from_depths=[x[0] for x in geology_intervals],
+            to_depths=[x[1] for x in geology_intervals])
+        self.assertTrue(all(numpy.diff(geol.from_depths) > 0))
+        self.assertTrue(all(numpy.diff(geol.to_depths) > 0))
         self.assertTrue(all(from_depths == geol.from_depths))
         self.assertTrue(all(to_depths == geol.to_depths))
-        self.assertEqual(["SC", "FE"], geol.properties["rock"].values[-1])
+
+        # rock type is a multivalued category property
+        dataset.add_property(
+            ident='rock',
+            values=[x[2:] for x in geology_intervals],
+            metadata=dict(long_name='rock type code', units='none'))
+        self.assertEqual(["SC", "FE"], geol['rock'].values[-1])
 
     def test_point_datasets(self):
         """Test store and retrieve two properties sampled at four depths"""

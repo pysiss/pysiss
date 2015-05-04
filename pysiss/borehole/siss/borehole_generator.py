@@ -18,7 +18,7 @@ from __future__ import division, print_function
 import re
 from lxml import etree
 from datetime import datetime
-from pint import UnitRegistry
+# from pint import UnitRegistry
 
 from ..properties import PropertyType
 from ..borehole import Borehole, OriginPosition
