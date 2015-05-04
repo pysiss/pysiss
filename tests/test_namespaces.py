@@ -20,7 +20,7 @@ class TestXMLNamespaces(unittest.TestCase):
     """
 
     def setUp(self):
-        self.ns = NamespaceMap({
+        self.ns = NamespaceMap(**{
             'om': 'http://www.opengis.net/om/1.0',
             'ows': 'http://www.opengis.net/ows/1.0',
             'gml': 'http://www.opengis.net/gml',
@@ -55,7 +55,7 @@ class TestXMLNamespaces(unittest.TestCase):
 
         ns = NamespaceMap()
         for namespace_uri, short_namespace in tests:
-            ns.add_from_url(namespace_uri)
+            ns.add_from_uri(namespace_uri)
             self.assertEqual(ns.inverse[namespace_uri],
                              short_namespace)
             self.assertEqual(ns[short_namespace],
@@ -64,10 +64,8 @@ class TestXMLNamespaces(unittest.TestCase):
     def test_expand(self):
         """ Check namespace expansion
         """
-        self.assertEqual(
-            str(self.ns.regularize('geosciml:MappedFeature',
-                                   short_namespace=False)),
-            '{urn:cgi:xmlns:CGI:GeoSciML:2.0}mappedfeature')
+        self.assertEqual(self.ns['geosciml'],
+                         'urn:cgi:xmlns:CGI:GeoSciML:2.0')
 
 
 if __name__ == '__main__':

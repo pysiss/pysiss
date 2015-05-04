@@ -126,7 +126,7 @@ class TestRealData(unittest.TestCase):
             # Construct the borehole instance first
             bh = boreholes[name] = pysiss.borehole.Borehole(name)
 
-            # Generate an IntervalDataSet corresponding to the values in the
+            # Generate an IntervalDataset corresponding to the values in the
             # spreadsheet
             data = data.dropna()
             from_depths = numpy.asarray(data['From'])

@@ -64,7 +64,7 @@ class TestBoreholeFunctionalSynthetic(unittest.TestCase):
         self.bh = synthetic_borehole()
         self.intdom = self.bh.interval_datasets['geochemistry']
 
-        # Convert geochemistry IntervalDataSet to SamplingDataSet
+        # Convert geochemistry IntervalDataset to SamplingDataset
         midpoints = (self.intdom.from_depths
                      + self.intdom.to_depths) / 2.
         self.sampdom = self.bh.add_point_dataset('geochemistry', midpoints)
@@ -115,7 +115,7 @@ class TestBoreholeFunctionalSynthetic(unittest.TestCase):
     def test_interval_to_sampling(self):
         """ We should be able to add a new sampling domain ok
         """
-        # Convert geochemistry IntervalDataSet to SamplingDataSet
+        # Convert geochemistry IntervalDataset to SamplingDataset
         midpoints = (self.intdom.from_depths
                      + self.intdom.to_depths) / 2.
         sampdom = self.bh.add_point_dataset('geochemistry', midpoints)
@@ -131,7 +131,7 @@ class TestBoreholeFunctionalSynthetic(unittest.TestCase):
     def test_regularization(self):
         """ Regularization should work ok for dataset
         """
-        # Convert geochemistry IntervalDataSet to SamplingDataSet
+        # Convert geochemistry IntervalDataset to SamplingDataset
         midpoints = (self.intdom.from_depths
                      + self.intdom.to_depths) / 2.
         sampdom = self.bh.add_point_dataset('geochemistry', midpoints)
