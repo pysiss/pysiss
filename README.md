@@ -54,7 +54,7 @@ from pysiss.webservices import nvcl
 
 gswa = nvcl.NVCLImporter('gswa')  # Use nvcl.NVCLEndpointRegistry to see valid keys
 borehole = gswa.get_borehole('PDP2C')
-print borehole
+print(borehole)
 ```
 
 prints
