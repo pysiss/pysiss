@@ -8,7 +8,7 @@
 
 from __future__ import print_function, division
 
-from ..borehole import PropertyType
+from ..borehole import Borehole, Collar
 from ..borehole.datasets import PointDataset
 from ..utilities import singleton
 from ..metadata import Metadata, xml_to_metadata
@@ -170,8 +170,8 @@ class NVCLImporter(object):
 
         # Parse response
         mdata = xml_to_metadata(response.content)
-        titles = mdata.xpath(".//nvcl:ScannedBoreholeCollection/@xlink:title")
-        urls = mdata.xpath(".//nvcl:ScannedBoreholeCollection/@xlink:href")
+        titles = mdata.xpath(".//nvcl:scannedBorehole/@xlink:title")
+        urls = mdata.xpath(".//nvcl:scannedBorehole/@xlink:href")
         return dict(zip(titles, urls))
 
     def get_borehole_idents(self, maxids=None):
@@ -343,12 +343,23 @@ class NVCLImporter(object):
         # Generate pysiss.borehole.Borehole instance to hold the data
         if ident is None:
             ident = hole_ident
-        # siss_bhl_generator = SISSBoreholeGenerator()
         bh_url = self.get_borehole_idents_and_urls()[hole_ident]
         response = requests.get(bh_url)
         response.raise_for_status()
-        bhl = siss_bhl_generator.geosciml_to_borehole(
-            ident, response.content)
+
+        # Construct borehole collar instance
+        mdata = xml_to_metadata(response.content)
+        collar_elem = mdata['.//geosciml:BoreholeCollar']
+        if collar_elem is not None:
+            loc_elem = collar_elem['.//geosciml:location//gml:pos']
+            latitude, longitude = (float(f) for f in loc_elem.text.split())
+            elevation = float(collar_elem['.//geosciml:elevation'].text)
+            collar = Collar(latitude, longitude)
+        else:
+            collar = None
+
+        # Construct Borehole instance
+        bhl = Borehole(ident=ident, collar=collar, metadata=mdata)
 
         # For each dataset in the NVCL we want to add a dataset and store
         # the dataset information in the DatasetDetails
@@ -362,3 +373,4 @@ class NVCLImporter(object):
                     bhl.add_dataset(dataset)
 
         return bhl
+    

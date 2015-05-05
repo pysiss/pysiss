@@ -45,10 +45,15 @@ class TestMetadata(unittest.TestCase):
             items.
         """
         mdata = xml_to_metadata(self.response.content)
-        import pdb; pdb.set_trace()
-        print(self.response.content)
-        bh_elems = mdata.xpath('//nvcl:ScannedBorehole')
-        print(bh_elems)
-        print(mdata.namespaces)
+        bh_elems = mdata.xpath('//nvcl:scannedBorehole')
         self.assertTrue(len(list(mdata.yaml())) > 10)
         self.assertTrue(len(bh_elems) > 0)
+
+    def test_metadata_queries(self):
+        """ Check that queries can run multiple times and get the same results
+        """
+        mdata = xml_to_metadata(self.response.content)
+        elems = mdata['.//nvcl:scannedBorehole']
+        self.assertTrue(len(elems) > 0)
+        elems2 = mdata['.//nvcl:scannedBorehole']
+        self.assertEqual(len(elems2), len(elems)) 

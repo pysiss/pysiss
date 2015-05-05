@@ -99,5 +99,5 @@ class TestNVCLImporter(unittest.TestCase):
         """ Test some sample usage using the GSWA endpoint
         """
         with httmock.HTTMock(mock_resource):
-            print(self.importers['GSWA'].get_borehole_idents_and_urls())
-            self.importers['GSWA'].get_borehole('PDP2C', get_analytes=True)
+            self.importers['GSWA'].get_borehole('LANCER1', get_analytes=True)
+

@@ -8,9 +8,11 @@
 """
 
 from .borehole import Borehole
+from .collar import Collar
+from .survey import Survey
 from .datasets import Dataset, PointDataset, IntervalDataset
 from .properties import Property, PropertyType
 from . import plotting, analysis
 
 __all__ = ['Borehole', 'Dataset', 'PointDataset', 'IntervalDataset',
-           'plotting', 'analysis']
+           'Collar', 'Survey', 'plotting', 'analysis']

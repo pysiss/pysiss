@@ -144,7 +144,15 @@ class Metadata(object):
             self.namespaces = NamespaceMap(*elem.nsmap.values())
             self.root = etree.Element(elem.tag,
                                       nsmap=self.namespaces,
-                                      children=elem.getchildren())
+                                      attrib=elem.attrib)
+            for child in elem.getchildren():
+                self.root.append(child)
+            if elem.text:
+                self.root.text = elem.text
+            parent = self.root.getparent()
+            if parent:
+                parent.remove(elem)
+                parent.append(self.root)
             self.tag = self.root.tag
 
         elif tag is not None:
@@ -176,8 +184,19 @@ class Metadata(object):
 
     def __getitem__(self, tag):
         """ Return the element associated with the given tag
+
+            Executes the given ElementPath query on the tree using
+            lxml.findall, however if there is only one response, then
+            it will unwrap the element from the list. Returns None if 
+            there is no match
         """
-        return self.find(tag)
+        result = self.findall(tag)
+        if result is None:
+            return None
+        elif len(result) == 1:
+            return result[0]
+        else:
+            return result
 
     def get(self, attribute):
         """ Get the value of the given attribute
@@ -246,7 +265,11 @@ class Metadata(object):
             kwargs['namespaces'].update(self.namespaces)
         else:
             kwargs.update(namespaces=self.namespaces)
-        return Metadata(self.root.find(*args, **kwargs))
+        results = self.root.find(*args, **kwargs)
+        try:
+            return Metadata(results)
+        except ValueError:
+            return results
 
     def findall(self, *args, **kwargs):
         """ Pass ElementPath queries through to underlying element

@@ -40,12 +40,12 @@
         "url": "http://geossdi.dmp.wa.gov.au/NVCLDataServices/getDatasetCollection.html",
         "method": "get",
         "params": {
-            "holeidentifier": "PDP2C"
+            "holeidentifier": "LANCER1"
         },
         "data": ""
     },
     {
-        "url": "http://geossdi.dmp.wa.gov.au/resource/feature/gswa/borehole/kd1_tir",
+        "url": "http://geossdi.dmp.wa.gov.au/resource/feature/gswa/borehole/GSWA%20Lancer%201",
         "method": "get",
         "params": {},
         "data": ""
