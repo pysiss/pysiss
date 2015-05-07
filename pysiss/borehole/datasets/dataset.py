@@ -43,19 +43,20 @@ class Dataset(ObjectWithMetadata):
 
         # Set up dataframe
         self._dataframe = pandas.DataFrame(index=index)
+        self.keys = self._dataframe.keys
 
     def __getitem__(self, key):
         """ Return the data associated with the current key
         """
         return self._dataframe[key]
 
-    def __additem__(self, ident, values):
+    def __setitem__(self, ident, values):
         """ Add a new property to the Dataset
 
             To add metadata with a property, add it using the
             add_property method.
         """
-        self.add_property(ident, values, metadata=None)
+        self.add_property(ident, values)
 
     def __delitem__(self, ident):
         """ Remove a property from the Dataset
@@ -64,7 +65,7 @@ class Dataset(ObjectWithMetadata):
         del self.property_metadata[ident]
 
     def add_property(self, ident, values, **attributes):
-        """ Add and return a new property
+        """ Add a new property
         """
         self._dataframe[ident] = values
         self.metadata['pysiss:boreholeProperties'].append(

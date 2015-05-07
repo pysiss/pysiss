@@ -30,7 +30,7 @@ class BoreholeTest(unittest.TestCase):
             single-valued category property
         """
         feature = pybh.PointDataset("fault-1", [27.3])
-        feature.metadata.set('age', 'last Friday')
+        feature.metadata.set_attribute('age', 'last Friday')
         self.borehole.add_dataset(feature)
         self.assertIsNotNone(self.borehole.point_datasets['fault-1'].metadata)
         mdata = self.borehole.point_datasets["fault-1"].metadata

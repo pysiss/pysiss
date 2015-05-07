@@ -46,9 +46,9 @@ DEFAULT_ENDPOINTS = {
         'downloadurl': 'http://geology.data.nt.gov.au/NVCLDownloadServices/'
     },
     'PIRSA': {
-        'wfsurl': 'https://egate.pir.sa.gov.au/nvcl/geoserver/wfs',
-        'dataurl': 'https://egate.pir.sa.gov.au/nvcl/NVCLDataServices/',
-        'downloadurl': 'https://egate.pir.sa.gov.au/nvcl/NVCLDownloadServices/'
+        'wfsurl': 'https://sarigdata.pir.sa.gov.au/nvcl/geoserver/wfs',
+        'dataurl': 'https://sarigdata.pir.sa.gov.au/nvcl/NVCLDataServices/',
+        'downloadurl': 'https://sarigdata.pir.sa.gov.au/nvcl/NVCLDownloadServices/'
     },
     'DPINSW': {
         'wfsurl': 'http://auscope.dpi.nsw.gov.au/geoserver/wfs',
@@ -133,10 +133,8 @@ class NVCLImporter(object):
             raise KeyError('Unknown NVCL Endpoint {0}.'.format(endpoint) +
                            'Registered endpoints: {0}'.format(epts))
 
-        # Set up SISSBoreholeGenerator instance
-        # TODO: use this in get_borehole() instead of creating another
-        # instance?
-        # self.generator = SISSBoreholeGenerator()
+        # Invalidate cache
+        self._cached = False
 
     def __repr__(self):
         """ String representation
@@ -144,18 +142,30 @@ class NVCLImporter(object):
         string = 'NVCLImporter(endpoint="{0}")'.format(self.endpoint)
         return string
 
-    def get_borehole_idents_and_urls(self, maxids=None):
-        """ Generates a dictionary containing identifiers and urls for
+    @property
+    def borehole_idents(self):
+        """ Generates a list containing identifiers for
             boreholes with NVCL scanned data at this endpoint
+        """
+        self._get_borehole_idents_and_urls()
+        return self._borehole_idents
+    
+    @property
+    def borehole_data_endpoints(self):
+        """ Get a list of data enpoints for the boreholes from the service
+        """
+        self._get_borehole_idents_and_urls()
+        return self._borehole_urls
+    
+    def _get_borehole_idents_and_urls(self):
+        """ Get info on the available boreholes
 
             # Todo: Use pysiss.webservices.FeatureService rather than
             #       raw requests call
-
-            :param maxids: The maximum number of boreholes to request or
-                None for no limit
-            :type maxids: integer
-            :returns: an dictionary of urls keyed by borehole identifiers
         """
+        if self._cached:
+            return 
+
         # Make a request to the wfs
         payload = {
             'version': '1.1.0',
@@ -163,26 +173,16 @@ class NVCLImporter(object):
             'request': 'getfeature',
             'typename': 'nvcl:ScannedBoreholeCollection'
         }
-        if maxids:
-            payload['maxids'] = str(maxids)
         response = requests.get(self.urls['wfsurl'], params=payload)
         response.raise_for_status()
 
         # Parse response
         mdata = xml_to_metadata(response.content)
-        titles = mdata.xpath(".//nvcl:scannedBorehole/@xlink:title")
-        urls = mdata.xpath(".//nvcl:scannedBorehole/@xlink:href")
-        return dict(zip(titles, urls))
-
-    def get_borehole_idents(self, maxids=None):
-        """ Returns the identifiers of boreholes with NVCL scanned data
-
-            :param maxids: The maximum number of boreholes to request or
-                None for no limit
-            :type maxids: integer
-            :returns: a iterator over borehole identifiers
-        """
-        return self.get_borehole_idents_and_urls(maxids).keys()
+        self._borehole_idents = mdata.xpath(".//nvcl:scannedBorehole/@xlink:title")
+        self._borehole_urls = mdata.xpath(".//nvcl:scannedBorehole/@xlink:href")
+        self.borehole_url_dict = \
+            dict(zip(self._borehole_idents, self._borehole_urls))
+        self._cached = True
 
     def get_dataset_idents(self, hole_ident):
         """ Generates a dictionary of tuples representing all the NVCL datasets
@@ -340,11 +340,11 @@ class NVCLImporter(object):
             :type get_analytes: bool
             :returns: a `pysiss.borehole.Borehole` object
         """
-        # Generate pysiss.borehole.Borehole instance to hold the data
+        # Get data
         if ident is None:
             ident = hole_ident
-        bh_url = self.get_borehole_idents_and_urls()[hole_ident]
-        response = requests.get(bh_url)
+        self._get_borehole_idents_and_urls()
+        response = requests.get(self.borehole_url_dict[hole_ident])
         response.raise_for_status()
 
         # Construct borehole collar instance

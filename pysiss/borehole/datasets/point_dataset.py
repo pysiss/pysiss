@@ -54,7 +54,7 @@ class PointDataset(Dataset):
         info = 'PointDataset {0}: with {1} depths and {2} '\
                'properties'
         return info.format(self.ident, len(self.depths),
-                           len(self.properties))
+                           len(self.keys()))
 
     def get_interval(self, from_depth, to_depth, dataset_ident=None):
         """ Return the data between the given depths as as new PointDataset

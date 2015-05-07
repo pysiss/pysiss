@@ -79,19 +79,18 @@ class IntervalDataset(Dataset):
 
     def __init__(self, ident, from_depths, to_depths, metadata=None):
         # Generate depth interval index
-
         if any(len(list(d)) == 0 for d in (from_depths, to_depths)):
             raise ValueError('You must specify one or more depths.')
         index = make_depth_index(from_depths, to_depths)
         super(IntervalDataset, self).__init__(ident, index, metadata)
-        self.from_depths = self.index[:, 0]
-        self.to_depths = self.index[:, 1]
+        self.from_depths = numpy.asarray(self.index[:, 0])
+        self.to_depths = numpy.asarray(self.index[:, 1])
 
     def __repr__(self):
         info = 'IntervalDataset {0}: with {1} depth intervals and {2} '\
                'properties'
         return info.format(self.ident, len(self.from_depths),
-                           len(self.properties))
+                           len(self.keys()))
 
     def get_interval(self, from_depth, to_depth, dataset_ident=None):
         """ Return the data between the given depths as as new IntervalDataset

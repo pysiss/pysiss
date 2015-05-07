@@ -45,7 +45,7 @@ class TestMetadata(unittest.TestCase):
             items.
         """
         mdata = xml_to_metadata(self.response.content)
-        bh_elems = mdata.xpath('//nvcl:scannedBorehole')
+        bh_elems = mdata.xpath('.//nvcl:scannedBorehole')
         self.assertTrue(len(list(mdata.yaml())) > 10)
         self.assertTrue(len(bh_elems) > 0)
 

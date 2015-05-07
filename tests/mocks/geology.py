@@ -102,11 +102,9 @@ def synthetic_borehole():
     to_depths = numpy.minimum(depths[:-1] + 10, depths[1:])
 
     # Wrap it up into a borehole object
-    bh = borehole.Borehole(
-        ident='quux',
-        origin_position=None)
+    bh = borehole.Borehole(ident='quux')
     dataset = bh.add_interval_dataset('geochemistry', from_depths, to_depths)
     for ident, values in zip(component_labels, rock_column_samples):
-        ptype = borehole.PropertyType(ident=ident)
-        dataset.add_property(ptype, values)
+        dataset.add_property(ident=ident, values=values,
+                             status='synthetic')
     return bh

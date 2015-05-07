@@ -29,6 +29,7 @@ class NamespaceMap(dict):
 
     def __init__(self, *namespaces, **kwargs):
         super(NamespaceMap, self).__init__()
+        self._cached = False
         self.inverse = dict(reversed(item) for item in self.items())
 
         # Init with namespace dictionaries
@@ -63,6 +64,9 @@ class NamespaceMap(dict):
             super(NamespaceMap, self).__setitem__(key, value)
             self.inverse[value] = key
 
+        # Invalidate cache for later
+        self._cached = False
+
     def update(self, namespaces, **kwargs):
         """ Add new namespaces to the registry
         """
@@ -71,21 +75,32 @@ class NamespaceMap(dict):
             for key, namespace_url in args.items():
                 self[key] = namespace_url
 
+    def _update_cache(self):
+        """ Update the cached namespace urls and keys
+        """
+        if not self._cached:
+            self._stored_namespaces = set(self.keys())
+            self._stored_uris = set(self.inverse.keys())
+            self._cached = True
+
     @property
     def stored_namespace_uris(self):
-        """ Return a list of the stored namespace urls
+        """ Return a set of the stored namespace urls
         """
-        return list(self.inverse.keys())
+        self._update_cache()
+        return self._stored_uris
 
     @property
     def stored_namespace_keys(self):
-        """ Return a list of the stored namespace keys8
+        """ Return a set of the stored namespace keys
         """
-        return list(self.keys())
+        self._update_cache()
+        return set(self.keys())
 
     def __delitem__(self, key):
         del self.inverse[self[key]]
         super(NamespaceMap, self).__delitem__(key)
+        self._cached = False
 
     def expand(self, tag):
         """ Return a tag with a namespace in expanded form
@@ -135,6 +150,19 @@ class NamespaceMap(dict):
         else:
             return tag
 
+    def add_from_tag(self, tag):
+        """ Add a namespace from an lxml tag. 
+
+            The namespace is denoted using lxml's `{namespace}tag` qname 
+            specification. This is really just a convenience wrapper -
+            the tag is passed to lxml.QName and then the namespace is passed 
+            off to the `add_from_uri` method. To see what the shortened namespace
+            will look like then check out the documentation for `add_from_uri`.
+
+            Parameters: 
+                tag - the (namespaced) tag containing the tag to be added
+        """
+
     def add_from_uri(self, namespace_uri):
         """ Shorten a namespace URI using some heuristics
 
@@ -175,6 +203,10 @@ class NamespaceMap(dict):
             Parameters:
                 namespace_uri - a URI denoting a namespace
         """
+        # Can shortcut if we already have this namespace
+        if namespace_uri in self.stored_namespace_uris:
+            return
+
         # Get tokens from namespace
         if '://' in namespace_uri:
             # We have a namespace of the form protocol://root/ns/ns/ns/tag

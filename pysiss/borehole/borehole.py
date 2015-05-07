@@ -86,7 +86,7 @@ class Borehole(ObjectWithMetadata):
         """ String representation
         """
         info = 'Borehole {0} at {1} contains '
-        info_str = info.format(self.ident, self.origin_position.xy)
+        info_str = info.format(self.ident, self.collar.location)
         n_datasets = sum([len(getattr(self, a))
                           for a in self._type_to_attr.values()])
         summary_str = '{0} datasets'.format(n_datasets)

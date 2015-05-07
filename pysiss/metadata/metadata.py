@@ -19,6 +19,7 @@ from lxml import etree
 import io
 import uuid
 
+
 def qname_str(qname):
     """ Represent a QName in a namespace:localname string
     """
@@ -68,9 +69,7 @@ def xml_to_metadata(xml):
             xml - either a handle to an open xml file, or a string of XML
 
         Returns:
-            a tuple containing an lxml.etree.ElementTree instance holding
-            the parsed data, and a pysiss.metadata.NamespaceMap instance
-            holding the namespace urls and keys
+            the new Metadata instance containing the record
     """
     # Initialize tree and XML namespaces
     if not isinstance(xml, io.IOBase):
@@ -83,25 +82,51 @@ def xml_to_metadata(xml):
 
     # Walk tree and generate parsing events to normalize tags
     elem = None
-    context = iter(etree.iterparse(xml,
-                                   events=('end', 'start-ns'),
+    context = iter(etree.iterparse(xml, events=('start-ns',), 
                                    remove_comments=True,
                                    recover=True))
     for event, elem in context:
-        if event == 'start-ns':
-            nskey, nsurl = elem  # start-ns elem is a tuple
-            nspace[nskey] = nsurl
+        # start-ns elem is a tuple with a key and url
+        # We don't care about the key
+        nspace.add_from_uri(elem[1])
 
     # Return the results if we have em
-    if elem is not None:
-        return Metadata(elem)
+    if context.root is not None:
+        return Metadata(elem=context.root, namespaces=nspace)
     else:
         raise ValueError("Couldn't parse xml")
+
+
+def as_metadata(obj):
+    """ Convert the given object to a Metadata instance
+
+        Parameters:
+            obj - the object to be converted. obj can be a string containing 
+            some xml, a handle to an open file, or an lxml element or elementtree 
+            instance. If object is already a Metadata instance, it is just returned.
+
+        Returns:
+            a Metadata instance
+    """
+    # Just return if we're already a metadata object
+    if isinstance(Metadata, obj):
+        return obj
+    elif isinstance((io.IOBase, string), obj):
+        return xml_to_metadata(obj)
+    elif isinstance(lxml._Element):
+        return Metadata(elem=obj)
+    elif isinstance(lxml._ElementTree):
+        return Metadata(elem=obj.root)
 
 
 class Metadata(object):
 
     """ Class to store metadata record
+
+        Can be initialized with an lxml.Element instance, or with a tag.
+
+        Queries (XPath, or ElementPath) are passed through to the underlying
+        element, with a few nicities to deal with XML namespaces.
 
         Parameters:
             elem - either an etree.ElementTree or etree.Element instance
@@ -116,64 +141,40 @@ class Metadata(object):
 
     registry = MetadataRegistry()
 
-    def __init__(self, elem=None, register=False,
-                 tag=None, text=None, **attributes):
+    def __init__(self, elem=None, tag=None, 
+                 text=None, namespaces=None, **attributes):
         super(Metadata, self).__init__()
         self.uuid = uuid.uuid5(uuid.NAMESPACE_DNS,
                                PYSISS_NAMESPACE + 'metadata')
         self.ident = self.uuid
+        self.namespaces = namespaces or NamespaceMap()
 
-        # Slurp in data
-        if elem is not None and tag is not None:
-            if tag != elem.tag:
-                raise ValueError(("Tags for element and constructor differ "
-                                  "(elem.tag = {0}, constructor argument={1})."
-                                  " Bailing out!").format(elem.tag, tag))
-
-        elif elem is not None:
-            # Check we have an element, not elementtree
-            if isinstance(elem, etree._ElementTree):
-                elem = elem.getroot()
-            elif not isinstance(elem, etree._Element):
-                raise ValueError("Argument to 'elem' in Metadata constructor "
-                                 "is not of type lxml.etree.ElementTree or "
-                                 "lxml.etree.Element (it's type is "
-                                 "{0})".format(type(elem)))
-
-            # Copy over new namespaces
-            self.namespaces = NamespaceMap(*elem.nsmap.values())
-            self.root = etree.Element(elem.tag,
-                                      nsmap=self.namespaces,
-                                      attrib=elem.attrib)
-            for child in elem.getchildren():
-                self.root.append(child)
-            if elem.text:
-                self.root.text = elem.text
-            parent = self.root.getparent()
-            if parent:
-                parent.remove(elem)
-                parent.append(self.root)
-            self.tag = self.root.tag
-
+        # Construct underlying element
+        if elem is not None:
+            self.root = elem
         elif tag is not None:
-            # Create an empty metadata instance
-            self.namespaces = NamespaceMap(tag)
-            self.root = etree.Element(tag, nsmap=self.namespaces)
-
+            self.root = etree.Element(tag, **attributes)
+            if text:
+                self.root.text = text
         else:
-            raise ValueError('One of tree or xml or tag has to be specified to '
-                             'create a Metadata instance')
+            raise ValueError(
+                'You need to specify one of the tag or elem arguments to'
+                'construct a Metadata instance')
 
-        # Add other attributes
-        for key, value in attributes.items():
-            self.set(key, value)
+        # Construct a namespace for the given element
+        self.tag = tag or self.root.tag
+        self.namespaces.add_from_tag(self.tag)
+
+        # Update other values
         if text:
             self.root.text = text
-        self.text = self.root.text
+        for item in attributes.items():
+            self.root.set(*item)
 
-        # Register yourself with the registry if required
-        if register:
-            self.registry.register(self)
+        # Add query methods
+        for qmethod in ('xpath', 'find', 'findall'):
+            setattr(self, qmethod, self._query_wrapper(qmethod))
+
 
     def __str__(self):
         """ String representation
@@ -182,33 +183,26 @@ class Metadata(object):
         short_tag = qname_str(self.namespaces.shorten(self.root.tag))
         return template.format(self.ident, short_tag)
 
-    def __getitem__(self, tag):
+    def __getitem__(self, query):
         """ Return the element associated with the given tag
 
             Executes the given ElementPath query on the tree using
             lxml.findall, however if there is only one response, then
-            it will unwrap the element from the list. Returns None if 
-            there is no match
+            it will unwrap the element from the list.
         """
-        result = self.findall(tag)
-        if result is None:
-            return None
-        elif len(result) == 1:
-            return result[0]
-        else:
-            return result
+        return self.findall(query)
 
-    def get(self, attribute):
+    def get_attribute(self, attribute):
         """ Get the value of the given attribute
         """
         return self.root.get(attribute)
 
-    def set(self, attribute, value):
+    def set_attribute(self, attribute, value):
         """ Set the value of the given attribute
         """
         self.root.set(attribute, value)
 
-    def append(self, tag, text=None, children=None, **attributes):
+    def append(self, tag, text=None, **attributes):
         """ Add and return a metadata element with given attributes
             and text to the metadata instance.
 
@@ -221,69 +215,25 @@ class Metadata(object):
         """
         element = etree.SubElement(self.root, tag)
         for key, value in attributes.items():
-            self.root.set(key, value)
+            element.set(key, value)
         if text:
             element.text = text
-        if children:
-            element.append(children)
         return Metadata(element)
 
-    def extend(self, *metadata):
+    def append_objects(self, *obj):
         """ Add and return metadata elements to the tree
+
+            For details on the allowable object types that can be converted to
+            to Metadata element instances, see the docstring for `as_metadata`
         """
-        for metadatum in metadata:
-            self.root.append(metadatum.root)
+        for obj in objs:
+            self.root.append(as_metadata(obj).root)
 
-    def xpath(self, *args, **kwargs):
-        """ Pass XPath queries through to underlying element
-
-            Uses the namespace dictionary from the metadata element
-            to expand namespace definitions
-
-            Parameters: see lxml.etree.xpath for details
+    def register(self):
+        """ Register this metadata instance with the Metadata registry
         """
-        keys = set(kwargs.keys())
-        if 'namespaces' in keys:
-            kwargs['namespaces'].update(self.namespaces)
-        else:
-            kwargs.update(namespaces=self.namespaces)
-        results = self.root.xpath(*args, **kwargs)
-
-        # We need to check that we've actually got back element tree elements
-        # before trying to wrap in a Metadata instance - xpath results may be
-        # strings!
-        try:
-            return [Metadata(r) for r in results]
-        except ValueError:
-            return results
-
-    def find(self, *args, **kwargs):
-        """ Pass ElementPath queries through to underlying element
-        """
-        keys = set(kwargs.keys())
-        if 'namespaces' in keys:
-            kwargs['namespaces'].update(self.namespaces)
-        else:
-            kwargs.update(namespaces=self.namespaces)
-        results = self.root.find(*args, **kwargs)
-        try:
-            return Metadata(results)
-        except ValueError:
-            return results
-
-    def findall(self, *args, **kwargs):
-        """ Pass ElementPath queries through to underlying element
-        """
-        keys = set(kwargs.keys())
-        if 'namespaces' in keys:
-            kwargs['namespaces'].update(self.namespaces)
-        else:
-            kwargs.update(namespaces=self.namespaces)
-        results = self.root.findall(*args, **kwargs)
-        try:
-            return [Metadata(r) for r in results]
-        except ValueError:
-            return results
+        # Register yourself with the registry if required
+        self.registry.register(self)
 
     def yaml(self, indent_width=2):
         """ Return a YAML-like representation of the tags
@@ -297,3 +247,51 @@ class Metadata(object):
         """
         return yamlify(self.root, self.namespaces,
                        indent_width=indent_width)
+
+    def _query_wrapper(self, method):
+        """ Wrapper around query methods for the metadata instance
+
+            Constructs a namespace dictionary to make it easier to run
+            concise query strings. Also wraps the results as a Metadata
+            instance.
+        """
+        def _query(*qargs, unwrap=False, **qkwargs):
+            """ Run query, extract results
+            """
+            keys = set(qkwargs.keys())
+            if 'namespaces' in keys:
+                qkwargs['namespaces'].update(self.namespaces)
+            else:
+                qkwargs.update(namespaces=self.namespaces)
+
+            # Get results
+            results = getattr(self.root, method)(*qargs, **qkwargs)
+            try:
+                try:
+                    # Mostly things come back as lists
+                    results = [Metadata(elem=r) for r in results]
+
+                    # Unwrap the list if there's only one value to worry about
+                    if unwrap:
+                        if len(results) == 0:
+                            return None
+                        elif len(results) == 1:
+                            return results[0]
+                        else:
+                            return results
+                    else:
+                        return results
+
+                except TypeError:
+                    # We don't have an iterator, so try wrapping directly...
+                    return Metadata(results)
+
+            except AttributeError:
+                # Something about making a metadata instance has failed, so
+                # just return the results
+                return results
+
+
+        # Copy over docstring from lxml documentation
+        setattr(_query, '__doc__', getattr(etree.ElementBase, method).__doc__)
+        return _query
