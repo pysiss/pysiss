@@ -50,6 +50,14 @@ class NamespaceMap(dict):
             self.update(kwargs)
 
     def __setitem__(self, key, value):
+        """ Associate the given shortened namespace with the given 
+            namespace URI.
+
+            If key is None, 'None', 'none' or '', then a key is generated, i.e.
+            so that `nsmap[None] = 'some/uri'` does the same thing as
+            `nsmap.add_from_uri('some/uri')`. This is done because sometimes
+            a namespace can map to an empty prefix.
+        """
         if key in (None, 'None', 'none', ''):
             # Use the namespaces from etree where possible, but sometimes a
             # namespace might map to None (if the default namespace) so we need
@@ -69,6 +77,10 @@ class NamespaceMap(dict):
 
     def update(self, namespaces, **kwargs):
         """ Add new namespaces to the registry
+
+            Parameters:
+                namespaces - a dictionary of namespace instances
+                **kwargs - key/namespace pairs
         """
         # Add namespaces from dict
         for args in (namespaces, kwargs):
@@ -82,6 +94,23 @@ class NamespaceMap(dict):
             self._stored_namespaces = set(self.keys())
             self._stored_uris = set(self.inverse.keys())
             self._cached = True
+
+    def harvest_namespaces(self, elem):
+        """ Harvest namespace definitions from an lxml tree
+
+            Parameters:
+                elem - an lxml.etree.Element instance
+        """
+        # Add namespaces from tag and attributes
+        self.add_from_tag(elem.tag)
+        if elem.attrib:
+            for key, value in elem.attrib.items():
+                self.add_from_tag(key)
+                self.add_from_tag(value)
+
+        # Harvest namespaces from children
+        for child in elem.getchildren():
+            self.harvest_namespaces(child)
 
     @property
     def stored_namespace_uris(self):
@@ -106,21 +135,18 @@ class NamespaceMap(dict):
         """ Return a tag with a namespace in expanded form
 
             Parameters:
-                tag - the tag to regularize, in lxml format: '{ns}tag'
-                short_namespace - whether you want the namespace to be expanded
-                    or not (default is True for a short namespace).
+                tag - the tag to regularize, in lxml format: 'ns:tag'
 
             Returns:
                 an lxml QName string which contains a regularized tag name
         """
-        if ':' in tag:
-            namespace, localname = tag.split(':')
-            if namespace not in self.stored_namespace_keys:
-                raise ValueError(
-                    'Unknown namespace key {0}'.format(namespace)
-                    + ' in tag {0}'.format(tag))
-            else:
-                return QName(self[namespace], localname)
+        namespace, localname = tag.split(':')
+        if namespace not in self.stored_namespace_keys:
+            raise ValueError(
+                'Unknown namespace key {0}'.format(namespace)
+                + ' in tag {0}'.format(tag))
+        else:
+            return QName(self[namespace], localname)
 
     def shorten(self, tag):
         """ Return a tag with a namespace in shortened form.
@@ -159,9 +185,17 @@ class NamespaceMap(dict):
             off to the `add_from_uri` method. To see what the shortened namespace
             will look like then check out the documentation for `add_from_uri`.
 
+            If the tag has no namespace then nothing is done
+
             Parameters: 
                 tag - the (namespaced) tag containing the tag to be added
         """
+        try:
+            qname = QName(tag)
+            if qname.namespace:
+                self.add_from_uri(qname.namespace)
+        except ValueError:
+            pass
 
     def add_from_uri(self, namespace_uri):
         """ Shorten a namespace URI using some heuristics

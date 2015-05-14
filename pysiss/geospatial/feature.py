@@ -8,17 +8,16 @@
 
 from __future__ import division, print_function
 
-from ..metadata import ObjectWithMetadata
+from ..metadata import with_metadata
 
 
-class Feature(ObjectWithMetadata):
+@with_metadata(tag='feature')
+class Feature(object):
 
     """ Class containing vector GIS data.
 
         Corresponds roughly to gsml:MappedFeatures
     """
-
-    __metadata_tag__ = 'feature'
 
     def __init__(self, shape, ident=None, **kwargs):
         super(Feature, self).__init__(ident=ident)

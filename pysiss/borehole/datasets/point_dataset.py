@@ -10,6 +10,7 @@
 from __future__ import division, print_function
 
 from .dataset import Dataset
+from ...metadata import PYSISS_NAMESPACE
 
 import numpy
 from scipy.interpolate import InterpolatedUnivariateSpline as Spline
@@ -38,17 +39,17 @@ class PointDataset(Dataset):
         :type metadata: pysiss.borehole.dataset.DatasetDetails
     """
 
-    __metadata_tag__ = 'boreholePointDataset'
-
-    def __init__(self, ident, depths, metadata=None):
-        super(PointDataset, self).__init__(
-            ident, depths, metadata=metadata)
+    def __init__(self, depths, ident=None):
         depths = numpy.asarray(depths)
-        if depths.shape[0] == 0:
+        if len(depths.shape) == 0 or depths.shape[0] == 0:
             raise ValueError('You must specify one or more depths.')
         if not all(numpy.diff(depths) > 0):
             raise ValueError("Depths must be monotonically increasing")
+        super(PointDataset, self).__init__(index=depths, ident=ident)
         self.depths = depths
+        self.metadata.set_attributes(
+            datasetType= PYSISS_NAMESPACE + 'PointDataset',
+            index='depths')
 
     def __repr__(self):
         info = 'PointDataset {0}: with {1} depths and {2} '\

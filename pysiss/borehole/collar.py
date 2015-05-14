@@ -8,20 +8,21 @@
 
 from __future__ import division, print_function
 
+from ..metadata import with_metadata
+
 from shapely.geometry import Point
-from ..metadata import ObjectWithMetadata
 
 
-class Collar(ObjectWithMetadata):
+@with_metadata(tag='collarLocation')
+class Collar(object):
 
     """Representation of borehole origin position in terms of latitude,
        longitude, and elevation.
     """
 
-    __metadata_tag__ = 'collarLocation'
-
     def __init__(self, latitude, longitude, elevation=None, ident=None):
-        super(Collar, self).__init__(ident=ident)
+        super(Collar, self).__init__()
+        self.ident = ident
         self.location = Point(longitude, latitude)
         self.elevation = elevation
 

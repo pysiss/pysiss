@@ -9,4 +9,5 @@
 from .._version import __version__
 
 # Namespace for pysiss objects in XML
-PYSISS_NAMESPACE = '{{http://csiro.au/pysiss/{0}}}'.format(__version__)
+PYSISS_NAMESPACE = \
+	'{{http://geoanalytics.csiro.au/pysiss/{0}}}'.format(__version__)

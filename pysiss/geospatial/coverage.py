@@ -8,19 +8,18 @@
 
 from __future__ import division, print_function
 
-from ..metadata import unmarshal_all, ObjectWithMetadata
+from ..metadata import unmarshal_all, with_metadata
 
 import rasterio
 from matplotlib.pyplot import gca, get_cmap
 import numpy
 
 
-class Coverage(ObjectWithMetadata):
+@with_metadata(tag='coverage')
+class Coverage(object):
 
     """ Class containing raster GIS coverage data.
     """
-
-    __metadata_tag__ = 'coverage'
 
     def __init__(self, filename, metadata, ident=None, **kwargs):
         super(Coverage, self).__init__(ident=ident)
@@ -37,7 +36,7 @@ class Coverage(ObjectWithMetadata):
         if kwargs:
             for attrib, value in kwargs.items():
                 setattr(self, attrib, value)
-        self.metadata.append_metadata(metadata)
+        self.metadata.append(metadata)
         try:
             self.mask_value = \
                 unmarshal_all(self.metadata,

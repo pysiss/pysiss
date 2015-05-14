@@ -21,6 +21,7 @@ from __future__ import division, print_function
 
 from .dataset import Dataset
 from .point_dataset import PointDataset
+from ...metadata import PYSISS_NAMESPACE
 
 import numpy
 import pandas
@@ -70,21 +71,19 @@ class IntervalDataset(Dataset):
         :param to_depths: interval end point down-hole depths in metres from
             collar
         :type to_depths: iterable
-        :param metadata: The metadata associated with the dataset. Optional,
-            defaults to None.
-        :type metadata: pysiss.borehole.dataset.DatasetDetails
     """
 
-    __metadata_tag__ = 'boreholeIntervalDataset'
-
-    def __init__(self, ident, from_depths, to_depths, metadata=None):
+    def __init__(self, from_depths, to_depths, ident=None):
         # Generate depth interval index
         if any(len(list(d)) == 0 for d in (from_depths, to_depths)):
             raise ValueError('You must specify one or more depths.')
         index = make_depth_index(from_depths, to_depths)
-        super(IntervalDataset, self).__init__(ident, index, metadata)
+        super(IntervalDataset, self).__init__(ident=ident, index=index)
         self.from_depths = numpy.asarray(self.index[:, 0])
         self.to_depths = numpy.asarray(self.index[:, 1])
+        self.metadata.set_attributes(
+            datasetType= PYSISS_NAMESPACE + 'IntervalDataset',
+            index='(from_depths, to_depths)')
 
     def __repr__(self):
         info = 'IntervalDataset {0}: with {1} depth intervals and {2} '\
@@ -182,11 +181,13 @@ class IntervalDataset(Dataset):
             depths = self.to_depths
         else:
             raise ValueError(
-                'Unknown depth conversion method {0}'.format(depths))
+                'Unknown depth conversion method {0}'.format(depths)
+                + 'allowed values are ("midpoint", "from", "to")')
 
         # Generate new dataset
         sdom = PointDataset(ident=ident, depths=depths)
-        sdom.properties = self.properties.copy()
+        for ident, values, attrib in self.items():
+            sdom.add_property(ident=ident, values=values, **attrib)
         return sdom
 
     @property

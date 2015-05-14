@@ -359,7 +359,8 @@ class NVCLImporter(object):
             collar = None
 
         # Construct Borehole instance
-        bhl = Borehole(ident=ident, collar=collar, metadata=mdata)
+        bhl = Borehole(ident=ident, collar=collar)
+        bhl.metadata.append(mdata)
 
         # For each dataset in the NVCL we want to add a dataset and store
         # the dataset information in the DatasetDetails

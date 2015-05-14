@@ -12,36 +12,31 @@
 from __future__ import division, print_function
 
 from ..properties import Property
-from ...metadata import Metadata, ObjectWithMetadata, PYSISS_NAMESPACE
+from ...metadata import with_metadata, PYSISS_NAMESPACE
 
 import pandas
 
 
-class Dataset(ObjectWithMetadata):
+@with_metadata(tag='boreholeDataset',
+               subelements=[{'tag': PYSISS_NAMESPACE + 'datasetProperties'}])
+class Dataset(object):
 
     """ Spatial extent over which properties are defined.
 
         This is an abstract base class
 
-        :param ident: an identifier for the dataset
-        :type ident: string
         :param index: an index for the Dataset
         :type index: an iterator
-        :param details: Metadata for a given dataset.
-        :type details: pysiss.borehole.datasets.DatasetDetails
+        :param ident: an identifier for the dataset
+        :type ident: string
     """
 
-    __metadata_tag__ = 'boreholeDataset'
-
-    def __init__(self, ident, index, metadata=None):
-        super(Dataset, self).__init__(ident=ident)
-
-        # Add metadata
-        if metadata:
-            self.metadata.extend(metadata)
-        self.metadata.append(tag=(PYSISS_NAMESPACE + 'boreholeProperties'))
+    def __init__(self, index, ident=None):
+        super(Dataset, self).__init__()
+        self.ident = ident
 
         # Set up dataframe
+        self._index = index
         self._dataframe = pandas.DataFrame(index=index)
         self.keys = self._dataframe.keys
 
@@ -68,8 +63,8 @@ class Dataset(ObjectWithMetadata):
         """ Add a new property
         """
         self._dataframe[ident] = values
-        self.metadata['pysiss:boreholeProperties'].append(
-            tag=(PYSISS_NAMESPACE + 'boreholeProperty'),
+        self.metadata['pysiss:datasetProperties'].add_subelement(
+            tag=(PYSISS_NAMESPACE + 'property'),
             ident=ident,
             **attributes)
 
@@ -81,8 +76,33 @@ class Dataset(ObjectWithMetadata):
 
     @property
     def data(self):
+        """ Return the dataframe for the dataset
+        """
         return self._dataframe
 
     @property
     def index(self):
+        """ Return the index for the dataset
+        """
         return self._dataframe.index
+
+    def items(self):
+        """ Return an iterator over the properties defined in the dataset
+
+            Each item is a tuple containing a key, a Pandas.series with the values
+            and the property attributes.
+        """
+        for k in self.keys():
+            values = self[k]
+            mdata = self.metadata.xpath('//pysiss:property[@ident={0}]'.format(k),
+                                        unwrap=True)
+            if mdata is not None:
+                yield(k, values, mdata.attrib)
+            else:
+                yield(k, values, {})
+
+    def values(self):
+        """ Return an iterator over the property values defined in the dataset
+        """
+        return (self[k] for k in self.keys())
+

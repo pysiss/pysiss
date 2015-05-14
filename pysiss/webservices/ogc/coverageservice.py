@@ -9,7 +9,7 @@
 from __future__ import print_function, division
 
 from ...utilities import accumulator
-from ...metadata import Metadata, unmarshal_all, ObjectWithMetadata
+from ...metadata import Metadata
 from .service import OGCService
 from ...geospatial import Coverage
 
@@ -21,7 +21,7 @@ import os
 LOGGER = logging.getLogger('pysiss')
 
 
-class CoverageService(ObjectWithMetadata):
+class CoverageService(object):
 
     """ Gets access to a OGC Web Coverage Service
 

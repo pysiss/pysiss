@@ -147,7 +147,8 @@ class Metadata(object):
         self.uuid = uuid.uuid5(uuid.NAMESPACE_DNS,
                                PYSISS_NAMESPACE + 'metadata')
         self.ident = self.uuid
-        self.namespaces = namespaces or NamespaceMap()
+        self._namespaces = namespaces or NamespaceMap()
+        self._update_namespaces = True
 
         # Construct underlying element
         if elem is not None:
@@ -161,15 +162,16 @@ class Metadata(object):
                 'You need to specify one of the tag or elem arguments to'
                 'construct a Metadata instance')
 
+        # Update other values
+        if text:
+            self.text = self.root.text = text
+        self.attrib = self.root.attrib
+        if attributes:
+            self.set_attributes(**attributes)
+
         # Construct a namespace for the given element
         self.tag = tag or self.root.tag
         self.namespaces.add_from_tag(self.tag)
-
-        # Update other values
-        if text:
-            self.root.text = text
-        for item in attributes.items():
-            self.root.set(*item)
 
         # Add query methods
         for qmethod in ('xpath', 'find', 'findall'):
@@ -179,7 +181,7 @@ class Metadata(object):
     def __str__(self):
         """ String representation
         """
-        template = 'Metadata record {0}, of datatype {1}'
+        template = 'Metadata record {0}, tagged with {1}'
         short_tag = qname_str(self.namespaces.shorten(self.root.tag))
         return template.format(self.ident, short_tag)
 
@@ -190,19 +192,58 @@ class Metadata(object):
             lxml.findall, however if there is only one response, then
             it will unwrap the element from the list.
         """
-        return self.findall(query)
+        return self.findall(query, unwrap=True)
+
+    @property
+    def namespaces(self):
+        """ Get the current namespace dictionary
+        """
+        if self._update_namespaces:
+            self._namespaces.harvest_namespaces(self.root) 
+            self._update_namespaces = False
+        return self._namespaces
 
     def get_attribute(self, attribute):
         """ Get the value of the given attribute
         """
+        self._try_expanding_tag(attribute)
         return self.root.get(attribute)
 
-    def set_attribute(self, attribute, value):
+    def set_attributes(self, **kwargs):
         """ Set the value of the given attribute
-        """
-        self.root.set(attribute, value)
 
-    def append(self, tag, text=None, **attributes):
+            Parameters:
+                **kwargs - key value pairs for the given attributes
+        """
+        for attribute, value in kwargs.items():
+            self._try_expanding_tag(attribute)
+            self._try_expanding_tag(value)
+            self.root.set(attribute, value)
+
+    def get_children(self):
+        """ Return an iterable over the children of the metadata element
+        """
+        return (self._wrap_element(c) for c in self.root.getchildren())
+
+    def get_parent(self):
+        """ Return the parent node of the given metadata element
+        """
+        return self._wrap_element(self.root.getparent())
+
+    def _try_expanding_tag(self, tag):
+        """ Will expand a tag if required
+        """
+        try:
+            qname = etree.QName(tag)
+            if qname.namespace is not None:
+                qname.namespace = self.namespaces[qname.namespace]
+                tag = qname_str(qname)
+        except KeyError:
+            pass
+        except ValueError:
+            pass
+
+    def add_subelement(self, tag, text=None, **attributes):
         """ Add and return a metadata element with given attributes
             and text to the metadata instance.
 
@@ -211,23 +252,33 @@ class Metadata(object):
                     the currently defined namespaces (which will be copied
                     into the new Metadata instance).
                 text - the text to be associated with the element
-                attributes - key-value pairs to be associated with this content.
+                **attributes - key-value pairs to be associated with this content.
         """
-        element = etree.SubElement(self.root, tag)
+        self._try_expanding_tag(tag)
+        elem = etree.SubElement(self.root, tag)
         for key, value in attributes.items():
-            element.set(key, value)
+            elem.set(key, value)
         if text:
-            element.text = text
-        return Metadata(element)
+            elem.text = text
+        self._update_namespaces = True
+        return self._wrap_element(elem)
 
-    def append_objects(self, *obj):
+    def append(self, metadata):
+        """ Add a preexisting metadata instance
+        """
+        self.root.append(metadata.root)
+        for namespace_uri in metadata.namespaces.values():
+            self.namespaces.add_from_uri(namespace_uri)
+
+    def extend(self, *obj):
         """ Add and return metadata elements to the tree
 
             For details on the allowable object types that can be converted to
             to Metadata element instances, see the docstring for `as_metadata`
         """
         for obj in objs:
-            self.root.append(as_metadata(obj).root)
+            self.append(as_metadata(obj))
+        self._update_namespaces = True
 
     def register(self):
         """ Register this metadata instance with the Metadata registry
@@ -266,10 +317,12 @@ class Metadata(object):
 
             # Get results
             results = getattr(self.root, method)(*qargs, **qkwargs)
+            
+            # Wrap results and return
             try:
                 try:
                     # Mostly things come back as lists
-                    results = [Metadata(elem=r) for r in results]
+                    results = [self._wrap_element(r) for r in results]
 
                     # Unwrap the list if there's only one value to worry about
                     if unwrap:
@@ -284,7 +337,7 @@ class Metadata(object):
 
                 except TypeError:
                     # We don't have an iterator, so try wrapping directly...
-                    return Metadata(results)
+                    return self._wrap_element(results)
 
             except AttributeError:
                 # Something about making a metadata instance has failed, so
@@ -295,3 +348,11 @@ class Metadata(object):
         # Copy over docstring from lxml documentation
         setattr(_query, '__doc__', getattr(etree.ElementBase, method).__doc__)
         return _query
+
+    def _wrap_element(self, elem):
+        """ Wrap an element as a Metadata instance without having to update namespace
+            definitions.
+        """
+        md = Metadata(elem=elem, namespaces=self.namespaces)
+        md._update_namespaces = False
+        return md

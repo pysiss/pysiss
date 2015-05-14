@@ -12,10 +12,11 @@ from .collar import Collar
 from .details import Details, detail_type
 from .datasets import Dataset, PointDataset, IntervalDataset
 from .survey import Survey
-from ..metadata import ObjectWithMetadata
+from ..metadata import with_metadata
 
 
-class Borehole(ObjectWithMetadata):
+@with_metadata(tag='borehole')
+class Borehole(object):
 
     """ Class to represent a borehole.
 
@@ -59,8 +60,6 @@ class Borehole(ObjectWithMetadata):
 
     """
 
-    __metadata_tag__ = 'borehole'
-
     # Mapping dataset types to class attributes
     _type_to_attr = {
         Dataset: 'datasets',
@@ -68,16 +67,13 @@ class Borehole(ObjectWithMetadata):
         IntervalDataset: 'interval_datasets',
     }
 
-    def __init__(self, ident, collar=None, metadata=None):
-        super(Borehole, self).__init__(ident=ident)
+    def __init__(self, ident=None, collar=None):
+        super(Borehole, self).__init__()
         self.ident = ident
         self.collar = collar or Collar(0, 0, None)
         self.survey = None
-        if metadata:
-            self.metadata.extend(metadata)
 
         # Initialize dataset lists
-        self.features = {}
         self.datasets = {}
         self.point_datasets = {}
         self.interval_datasets = {}
@@ -90,7 +86,6 @@ class Borehole(ObjectWithMetadata):
         n_datasets = sum([len(getattr(self, a))
                           for a in self._type_to_attr.values()])
         summary_str = '{0} datasets'.format(n_datasets)
-        summary_str += ' & {0} features'.format(len(self.features))
         dataset_list = ''
         if len(self.interval_datasets) > 0:
             idnames = [str(i) for i in self.interval_datasets.values()]
@@ -98,22 +93,8 @@ class Borehole(ObjectWithMetadata):
         if len(self.point_datasets) > 0:
             pdnames = [str(p) for p in self.point_datasets.values()]
             dataset_list += ('\nSDs: ' + '\n     '.join(pdnames))
-        else:
-            borehole_details_str = ''
 
-        return info_str + summary_str + dataset_list + borehole_details_str
-
-    def add_feature(self, ident, depth):
-        """ Add and return a new Feature.
-
-            :param ident: The identifier for the new feature
-            :type ident: `string`
-            :param depth: Down-hole depth in metres from collar
-            :type depth: `int` or `float`
-            :returns: the new `pysiss.borehole.Feature` instance
-        """
-        self.features[ident] = Feature(ident, depth)
-        return self.features[ident]
+        return info_str + summary_str + dataset_list
 
     def add_dataset(self, dataset):
         """ Add and return an existing dataset instance to the borehole.
@@ -126,6 +107,7 @@ class Borehole(ObjectWithMetadata):
 
         # Add to the given attribute using the dataset ident as a key
         getattr(self, add_to_attr)[dataset.ident] = dataset
+        self.metadata.append(dataset.metadata)
         return dataset
 
     def add_interval_dataset(self, ident, from_depths, to_depths):
@@ -169,16 +151,3 @@ class Borehole(ObjectWithMetadata):
     #     """ Add a new merged interval dataset from the two sources
     #     """
     #     raise NotImplementedError
-
-    # def add_detail(self, ident, values, property_type=None):
-    #     """ Add a detail to this borehole object.
-
-    #         :param ident: An identifier for the detail
-    #         :type ident: string
-    #         :param values: The data to add
-    #         :type values: any Python object
-    #         :param property_type: The property type of the detail, optional,
-    #                defaults to None
-    #         :type property_type: pysiss.borehole.PropertyType
-    #     """
-    #     self.details.add_detail(ident, values, property_type)

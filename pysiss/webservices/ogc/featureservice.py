@@ -8,7 +8,7 @@
 
 from __future__ import print_function, division
 
-from ...metadata import Metadata, ObjectWithMetadata
+from ...metadata import Metadata
 from .service import OGCService
 
 import requests
@@ -17,7 +17,7 @@ import logging
 LOGGER = logging.getLogger('pysiss')
 
 
-class FeatureService(ObjectWithMetadata):
+class FeatureService(object):
 
     """ Handles calls to an OGC Web Feature Service
 
