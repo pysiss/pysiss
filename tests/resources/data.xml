@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<wfs:WFS_Capabilities version="1.0.0" 
+						xmlns:ows="http://www.opengis.net/ows"
+						xmlns:ogc="http://www.opengis.net/ogc" 
+						xmlns:wfs="http://www.opengis.net/wfs"
+   						xmlns:gml="http://www.opengis.net/gml"
+   						xmlns:gsml="urn:cgi:xmlns:CGI:GeoSciML:2.0"
+   						xmlns:sa="http://www.opengis.net/sampling/1.0"
+						xmlns:xlink="http://www.w3.org/1999/xlink" 
+						xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+						xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengeospatial.net/wfs/1.1.0/wfs.xsd"
+						updateSequence="0">
+						
+   <!-- ================================================================== -->
+   <!--    SERVICE IDENTIFICATION SECTION                                  -->
+   <!-- ================================================================== -->
+	<ows:ServiceIdentification>
+		<ows:Title>Western AUS GA 1:1M Geologic Units</ows:Title>
+		<ows:Abstract>This WFS service comprises a 1:1,000,000 scale digital geological map of Western Australia (2008). This data and other digital geological datasets of Australia are available free from the Geoscience Australia website at https://www.ga.gov.au/products/servlet/controller?event=DEFINE_PRODUCTS. The data represents the surface geology, including surficial unconsolidated deposits and outcropping (or near-outcropping) bedrock. Lithostratigraphic classification and description of the 1:1,000,000 scale data is according to the Australian Stratigraphic Units Database (https://www.ga.gov.au/oracle/stratnames/index.jsp).</ows:Abstract>
+		<ows:Keywords>
+          <ows:Keyword>OneGeology</ows:Keyword>
+          <ows:Keyword>Geology</ows:Keyword>
+          <ows:Keyword>Australia</ows:Keyword>
+          <ows:Keyword>Bedrock</ows:Keyword>
+          <ows:Keyword>Surficial</ows:Keyword>
+          <ows:Keyword>Lithostratigraphy</ows:Keyword>
+          <ows:Keyword>Age</ows:Keyword>
+		</ows:Keywords>      
+		<ows:ServiceType>WFS</ows:ServiceType>
+      	<ows:ServiceTypeVersion>1.1.0</ows:ServiceTypeVersion>
+      	<ows:Fees>None</ows:Fees>
+      	<ows:AccessConstraints>Copyright Commonwealth of Australia. This work is copyright. Unless otherwise specified on this website, you may display, print and reproduce this material in unaltered form only (retaining this notice) for your personal, non-commercial use, use within your organisation or, if you are an educational institution, use for educational purposes. Apart from any use as permitted under the Copyright Act 1968 or as otherwise specified on this website, all other rights are reserved. Requests and enquiries concerning copyright in the work should be addressed to the Information Services Branch, Geoscience Australia, GPO Box 378, CANBERRA, ACT, 2601 or email: copyright@ga.gov.au. See also http://www.ga.gov.au/about/copyright.jsp, and http://www.osdm.gov.au/OSDM/Policies+and+Guidelines/Spatial+Data+Access+and+Pricing/OSDM+Licence+Internet+-+no+registration/default.aspx</ows:AccessConstraints>
+    </ows:ServiceIdentification>
+    
+   <!-- ================================================================== -->
+   <!--    SERVICE PROVIDER SECTION                                        -->
+   <!-- ================================================================== -->
+    <ows:ServiceProvider>
+      <ows:ProviderName>Geoscience Australia</ows:ProviderName>
+      <ows:ProviderSite xlink:href="http://www.ga.gov.au/"/>
+      <ows:ServiceContact>
+         <ows:IndividualName>Web Operations Manager</ows:IndividualName>
+         <ows:PositionName>Web Operations Manager</ows:PositionName>
+         <ows:ContactInfo>            
+	      	<ows:Phone>
+               <ows:Voice>+61 2 62499111</ows:Voice>
+            </ows:Phone>
+	      	<ows:Address>
+		        <ows:DeliveryPoint>GPO Box 378</ows:DeliveryPoint>
+		        <ows:City>Canberra</ows:City>
+		        <ows:AdministrativeArea>ACT</ows:AdministrativeArea>
+		        <ows:PostalCode>2601</ows:PostalCode>
+		        <ows:Country>Australia</ows:Country>
+		        <ows:ElectronicMailAddress>webmaster@ga.gov.au</ows:ElectronicMailAddress>
+	      	</ows:Address>
+	      	<ows:OnlineResource xlink:href="http://www.ga.gov.au/about/contact_us.jsp"/>
+			<ows:HoursOfService>8h30-17h00 GMT+10 Monday - Friday</ows:HoursOfService>
+			<ows:ContactInstructions>8h30-17h00 GMT+10 Monday - Friday</ows:ContactInstructions>
+         </ows:ContactInfo>
+         <ows:Role>PointOfContact</ows:Role>
+      </ows:ServiceContact>
+   </ows:ServiceProvider>
+   
+   
+   <!-- ================================================================== -->
+   <!--    OPERATIONS METADATA SECTION                                     -->
+   <!-- ================================================================== -->
+   <ows:OperationsMetadata>
+      <ows:Operation name="GetCapabilities">
+         <ows:DCP>
+            <ows:HTTP>
+               <ows:Get xlink:href="http://www.ga.gov.au/geows/geologicunits/oneg_wa_1m/wfs"/>
+            </ows:HTTP>
+         </ows:DCP>
+         <ows:Parameter name="AcceptVersions">
+            <ows:Value>1.1.0</ows:Value>
+         </ows:Parameter>
+		 <ows:Parameter name="AcceptFormats">
+			<ows:Value>text/xml</ows:Value>
+		 </ows:Parameter>
+		 <ows:Parameter name="Sections">
+			<ows:Value>ServiceIdentification</ows:Value>
+			<ows:Value>ServiceProvider</ows:Value>
+			<ows:Value>OperationsMetadata</ows:Value>
+			<ows:Value>FeatureTypeList</ows:Value>
+			<ows:Value>ServesGMLObjectTypeList</ows:Value>
+			<ows:Value>SupportsGMLObjectTypeList</ows:Value>
+			<ows:Value>Filter_Capabilities</ows:Value>
+		 </ows:Parameter>
+      </ows:Operation>
+      <ows:Operation name="GetFeature">
+        <ows:DCP>
+           <ows:HTTP>
+              <ows:Get xlink:href="http://www.ga.gov.au/geows/geologicunits/oneg_wa_1m/wfs"/>
+              <ows:Post xlink:href="http://www.ga.gov.au/geows/geologicunits/oneg_wa_1m/wfs"/>
+           </ows:HTTP>
+        </ows:DCP>
+		<ows:Parameter name="resultType">
+			<ows:Value>results</ows:Value>
+			<ows:Value>hits</ows:Value>
+		</ows:Parameter>
+		<ows:Parameter name="outputFormat">
+                    <ows:Value>text/xml; subtype=gml/3.1.1</ows:Value>
+                    <ows:Value>text/xml; subtype=geosciml/html</ows:Value>
+		</ows:Parameter>
+      </ows:Operation>
+	  <ows:Parameter name="srsName">
+			<ows:Value>EPSG:4326</ows:Value>
+	  </ows:Parameter>
+	  <ows:Constraint name="DefaultMaxFeatures">
+			<ows:Value>250</ows:Value>
+	  </ows:Constraint>
+   </ows:OperationsMetadata>
+   
+   
+   
+    <!-- ================================================================== -->
+   <!--    FEATURE TYPE LIST SECTION                                       -->
+   <!-- ================================================================== -->
+   <wfs:FeatureTypeList>
+		<wfs:FeatureType>
+			<wfs:Name>gsml:GeologicUnit</wfs:Name>
+			<wfs:Title>Geologic Unit</wfs:Title>
+			<wfs:Abstract>Descriptions of surface geologic units in Western Australia, 1:1M scale</wfs:Abstract>
+			<ows:Keywords>
+				<ows:Keyword>GeoSciML Geology Geologic Unit Geoscience Australia</ows:Keyword>
+			</ows:Keywords>
+			<wfs:DefaultSRS>EPSG:4326</wfs:DefaultSRS>
+			<wfs:OtherSRS>EPSG:4326</wfs:OtherSRS>
+			<wfs:OutputFormats>
+				<wfs:Format>text/xml; subtype=gml/3.1.1</wfs:Format>
+			</wfs:OutputFormats>
+			<ows:WGS84BoundingBox>
+				<ows:LowerCorner>112.50 -35.50</ows:LowerCorner>
+				<ows:UpperCorner>129.00 -13.50</ows:UpperCorner>
+			</ows:WGS84BoundingBox>
+		</wfs:FeatureType>
+
+		<wfs:FeatureType>
+			<wfs:Name>gsml:MappedFeature</wfs:Name>
+			<wfs:Title>Mapped features</wfs:Title>
+			<wfs:Abstract>Polygon shapes depicting the distribution of surface geologic units in Western Australia, 1:1M scale</wfs:Abstract>
+			<ows:Keywords>
+				<ows:Keyword>GeoSciML Geology Geologic Unit Geoscience Australia</ows:Keyword>
+			</ows:Keywords>
+			<wfs:DefaultSRS>EPSG:4326</wfs:DefaultSRS>
+			<wfs:OtherSRS>EPSG:4326</wfs:OtherSRS>
+			<wfs:OutputFormats>
+				<wfs:Format>text/xml; subtype=gml/3.1.1</wfs:Format>
+			</wfs:OutputFormats>
+			<ows:WGS84BoundingBox>
+                <ows:LowerCorner>112.50 -35.50</ows:LowerCorner>
+                <ows:UpperCorner>129.00 -13.50</ows:UpperCorner>
+			</ows:WGS84BoundingBox>
+		</wfs:FeatureType>
+
+	</wfs:FeatureTypeList>
+	
+   <!-- ================================================================== -->
+   <!--    SUPPORTS GML OBJECT TYPE LIST SECTION                           -->
+   <!-- ================================================================== -->
+   <wfs:SupportsGMLObjectTypeList>
+
+      <wfs:GMLObjectType>
+         <wfs:Name>gml:AbstractGMLFeatureType</wfs:Name>
+         <wfs:OutputFormats>
+            <wfs:Format>text/xml; subtype=gml/3.1.1</wfs:Format>
+            <wfs:Format>text/xhtml</wfs:Format>
+         </wfs:OutputFormats>
+      </wfs:GMLObjectType>
+
+      <wfs:GMLObjectType>
+         <wfs:Name>gml:PointType</wfs:Name>
+         <wfs:OutputFormats>
+            <wfs:Format>text/xml; subtype=gml/3.1.1</wfs:Format>
+            <wfs:Format>text/xhtml</wfs:Format>
+         </wfs:OutputFormats>
+      </wfs:GMLObjectType>
+
+      <wfs:GMLObjectType>
+         <wfs:Name>gml:LineStringType</wfs:Name>
+         <wfs:OutputFormats>
+            <wfs:Format>text/xml; subtype=gml/3.1.1</wfs:Format>
+            <wfs:Format>text/xhtml</wfs:Format>
+         </wfs:OutputFormats>
+      </wfs:GMLObjectType>
+
+      <wfs:GMLObjectType>
+         <wfs:Name>gml:PolygonType</wfs:Name>
+         <wfs:OutputFormats>
+            <wfs:Format>text/xml; subtype=gml/3.1.1</wfs:Format>
+            <wfs:Format>text/xhtml</wfs:Format>
+         </wfs:OutputFormats>
+      </wfs:GMLObjectType>
+
+   </wfs:SupportsGMLObjectTypeList>
+
+   <!-- ================================================================== -->
+   <!--    FILTER CAPABILITIES SECTION                                     -->
+   <!-- ================================================================== -->
+   <ogc:Filter_Capabilities>
+      <ogc:Spatial_Capabilities>
+         <ogc:GeometryOperands>
+            <ogc:GeometryOperand>gml:Envelope</ogc:GeometryOperand>
+			<ogc:GeometryOperand>gml:Point</ogc:GeometryOperand>
+			<ogc:GeometryOperand>gml:LineString</ogc:GeometryOperand>
+			<ogc:GeometryOperand>gml:Polygon</ogc:GeometryOperand>
+         </ogc:GeometryOperands>
+         <ogc:SpatialOperators>
+            <ogc:SpatialOperator name="BBOX"/>
+         </ogc:SpatialOperators>
+      </ogc:Spatial_Capabilities>
+      <ogc:Scalar_Capabilities>
+         <ogc:LogicalOperators/>
+         <ogc:ComparisonOperators>
+           <ogc:ComparisonOperator>LessThan</ogc:ComparisonOperator>
+           <ogc:ComparisonOperator>GreaterThan</ogc:ComparisonOperator>
+           <ogc:ComparisonOperator>LessThanEqualTo</ogc:ComparisonOperator>
+           <ogc:ComparisonOperator>GreaterThanEqualTo</ogc:ComparisonOperator>
+           <ogc:ComparisonOperator>EqualTo</ogc:ComparisonOperator>
+           <ogc:ComparisonOperator>NotEqualTo</ogc:ComparisonOperator>
+           <ogc:ComparisonOperator>Like</ogc:ComparisonOperator>
+           <ogc:ComparisonOperator>Between</ogc:ComparisonOperator>
+           <ogc:ComparisonOperator>NullCheck</ogc:ComparisonOperator>
+         </ogc:ComparisonOperators>
+         <ogc:ArithmeticOperators>
+            <ogc:SimpleArithmetic/>
+         </ogc:ArithmeticOperators>
+      </ogc:Scalar_Capabilities>
+      <ogc:Id_Capabilities>
+         <ogc:EID/>
+         <ogc:FID/>
+      </ogc:Id_Capabilities>
+   </ogc:Filter_Capabilities>
+</wfs:WFS_Capabilities>
+
