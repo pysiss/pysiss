@@ -26,7 +26,7 @@ from ...metadata import PYSISS_NAMESPACE
 import numpy
 import pandas
 
-def make_depth_index(from_depths, to_depths):
+def check_depths(from_depths, to_depths):
     """ Make a depth index for depth intervals
 
         Also checks that the depth interval data is ok
@@ -43,8 +43,7 @@ def make_depth_index(from_depths, to_depths):
         raise ValueError("intervals must have positive length")
     elif not all(to_depths[:-1] <= from_depths[1:]):
         raise ValueError("intervals must not overlap")
-    index = pandas.Index(numpy.vstack([from_depths, to_depths]).transpose())
-    return index
+    return from_depths, to_depths
 
 
 class IntervalDataset(Dataset):
@@ -77,10 +76,10 @@ class IntervalDataset(Dataset):
         # Generate depth interval index
         if any(len(list(d)) == 0 for d in (from_depths, to_depths)):
             raise ValueError('You must specify one or more depths.')
-        index = make_depth_index(from_depths, to_depths)
-        super(IntervalDataset, self).__init__(ident=ident, index=index)
-        self.from_depths = numpy.asarray(self.index[:, 0])
-        self.to_depths = numpy.asarray(self.index[:, 1])
+        from_depths, to_depths = check_depths(from_depths, to_depths)
+        super(IntervalDataset, self).__init__(ident=ident)
+        self._data['from_depths'] = from_depths
+        self._data['to_depths'] = to_depths
         self.metadata.set_attributes(
             datasetType= PYSISS_NAMESPACE + 'IntervalDataset',
             index='(from_depths, to_depths)')
@@ -191,10 +190,23 @@ class IntervalDataset(Dataset):
         return sdom
 
     @property
-    def dataframe(self):
-        """ Tranform the data in the dataset into a Pandas dataframe.
+    def from_depths(self):
+        """ Return the 'from depth' for each interval
         """
-        return pandas.DataFrame(
-            data=dict(((k, self.properties[k].values)
-                       for k in self.properties.keys())),
-            index=list(zip(self.from_depths, self.to_depths)))
+        return self._data['from_depths']
+
+    @from_depths.setter
+    def from_depths(self, new_from_depths):
+        """ Set the from_depths
+        """
+        self._data['from_depths'] = new_from_depths
+
+    @property
+    def to_depths(self):
+        return self._data['to_depths']
+
+    @to_depths.setter
+    def to_depths(self, new_to_depths):
+        """ Set the to_depths values
+        """
+        self._data['to_depths'] = new_to_depths

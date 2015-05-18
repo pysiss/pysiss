@@ -82,7 +82,8 @@ def xml_to_metadata(xml):
 
     # Walk tree and generate parsing events to normalize tags
     elem = None
-    context = iter(etree.iterparse(xml, events=('start-ns',), 
+    context = iter(etree.iterparse(xml,
+                                   events=('start-ns', 'start', 'end'),
                                    remove_comments=True,
                                    recover=True))
     for event, elem in context:
@@ -101,8 +102,8 @@ def as_metadata(obj):
     """ Convert the given object to a Metadata instance
 
         Parameters:
-            obj - the object to be converted. obj can be a string containing 
-            some xml, a handle to an open file, or an lxml element or elementtree 
+            obj - the object to be converted. obj can be a string containing
+            some xml, a handle to an open file, or an lxml element or elementtree
             instance. If object is already a Metadata instance, it is just returned.
 
         Returns:
@@ -141,7 +142,7 @@ class Metadata(object):
 
     registry = MetadataRegistry()
 
-    def __init__(self, elem=None, tag=None, 
+    def __init__(self, elem=None, tag=None,
                  text=None, namespaces=None, **attributes):
         super(Metadata, self).__init__()
         self.uuid = uuid.uuid5(uuid.NAMESPACE_DNS,
@@ -199,7 +200,7 @@ class Metadata(object):
         """ Get the current namespace dictionary
         """
         if self._update_namespaces:
-            self._namespaces.harvest_namespaces(self.root) 
+            self._namespaces.harvest_namespaces(self.root)
             self._update_namespaces = False
         return self._namespaces
 
@@ -317,7 +318,7 @@ class Metadata(object):
 
             # Get results
             results = getattr(self.root, method)(*qargs, **qkwargs)
-            
+
             # Wrap results and return
             try:
                 try:
