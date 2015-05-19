@@ -14,6 +14,8 @@ from __future__ import print_function, division
 from .registry import MetadataRegistry
 from .namespaces import NamespaceMap
 from .pysiss_namespace import PYSISS_NAMESPACE
+from .json_target import JSONLDTarget
+from .json_context import JSONLDContext
 
 from lxml import etree
 import io
@@ -28,45 +30,147 @@ def qname_str(qname):
     else:
         result = '{0}'.format(qname.localname)
     return result
+def get_children(self):
+    """ Return the children nodes from the metadata tree
 
-
-def yamlify(mdata, nsmap, indent_width=2, indent=0):
-    """ Convert an ETree instance into a YAML-esque representation
-
-        Parameters
-            mdata - an Metadata instance
-            indent_width - with of a single indent step in characters
-            indent - initial number of indentations
+        Returns:
+            an iterator over the children, or None if there are no
+            children
     """
-    # Build line for current element
-    spaces = ' ' * indent_width * indent
-    result = spaces + qname_str(nsmap.shorten(mdata.tag))
+    child_keys = [k for k in self.keys()
+                  if not any(k.startswith(c) for c in ('@', '#'))]
+    if child_keys:
+        return ((k, self[k]) for k in child_keys)
+    else:
+        return None
 
-    # Add lines for text
-    if mdata.text and mdata.text.strip() != '':
-        result += ' {0}'.format(mdata.text)
+def yaml(metadata, indent_width=2):
+    """ Convert a metadata tree to 'yaml' format
 
-    # ... and metadata
-    if mdata.attrib:
-        for key in mdata.attrib.keys():
-            qname = qname_str(nsmap.shorten(key))
-            result += '\n' + spaces + ' ' * indent_width + \
-                      '@{0}: {1}'.format(qname, mdata.attrib[key])
+        Parameterts:
+            metadata - a Metadata instance
+            intent_width - width of a single indent step in characters
+    """
+    def _emit_yaml(key, body, indent):
+        """ Function to emit YAML for one element at a time
+        """
+        # Sort out indentation
+        spaces = ' ' * indent_width * indent
+        new_item = '\n' + spaces + ' ' * indent_width
 
-    # Add lines for children
-    result += '\n'
-    for child in mdata.getchildren():
-        result += yamlify(child, nsmap,
-                          indent_width=indent_width,
-                          indent=indent + 1)
-    return result
+        # Build line for current element
+        result = '\n' + spaces + key + ':'
+        if isinstance(body, dict):
+            # Add data and attributes
+            if '#data' in body.keys():
+                result += ' {0}'.format(body['#data'])
+                result += '\n'
+            if '#attributes' in body.keys():
+                for item in body['#attributes'].items():
+                    result += new_item + '@{0}: {1}'.format(*item)
+
+            # Add lines for children recursively
+            children = get_children(body)
+            if children:
+                for tag, child in children:
+                    result += _emit_yaml(tag, child, indent + 1)
+
+        elif isinstance(body, str):
+            result += ' ' + body
+
+        elif body is None:
+            result += ' None'
+
+        else:
+            result += ' [' + new_item \
+                + new_item.join(str(b) for b in body) \
+                + new_item + ']'
+
+        # Return result
+        return result
+
+    return '\n'.join([_emit_yaml(*it, indent=0) for it in metadata.items()])def get_children(self):
+    """ Return the children nodes from the metadata tree
+
+        Returns:
+            an iterator over the children, or None if there are no
+            children
+    """
+    child_keys = [k for k in self.keys()
+                  if not any(k.startswith(c) for c in ('@', '#'))]
+    if child_keys:
+        return ((k, self[k]) for k in child_keys)
+    else:
+        return None
+
+def get_children(self):
+    """ Return the children nodes from the metadata tree
+
+        Returns:
+            an iterator over the children, or None if there are no
+            children
+    """
+    child_keys = [k for k in self.keys()
+                  if not any(k.startswith(c) for c in ('@', '#'))]
+    if child_keys:
+        return ((k, self[k]) for k in child_keys)
+    else:
+        return None
+
+def yaml(metadata, indent_width=2):
+    """ Convert a metadata tree to 'yaml' format
+
+        Parameterts:
+            metadata - a Metadata instance
+            intent_width - width of a single indent step in characters
+    """
+    def _emit_yaml(key, body, indent):
+        """ Function to emit YAML for one element at a time
+        """
+        # Sort out indentation
+        spaces = ' ' * indent_width * indent
+        new_item = '\n' + spaces + ' ' * indent_width
+
+        # Build line for current element
+        result = '\n' + spaces + key + ':'
+        if isinstance(body, dict):
+            # Add data and attributes
+            if '#data' in body.keys():
+                result += ' {0}'.format(body['#data'])
+                result += '\n'
+            if '#attributes' in body.keys():
+                for item in body['#attributes'].items():
+                    result += new_item + '@{0}: {1}'.format(*item)
+
+            # Add lines for children recursively
+            children = get_children(body)
+            if children:
+                for tag, child in children:
+                    result += _emit_yaml(tag, child, indent + 1)
+
+        elif isinstance(body, str):
+            result += ' ' + body
+
+        elif body is None:
+            result += ' None'
+
+        else:
+            result += ' [' + new_item \
+                + new_item.join(str(b) for b in body) \
+                + new_item + ']'
+
+        # Return result
+        return result
+
+    return '\n'.join([_emit_yaml(*it, indent=0) for it in metadata.items()])
 
 
-def xml_to_metadata(xml):
+def xml_to_metadata(xml, namspace_handling='shorten'):
     """ Read some XML containing a metadata record
 
         Parameters:
             xml - either a handle to an open xml file, or a string of XML
+            namespace_handling - how to handle XML namespaces. Optional, defaults to 'shorten'.\p
 
         Returns:
             the new Metadata instance containing the record
@@ -78,46 +182,12 @@ def xml_to_metadata(xml):
         except AttributeError:
             # We already have a bytestring so don't bother encoding it
             xml = io.BytesIO(xml)
-    nspace = NamespaceMap()
 
-    # Walk tree and generate parsing events to normalize tags
-    elem = None
-    context = iter(etree.iterparse(xml,
-                                   events=('start-ns', 'start', 'end'),
-                                   remove_comments=True,
-                                   recover=True))
-    for event, elem in context:
-        # start-ns elem is a tuple with a key and url
-        # We don't care about the key
-        nspace.add_from_uri(elem[1])
-
-    # Return the results if we have em
-    if context.root is not None:
-        return Metadata(elem=context.root, namespaces=nspace)
-    else:
-        raise ValueError("Couldn't parse xml")
-
-
-def as_metadata(obj):
-    """ Convert the given object to a Metadata instance
-
-        Parameters:
-            obj - the object to be converted. obj can be a string containing
-            some xml, a handle to an open file, or an lxml element or elementtree
-            instance. If object is already a Metadata instance, it is just returned.
-
-        Returns:
-            a Metadata instance
-    """
-    # Just return if we're already a metadata object
-    if isinstance(Metadata, obj):
-        return obj
-    elif isinstance((io.IOBase, string), obj):
-        return xml_to_metadata(obj)
-    elif isinstance(lxml._Element):
-        return Metadata(elem=obj)
-    elif isinstance(lxml._ElementTree):
-        return Metadata(elem=obj.root)
+    # Parse metadata using JSON mapping
+    parser = etree.XMLParser(
+        target=JSONTarget(namespace_handling=namespace_handling))
+    result, context = etree.XML(fhandle.read(), parser)
+    return Metadata(body, context)
 
 
 class Metadata(object):

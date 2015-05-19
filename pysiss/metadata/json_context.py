@@ -6,7 +6,7 @@
     description: Implementations dealing with a JSON-LD context
 """
 
-from namespace_map import NamespaceMap
+from .namespaces import NamespaceMap
 
 from lxml import etree
 

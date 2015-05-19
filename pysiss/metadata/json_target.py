@@ -7,7 +7,7 @@
 """
 
 from json_context import JSONLDContext
-from accumulator import accumulator
+from ..utilities import accumulator
 
 from lxml import etree
 
